@@ -26,5 +26,11 @@ namespace Regis.Controllers
 
             return View();
         }
+        public ActionResult Contactus()
+        {
+            ViewBag.Message = "Your contact page.";
+
+            return View();
+        }
     }
 }
