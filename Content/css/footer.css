@@ -1,0 +1,89 @@
+﻿/* ============================================================
+   FOOTER.CSS - Footer Component Styles
+   Minimal · Light Theme
+   ============================================================ */
+
+/* ----- FOOTER CONTAINER ----- */
+.footer {
+    background: #ffffff;
+    border-top: 1px solid #e9edf2;
+    padding: 0.6rem 1.5rem;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+    /* ----- LEFT SIDE ----- */
+    .footer .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .footer .footer-left strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+    /* ----- RIGHT SIDE ----- */
+    .footer .footer-right {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+    }
+
+        .footer .footer-right .footer-link {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: 0.12s;
+            font-size: 0.75rem;
+        }
+
+            .footer .footer-right .footer-link:hover {
+                color: #4f6ef7;
+            }
+
+        .footer .footer-right .footer-version {
+            background: #f1f4f9;
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+/* ----- RESPONSIVE ----- */
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.6rem 1rem;
+    }
+
+        .footer .footer-right {
+            justify-content: center;
+            gap: 0.8rem;
+        }
+}
+
+@media (max-width: 480px) {
+    .footer {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+        .footer .footer-right {
+            gap: 0.5rem;
+        }
+
+            .footer .footer-right .footer-link {
+                font-size: 0.65rem;
+            }
+}

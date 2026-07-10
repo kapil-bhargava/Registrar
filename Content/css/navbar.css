@@ -1,0 +1,290 @@
+﻿/* ============================================================
+   NAVBAR.CSS - Navbar Component Styles
+   Minimal · Light Theme
+   ============================================================ */
+
+/* ----- NAVBAR CONTAINER ----- */
+.navbar-top {
+    background: #ffffff;
+    border-bottom: 1px solid #e9edf2;
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    height: 60px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+}
+
+/* ----- LEFT SIDE ----- */
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    /* Hamburger (mobile) */
+    .navbar-left .hamburger {
+        display: none;
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #1e293b;
+        cursor: pointer;
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+        transition: 0.12s;
+    }
+
+        .navbar-left .hamburger:hover {
+            background: #f1f4f9;
+        }
+
+    /* Page Title */
+    .navbar-left .page-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #0b1b33;
+    }
+
+/* ----- RIGHT SIDE ----- */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+    /* Action Buttons */
+    .navbar-actions .action-btn {
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        transition: 0.12s;
+        position: relative;
+    }
+
+        .navbar-actions .action-btn:hover {
+            background: #f1f4f9;
+            color: #0b1b33;
+        }
+
+    /* Notification Badge */
+    .navbar-actions .notification-btn .badge-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #dc2626;
+        color: white;
+        font-size: 0.55rem;
+        font-weight: 700;
+        padding: 0.1rem 0.4rem;
+        border-radius: 40px;
+        min-width: 16px;
+        text-align: center;
+        transform: translate(2px, -2px);
+    }
+
+    /* ----- USER PROFILE ----- */
+    .navbar-actions .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0.2rem 0.6rem 0.2rem 0.4rem;
+        border-radius: 40px;
+        border: 1px solid #e9edf2;
+        transition: 0.12s;
+        background: white;
+        margin-left: 0.3rem;
+    }
+
+        .navbar-actions .user-profile:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .navbar-actions .user-profile .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #4f6ef7;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .navbar-actions .user-profile .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .navbar-actions .user-profile .user-name {
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: #1e293b;
+        }
+
+        .navbar-actions .user-profile .user-role {
+            font-size: 0.65rem;
+            color: #94a3b8;
+        }
+
+        .navbar-actions .user-profile .user-dropdown-arrow {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            transition: transform 0.2s ease;
+            margin-left: 0.1rem;
+        }
+
+        .navbar-actions .user-profile:hover .user-dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+    /* ----- USER DROPDOWN ----- */
+    .navbar-actions .user-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        background: white;
+        border: 1px solid #e9edf2;
+        border-radius: 16px;
+        padding: 0.4rem 0;
+        min-width: 200px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px) scale(0.98);
+        transition: all 0.2s ease;
+        z-index: 1060;
+    }
+
+        .navbar-actions .user-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .navbar-actions .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 1.2rem;
+            color: #1e293b;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: 0.12s;
+        }
+
+            .navbar-actions .user-dropdown a i {
+                width: 18px;
+                color: #94a3b8;
+                font-size: 0.85rem;
+                text-align: center;
+            }
+
+            .navbar-actions .user-dropdown a:hover {
+                background: #f1f4f9;
+                color: #0b1b33;
+            }
+
+                .navbar-actions .user-dropdown a:hover i {
+                    color: #4f6ef7;
+                }
+
+        .navbar-actions .user-dropdown hr {
+            margin: 0.3rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .navbar-actions .user-dropdown .logout-link {
+            color: #dc2626;
+        }
+
+            .navbar-actions .user-dropdown .logout-link i {
+                color: #dc2626;
+            }
+
+            .navbar-actions .user-dropdown .logout-link:hover {
+                background: #fef2f2;
+                color: #b91c1c;
+            }
+
+                .navbar-actions .user-dropdown .logout-link:hover i {
+                    color: #b91c1c;
+                }
+
+/* ----- RESPONSIVE ----- */
+@media (max-width: 992px) {
+    .navbar-left .hamburger {
+        display: inline-block;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-top {
+        padding: 0.4rem 1rem;
+        height: 54px;
+    }
+
+    .navbar-left .page-title {
+        font-size: 0.85rem;
+    }
+
+    .navbar-actions .user-profile .user-info {
+        display: none;
+    }
+
+    .navbar-actions .user-profile .user-dropdown-arrow {
+        display: none;
+    }
+
+    .navbar-actions .user-profile {
+        padding: 0.2rem 0.3rem;
+    }
+
+    .navbar-actions .action-btn {
+        padding: 0.3rem 0.4rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-top {
+        padding: 0.3rem 0.6rem;
+        height: 48px;
+    }
+
+    .navbar-left .page-title {
+        font-size: 0.75rem;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .navbar-actions .user-profile .user-avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 0.65rem;
+    }
+
+    .navbar-actions .notification-btn .badge-count {
+        font-size: 0.45rem;
+        min-width: 14px;
+        padding: 0.05rem 0.3rem;
+    }
+}

@@ -1,0 +1,251 @@
+﻿/* ============================================================
+   SITE.CSS - Global Styles & Main Layout
+   Registrar ERP · Light Theme
+   ============================================================ */
+
+/* ----- 1. RESET & BASE ----- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fb;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: #4f6ef7;
+    transition: color 0.15s ease;
+}
+
+    a:hover {
+        color: #3a5bd9;
+    }
+
+/* ----- 2. MAIN LAYOUT ----- */
+body {
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-left: 280px;
+    transition: margin-left 0.25s ease;
+}
+
+.sidebar-collapsed .main-wrapper {
+    margin-left: 70px;
+}
+
+/* ----- 3. PAGE CONTENT ----- */
+.page-content {
+    flex: 1;
+    padding: 1.5rem 2rem 1rem;
+    background: #f5f7fb;
+}
+
+    .page-content .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Page Header */
+    .page-content .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .page-content .page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #0b1b33;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .page-content .page-header h1 i {
+                color: #4f6ef7;
+            }
+
+        .page-content .page-header .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+            .page-content .page-header .breadcrumb .breadcrumb-item a {
+                color: #4f6ef7;
+            }
+
+            .page-content .page-header .breadcrumb .breadcrumb-item.active {
+                color: #475569;
+            }
+
+            .page-content .page-header .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+                content: "›";
+                color: #94a3b8;
+            }
+
+/* ----- 4. RESPONSIVE (Main Layout) ----- */
+@media (max-width: 992px) {
+    .main-wrapper {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 1rem;
+    }
+
+        .page-content .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .page-content .page-header h1 {
+                font-size: 1.3rem;
+            }
+}
+
+@media (max-width: 480px) {
+    .page-content .page-header h1 {
+        font-size: 1.1rem;
+    }
+}
+
+/* ----- 5. UTILITY HELPERS ----- */
+.text-muted-light {
+    color: #94a3b8;
+}
+
+.bg-soft-primary {
+    background: #eef3ff;
+}
+
+.bg-soft-success {
+    background: #f0fdf4;
+}
+
+.bg-soft-danger {
+    background: #fef2f2;
+}
+
+.text-primary-brand {
+    color: #4f6ef7;
+}
+
+.border-brand {
+    border-color: #4f6ef7;
+}
+
+/* Card styling */
+.card {
+    border: 1px solid #e9edf2;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    background: white;
+    transition: 0.15s;
+}
+
+    .card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .card .card-header {
+        background: transparent;
+        border-bottom: 1px solid #eef2f6;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #0b1b33;
+    }
+
+    .card .card-body {
+        padding: 1.5rem;
+    }
+
+    .card .card-footer {
+        background: transparent;
+        border-top: 1px solid #eef2f6;
+        padding: 0.8rem 1.5rem;
+    }
+
+/* Buttons */
+.btn-brand {
+    background: #4f6ef7;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.8rem;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 12px rgba(79, 110, 247, 0.2);
+}
+
+    .btn-brand:hover {
+        background: #3a5bd9;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(79, 110, 247, 0.3);
+    }
+
+.btn-brand-outline {
+    background: transparent;
+    color: #4f6ef7;
+    border: 1.5px solid #4f6ef7;
+    padding: 0.5rem 1.8rem;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.15s;
+}
+
+    .btn-brand-outline:hover {
+        background: #4f6ef7;
+        color: white;
+    }
+
+/* Form controls */
+.form-control,
+.form-select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    transition: 0.15s;
+    background: white;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #4f6ef7;
+        box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.08);
+    }
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #1e293b;
+}

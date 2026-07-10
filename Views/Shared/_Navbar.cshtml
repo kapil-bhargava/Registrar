@@ -1,0 +1,100 @@
+﻿@*
+    _Navbar.cshtml - Navbar Partial View
+    Registrar ERP · Minimal Light Theme
+*@
+
+@{
+    string pageTitle = ViewData["PageTitle"]?.ToString() ?? "Dashboard";
+}
+<link href="~/Content/css/navbar.css" rel="stylesheet" />
+<nav class="navbar-top">
+    <!-- Left Side -->
+    <div class="navbar-left">
+        <!-- Hamburger (mobile) -->
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Page Title -->
+        <span class="page-title">@pageTitle</span>
+    </div>
+
+    <!-- Right Side -->
+    <div class="navbar-actions">
+        <!-- Search (optional) -->
+        <button class="action-btn search-btn" title="Search">
+            <i class="fas fa-search"></i>
+        </button>
+
+        <!-- Notifications -->
+        <button class="action-btn notification-btn" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="badge-count">3</span>
+        </button>
+
+        <!-- User Profile -->
+        <div class="user-profile" onclick="toggleUserMenu()">
+            <span class="user-avatar">R</span>
+            <div class="user-info">
+                <span class="user-name">Registrar</span>
+                <span class="user-role">Admin</span>
+            </div>
+            <i class="fas fa-chevron-down user-dropdown-arrow"></i>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div class="user-dropdown" id="userDropdown">
+            <a href="#"><i class="fas fa-user"></i> My Profile</a>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+            <hr />
+            <a href="#" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ----- Toggle User Dropdown -----
+        window.toggleUserMenu = function() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('open');
+            }
+        };
+
+        // ----- Close dropdown on outside click -----
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            const profile = document.querySelector('.user-profile');
+            if (dropdown && profile) {
+                if (!profile.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            }
+        });
+
+        // ----- Close dropdown on Escape key -----
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('open');
+                }
+            }
+        });
+
+        // ----- Search button (demo) -----
+        document.querySelector('.search-btn')?.addEventListener('click', function() {
+            alert('🔍 Search functionality (coming soon)');
+        });
+
+        // ----- Notification button (demo) -----
+        document.querySelector('.notification-btn')?.addEventListener('click', function() {
+            alert('🔔 You have 3 notifications');
+        });
+
+    })();
+</script>
