@@ -136,6 +136,7 @@
     <Content Include="Content\css\footer.css" />
     <Content Include="Content\css\navbar.css" />
     <Content Include="Content\css\sidebar.css" />
+    <Content Include="Content\css\uniForm.css" />
     <Content Include="Content\css\university.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -172,6 +173,7 @@
     <Content Include="Views\Shared\_Sidebar.cshtml" />
     <Content Include="Views\Shared\_Navbar.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
+    <Content Include="Views\University\UniversityForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
