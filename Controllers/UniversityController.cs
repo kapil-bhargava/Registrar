@@ -15,6 +15,10 @@ namespace Regis.Controllers
             ViewBag.Message = "Your contact page.";
             return View();
         }
+        public ActionResult UniversityForm()
+        {
+            return View();
+        }
        
     }
 }

@@ -1,0 +1,545 @@
+﻿
+@{
+    ViewBag.Title = "UniversityForm";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+    <title>University Setup · Step Form</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="~/Content/CSS/uniForm.css" rel="stylesheet" />
+
+    <div class="form-container">
+
+        <!-- Header -->
+        <div class="form-header">
+            <h1><i class="fas fa-university"></i> University Setup</h1>
+            <span class="step-badge"><i class="fas fa-flag-checkered"></i> Step <span id="currentStepDisplay">1</span> of 5</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-wrapper">
+            <div class="progress-steps" id="progressSteps">
+                <div class="step-dot active" data-step="0">
+                    <div class="dot">1</div>
+                    <span class="label">Profile</span>
+                </div>
+                <div class="step-dot" data-step="1">
+                    <div class="dot">2</div>
+                    <span class="label">Details</span>
+                </div>
+                <div class="step-dot" data-step="2">
+                    <div class="dot">3</div>
+                    <span class="label">Logo</span>
+                </div>
+                <div class="step-dot" data-step="3">
+                    <div class="dot">4</div>
+                    <span class="label">Address</span>
+                </div>
+                <div class="step-dot" data-step="4">
+                    <div class="dot">5</div>
+                    <span class="label">Contact</span>
+                </div>
+            </div>
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+
+        <!-- Steps Container -->
+        <form id="universityForm" onsubmit="event.preventDefault(); alert('✅ University profile saved successfully!');">
+            <div class="steps-container">
+
+                <!-- ===== STEP 1: University Profile ===== -->
+                <div class="step-panel active" data-step="0">
+                    <h2><i class="fas fa-id-card"></i> University Profile</h2>
+                    <p class="subtitle">Basic identity and core information about the university.</p>
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label><i class="fas fa-building-columns"></i> University Name <span class="req">*</span></label>
+                            <input type="text" id="uniName" placeholder="e.g. Springfield University" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-tag"></i> Short Name <span class="req">*</span></label>
+                            <input type="text" id="uniShort" placeholder="e.g. SU" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-barcode"></i> University Code <span class="req">*</span></label>
+                            <input type="text" id="uniCode" placeholder="e.g. SPR-26" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-layer-group"></i> University Type <span class="req">*</span></label>
+                            <select id="uniType" required>
+                                <option value="">— Select —</option>
+                                <option value="Public">Public</option>
+                                <option value="Private">Private</option>
+                                <option value="Deemed">Deemed University</option>
+                                <option value="Central">Central University</option>
+                                <option value="State">State University</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-calendar-alt"></i> Established Year <span class="req">*</span></label>
+                            <input type="number" id="uniEst" placeholder="e.g. 2005" min="1800" max="2099" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-certificate"></i> Accreditation Details <span class="optional">(optional)</span></label>
+                            <input type="text" id="uniAccreditation" placeholder="e.g. NAAC A++, NBA" />
+                            <span class="hint"><i class="fas fa-info-circle"></i> Comma separated</span>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-globe"></i> University Website</label>
+                            <input type="url" id="uniWebsite" placeholder="https://www.example.edu" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-envelope"></i> Official Email <span class="req">*</span></label>
+                            <input type="email" id="uniEmail" placeholder="registrar@university.edu" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-phone-alt"></i> Contact Number <span class="req">*</span></label>
+                            <input type="tel" id="uniPhone" placeholder="+1 234 567 890" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-file-invoice"></i> Tax / GST Number <span class="optional">(if applicable)</span></label>
+                            <input type="text" id="uniTax" placeholder="e.g. GSTIN 22AAAAA0000A1Z5" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-sitemap"></i> Affiliated University <span class="optional">(if applicable)</span></label>
+                            <input type="text" id="uniAffiliated" placeholder="e.g. State University of New York" />
+                        </div>
+                        <div class="field full">
+                            <label><i class="fas fa-circle-check"></i> Status <span class="req">*</span></label>
+                            <select id="uniStatus" required>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 2: University Details ===== -->
+                <div class="step-panel" data-step="1">
+                    <h2><i class="fas fa-info-circle"></i> University Details</h2>
+                    <p class="subtitle">General, legal, contact, and social media information.</p>
+
+                    <h3 style="font-size:0.9rem; font-weight:600; color:#0b1b33; margin:1rem 0 0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-file-pen" style="color:#4f6ef7;"></i> General Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fas fa-building-columns"></i> University Name</label>
+                            <input type="text" id="detName" placeholder="University Name" />
+                            <span class="hint">Auto-filled from Step 1</span>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-barcode"></i> University Code</label>
+                            <input type="text" id="detCode" placeholder="University Code" />
+                            <span class="hint">Auto-filled from Step 1</span>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-quote-left"></i> Motto</label>
+                            <input type="text" id="detMotto" placeholder="e.g. Knowledge is Power" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-eye"></i> Vision</label>
+                            <input type="text" id="detVision" placeholder="e.g. To be a global leader in education" />
+                        </div>
+                        <div class="field full">
+                            <label><i class="fas fa-bullseye"></i> Mission</label>
+                            <textarea id="detMission" placeholder="Describe the university's mission..."></textarea>
+                        </div>
+                        <div class="field full">
+                            <label><i class="fas fa-align-left"></i> Description</label>
+                            <textarea id="detDescription" placeholder="Brief description of the university..."></textarea>
+                        </div>
+                        <div class="field full">
+                            <label><i class="fas fa-building"></i> About University</label>
+                            <textarea id="detAbout" placeholder="Detailed about the university..."></textarea>
+                        </div>
+                    </div>
+
+                    <h3 style="font-size:0.9rem; font-weight:600; color:#0b1b33; margin:1.5rem 0 0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-gavel" style="color:#4f6ef7;"></i> Legal Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fas fa-registered"></i> Registration Number</label>
+                            <input type="text" id="detRegNumber" placeholder="e.g. REG-2024-001" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-certificate"></i> UGC Approval Number</label>
+                            <input type="text" id="detUGC" placeholder="e.g. UGC-APP-1234" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-check-circle"></i> AICTE Approval</label>
+                            <input type="text" id="detAICTE" placeholder="e.g. AICTE-APP-5678" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-star"></i> NAAC Grade</label>
+                            <select id="detNAAC">
+                                <option value="">— Select —</option>
+                                <option value="A++">A++</option>
+                                <option value="A+">A+</option>
+                                <option value="A">A</option>
+                                <option value="B++">B++</option>
+                                <option value="B+">B+</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-trophy"></i> NIRF Rank</label>
+                            <input type="text" id="detNIRF" placeholder="e.g. 15" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-certificate"></i> ISO Certification</label>
+                            <input type="text" id="detISO" placeholder="e.g. ISO 9001:2015" />
+                        </div>
+                    </div>
+
+                    <h3 style="font-size:0.9rem; font-weight:600; color:#0b1b33; margin:1.5rem 0 0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-phone" style="color:#4f6ef7;"></i> Contact Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fas fa-phone"></i> Office Number</label>
+                            <input type="tel" id="detOffice" placeholder="+1 234 567 890" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-fax"></i> Fax Number</label>
+                            <input type="tel" id="detFax" placeholder="+1 234 567 891" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-envelope"></i> Email</label>
+                            <input type="email" id="detEmail" placeholder="info@university.edu" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-globe"></i> Website</label>
+                            <input type="url" id="detWebsite" placeholder="https://www.example.edu" />
+                        </div>
+                    </div>
+
+                    <h3 style="font-size:0.9rem; font-weight:600; color:#0b1b33; margin:1.5rem 0 0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-share-alt" style="color:#4f6ef7;"></i> Social Media
+                    </h3>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fab fa-facebook"></i> Facebook</label>
+                            <input type="url" id="detFacebook" placeholder="https://facebook.com/university" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fab fa-linkedin"></i> LinkedIn</label>
+                            <input type="url" id="detLinkedIn" placeholder="https://linkedin.com/school/university" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fab fa-instagram"></i> Instagram</label>
+                            <input type="url" id="detInstagram" placeholder="https://instagram.com/university" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fab fa-twitter"></i> Twitter</label>
+                            <input type="url" id="detTwitter" placeholder="https://twitter.com/university" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 3: Logo Management ===== -->
+                <div class="step-panel" data-step="2">
+                    <h2><i class="fas fa-image"></i> Logo Management</h2>
+                    <p class="subtitle">Upload your university branding assets. All files are optional.</p>
+                    <div class="file-upload-grid">
+                        <div class="file-upload-item" onclick="document.getElementById('logoMain').click()">
+                            <i class="fas fa-university"></i>
+                            <div class="file-label">University Logo</div>
+                            <div class="file-hint">PNG, JPG, SVG · Max 2MB</div>
+                            <input type="file" id="logoMain" accept="image/*" />
+                        </div>
+                        <div class="file-upload-item" onclick="document.getElementById('logoDark').click()">
+                            <i class="fas fa-moon"></i>
+                            <div class="file-label">Dark Theme Logo</div>
+                            <div class="file-hint">PNG, JPG, SVG · Max 2MB</div>
+                            <input type="file" id="logoDark" accept="image/*" />
+                        </div>
+                        <div class="file-upload-item" onclick="document.getElementById('logoLight').click()">
+                            <i class="fas fa-sun"></i>
+                            <div class="file-label">Light Theme Logo</div>
+                            <div class="file-hint">PNG, JPG, SVG · Max 2MB</div>
+                            <input type="file" id="logoLight" accept="image/*" />
+                        </div>
+                        <div class="file-upload-item" onclick="document.getElementById('logoSidebar').click()">
+                            <i class="fas fa-bars"></i>
+                            <div class="file-label">Small Logo (Sidebar)</div>
+                            <div class="file-hint">PNG, JPG, SVG · Max 1MB</div>
+                            <input type="file" id="logoSidebar" accept="image/*" />
+                        </div>
+                        <div class="file-upload-item" onclick="document.getElementById('logoFavicon').click()" style="grid-column: 1 / -1; max-width: 300px; margin: 0 auto;">
+                            <i class="fas fa-circle"></i>
+                            <div class="file-label">Favicon</div>
+                            <div class="file-hint">ICO, PNG · 16x16 or 32x32</div>
+                            <input type="file" id="logoFavicon" accept="image/*" />
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.8rem 1rem; background: #f8fafc; border-radius: 14px; border: 1px solid #eef2f6;">
+                        <span style="font-size:0.8rem; color:#64748b;"><i class="fas fa-info-circle"></i> Uploaded files will be displayed after saving.</span>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 4: Address ===== -->
+                <div class="step-panel" data-step="3">
+                    <h2><i class="fas fa-map-pin"></i> Address</h2>
+                    <p class="subtitle">Complete physical address of the university.</p>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fas fa-flag"></i> Country <span class="req">*</span></label>
+                            <input type="text" id="addrCountry" placeholder="e.g. United States" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-map"></i> State <span class="req">*</span></label>
+                            <input type="text" id="addrState" placeholder="e.g. California" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-map-pin"></i> District</label>
+                            <input type="text" id="addrDistrict" placeholder="e.g. Los Angeles County" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-city"></i> City <span class="req">*</span></label>
+                            <input type="text" id="addrCity" placeholder="e.g. Los Angeles" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-location-dot"></i> Area / Locality</label>
+                            <input type="text" id="addrArea" placeholder="e.g. Downtown" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-road"></i> Street</label>
+                            <input type="text" id="addrStreet" placeholder="e.g. 123 University Ave" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-hashtag"></i> Building Number</label>
+                            <input type="text" id="addrBuilding" placeholder="e.g. 42" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-mailbox"></i> Postal Code <span class="req">*</span></label>
+                            <input type="text" id="addrPostal" placeholder="e.g. 90001" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-crosshairs"></i> Latitude</label>
+                            <input type="text" id="addrLat" placeholder="e.g. 34.0522" />
+                            <span class="hint">Decimal degrees</span>
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-crosshairs"></i> Longitude</label>
+                            <input type="text" id="addrLng" placeholder="e.g. -118.2437" />
+                            <span class="hint">Decimal degrees</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 5: Contact Details ===== -->
+                <div class="step-panel" data-step="4">
+                    <h2><i class="fas fa-address-book"></i> Contact Details</h2>
+                    <p class="subtitle">Departmental and helpline contact information.</p>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label><i class="fas fa-phone"></i> Office Number <span class="req">*</span></label>
+                            <input type="tel" id="contOffice" placeholder="+1 234 567 890" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-mobile-alt"></i> Mobile Number</label>
+                            <input type="tel" id="contMobile" placeholder="+1 234 567 891" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-phone"></i> Alternate Number</label>
+                            <input type="tel" id="contAlternate" placeholder="+1 234 567 892" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-headset"></i> Admission Helpline <span class="req">*</span></label>
+                            <input type="tel" id="contAdmission" placeholder="+1 234 567 893" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-user-tie"></i> Registrar Office Number</label>
+                            <input type="tel" id="contRegistrar" placeholder="+1 234 567 894" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-envelope"></i> Email <span class="req">*</span></label>
+                            <input type="email" id="contEmail" placeholder="contact@university.edu" required />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-life-ring"></i> Support Email</label>
+                            <input type="email" id="contSupport" placeholder="support@university.edu" />
+                        </div>
+                        <div class="field">
+                            <label><i class="fas fa-globe"></i> Website</label>
+                            <input type="url" id="contWebsite" placeholder="https://www.example.edu" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation -->
+            <div class="form-nav">
+                <button type="button" class="btn btn-prev" id="prevBtn" onclick="changeStep(-1)">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <span class="step-indicator" id="stepIndicator">Step 1 of 5</span>
+                <button type="button" class="btn btn-next" id="nextBtn" onclick="changeStep(1)">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" class="btn btn-submit" id="submitBtn" style="display:none;">
+                    <i class="fas fa-check-circle"></i> Save University
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+    (function() {
+        // ----- State -----
+        let currentStep = 0;
+        const totalSteps = 5;
+
+        // ----- DOM refs -----
+        const panels = document.querySelectorAll('.step-panel');
+        const dots = document.querySelectorAll('.step-dot');
+        const progressFill = document.getElementById('progressFill');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const stepIndicator = document.getElementById('stepIndicator');
+        const currentStepDisplay = document.getElementById('currentStepDisplay');
+
+        // ----- Auto-fill Step 2 fields from Step 1 -----
+        function autoFillDetails() {
+            const name = document.getElementById('uniName').value;
+            const code = document.getElementById('uniCode').value;
+            const detName = document.getElementById('detName');
+            const detCode = document.getElementById('detCode');
+            if (name && !detName.value) detName.value = name;
+            if (code && !detCode.value) detCode.value = code;
+        }
+
+        // Listen to changes on Step 1 fields
+        document.getElementById('uniName').addEventListener('input', function() {
+            const detName = document.getElementById('detName');
+            if (!detName.value) detName.value = this.value;
+        });
+        document.getElementById('uniCode').addEventListener('input', function() {
+            const detCode = document.getElementById('detCode');
+            if (!detCode.value) detCode.value = this.value;
+        });
+
+        // ----- Update UI -----
+        function updateUI() {
+            // Panels
+            panels.forEach((panel, index) => {
+                panel.classList.toggle('active', index === currentStep);
+            });
+
+            // Dots
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'done');
+                if (index === currentStep) dot.classList.add('active');
+                else if (index < currentStep) dot.classList.add('done');
+            });
+
+            // Progress fill
+            const progress = ((currentStep) / (totalSteps - 1)) * 100;
+            progressFill.style.width = progress + '%';
+
+            // Buttons
+            prevBtn.style.display = currentStep === 0 ? 'none' : 'inline-flex';
+            nextBtn.style.display = currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
+            submitBtn.style.display = currentStep === totalSteps - 1 ? 'inline-flex' : 'none';
+
+            // Step indicator
+            const display = currentStep + 1;
+            stepIndicator.textContent = `Step ${display} of ${totalSteps}`;
+            if (currentStepDisplay) currentStepDisplay.textContent = display;
+        }
+
+        // ----- Change Step -----
+        window.changeStep = function(direction) {
+            const newStep = currentStep + direction;
+            if (newStep < 0 || newStep >= totalSteps) return;
+
+            // Auto-fill before moving forward from step 1
+            if (currentStep === 0 && direction === 1) {
+                autoFillDetails();
+            }
+
+            currentStep = newStep;
+            updateUI();
+
+            // Scroll to top of form on mobile
+            document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // ----- Dot click navigation -----
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                if (index === currentStep) return;
+                // Allow going back to any step, but forward only one at a time?
+                // We'll allow any navigation for better UX.
+                if (index < currentStep || index === currentStep + 1) {
+                    if (currentStep === 0 && index > 0) autoFillDetails();
+                    currentStep = index;
+                    updateUI();
+                    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    alert('Please complete the current step first.');
+                }
+            });
+        });
+
+        // ----- File upload visual feedback -----
+        document.querySelectorAll('.file-upload-item input[type="file"]').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const parent = this.closest('.file-upload-item');
+                const label = parent.querySelector('.file-label');
+                if (this.files.length > 0) {
+                    label.textContent = this.files[0].name;
+                    parent.style.borderColor = '#22c55e';
+                    parent.style.background = '#f0fdf4';
+                } else {
+                    label.textContent = parent.dataset.originalLabel || 'Upload';
+                    parent.style.borderColor = '#e2e8f0';
+                    parent.style.background = '#fafbfc';
+                }
+            });
+            // Store original label
+            const parent = input.closest('.file-upload-item');
+            const label = parent.querySelector('.file-label');
+            if (label) parent.dataset.originalLabel = label.textContent;
+        });
+
+        // ----- Initialize -----
+        updateUI();
+
+        // ----- Keyboard navigation -----
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' && !e.ctrlKey && !e.metaKey) {
+                if (currentStep < totalSteps - 1) {
+                    e.preventDefault();
+                    changeStep(1);
+                }
+            } else if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
+                if (currentStep > 0) {
+                    e.preventDefault();
+                    changeStep(-1);
+                }
+            }
+        });
+
+        // ----- Submit handler (final) -----
+        document.getElementById('universityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Collect all data (demo)
+            const formData = new FormData(this);
+            console.log('Form Data:', Object.fromEntries(formData.entries()));
+            alert('✅ University profile saved successfully!\n\nAll data has been collected. Check console for details.');
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
