@@ -35,16 +35,16 @@
         To start using the ERP, you need to create your university profile first.
         This will be the foundation for all academic, admission, and student modules.
     </p>
-    <button class="btn-primary" onclick="openCreateUniversity()">
+    <a href="/University/UniversityForm" class="btn-primary" >
         <i class="fas fa-plus-circle"></i> Add University
-    </button>
+    </a>
     <div style="margin-top: 1.2rem; font-size: 0.8rem; color: #94a3b8;">
         <i class="fas fa-info-circle"></i> You can always edit this later
     </div>
 </div>
 
 <!-- ===== UNIVERSITY LIST ===== -->
-<div class="university-list" id="universityList">
+@*<div class="university-list" id="universityList">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
         <span style="font-weight: 600; color: #0b1b33; font-size: 0.95rem;">
             <i class="fas fa-list"></i> Configured Universities in  Registrar
@@ -55,7 +55,7 @@
         </button>
     </div>
     <div id="universityContainer"></div>
-</div>
+</div>*@
 
 <!-- ===== PROGRESS STEPS ===== -->
 <div class="progress-steps">
@@ -76,7 +76,7 @@
 <div class="modal-overlay" id="universityModal">
     <div class="modal">
         <div class="modal-header">
-            <h2><i class="fas fa-university"></i> <span id="modalTitle">Add University</span></h2>
+            <a href="/University/Index"><i class="fas fa-university"></i> <span id="modalTitle">Add University</span></a>
             <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
         <form id="universityForm" onsubmit="saveUniversity(event)">
@@ -236,15 +236,15 @@
             }
         }
 
-        // ----- Open Create -----
-        window.openCreateUniversity = function() {
-            editingId = null;
-            modalTitle.textContent = 'Add University';
-            form.reset();
-            document.getElementById('uniStatus').value = 'Active';
-            document.getElementById('uniType').value = '';
-            modal.classList.add('open');
-        };
+        //// ----- Open Create -----
+        //window.openCreateUniversity = function() {
+        //    editingId = null;
+        //    modalTitle.textContent = 'Add University';
+        //    form.reset();
+        //    document.getElementById('uniStatus').value = 'Active';
+        //    document.getElementById('uniType').value = '';
+        //    modal.classList.add('open');
+        //};
 
         // ----- Open Edit -----
         window.editUniversity = function(id) {

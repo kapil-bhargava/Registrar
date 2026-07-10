@@ -39,8 +39,8 @@
             <ul class="submenu @(activeMenu == "University" ? "open" : "")" id="subUniversity">
                 <!-- University Profile -->
                 <li>
-                    <a class="@(activeSubMenu == "Profile" ? "active-link" : "")"
-                       asp-controller="University" asp-action="Profile">
+                    <a href="@Url.Action("Index", "University")"
+                       class="@(activeSubMenu == "Profile" ? "active-link" : "")">
                         <i class="fas fa-building-columns"></i> University Profile
                     </a>
                 </li>
@@ -87,8 +87,8 @@
             <ul class="submenu @(activeMenu == "Academic" ? "open" : "")" id="subAcademic">
                 <!-- Academic Session -->
                 <li>
-                    <a class="@(activeSubMenu == "Session" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Session">
+                    <a href="@Url.Action("AcademicSession", "University")"
+                       class="@(activeSubMenu == "Session" ? "active-link" : "")">
                         <i class="fas fa-calendar-alt"></i> Academic Session
                     </a>
                 </li>
