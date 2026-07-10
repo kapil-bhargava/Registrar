@@ -20,5 +20,10 @@ namespace Regis.Controllers
             return View();
         }
        
+        public ActionResult AcademicSession()
+        {
+            return View();
+        }
+       
     }
 }
