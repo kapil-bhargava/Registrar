@@ -30,6 +30,7 @@
     <div class="main-wrapper">
 
         <!-- ====== 2.1 NAVBAR (Partial) ====== -->
+        @Html.Partial("_Navbar")
         @Html.Partial("_Sidebar")
 
         <!-- ====== 2.2 PAGE CONTENT ====== -->
@@ -53,8 +54,7 @@
                 }
 
                 <!-- Main Content from Child View -->
-
-    @*@Html.Partial("_Navbar")*@
+                @*@Html.Partial("_Navbar")*@
                 @RenderBody()
             </div>
         </main>

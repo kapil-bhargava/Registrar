@@ -12,12 +12,6 @@
     --radius: 14px;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-}
 
 .as-wrap {
 /*    max-width: 900px;*/
@@ -438,7 +432,7 @@
     transform: translateY(-10px);
     transition: all .3s;
     pointer-events: none;
-    z-index: 50;
+    z-index: 50000;
 }
 
     .as-toast.show {
