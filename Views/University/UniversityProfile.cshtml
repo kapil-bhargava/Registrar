@@ -6,8 +6,24 @@
 }
 
 <link href="~/Content/CSS/universityProfile.css" rel="stylesheet" />
+<link href="~/Content/css/university.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<div class="empty-state" id="emptyState">
+    <div class="icon-big">🏛</div>
+    <h2>No University Configured Yet</h2>
+    <p>
+        To start using the ERP, you need to create your university profile first.
+        This will be the foundation for all academic, admission, and student modules.
+    </p>
+    <a href="/University/UniversityForm" class="btn-primary" >
+        <i class="fas fa-plus-circle"></i> Add University
+    </a>
+    <div style="margin-top: 1.2rem; font-size: 0.8rem; color: #94a3b8;">
+        <i class="fas fa-info-circle"></i> You can always edit this later
+    </div>
+</div>
 
-<div class="profile-container">
+<div id="profileContainer" class="profile-container d-none">
 
     <!-- ===== HEADER ===== -->
     <div class="profile-header">

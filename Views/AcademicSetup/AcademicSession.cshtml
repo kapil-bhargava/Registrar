@@ -1,62 +1,141 @@
 ﻿@{
     ViewBag.Title = "Academic Session";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
-    ViewBag.ActiveMenu = "Settings";
+    ViewBag.ActiveMenu = "Academic";
+    ViewData["ActiveSubMenu"] = "Session";
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
 
-<link href="~/Content/Academicsession.css" rel="stylesheet" />
 <div class="as-wrap">
 
     <!-- ================= LIST PAGE ================= -->
     <div class="as-card" id="asListWrap">
+        <!-- Header -->
         <div class="as-list-head">
             <div>
-                <h2>Academic Sessions</h2>
-                <p>Manage all academic sessions for the university.</p>
+                <h2><i class="fas fa-calendar-alt"></i> Academic Sessions</h2>
+                <p>Manage all academic sessions for the university. Only one session can be active at a time.</p>
             </div>
-            <button class="as-btn as-btn-primary" onclick="showWizard()">+ Add New Session</button>
+            <button class="as-btn as-btn-primary" onclick="showWizard()">
+                <i class="fas fa-plus-circle"></i> Add New Session
+            </button>
         </div>
 
-        <table class="as-table as-list-table">
-            <thead>
-                <tr>
-                    <th>Session Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>2025-26</td>
-                    <td>01/04/2025</td>
-                    <td>31/03/2026</td>
-                    <td>Annual</td>
-                    <td><span class="as-pill as-pill-active">Active</span></td>
-                    <td><button class="as-mini-btn" onclick="showWizard()">View</button></td>
-                </tr>
-                <tr>
-                    <td>2024-25</td>
-                    <td>01/04/2024</td>
-                    <td>31/03/2025</td>
-                    <td>Annual</td>
-                    <td><span class="as-pill as-pill-inactive">Closed</span></td>
-                    <td><button class="as-mini-btn" onclick="showWizard()">View</button></td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Quick Stats -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="totalSessions">3</span>
+                    <span class="as-stat-label">Total Sessions</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-play-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="activeSession">2025-26</span>
+                    <span class="as-stat-label">Current Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-lock"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="lockedSessions">1</span>
+                    <span class="as-stat-label">Locked Sessions</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-archive"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="archivedSessions">1</span>
+                    <span class="as-stat-label">Archived</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Session Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2025-26</strong></td>
+                        <td>01/04/2025</td>
+                        <td>31/03/2026</td>
+                        <td><span class="as-type-badge">Annual</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Lock"><i class="fas fa-lock"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2024-25</strong></td>
+                        <td>01/04/2024</td>
+                        <td>31/03/2025</td>
+                        <td><span class="as-type-badge">Annual</span></td>
+                        <td><span class="as-pill as-pill-locked"><i class="fas fa-lock"></i> Locked</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Archive"><i class="fas fa-archive"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2023-24</strong></td>
+                        <td>01/04/2023</td>
+                        <td>31/03/2024</td>
+                        <td><span class="as-type-badge">Annual</span></td>
+                        <td><span class="as-pill as-pill-archived"><i class="fas fa-archive"></i> Archived</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fall 2024</strong></td>
+                        <td>01/08/2024</td>
+                        <td>20/12/2024</td>
+                        <td><span class="as-type-badge">Semester</span></td>
+                        <td><span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Closed</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Generate Report"><i class="fas fa-file-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Legend -->
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot locked"></span> Locked</span>
+            <span><span class="as-legend-dot archived"></span> Archived</span>
+            <span><span class="as-legend-dot closed"></span> Closed</span>
+            <span><span class="as-legend-dot draft"></span> Draft</span>
+        </div>
     </div>
 
     <!-- ================= WIZARD (Add / Activate / Close) ================= -->
-    <div class="as-card" id="asWizardWrap" style="display:none;">
+    <div class="as-card as-wizard-card" id="asWizardWrap" style="display:none;">
 
+        <!-- Back Button -->
         <div class="as-back-row">
-            <button class="as-back-link" onclick="showList()">← Back to Sessions List</button>
+            <button class="as-back-link" onclick="showList()">
+                <i class="fas fa-arrow-left"></i> Back to Sessions List
+            </button>
         </div>
 
         <!-- STEPPER -->
@@ -66,7 +145,7 @@
             </div>
             <div class="as-step" id="stepIndicator1">
                 <div class="as-step-circle">1</div>
-                <div class="as-step-label">Add</div>
+                <div class="as-step-label">Create</div>
             </div>
             <div class="as-step" id="stepIndicator2">
                 <div class="as-step-circle">2</div>
@@ -80,56 +159,192 @@
 
         <div class="as-body">
 
-            <!-- ================= STEP 1 : ADD SESSION ================= -->
+            <!-- ================= STEP 1 : CREATE SESSION ================= -->
             <div class="as-page active" id="asPage1">
                 <div class="as-head">
-                    <div class="as-icon">🗓</div>
+                    <div class="as-icon"><i class="fas fa-plus-circle"></i></div>
                     <div>
                         <h2>Create Academic Session</h2>
-                        <p>Define a new academic session for the university.</p>
+                        <p>Define a new academic session with all necessary details.</p>
                     </div>
                 </div>
 
+                <!-- Basic Information -->
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Basic Information
+                </div>
                 <div class="as-grid">
                     <div class="as-field as-full">
-                        <label>👤 Session Name <span class="req">*</span></label>
-                        <input type="text" id="sessionName" placeholder="e.g. 2026-27">
+                        <label>Session Name <span class="req">*</span></label>
+                        <input type="text" id="sessionName" placeholder="e.g. Academic Year 2026-27">
+                        <span class="as-hint">Enter a unique name for this academic session</span>
                     </div>
 
                     <div class="as-field">
-                        <label>📅 Start Date <span class="req">*</span></label>
+                        <label>Session Code <span class="req">*</span></label>
+                        <input type="text" id="sessionCode" placeholder="e.g. AY-2026-27">
+                        <span class="as-hint">Unique identifier for system reference</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Session Type <span class="req">*</span></label>
+                        <select id="sessionType">
+                            <option value="">-- Select Session Type --</option>
+                            <option value="Annual">Annual (B.A., B.Sc., B.Com - Annual Pattern)</option>
+                            <option value="Semester">Semester (B.Tech, BCA, MBA, MCA, B.Pharm)</option>
+                            <option value="Trimester">Trimester (Executive MBA, Management Programs)</option>
+                            <option value="Quarter">Quarter System (International Universities)</option>
+                            <option value="Modular">Modular (Professional Certifications)</option>
+                            <option value="Research">Research (Ph.D., M.Phil., Doctoral Programs)</option>
+                            <option value="Professional">Professional Programs (MBBS, BDS, Nursing)</option>
+                            <option value="Integrated">Integrated Programs (B.Tech + M.Tech, BA LLB)</option>
+                            <option value="Distance">Distance / Online Learning (ODL)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Parent Session <span class="optional">(optional)</span></label>
+                        <select id="parentSession">
+                            <option value="">-- None --</option>
+                            <option value="2025-26">2025-26 (Annual)</option>
+                            <option value="2024-25">2024-25 (Annual)</option>
+                        </select>
+                        <span class="as-hint">Link to a parent academic year if this is a sub-session</span>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="as-section-title">
+                    <i class="fas fa-calendar-alt"></i> Date Range
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Start Date <span class="req">*</span></label>
                         <input type="date" id="startDate" value="2026-04-01">
                     </div>
 
                     <div class="as-field">
-                        <label>📅 End Date <span class="req">*</span></label>
+                        <label>End Date <span class="req">*</span></label>
                         <input type="date" id="endDate" value="2027-03-31">
                     </div>
 
                     <div class="as-field">
-                        <label>📚 Session Type</label>
-                        <select id="sessionType">
-                            <option>Annual</option>
-                            <option>Semester</option>
-                            <option>Trimester</option>
-                            <option>Quarterly</option>
+                        <label>Duration</label>
+                        <input type="text" id="duration" value="365 Days" readonly disabled>
+                        <span class="as-hint">Auto-calculated from start and end dates</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Academic Year</label>
+                        <select id="academicYear">
+                            <option value="2026-27">2026-27</option>
+                            <option value="2025-26" selected>2025-26</option>
+                            <option value="2024-25">2024-25</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Additional Settings -->
+                <div class="as-section-title">
+                    <i class="fas fa-cog"></i> Additional Settings
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="sessionStatus">
+                            <option value="Draft" selected>Draft</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                     </div>
 
                     <div class="as-field">
-                        <label>⚙ Status</label>
-                        <select id="sessionStatus">
-                            <option>Active</option>
-                            <option>Inactive</option>
+                        <label>Grading System</label>
+                        <select id="gradingSystem">
+                            <option value="CGPA">CGPA (10-point scale)</option>
+                            <option value="SGPA">SGPA (Semester GPA)</option>
+                            <option value="Percentage">Percentage</option>
+                            <option value="Letter Grade">Letter Grade (A-F)</option>
                         </select>
                     </div>
+
+                    <div class="as-field">
+                        <label>Instruction Language</label>
+                        <select id="instructionLanguage">
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Both">Both (Bilingual)</option>
+                            <option value="Regional">Regional</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Maximum Credits</label>
+                        <input type="number" id="maxCredits" value="24" min="10" max="30">
+                        <span class="as-hint">Maximum credits a student can take per session</span>
+                    </div>
+                </div>
+
+                <!-- Academic Calendar -->
+                <div class="as-section-title">
+                    <i class="fas fa-calendar-check"></i> Academic Calendar (Key Dates)
+                </div>
+                <div class="as-grid as-calendar-grid">
+                    <div class="as-field">
+                        <label>Registration Start</label>
+                        <input type="date" id="regStart" value="2026-04-01">
+                    </div>
+                    <div class="as-field">
+                        <label>Registration End</label>
+                        <input type="date" id="regEnd" value="2026-04-15">
+                    </div>
+                    <div class="as-field">
+                        <label>Add/Drop Start</label>
+                        <input type="date" id="addDropStart" value="2026-04-16">
+                    </div>
+                    <div class="as-field">
+                        <label>Add/Drop End</label>
+                        <input type="date" id="addDropEnd" value="2026-04-30">
+                    </div>
+                    <div class="as-field">
+                        <label>Mid-Term Exams Start</label>
+                        <input type="date" id="midTermStart" value="2026-10-15">
+                    </div>
+                    <div class="as-field">
+                        <label>Mid-Term Exams End</label>
+                        <input type="date" id="midTermEnd" value="2026-10-25">
+                    </div>
+                    <div class="as-field">
+                        <label>Final Exams Start</label>
+                        <input type="date" id="finalExamStart" value="2027-03-15">
+                    </div>
+                    <div class="as-field">
+                        <label>Final Exams End</label>
+                        <input type="date" id="finalExamEnd" value="2027-03-25">
+                    </div>
+                    <div class="as-field">
+                        <label>Result Publication</label>
+                        <input type="date" id="resultDate" value="2027-04-10">
+                    </div>
+                    <div class="as-field">
+                        <label>Next Session Start</label>
+                        <input type="date" id="nextSessionStart" value="2027-04-01">
+                    </div>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="as-check-group as-check-col">
+                    <label class="as-checkbox"><input type="checkbox" checked> <span>Allow Online Registration</span></label>
+                    <label class="as-checkbox"><input type="checkbox"> <span>Allow Late Registration (with fee)</span></label>
+                    <label class="as-checkbox"><input type="checkbox" checked> <span>Enable Course Evaluation</span></label>
+                    <label class="as-checkbox"><input type="checkbox"> <span>Enable Internship/Industrial Training</span></label>
                 </div>
 
                 <div class="as-bar">
                     <span></span>
                     <div class="as-step-count">Step 1 of 3</div>
                     <button class="as-btn as-btn-primary" onclick="saveSession()">
-                        <span class="as-check">✔</span> Save &amp; Continue
+                        <i class="fas fa-save"></i> Save &amp; Continue
                     </button>
                 </div>
             </div>
@@ -137,45 +352,100 @@
             <!-- ================= STEP 2 : ACTIVATE SESSION ================= -->
             <div class="as-page" id="asPage2">
                 <div class="as-head">
-                    <div class="as-icon">⚡</div>
+                    <div class="as-icon"><i class="fas fa-bolt"></i></div>
                     <div>
                         <h2>Activate Session</h2>
-                        <p>Only one session should normally be active at a time.</p>
+                        <p>Only one session should be active at a time. Activating a new session will lock the previous one.</p>
                     </div>
                 </div>
 
-                <table class="as-table">
-                    <thead>
-                        <tr>
-                            <th>Session</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sessionTableBody">
-                        <tr>
-                            <td>2025-26</td>
-                            <td><span class="as-pill as-pill-active">Active</span></td>
-                            <td><span class="as-pill as-pill-default">Default</span></td>
-                        </tr>
-                        <tr id="newSessionRow" style="display:none;">
-                            <td id="newSessionName">2026-27</td>
-                            <td><span class="as-pill as-pill-inactive">Inactive</span></td>
-                            <td><button class="as-mini-btn" onclick="activateRow()">Activate</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Current Active Session -->
+                <div class="as-current-session">
+                    <div class="as-current-label">📌 Current Active Session</div>
+                    <div class="as-current-value" id="currentActiveSession">2025-26 (Academic Year)</div>
+                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                </div>
 
-                <div class="as-check-group">
-                    <label class="as-checkbox"><input type="checkbox" id="makeDefault"> Make Default Session</label>
-                    <label class="as-checkbox"><input type="checkbox" id="lockPrevious"> Lock Previous Session</label>
+                <!-- Session List for Activation -->
+                <div class="as-section-title">
+                    <i class="fas fa-list"></i> Manage Sessions
+                </div>
+                <div class="as-table-wrapper">
+                    <table class="as-table">
+                        <thead>
+                            <tr>
+                                <th>Session</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionTableBody">
+                            <tr>
+                                <td><strong>2025-26</strong></td>
+                                <td><span class="as-type-badge">Annual</span></td>
+                                <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                                <td><span class="as-pill as-pill-default">Default</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>2024-25</strong></td>
+                                <td><span class="as-type-badge">Annual</span></td>
+                                <td><span class="as-pill as-pill-locked"><i class="fas fa-lock"></i> Locked</span></td>
+                                <td><button class="as-mini-btn" disabled>Locked</button></td>
+                            </tr>
+                            <tr id="newSessionRow" style="display:none;">
+                                <td><strong id="newSessionName">2026-27</strong></td>
+                                <td><span class="as-type-badge">Annual</span></td>
+                                <td><span class="as-pill as-pill-draft"><i class="fas fa-pencil"></i> Draft</span></td>
+                                <td><button class="as-btn as-btn-primary as-btn-sm" onclick="activateRow()">Activate</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Activation Options -->
+                <div class="as-section-title">
+                    <i class="fas fa-cog"></i> Activation Options
+                </div>
+                <div class="as-check-group as-check-col">
+                    <label class="as-checkbox">
+                        <input type="checkbox" id="makeDefault" checked>
+                        <span>Make this the <strong>Default Session</strong> for new enrollments</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" id="lockPrevious" checked>
+                        <span><strong>Lock Previous Session</strong> (prevents further edits)</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" id="autoPromote">
+                        <span><strong>Auto-Promote Students</strong> to next year/semester</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" id="copyCourses">
+                        <span><strong>Copy Courses</strong> from previous session</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" id="notifyFaculty">
+                        <span><strong>Notify Faculty</strong> about the new session</span>
+                    </label>
+                </div>
+
+                <!-- Warning -->
+                <div class="as-warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Warning:</strong> Activating a new session will lock the current active session.
+                        All data in the previous session will become read-only.
+                    </div>
                 </div>
 
                 <div class="as-bar">
-                    <button class="as-btn as-btn-ghost" onclick="goToStep(1)">← Previous</button>
+                    <button class="as-btn as-btn-ghost" onclick="goToStep(1)">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
                     <div class="as-step-count">Step 2 of 3</div>
                     <button class="as-btn as-btn-primary" onclick="activateSession()">
-                        <span class="as-check">✔</span> Activate Session
+                        <i class="fas fa-check-circle"></i> Activate Session
                     </button>
                 </div>
             </div>
@@ -183,31 +453,95 @@
             <!-- ================= STEP 3 : CLOSE SESSION ================= -->
             <div class="as-page" id="asPage3">
                 <div class="as-head">
-                    <div class="as-icon">🔒</div>
+                    <div class="as-icon"><i class="fas fa-lock"></i></div>
                     <div>
-                        <h2>Close Session</h2>
-                        <p>Lock records and archive the previous academic session.</p>
+                        <h2>Close &amp; Archive Session</h2>
+                        <p>Lock all records, complete promotions, and archive the session for historical reference.</p>
                     </div>
                 </div>
 
-                <div class="as-current-session">
-                    <span>Current Session</span>
-                    <strong id="currentSessionLabel">2025-26</strong>
+                <!-- Session to Close -->
+                <div class="as-current-session as-close-session">
+                    <div class="as-current-label">📌 Session to Close</div>
+                    <div class="as-current-value" id="sessionToClose">2025-26 (Academic Year)</div>
+                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
                 </div>
 
+                <!-- Close Operations -->
+                <div class="as-section-title">
+                    <i class="fas fa-tasks"></i> Close Operations
+                </div>
                 <div class="as-check-group as-check-col">
-                    <label class="as-checkbox"><input type="checkbox" checked> Lock Student Records</label>
-                    <label class="as-checkbox"><input type="checkbox" checked> Complete Promotion</label>
-                    <label class="as-checkbox"><input type="checkbox" checked> Archive Session</label>
-                    <label class="as-checkbox"><input type="checkbox" checked> Prevent Editing</label>
-                    <label class="as-checkbox"><input type="checkbox" checked> Generate Session Reports</label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Lock Student Records</strong> - Freeze all grades and transcripts</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Lock Admissions</strong> - Prevent new admissions for this session</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Complete Promotion</strong> - Promote eligible students to next level</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Archive Session Data</strong> - Move to archive for audit</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Prevent Further Editing</strong> - Make all data read-only</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox" checked>
+                        <span><strong>Generate Session Reports</strong> - Create final reports</span>
+                    </label>
+                    <label class="as-checkbox">
+                        <input type="checkbox">
+                        <span><strong>Send Notification to Students</strong> - Notify students about session closure</span>
+                    </label>
+                </div>
+
+                <!-- Summary -->
+                <div class="as-summary-box">
+                    <div class="as-summary-title"><i class="fas fa-file-alt"></i> Session Summary</div>
+                    <div class="as-summary-grid">
+                        <div>
+                            <span class="as-summary-label">Total Students</span>
+                            <span class="as-summary-value">5,234</span>
+                        </div>
+                        <div>
+                            <span class="as-summary-label">Total Courses</span>
+                            <span class="as-summary-value">156</span>
+                        </div>
+                        <div>
+                            <span class="as-summary-label">Total Faculty</span>
+                            <span class="as-summary-value">348</span>
+                        </div>
+                        <div>
+                            <span class="as-summary-label">Total Departments</span>
+                            <span class="as-summary-value">12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning -->
+                <div class="as-warning-box as-warning-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>⚠️ This action cannot be undone!</strong><br>
+                        Once a session is closed and archived, all data becomes read-only.
+                        Please ensure all operations for this session are complete.
+                    </div>
                 </div>
 
                 <div class="as-bar">
-                    <button class="as-btn as-btn-ghost" onclick="goToStep(2)">← Previous</button>
+                    <button class="as-btn as-btn-ghost" onclick="goToStep(2)">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
                     <div class="as-step-count">Step 3 of 3</div>
                     <button class="as-btn as-btn-danger" onclick="closeSession()">
-                        <span class="as-check">✔</span> Close Session
+                        <i class="fas fa-check-circle"></i> Close &amp; Archive Session
                     </button>
                 </div>
             </div>
@@ -215,10 +549,23 @@
             <!-- ================= DONE STATE ================= -->
             <div class="as-page" id="asPageDone">
                 <div class="as-done">
-                    <div class="as-done-icon">✔</div>
-                    <h2>Session Closed Successfully</h2>
-                    <p>2025-26 has been locked and archived. 2026-27 is now the active academic session.</p>
-                    <button class="as-btn as-btn-primary" onclick="resetWizard()">Start New Session</button>
+                    <div class="as-done-icon"><i class="fas fa-check-circle"></i></div>
+                    <h2>Session Completed Successfully!</h2>
+                    <p>The session <strong>2025-26</strong> has been locked, archived, and all reports have been generated.</p>
+                    <div class="as-done-stats">
+                        <div><span>5,234</span> Students Promoted</div>
+                        <div><span>348</span> Faculty Notified</div>
+                        <div><span>12</span> Reports Generated</div>
+                        <div><span>156</span> Courses Archived</div>
+                    </div>
+                    <div class="as-done-actions">
+                        <button class="as-btn as-btn-primary" onclick="resetWizard()">
+                            <i class="fas fa-plus-circle"></i> Start New Session
+                        </button>
+                        <button class="as-btn as-btn-outline" onclick="showList()">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -228,26 +575,42 @@
 
 </div>
 
-<div class="as-toast" id="asToast"></div>
+<!-- Toast Notification -->
+<div class="as-toast" id="asToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Success!</span>
+</div>
 
-<script>let currentStep = 1;
+<script>
+    let currentStep = 1;
 
     function showWizard() {
         document.getElementById('asListWrap').style.display = 'none';
         document.getElementById('asWizardWrap').style.display = 'block';
         resetWizard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showList() {
         document.getElementById('asWizardWrap').style.display = 'none';
         document.getElementById('asListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showToast(msg) {
-        const t = document.getElementById('asToast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2200);
+    function showToast(msg, type) {
+        const toast = document.getElementById('asToast');
+        const messageEl = document.getElementById('toastMessage');
+        const icon = toast.querySelector('i');
+
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' :
+                'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
     }
 
     function goToStep(n) {
@@ -266,7 +629,7 @@
             el.classList.remove('done', 'current');
             if (i <= completedUpto) {
                 el.classList.add('done');
-                circle.innerHTML = '✔';
+                circle.innerHTML = '<i class="fas fa-check"></i>';
             } else if (i === activeStep) {
                 el.classList.add('current');
                 circle.innerHTML = i;
@@ -280,36 +643,73 @@
 
     function saveSession() {
         const name = document.getElementById('sessionName').value.trim();
-        if (!name) { showToast('Session Name is required'); return; }
+        if (!name) { showToast('Session Name is required', 'error'); return; }
+
+        const code = document.getElementById('sessionCode').value.trim();
+        if (!code) { showToast('Session Code is required', 'error'); return; }
+
+        const type = document.getElementById('sessionType').value;
+        if (!type) { showToast('Please select a Session Type', 'error'); return; }
+
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        if (start >= end) { showToast('End date must be after start date', 'error'); return; }
+
         document.getElementById('newSessionName').textContent = name;
-        showToast('Session saved successfully');
+        document.getElementById('newSessionRow').style.display = 'table-row';
+
+        showToast('Session "' + name + '" saved successfully!', 'success');
         goToStep(2);
         updateStepper(2, 1);
     }
 
     function activateRow() {
         document.getElementById('newSessionRow').style.display = 'table-row';
+        // Update the session to close
+        document.getElementById('sessionToClose').textContent = document.getElementById('currentActiveSession').textContent;
+        showToast('Session activated successfully!', 'success');
+        goToStep(3);
+        updateStepper(3, 2);
     }
 
     function activateSession() {
         activateRow();
-        showToast('Session activated');
-        goToStep(3);
-        updateStepper(3, 2);
     }
 
     function closeSession() {
         document.querySelectorAll('.as-page').forEach(p => p.classList.remove('active'));
         document.getElementById('asPageDone').classList.add('active');
         updateStepper(3, 3);
-        showToast('Session closed successfully');
+        showToast('Session closed and archived successfully!', 'success');
+        // Update the active session display
+        document.getElementById('activeSession').textContent = document.getElementById('newSessionName').textContent;
     }
 
     function resetWizard() {
         document.getElementById('sessionName').value = '';
+        document.getElementById('sessionCode').value = '';
         document.getElementById('newSessionRow').style.display = 'none';
+        document.getElementById('sessionType').value = '';
         goToStep(1);
         updateStepper(1, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    updateStepper(1, 0);</script>
+    // Calculate duration on date change
+    document.getElementById('startDate').addEventListener('change', calculateDuration);
+    document.getElementById('endDate').addEventListener('change', calculateDuration);
+
+    function calculateDuration() {
+        const start = new Date(document.getElementById('startDate').value);
+        const end = new Date(document.getElementById('endDate').value);
+        if (start && end && end > start) {
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('duration').value = diffDays + ' Days';
+        }
+    }
+
+    // Initialize
+    updateStepper(1, 0);
+    calculateDuration();
+</script>

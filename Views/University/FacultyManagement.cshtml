@@ -1,230 +1,821 @@
-﻿
-@{
-    ViewBag.Title = "FacultyManagement";
+﻿@{
+    ViewBag.Title = "Faculty Management";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
-
+    ViewBag.ActiveMenu = "Academic";
+    ViewData["ActiveSubMenu"] = "Faculty";
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="~/Content/CSS/Facultymanagement.css" rel="stylesheet" />
+<link href="~/Content/CSS/facultyManagement.css" rel="stylesheet" />
 
 <div class="fm-wrap">
 
     <!-- ================= LIST PAGE ================= -->
     <div class="fm-card" id="fmListWrap">
+        <!-- Header -->
         <div class="fm-list-head">
             <div>
-                <h2>Faculty Management</h2>
-                <p>Manage all faculties under the university.</p>
+                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Management</h2>
+                <p>Manage all faculty members, departments, and faculty assignments.</p>
             </div>
-            <button class="fm-btn fm-btn-primary" onclick="showForm()">+ Add New Faculty</button>
+            <div class="fm-header-actions">
+                <button class="fm-btn fm-btn-outline" onclick="showWizard('faculty')">
+                    <i class="fas fa-user-plus"></i> Add Faculty
+                </button>
+                <button class="fm-btn fm-btn-primary" onclick="showWizard('department')">
+                    <i class="fas fa-plus-circle"></i> Add Department
+                </button>
+            </div>
         </div>
 
-        <table class="fm-table fm-list-table">
-            <thead>
-                <tr>
-                    <th>Faculty Name</th>
-                    <th>Faculty Code</th>
-                    <th>Type</th>
-                    <th>Dean</th>
-                    <th>Contact</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="facultyTableBody">
-                <tr>
-                    <td class="fm-name">Faculty of Engineering</td>
-                    <td>FAC-001</td>
-                    <td>Engineering &amp; Technology</td>
-                    <td>Dr. R. Sharma</td>
-                    <td>0522-1234567</td>
-                    <td><span class="fm-pill fm-pill-active">Active</span></td>
-                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
-                </tr>
-                <tr>
-                    <td class="fm-name">Faculty of Science</td>
-                    <td>FAC-002</td>
-                    <td>Science</td>
-                    <td>Dr. A. Khan</td>
-                    <td>0522-7654321</td>
-                    <td><span class="fm-pill fm-pill-active">Active</span></td>
-                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
-                </tr>
-                <tr>
-                    <td class="fm-name">Faculty of Commerce</td>
-                    <td>FAC-003</td>
-                    <td>Commerce</td>
-                    <td>Dr. S. Verma</td>
-                    <td>0522-9988776</td>
-                    <td><span class="fm-pill fm-pill-inactive">Inactive</span></td>
-                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Quick Stats -->
+        <div class="fm-quick-stats">
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number" id="totalFaculty">348</span>
+                    <span class="fm-stat-label">Total Faculty</span>
+                </div>
+            </div>
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number" id="totalDepartments">12</span>
+                    <span class="fm-stat-label">Departments</span>
+                </div>
+            </div>
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number" id="activeFaculty">312</span>
+                    <span class="fm-stat-label">Active Faculty</span>
+                </div>
+            </div>
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-user-clock"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number" id="onLeave">36</span>
+                    <span class="fm-stat-label">On Leave</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="fm-tabs">
+            <button class="fm-tab active" data-tab="faculty" onclick="switchTab('faculty')">
+                <i class="fas fa-users"></i> Faculty
+            </button>
+            <button class="fm-tab" data-tab="departments" onclick="switchTab('departments')">
+                <i class="fas fa-building"></i> Departments
+            </button>
+            <button class="fm-tab" data-tab="assignments" onclick="switchTab('assignments')">
+                <i class="fas fa-tasks"></i> Assignments
+            </button>
+            <button class="fm-tab" data-tab="attendance" onclick="switchTab('attendance')">
+                <i class="fas fa-clipboard-check"></i> Attendance
+            </button>
+        </div>
+
+        <!-- ===== FACULTY LIST ===== -->
+        <div class="fm-tab-content active" id="tabFaculty">
+            <div class="fm-table-toolbar">
+                <div class="fm-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search faculty by name, ID, or department..." id="facultySearch">
+                </div>
+                <div class="fm-filter-group">
+                    <select id="facultyFilterDept">
+                        <option value="">All Departments</option>
+                        <option value="CSE">Computer Science</option>
+                        <option value="ECE">Electronics</option>
+                        <option value="ME">Mechanical Engineering</option>
+                        <option value="CE">Civil Engineering</option>
+                        <option value="MBA">MBA</option>
+                    </select>
+                    <select id="facultyFilterStatus">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Faculty ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Qualification</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>FAC-001</strong></td>
+                            <td><span class="fm-user-name"><span class="fm-avatar">JD</span> Dr. John Doe</span></td>
+                            <td><span class="fm-dept-badge">CSE</span></td>
+                            <td>Professor</td>
+                            <td>Ph.D. (Computer Science)</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Assign"><i class="fas fa-tasks"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>FAC-002</strong></td>
+                            <td><span class="fm-user-name"><span class="fm-avatar">JS</span> Dr. Jane Smith</span></td>
+                            <td><span class="fm-dept-badge">ECE</span></td>
+                            <td>Associate Professor</td>
+                            <td>Ph.D. (Electronics)</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Assign"><i class="fas fa-tasks"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>FAC-003</strong></td>
+                            <td><span class="fm-user-name"><span class="fm-avatar">MR</span> Prof. Mike Ross</span></td>
+                            <td><span class="fm-dept-badge">MBA</span></td>
+                            <td>Assistant Professor</td>
+                            <td>MBA (Finance)</td>
+                            <td><span class="fm-pill fm-pill-leave"><i class="fas fa-clock"></i> On Leave</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Assign"><i class="fas fa-tasks"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>FAC-004</strong></td>
+                            <td><span class="fm-user-name"><span class="fm-avatar">SW</span> Dr. Sarah Wilson</span></td>
+                            <td><span class="fm-dept-badge">ME</span></td>
+                            <td>Professor</td>
+                            <td>Ph.D. (Mechanical)</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Assign"><i class="fas fa-tasks"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="fm-pagination">
+                <span>Showing 1-10 of 348 faculty</span>
+                <div class="fm-pagination-btns">
+                    <button class="fm-mini-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="fm-mini-btn active">1</button>
+                    <button class="fm-mini-btn">2</button>
+                    <button class="fm-mini-btn">3</button>
+                    <button class="fm-mini-btn">...</button>
+                    <button class="fm-mini-btn">35</button>
+                    <button class="fm-mini-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== DEPARTMENTS LIST ===== -->
+        <div class="fm-tab-content" id="tabDepartments">
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Department Code</th>
+                            <th>Department Name</th>
+                            <th>Head of Department</th>
+                            <th>Faculty Count</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CSE</strong></td>
+                            <td>Computer Science & Engineering</td>
+                            <td>Dr. John Doe</td>
+                            <td>45</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>ECE</strong></td>
+                            <td>Electronics & Communication</td>
+                            <td>Dr. Jane Smith</td>
+                            <td>38</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>ME</strong></td>
+                            <td>Mechanical Engineering</td>
+                            <td>Dr. Sarah Wilson</td>
+                            <td>42</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>MBA</strong></td>
+                            <td>Master of Business Administration</td>
+                            <td>Prof. Mike Ross</td>
+                            <td>28</td>
+                            <td><span class="fm-pill fm-pill-leave"><i class="fas fa-clock"></i> On Leave</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== ASSIGNMENTS ===== -->
+        <div class="fm-tab-content" id="tabAssignments">
+            <div class="fm-table-toolbar">
+                <div class="fm-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search assignments..." id="assignmentSearch">
+                </div>
+                <button class="fm-btn fm-btn-primary fm-btn-sm" onclick="showWizard('assignment')">
+                    <i class="fas fa-plus"></i> New Assignment
+                </button>
+            </div>
+
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Faculty</th>
+                            <th>Course</th>
+                            <th>Department</th>
+                            <th>Session</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dr. John Doe</td>
+                            <td>CS101 - Programming Fundamentals</td>
+                            <td>CSE</td>
+                            <td>2025-26</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Remove"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Dr. Jane Smith</td>
+                            <td>ECE201 - Digital Electronics</td>
+                            <td>ECE</td>
+                            <td>2025-26</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                            <td>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="fm-mini-btn" title="Remove"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== ATTENDANCE ===== -->
+        <div class="fm-tab-content" id="tabAttendance">
+            <div class="fm-table-toolbar">
+                <div class="fm-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search attendance records...">
+                </div>
+                <div class="fm-filter-group">
+                    <select>
+                        <option>Today</option>
+                        <option>This Week</option>
+                        <option>This Month</option>
+                        <option>Custom Range</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Faculty</th>
+                            <th>Department</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dr. John Doe</td>
+                            <td>CSE</td>
+                            <td>15 Jan 2025</td>
+                            <td><span class="fm-pill fm-pill-active"><i class="fas fa-check"></i> Present</span></td>
+                            <td>09:00 AM</td>
+                            <td>05:30 PM</td>
+                            <td>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Dr. Jane Smith</td>
+                            <td>ECE</td>
+                            <td>15 Jan 2025</td>
+                            <td><span class="fm-pill fm-pill-leave"><i class="fas fa-clock"></i> Leave</span></td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>
+                                <button class="fm-mini-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="fm-legend">
+            <span><span class="fm-legend-dot active"></span> Active</span>
+            <span><span class="fm-legend-dot leave"></span> On Leave</span>
+            <span><span class="fm-legend-dot inactive"></span> Inactive</span>
+            <span><span class="fm-legend-dot present"></span> Present</span>
+            <span><span class="fm-legend-dot absent"></span> Absent</span>
+        </div>
     </div>
 
-    <!-- ================= ADD / EDIT FACULTY FORM ================= -->
-    <div class="fm-card" id="fmFormWrap" style="display:none;">
+    <!-- ================= WIZARD ================= -->
+    <div class="fm-card fm-wizard-card" id="fmWizardWrap" style="display:none;">
 
+        <!-- Back Button -->
         <div class="fm-back-row">
-            <button class="fm-back-link" onclick="showList()">← Back to Faculty List</button>
+            <button class="fm-back-link" onclick="showList()">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </button>
         </div>
 
-        <div class="fm-body">
-            <div class="fm-head">
-                <div class="fm-icon">🎓</div>
-                <div>
-                    <h2 id="fmFormTitle">Add Faculty</h2>
-                    <p>Enter faculty details, leadership and contact information.</p>
+        <!-- Wizard Type -->
+        <div class="fm-wizard-type" id="wizardType">
+            <button class="fm-btn fm-btn-sm fm-btn-ghost" data-type="faculty" onclick="setWizardType('faculty')">
+                <i class="fas fa-user"></i> Add Faculty
+            </button>
+            <button class="fm-btn fm-btn-sm fm-btn-ghost" data-type="department" onclick="setWizardType('department')">
+                <i class="fas fa-building"></i> Add Department
+            </button>
+            <button class="fm-btn fm-btn-sm fm-btn-ghost" data-type="assignment" onclick="setWizardType('assignment')">
+                <i class="fas fa-tasks"></i> New Assignment
+            </button>
+        </div>
+
+        <!-- ===== FACULTY WIZARD ===== -->
+        <div class="fm-wizard-content" id="wizardFaculty">
+            <!-- Personal Information -->
+            <div class="fm-section-title">
+                <i class="fas fa-user"></i> Personal Information
+            </div>
+            <div class="fm-grid">
+                <div class="fm-field">
+                    <label>First Name <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. John">
+                </div>
+                <div class="fm-field">
+                    <label>Last Name <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. Doe">
+                </div>
+                <div class="fm-field">
+                    <label>Email <span class="req">*</span></label>
+                    <input type="email" placeholder="john.doe@university.edu">
+                </div>
+                <div class="fm-field">
+                    <label>Phone <span class="req">*</span></label>
+                    <input type="tel" placeholder="+1 234 567 890">
+                </div>
+                <div class="fm-field">
+                    <label>Date of Birth</label>
+                    <input type="date">
+                </div>
+                <div class="fm-field">
+                    <label>Gender</label>
+                    <select>
+                        <option value="">-- Select --</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="fm-field fm-full">
+                    <label>Address</label>
+                    <textarea placeholder="Full address..."></textarea>
                 </div>
             </div>
 
-            <div class="fm-section-lbl">Basic Information</div>
+            <!-- Professional Information -->
+            <div class="fm-section-title">
+                <i class="fas fa-briefcase"></i> Professional Information
+            </div>
             <div class="fm-grid">
                 <div class="fm-field">
-                    <label>Faculty Name <span class="req">*</span></label>
-                    <input type="text" id="facultyName" placeholder="e.g. Faculty of Engineering">
+                    <label>Employee ID <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. EMP-2025-001">
                 </div>
                 <div class="fm-field">
-                    <label>Faculty Code <span class="req">*</span></label>
-                    <input type="text" id="facultyCode" placeholder="e.g. FAC-004">
-                </div>
-                <div class="fm-field">
-                    <label>Faculty Type</label>
-                    <select id="facultyType">
-                        <option value="">Select type</option>
-                        <option>Science</option>
-                        <option>Arts</option>
-                        <option>Commerce</option>
-                        <option>Engineering &amp; Technology</option>
-                        <option>Medical &amp; Health Sciences</option>
-                        <option>Law</option>
-                        <option>Education</option>
-                        <option>Management</option>
-                        <option>Agriculture</option>
-                        <option>Fine Arts &amp; Design</option>
+                    <label>Department <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select Department --</option>
+                        <option>CSE</option>
+                        <option>ECE</option>
+                        <option>ME</option>
+                        <option>CE</option>
+                        <option>MBA</option>
                     </select>
                 </div>
                 <div class="fm-field">
-                    <label>Established Year</label>
-                    <input type="number" id="facultyYear" placeholder="e.g. 2005" min="1800" max="2026">
+                    <label>Designation <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select Designation --</option>
+                        <option>Professor</option>
+                        <option>Associate Professor</option>
+                        <option>Assistant Professor</option>
+                        <option>Senior Lecturer</option>
+                        <option>Lecturer</option>
+                        <option>Teaching Assistant</option>
+                        <option>Research Scholar</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Qualification <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. Ph.D. (Computer Science)">
+                </div>
+                <div class="fm-field">
+                    <label>Experience (Years)</label>
+                    <input type="number" placeholder="e.g. 10" min="0">
+                </div>
+                <div class="fm-field">
+                    <label>Specialization</label>
+                    <input type="text" placeholder="e.g. Artificial Intelligence">
+                </div>
+                <div class="fm-field">
+                    <label>Join Date <span class="req">*</span></label>
+                    <input type="date" value="2025-04-01">
                 </div>
                 <div class="fm-field">
                     <label>Status</label>
-                    <div class="fm-status-row">
-                        <label class="fm-switch"><input type="checkbox" id="facultyStatus" checked><span class="fm-slider"></span></label>
-                        <span class="fm-status-text fm-active" id="fmStatusText">Active</span>
-                    </div>
+                    <select>
+                        <option value="Active">Active</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="fm-section-lbl">Description</div>
+            <!-- Education -->
+            <div class="fm-section-title">
+                <i class="fas fa-graduation-cap"></i> Education
+            </div>
             <div class="fm-grid">
                 <div class="fm-field fm-full">
-                    <label>Description</label>
-                    <textarea id="facultyDesc" placeholder="Short description about the faculty"></textarea>
+                    <label>Highest Qualification <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select --</option>
+                        <option>Ph.D.</option>
+                        <option>M.Phil.</option>
+                        <option>Master's Degree</option>
+                        <option>Bachelor's Degree</option>
+                        <option>Diploma</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Degree Name <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. Ph.D. in Computer Science">
+                </div>
+                <div class="fm-field">
+                    <label>University <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. MIT">
+                </div>
+                <div class="fm-field">
+                    <label>Year of Passing</label>
+                    <input type="number" placeholder="e.g. 2020" min="1980" max="2030">
+                </div>
+                <div class="fm-field fm-full">
+                    <label>Additional Qualifications</label>
+                    <textarea placeholder="List additional qualifications, certifications..."></textarea>
                 </div>
             </div>
 
-            <div class="fm-section-lbl">Leadership &amp; Contact</div>
+            <!-- Expertise -->
+            <div class="fm-section-title">
+                <i class="fas fa-star"></i> Expertise & Research
+            </div>
+            <div class="fm-grid">
+                <div class="fm-field fm-full">
+                    <label>Areas of Expertise</label>
+                    <input type="text" placeholder="e.g. Machine Learning, Data Science, Cloud Computing">
+                    <span class="fm-hint">Comma-separated values</span>
+                </div>
+                <div class="fm-field fm-full">
+                    <label>Research Publications</label>
+                    <textarea placeholder="List research publications, papers, journals..."></textarea>
+                </div>
+                <div class="fm-field fm-full">
+                    <label>Awards & Recognitions</label>
+                    <textarea placeholder="List any awards, recognitions, honors..."></textarea>
+                </div>
+            </div>
+
+            <!-- Workload -->
+            <div class="fm-section-title">
+                <i class="fas fa-tasks"></i> Workload Settings
+            </div>
             <div class="fm-grid">
                 <div class="fm-field">
-                    <label>Dean <span class="req">*</span></label>
-                    <input type="text" id="facultyDean" placeholder="e.g. Dr. R. Sharma">
+                    <label>Max Teaching Load (Hours/Week)</label>
+                    <input type="number" value="20" min="5" max="40">
                 </div>
                 <div class="fm-field">
-                    <label>Contact Number <span class="req">*</span></label>
-                    <input type="tel" id="facultyContact" placeholder="e.g. 0522-1234567">
+                    <label>Current Teaching Load (Hours/Week)</label>
+                    <input type="number" value="16" min="0" max="40" readonly disabled>
                 </div>
                 <div class="fm-field">
-                    <label>Email</label>
-                    <input type="email" id="facultyEmail" placeholder="faculty@university.edu">
+                    <label>Advisory Role</label>
+                    <select>
+                        <option value="">-- None --</option>
+                        <option>Academic Advisor</option>
+                        <option>Research Advisor</option>
+                        <option>Project Coordinator</option>
+                    </select>
                 </div>
                 <div class="fm-field">
-                    <label>Departments Count</label>
-                    <input type="number" id="facultyDeptCount" placeholder="e.g. 6" min="0">
+                    <label>Office Location</label>
+                    <input type="text" placeholder="e.g. Building A, Room 301">
                 </div>
             </div>
 
             <div class="fm-bar">
-                <button class="fm-btn fm-btn-ghost" onclick="showList()">Cancel</button>
                 <span></span>
+                <div class="fm-step-count">Step 1 of 1</div>
                 <button class="fm-btn fm-btn-primary" onclick="saveFaculty()">
-                    <span class="fm-check">✔</span> Save Faculty
+                    <i class="fas fa-save"></i> Save Faculty
                 </button>
             </div>
         </div>
+
+        <!-- ===== DEPARTMENT WIZARD ===== -->
+        <div class="fm-wizard-content" id="wizardDepartment" style="display:none;">
+            <div class="fm-grid">
+                <div class="fm-field">
+                    <label>Department Code <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. CSE">
+                    <span class="fm-hint">Unique code for the department</span>
+                </div>
+                <div class="fm-field">
+                    <label>Department Name <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. Computer Science & Engineering">
+                </div>
+                <div class="fm-field">
+                    <label>Head of Department</label>
+                    <select>
+                        <option value="">-- Select Faculty --</option>
+                        <option>Dr. John Doe</option>
+                        <option>Dr. Jane Smith</option>
+                        <option>Dr. Sarah Wilson</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Status</label>
+                    <select>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Department Email</label>
+                    <input type="email" placeholder="cse@university.edu">
+                </div>
+                <div class="fm-field">
+                    <label>Phone</label>
+                    <input type="tel" placeholder="+1 234 567 890">
+                </div>
+                <div class="fm-field fm-full">
+                    <label>Description</label>
+                    <textarea placeholder="Brief description of the department..."></textarea>
+                </div>
+            </div>
+
+            <div class="fm-bar">
+                <span></span>
+                <div class="fm-step-count">Step 1 of 1</div>
+                <button class="fm-btn fm-btn-primary" onclick="saveDepartment()">
+                    <i class="fas fa-save"></i> Save Department
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== ASSIGNMENT WIZARD ===== -->
+        <div class="fm-wizard-content" id="wizardAssignment" style="display:none;">
+            <div class="fm-grid">
+                <div class="fm-field">
+                    <label>Faculty <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select Faculty --</option>
+                        <option>Dr. John Doe</option>
+                        <option>Dr. Jane Smith</option>
+                        <option>Dr. Sarah Wilson</option>
+                        <option>Prof. Mike Ross</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Course <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select Course --</option>
+                        <option>CS101 - Programming Fundamentals</option>
+                        <option>CS201 - Data Structures</option>
+                        <option>ECE201 - Digital Electronics</option>
+                        <option>ME301 - Thermodynamics</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Session <span class="req">*</span></label>
+                    <select>
+                        <option value="">-- Select Session --</option>
+                        <option>2025-26</option>
+                        <option>2024-25</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Assignment Type</label>
+                    <select>
+                        <option>Primary Instructor</option>
+                        <option>Co-Instructor</option>
+                        <option>Teaching Assistant</option>
+                        <option>Lab Instructor</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Credits</label>
+                    <input type="number" value="4" min="1" max="6">
+                </div>
+                <div class="fm-field">
+                    <label>Status</label>
+                    <select>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fm-bar">
+                <span></span>
+                <div class="fm-step-count">Step 1 of 1</div>
+                <button class="fm-btn fm-btn-primary" onclick="saveAssignment()">
+                    <i class="fas fa-save"></i> Save Assignment
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== DONE STATE ===== -->
+        <div class="fm-done" id="fmDone" style="display:none;">
+            <div class="fm-done-icon"><i class="fas fa-check-circle"></i></div>
+            <h2>Faculty Added Successfully!</h2>
+            <p id="fmDoneMessage">Dr. John Doe has been added to the faculty.</p>
+            <div class="fm-done-actions">
+                <button class="fm-btn fm-btn-primary" onclick="resetWizard()">
+                    <i class="fas fa-plus"></i> Add Another
+                </button>
+                <button class="fm-btn fm-btn-outline" onclick="showList()">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </button>
+            </div>
+        </div>
+
     </div>
 
 </div>
 
-<div class="fm-toast" id="fmToast"></div>
+<!-- Toast Notification -->
+<div class="fm-toast" id="fmToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="fmToastMessage">Success!</span>
+</div>
 
-<script>document.getElementById('facultyStatus').addEventListener('change', function () {
-        const t = document.getElementById('fmStatusText');
-        if (this.checked) { t.textContent = 'Active'; t.className = 'fm-status-text fm-active'; }
-        else { t.textContent = 'Inactive'; t.className = 'fm-status-text fm-inactive'; }
-    });
+<script>
+    let currentWizardType = 'faculty';
 
-    function showToast(msg) {
-        const t = document.getElementById('fmToast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2200);
-    }
-
-    function showForm(rowBtn) {
+    function showWizard(type) {
         document.getElementById('fmListWrap').style.display = 'none';
-        document.getElementById('fmFormWrap').style.display = 'block';
-
-        if (rowBtn) {
-            const row = rowBtn.closest('tr');
-            document.getElementById('fmFormTitle').textContent = 'Edit Faculty';
-            document.getElementById('facultyName').value = row.children[0].textContent.trim();
-            document.getElementById('facultyCode').value = row.children[1].textContent.trim();
-            document.getElementById('facultyType').value = row.children[2].textContent.trim();
-            document.getElementById('facultyDean').value = row.children[3].textContent.trim();
-            document.getElementById('facultyContact').value = row.children[4].textContent.trim();
-        } else {
-            document.getElementById('fmFormTitle').textContent = 'Add Faculty';
-            clearForm();
-        }
+        document.getElementById('fmWizardWrap').style.display = 'block';
+        setWizardType(type || 'faculty');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showList() {
-        document.getElementById('fmFormWrap').style.display = 'none';
+        document.getElementById('fmWizardWrap').style.display = 'none';
         document.getElementById('fmListWrap').style.display = 'block';
+        document.getElementById('fmDone').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function clearForm() {
-        document.querySelectorAll('#fmFormWrap input[type=text], #fmFormWrap input[type=tel], #fmFormWrap input[type=email], #fmFormWrap input[type=number], #fmFormWrap select, #fmFormWrap textarea').forEach(el => el.value = '');
-        document.getElementById('facultyStatus').checked = true;
-        document.getElementById('fmStatusText').textContent = 'Active';
-        document.getElementById('fmStatusText').className = 'fm-status-text fm-active';
+    function setWizardType(type) {
+        currentWizardType = type;
+        document.querySelectorAll('.fm-wizard-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#wizardType .fm-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById('wizard' + type.charAt(0).toUpperCase() + type.slice(1)).style.display = 'block';
+        document.querySelector('#wizardType .fm-btn[data-type="' + type + '"]').classList.add('active');
+        document.getElementById('fmDone').style.display = 'none';
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.fm-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.fm-tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('.fm-tab[data-tab="' + tab + '"]').classList.add('active');
+        document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('fmToast');
+        const messageEl = document.getElementById('fmToastMessage');
+        const icon = toast.querySelector('i');
+
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' :
+                'fas fa-info-circle';
+        toast.className = 'fm-toast show ' + (type || '');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
     }
 
     function saveFaculty() {
-        const name = document.getElementById('facultyName').value.trim();
-        const code = document.getElementById('facultyCode').value.trim();
-        if (!name || !code) { showToast('Faculty Name and Code are required'); return; }
+        const name = document.querySelector('#wizardFaculty input[placeholder*="John"]');
+        if (!name || !name.value.trim()) {
+            showToast('Please enter faculty name', 'error');
+            return;
+        }
+        document.getElementById('fmDoneMessage').textContent = name.value.trim() + ' has been added to the faculty.';
+        document.querySelectorAll('.fm-wizard-content').forEach(el => el.style.display = 'none');
+        document.getElementById('fmDone').style.display = 'block';
+        showToast('Faculty added successfully!', 'success');
+    }
 
-        const tbody = document.getElementById('facultyTableBody');
-        const row = document.createElement('tr');
-        row.innerHTML =
-            '<td class="fm-name">' + name + '</td>' +
-            '<td>' + code + '</td>' +
-            '<td>' + document.getElementById('facultyType').value + '</td>' +
-            '<td>' + document.getElementById('facultyDean').value.trim() + '</td>' +
-            '<td>' + document.getElementById('facultyContact').value.trim() + '</td>' +
-            '<td><span class="fm-pill ' + (document.getElementById('facultyStatus').checked ? 'fm-pill-active">Active' : 'fm-pill-inactive">Inactive') + '</span></td>' +
-            '<td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>';
-        tbody.appendChild(row);
+    function saveDepartment() {
+        const dept = document.querySelector('#wizardDepartment input[placeholder*="Computer"]');
+        if (!dept || !dept.value.trim()) {
+            showToast('Please enter department name', 'error');
+            return;
+        }
+        document.getElementById('fmDoneMessage').textContent = 'Department "' + dept.value.trim() + '" has been created.';
+        document.querySelectorAll('.fm-wizard-content').forEach(el => el.style.display = 'none');
+        document.getElementById('fmDone').style.display = 'block';
+        showToast('Department added successfully!', 'success');
+    }
 
-        showToast('Faculty saved successfully');
-        showList();
-    }</script>
+    function saveAssignment() {
+        document.getElementById('fmDoneMessage').textContent = 'Assignment has been created successfully.';
+        document.querySelectorAll('.fm-wizard-content').forEach(el => el.style.display = 'none');
+        document.getElementById('fmDone').style.display = 'block';
+        showToast('Assignment created successfully!', 'success');
+    }
 
-<link href="~/Content/CSS/Facultymanagement.css" rel="stylesheet" />
+    function resetWizard() {
+        document.getElementById('fmDone').style.display = 'none';
+        setWizardType(currentWizardType);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Search functionality
+    document.getElementById('facultySearch')?.addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelector('#tabFaculty tbody tr');
+        // Add your search logic here
+        showToast('Searching: ' + searchTerm, 'info');
+    });
+</script>
