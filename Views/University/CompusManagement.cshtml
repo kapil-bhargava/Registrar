@@ -1,0 +1,224 @@
+﻿
+@{
+    ViewBag.Title = "CompusManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/campusManagement.css" rel="stylesheet" />
+
+<div class="cm-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="cm-card" id="cmListWrap">
+        <div class="cm-list-head">
+            <div>
+                <h2>Campus Management</h2>
+                <p>Manage all campuses under the university.</p>
+            </div>
+            <button class="cm-btn cm-btn-primary" onclick="showForm()">+ Add New Campus</button>
+        </div>
+
+        <table class="cm-table cm-list-table">
+            <thead>
+                <tr>
+                    <th>Campus Name</th>
+                    <th>Campus Code</th>
+                    <th>Contact</th>
+                    <th>Dean</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="campusTableBody">
+                <tr>
+                    <td class="cm-name">Main Campus</td>
+                    <td>CMP-001</td>
+                    <td>0522-1234567</td>
+                    <td>Dr. R. Sharma</td>
+                    <td>Main Campus</td>
+                    <td><span class="cm-pill cm-pill-active">Active</span></td>
+                    <td><button class="cm-mini-btn" onclick="showForm(this)">View</button></td>
+                </tr>
+                <tr>
+                    <td class="cm-name">Gomti Nagar Campus</td>
+                    <td>CMP-002</td>
+                    <td>0522-7654321</td>
+                    <td>Dr. A. Khan</td>
+                    <td>Sub Campus</td>
+                    <td><span class="cm-pill cm-pill-active">Active</span></td>
+                    <td><button class="cm-mini-btn" onclick="showForm(this)">View</button></td>
+                </tr>
+                <tr>
+                    <td class="cm-name">City Study Centre</td>
+                    <td>CMP-003</td>
+                    <td>0522-9988776</td>
+                    <td>Dr. S. Verma</td>
+                    <td>Study Centre</td>
+                    <td><span class="cm-pill cm-pill-inactive">Inactive</span></td>
+                    <td><button class="cm-mini-btn" onclick="showForm(this)">View</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================= ADD / EDIT CAMPUS FORM ================= -->
+    <div class="cm-card" id="cmFormWrap" style="display:none;">
+
+        <div class="cm-back-row">
+            <button class="cm-back-link" onclick="showList()">← Back to Campus List</button>
+        </div>
+
+        <div class="cm-body">
+            <div class="cm-head">
+                <div class="cm-icon">🏫</div>
+                <div>
+                    <h2 id="cmFormTitle">Add Campus</h2>
+                    <p>Enter campus details, contact information and type.</p>
+                </div>
+            </div>
+
+            <div class="cm-section-lbl">Basic Information</div>
+            <div class="cm-grid">
+                <div class="cm-field">
+                    <label>Campus Name <span class="req">*</span></label>
+                    <input type="text" id="campusName" placeholder="e.g. Main Campus">
+                </div>
+                <div class="cm-field">
+                    <label>Campus Code <span class="req">*</span></label>
+                    <input type="text" id="campusCode" placeholder="e.g. CMP-004">
+                </div>
+                <div class="cm-field">
+                    <label>Campus Type</label>
+                    <select id="campusType">
+                        <option value="">Select type</option>
+                        <option>Main Campus</option>
+                        <option>Sub Campus</option>
+                        <option>Constituent College</option>
+                        <option>Affiliated College</option>
+                        <option>Study Centre</option>
+                        <option>Regional Centre</option>
+                        <option>City Campus</option>
+                        <option>Off-Campus Centre</option>
+                    </select>
+                </div>
+                <div class="cm-field">
+                    <label>Capacity <span style="color:var(--cm-muted); font-weight:400;">(students)</span></label>
+                    <input type="number" id="campusCapacity" placeholder="e.g. 2500" min="0">
+                </div>
+                <div class="cm-field">
+                    <label>Status</label>
+                    <div class="cm-status-row">
+                        <label class="cm-switch"><input type="checkbox" id="campusStatus" checked><span class="cm-slider"></span></label>
+                        <span class="cm-status-text cm-active" id="cmStatusText">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cm-section-lbl">Address</div>
+            <div class="cm-grid">
+                <div class="cm-field cm-full">
+                    <label>Address <span class="req">*</span></label>
+                    <textarea id="campusAddress" placeholder="Full campus address"></textarea>
+                </div>
+            </div>
+
+            <div class="cm-section-lbl">Contact &amp; Leadership</div>
+            <div class="cm-grid">
+                <div class="cm-field">
+                    <label>Contact Number <span class="req">*</span></label>
+                    <input type="tel" id="campusContact" placeholder="e.g. 0522-1234567">
+                </div>
+                <div class="cm-field">
+                    <label>Email <span class="req">*</span></label>
+                    <input type="email" id="campusEmail" placeholder="campus@university.edu">
+                </div>
+                <div class="cm-field">
+                    <label>Dean</label>
+                    <input type="text" id="campusDean" placeholder="e.g. Dr. R. Sharma">
+                </div>
+            </div>
+
+            <div class="cm-bar">
+                <button class="cm-btn cm-btn-ghost" onclick="showList()">Cancel</button>
+                <span></span>
+                <button class="cm-btn cm-btn-primary" onclick="saveCampus()">
+                    <span class="cm-check">✔</span> Save Campus
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="cm-toast" id="cmToast"></div>
+
+<script>document.getElementById('campusStatus').addEventListener('change', function () {
+        const t = document.getElementById('cmStatusText');
+        if (this.checked) { t.textContent = 'Active'; t.className = 'cm-status-text cm-active'; }
+        else { t.textContent = 'Inactive'; t.className = 'cm-status-text cm-inactive'; }
+    });
+
+    function showToast(msg) {
+        const t = document.getElementById('cmToast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function showForm(rowBtn) {
+        document.getElementById('cmListWrap').style.display = 'none';
+        document.getElementById('cmFormWrap').style.display = 'block';
+
+        if (rowBtn) {
+            const row = rowBtn.closest('tr');
+            document.getElementById('cmFormTitle').textContent = 'Edit Campus';
+            document.getElementById('campusName').value = row.children[0].textContent.trim();
+            document.getElementById('campusCode').value = row.children[1].textContent.trim();
+            document.getElementById('campusContact').value = row.children[2].textContent.trim();
+            document.getElementById('campusDean').value = row.children[3].textContent.trim();
+            document.getElementById('campusType').value = row.children[4].textContent.trim();
+        } else {
+            document.getElementById('cmFormTitle').textContent = 'Add Campus';
+            clearForm();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showList() {
+        document.getElementById('cmFormWrap').style.display = 'none';
+        document.getElementById('cmListWrap').style.display = 'block';
+    }
+
+    function clearForm() {
+        document.querySelectorAll('#cmFormWrap input[type=text], #cmFormWrap input[type=tel], #cmFormWrap input[type=email], #cmFormWrap input[type=number], #cmFormWrap select, #cmFormWrap textarea').forEach(el => el.value = '');
+        document.getElementById('campusStatus').checked = true;
+        document.getElementById('cmStatusText').textContent = 'Active';
+        document.getElementById('cmStatusText').className = 'cm-status-text cm-active';
+    }
+
+    function saveCampus() {
+        const name = document.getElementById('campusName').value.trim();
+        const code = document.getElementById('campusCode').value.trim();
+        if (!name || !code) { showToast('Campus Name and Code are required'); return; }
+
+        const tbody = document.getElementById('campusTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML =
+            '<td class="cm-name">' + name + '</td>' +
+            '<td>' + code + '</td>' +
+            '<td>' + document.getElementById('campusContact').value.trim() + '</td>' +
+            '<td>' + document.getElementById('campusDean').value.trim() + '</td>' +
+            '<td>' + document.getElementById('campusType').value + '</td>' +
+            '<td><span class="cm-pill ' + (document.getElementById('campusStatus').checked ? 'cm-pill-active">Active' : 'cm-pill-inactive">Inactive') + '</span></td>' +
+            '<td><button class="cm-mini-btn" onclick="showForm(this)">View</button></td>';
+        tbody.appendChild(row);
+
+        showToast('Campus saved successfully');
+        showList();
+    }</script>
+
+

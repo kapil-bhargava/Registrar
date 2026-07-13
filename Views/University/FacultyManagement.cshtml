@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "FacultyManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/Facultymanagement.css" rel="stylesheet" />
+
+<div class="fm-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="fm-card" id="fmListWrap">
+        <div class="fm-list-head">
+            <div>
+                <h2>Faculty Management</h2>
+                <p>Manage all faculties under the university.</p>
+            </div>
+            <button class="fm-btn fm-btn-primary" onclick="showForm()">+ Add New Faculty</button>
+        </div>
+
+        <table class="fm-table fm-list-table">
+            <thead>
+                <tr>
+                    <th>Faculty Name</th>
+                    <th>Faculty Code</th>
+                    <th>Type</th>
+                    <th>Dean</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="facultyTableBody">
+                <tr>
+                    <td class="fm-name">Faculty of Engineering</td>
+                    <td>FAC-001</td>
+                    <td>Engineering &amp; Technology</td>
+                    <td>Dr. R. Sharma</td>
+                    <td>0522-1234567</td>
+                    <td><span class="fm-pill fm-pill-active">Active</span></td>
+                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
+                </tr>
+                <tr>
+                    <td class="fm-name">Faculty of Science</td>
+                    <td>FAC-002</td>
+                    <td>Science</td>
+                    <td>Dr. A. Khan</td>
+                    <td>0522-7654321</td>
+                    <td><span class="fm-pill fm-pill-active">Active</span></td>
+                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
+                </tr>
+                <tr>
+                    <td class="fm-name">Faculty of Commerce</td>
+                    <td>FAC-003</td>
+                    <td>Commerce</td>
+                    <td>Dr. S. Verma</td>
+                    <td>0522-9988776</td>
+                    <td><span class="fm-pill fm-pill-inactive">Inactive</span></td>
+                    <td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================= ADD / EDIT FACULTY FORM ================= -->
+    <div class="fm-card" id="fmFormWrap" style="display:none;">
+
+        <div class="fm-back-row">
+            <button class="fm-back-link" onclick="showList()">← Back to Faculty List</button>
+        </div>
+
+        <div class="fm-body">
+            <div class="fm-head">
+                <div class="fm-icon">🎓</div>
+                <div>
+                    <h2 id="fmFormTitle">Add Faculty</h2>
+                    <p>Enter faculty details, leadership and contact information.</p>
+                </div>
+            </div>
+
+            <div class="fm-section-lbl">Basic Information</div>
+            <div class="fm-grid">
+                <div class="fm-field">
+                    <label>Faculty Name <span class="req">*</span></label>
+                    <input type="text" id="facultyName" placeholder="e.g. Faculty of Engineering">
+                </div>
+                <div class="fm-field">
+                    <label>Faculty Code <span class="req">*</span></label>
+                    <input type="text" id="facultyCode" placeholder="e.g. FAC-004">
+                </div>
+                <div class="fm-field">
+                    <label>Faculty Type</label>
+                    <select id="facultyType">
+                        <option value="">Select type</option>
+                        <option>Science</option>
+                        <option>Arts</option>
+                        <option>Commerce</option>
+                        <option>Engineering &amp; Technology</option>
+                        <option>Medical &amp; Health Sciences</option>
+                        <option>Law</option>
+                        <option>Education</option>
+                        <option>Management</option>
+                        <option>Agriculture</option>
+                        <option>Fine Arts &amp; Design</option>
+                    </select>
+                </div>
+                <div class="fm-field">
+                    <label>Established Year</label>
+                    <input type="number" id="facultyYear" placeholder="e.g. 2005" min="1800" max="2026">
+                </div>
+                <div class="fm-field">
+                    <label>Status</label>
+                    <div class="fm-status-row">
+                        <label class="fm-switch"><input type="checkbox" id="facultyStatus" checked><span class="fm-slider"></span></label>
+                        <span class="fm-status-text fm-active" id="fmStatusText">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fm-section-lbl">Description</div>
+            <div class="fm-grid">
+                <div class="fm-field fm-full">
+                    <label>Description</label>
+                    <textarea id="facultyDesc" placeholder="Short description about the faculty"></textarea>
+                </div>
+            </div>
+
+            <div class="fm-section-lbl">Leadership &amp; Contact</div>
+            <div class="fm-grid">
+                <div class="fm-field">
+                    <label>Dean <span class="req">*</span></label>
+                    <input type="text" id="facultyDean" placeholder="e.g. Dr. R. Sharma">
+                </div>
+                <div class="fm-field">
+                    <label>Contact Number <span class="req">*</span></label>
+                    <input type="tel" id="facultyContact" placeholder="e.g. 0522-1234567">
+                </div>
+                <div class="fm-field">
+                    <label>Email</label>
+                    <input type="email" id="facultyEmail" placeholder="faculty@university.edu">
+                </div>
+                <div class="fm-field">
+                    <label>Departments Count</label>
+                    <input type="number" id="facultyDeptCount" placeholder="e.g. 6" min="0">
+                </div>
+            </div>
+
+            <div class="fm-bar">
+                <button class="fm-btn fm-btn-ghost" onclick="showList()">Cancel</button>
+                <span></span>
+                <button class="fm-btn fm-btn-primary" onclick="saveFaculty()">
+                    <span class="fm-check">✔</span> Save Faculty
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="fm-toast" id="fmToast"></div>
+
+<script>document.getElementById('facultyStatus').addEventListener('change', function () {
+        const t = document.getElementById('fmStatusText');
+        if (this.checked) { t.textContent = 'Active'; t.className = 'fm-status-text fm-active'; }
+        else { t.textContent = 'Inactive'; t.className = 'fm-status-text fm-inactive'; }
+    });
+
+    function showToast(msg) {
+        const t = document.getElementById('fmToast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function showForm(rowBtn) {
+        document.getElementById('fmListWrap').style.display = 'none';
+        document.getElementById('fmFormWrap').style.display = 'block';
+
+        if (rowBtn) {
+            const row = rowBtn.closest('tr');
+            document.getElementById('fmFormTitle').textContent = 'Edit Faculty';
+            document.getElementById('facultyName').value = row.children[0].textContent.trim();
+            document.getElementById('facultyCode').value = row.children[1].textContent.trim();
+            document.getElementById('facultyType').value = row.children[2].textContent.trim();
+            document.getElementById('facultyDean').value = row.children[3].textContent.trim();
+            document.getElementById('facultyContact').value = row.children[4].textContent.trim();
+        } else {
+            document.getElementById('fmFormTitle').textContent = 'Add Faculty';
+            clearForm();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showList() {
+        document.getElementById('fmFormWrap').style.display = 'none';
+        document.getElementById('fmListWrap').style.display = 'block';
+    }
+
+    function clearForm() {
+        document.querySelectorAll('#fmFormWrap input[type=text], #fmFormWrap input[type=tel], #fmFormWrap input[type=email], #fmFormWrap input[type=number], #fmFormWrap select, #fmFormWrap textarea').forEach(el => el.value = '');
+        document.getElementById('facultyStatus').checked = true;
+        document.getElementById('fmStatusText').textContent = 'Active';
+        document.getElementById('fmStatusText').className = 'fm-status-text fm-active';
+    }
+
+    function saveFaculty() {
+        const name = document.getElementById('facultyName').value.trim();
+        const code = document.getElementById('facultyCode').value.trim();
+        if (!name || !code) { showToast('Faculty Name and Code are required'); return; }
+
+        const tbody = document.getElementById('facultyTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML =
+            '<td class="fm-name">' + name + '</td>' +
+            '<td>' + code + '</td>' +
+            '<td>' + document.getElementById('facultyType').value + '</td>' +
+            '<td>' + document.getElementById('facultyDean').value.trim() + '</td>' +
+            '<td>' + document.getElementById('facultyContact').value.trim() + '</td>' +
+            '<td><span class="fm-pill ' + (document.getElementById('facultyStatus').checked ? 'fm-pill-active">Active' : 'fm-pill-inactive">Inactive') + '</span></td>' +
+            '<td><button class="fm-mini-btn" onclick="showForm(this)">Edit</button></td>';
+        tbody.appendChild(row);
+
+        showToast('Faculty saved successfully');
+        showList();
+    }</script>
+
+<link href="~/Content/CSS/Facultymanagement.css" rel="stylesheet" />
