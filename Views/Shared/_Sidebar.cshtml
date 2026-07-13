@@ -83,12 +83,20 @@
                 </li>
                 <!-- Department -->
                 <li>
-                    <a class="@(activeSubMenu == "Department" ? "active-link" : "")"
+                    <a href="@Url.Action("DepartmentManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Department" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Department">
                         <i class="fas fa-sitemap"></i> Department
                     </a>
                 </li>
                 <!-- Program -->
+                <li>
+                    <a href="@Url.Action("HODManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Program" ? "active-link" : "")"
+                       asp-controller="Academic" asp-action="Program">
+                        <i class="fas fa-graduation-cap"></i> HOD Management
+                    </a>
+                </li>
                 <li>
                     <a class="@(activeSubMenu == "Program" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Program">

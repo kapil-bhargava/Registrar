@@ -1,9 +1,9 @@
-﻿
-@{
-    ViewBag.Title = "DepartmentManagement";
+﻿@{
+    ViewBag.Title = "Department Management";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
+    ViewBag.ActiveMenu = "Academic";
+    ViewData["ActiveSubMenu"] = "Department";
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,127 +13,319 @@
 
     <!-- ================= LIST PAGE ================= -->
     <div class="dm-card" id="dmListWrap">
+        <!-- Header -->
         <div class="dm-list-head">
             <div>
-                <h2>Department Management</h2>
-                <p>Manage all departments under the university.</p>
+                <h2><i class="fas fa-building"></i> Department Management</h2>
+                <p>Manage all departments, faculty associations, and campus locations.</p>
             </div>
-            <button class="dm-btn dm-btn-primary" onclick="showForm()">+ Add New Department</button>
+            <div class="dm-header-actions">
+                <button class="dm-btn dm-btn-outline" onclick="showForm()">
+                    <i class="fas fa-file-import"></i> Import
+                </button>
+                <button class="dm-btn dm-btn-primary" onclick="showForm()">
+                    <i class="fas fa-plus-circle"></i> Add Department
+                </button>
+            </div>
         </div>
 
+        <!-- Quick Stats -->
+        <div class="dm-quick-stats">
+            <div class="dm-stat-card">
+                <div class="dm-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="dm-stat-info">
+                    <span class="dm-stat-number" id="totalDepartments">12</span>
+                    <span class="dm-stat-label">Total Departments</span>
+                </div>
+            </div>
+            <div class="dm-stat-card">
+                <div class="dm-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="dm-stat-info">
+                    <span class="dm-stat-number" id="activeDepartments">10</span>
+                    <span class="dm-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="dm-stat-card">
+                <div class="dm-stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="dm-stat-info">
+                    <span class="dm-stat-number" id="hodCount">12</span>
+                    <span class="dm-stat-label">Heads of Department</span>
+                </div>
+            </div>
+            <div class="dm-stat-card">
+                <div class="dm-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="dm-stat-info">
+                    <span class="dm-stat-number" id="facultyCount">348</span>
+                    <span class="dm-stat-label">Total Faculty</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="dm-table-toolbar">
+            <div class="dm-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by department name, code, or faculty..." id="departmentSearch">
+            </div>
+            <div class="dm-filter-group">
+                <select id="filterFaculty">
+                    <option value="">All Faculties</option>
+                    <option value="Engineering">Faculty of Engineering</option>
+                    <option value="Science">Faculty of Science</option>
+                    <option value="Commerce">Faculty of Commerce</option>
+                    <option value="Arts">Faculty of Arts</option>
+                    <option value="Medicine">Faculty of Medicine</option>
+                </select>
+                <select id="filterCampus">
+                    <option value="">All Campuses</option>
+                    <option value="Main">Main Campus</option>
+                    <option value="Gomti">Gomti Nagar Campus</option>
+                    <option value="City">City Study Centre</option>
+                    <option value="Satellite">Satellite Campus</option>
+                </select>
+                <select id="filterStatus">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Department List -->
         <div class="dm-table-scroll">
             <table class="dm-table dm-list-table">
                 <thead>
                     <tr>
                         <th>Department Name</th>
-                        <th>Department Code</th>
+                        <th>Code</th>
                         <th>Faculty</th>
                         <th>Campus</th>
+                        <th>HOD</th>
+                        <th>Faculty Count</th>
                         <th>Status</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="departmentTableBody">
                     <tr>
-                        <td class="dm-name">Computer Science</td>
-                        <td>DEP-001</td>
+                        <td class="dm-name"><i class="fas fa-laptop-code"></i> Computer Science & Engineering</td>
+                        <td><span class="dm-code-badge">CSE</span></td>
                         <td>Faculty of Engineering</td>
                         <td>Main Campus</td>
-                        <td><span class="dm-pill dm-pill-active">Active</span></td>
+                        <td>Dr. John Doe</td>
+                        <td>45</td>
+                        <td><span class="dm-pill dm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
                         <td class="dm-actions">
-                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)">View</button>
-                            <button class="dm-mini-btn" onclick="showForm(this)">Edit</button>
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <tr>
-                        <td class="dm-name">Physics</td>
-                        <td>DEP-002</td>
+                        <td class="dm-name"><i class="fas fa-atom"></i> Physics</td>
+                        <td><span class="dm-code-badge">PHY</span></td>
                         <td>Faculty of Science</td>
                         <td>Main Campus</td>
-                        <td><span class="dm-pill dm-pill-active">Active</span></td>
+                        <td>Dr. Jane Smith</td>
+                        <td>28</td>
+                        <td><span class="dm-pill dm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
                         <td class="dm-actions">
-                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)">View</button>
-                            <button class="dm-mini-btn" onclick="showForm(this)">Edit</button>
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <tr>
-                        <td class="dm-name">Accounting</td>
-                        <td>DEP-003</td>
+                        <td class="dm-name"><i class="fas fa-calculator"></i> Mathematics</td>
+                        <td><span class="dm-code-badge">MATH</span></td>
+                        <td>Faculty of Science</td>
+                        <td>Main Campus</td>
+                        <td>Dr. Sarah Wilson</td>
+                        <td>22</td>
+                        <td><span class="dm-pill dm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td class="dm-actions">
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="dm-name"><i class="fas fa-chart-line"></i> Accounting & Finance</td>
+                        <td><span class="dm-code-badge">ACC</span></td>
                         <td>Faculty of Commerce</td>
                         <td>Gomti Nagar Campus</td>
-                        <td><span class="dm-pill dm-pill-inactive">Inactive</span></td>
+                        <td>Prof. Mike Ross</td>
+                        <td>18</td>
+                        <td><span class="dm-pill dm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
                         <td class="dm-actions">
-                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)">View</button>
-                            <button class="dm-mini-btn" onclick="showForm(this)">Edit</button>
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="dm-name"><i class="fas fa-microscope"></i> Biotechnology</td>
+                        <td><span class="dm-code-badge">BIO</span></td>
+                        <td>Faculty of Science</td>
+                        <td>Satellite Campus</td>
+                        <td>Dr. Emily Chen</td>
+                        <td>15</td>
+                        <td><span class="dm-pill dm-pill-pending"><i class="fas fa-clock"></i> Pending</span></td>
+                        <td class="dm-actions">
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="dm-name"><i class="fas fa-heartbeat"></i> Medicine</td>
+                        <td><span class="dm-code-badge">MED</span></td>
+                        <td>Faculty of Medicine</td>
+                        <td>Main Campus</td>
+                        <td>Dr. Robert Brown</td>
+                        <td>52</td>
+                        <td><span class="dm-pill dm-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td class="dm-actions">
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="dm-name"><i class="fas fa-paint-brush"></i> Fine Arts</td>
+                        <td><span class="dm-code-badge">ART</span></td>
+                        <td>Faculty of Arts</td>
+                        <td>City Study Centre</td>
+                        <td>Prof. Lisa Taylor</td>
+                        <td>8</td>
+                        <td><span class="dm-pill dm-pill-inactive"><i class="fas fa-circle"></i> Inactive</span></td>
+                        <td class="dm-actions">
+                            <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <div class="dm-pagination">
+            <span>Showing 1-7 of 12 departments</span>
+            <div class="dm-pagination-btns">
+                <button class="dm-mini-btn"><i class="fas fa-chevron-left"></i></button>
+                <button class="dm-mini-btn active">1</button>
+                <button class="dm-mini-btn">2</button>
+                <button class="dm-mini-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="dm-legend">
+            <span><span class="dm-legend-dot active"></span> Active</span>
+            <span><span class="dm-legend-dot inactive"></span> Inactive</span>
+            <span><span class="dm-legend-dot pending"></span> Pending</span>
+        </div>
     </div>
 
     <!-- ================= ADD / EDIT DEPARTMENT FORM ================= -->
-    <div class="dm-card" id="dmFormWrap" style="display:none;">
+    <div class="dm-card dm-form-card" id="dmFormWrap" style="display:none;">
 
         <div class="dm-back-row">
-            <button class="dm-back-link" onclick="showList()">← Back to Department List</button>
+            <button class="dm-back-link" onclick="showList()">
+                <i class="fas fa-arrow-left"></i> Back to Department List
+            </button>
         </div>
 
         <div class="dm-body">
             <div class="dm-head">
-                <div class="dm-icon">🏢</div>
+                <div class="dm-icon"><i class="fas fa-building"></i></div>
                 <div>
                     <h2 id="dmFormTitle">Add Department</h2>
-                    <p>Enter department details, faculty and campus association.</p>
+                    <p>Enter department details, faculty association, and campus location.</p>
                 </div>
             </div>
 
-            <div class="dm-section-lbl">Basic Information</div>
+            <!-- Basic Information -->
+            <div class="dm-section-lbl">
+                <i class="fas fa-info-circle"></i> Basic Information
+            </div>
             <div class="dm-grid">
-                <div class="dm-field">
+                <div class="dm-field dm-full">
                     <label>Department Name <span class="req">*</span></label>
-                    <input type="text" id="deptName" placeholder="e.g. Computer Science">
+                    <input type="text" id="deptName" placeholder="e.g. Computer Science & Engineering">
+                    <span class="dm-hint">Full name of the department</span>
                 </div>
                 <div class="dm-field">
                     <label>Department Code <span class="req">*</span></label>
-                    <input type="text" id="deptCode" placeholder="e.g. DEP-004">
+                    <input type="text" id="deptCode" placeholder="e.g. CSE" maxlength="10">
+                    <span class="dm-hint">Short, unique identifier</span>
                 </div>
                 <div class="dm-field">
                     <label>Faculty <span class="req">*</span></label>
                     <select id="deptFaculty">
-                        <option value="">Select faculty</option>
+                        <option value="">-- Select Faculty --</option>
                         <option>Faculty of Engineering</option>
                         <option>Faculty of Science</option>
                         <option>Faculty of Commerce</option>
+                        <option>Faculty of Arts</option>
+                        <option>Faculty of Medicine</option>
+                        <option>Faculty of Law</option>
+                        <option>Faculty of Education</option>
                     </select>
                 </div>
                 <div class="dm-field">
                     <label>Campus <span class="req">*</span></label>
                     <select id="deptCampus">
-                        <option value="">Select campus</option>
+                        <option value="">-- Select Campus --</option>
                         <option>Main Campus</option>
                         <option>Gomti Nagar Campus</option>
                         <option>City Study Centre</option>
+                        <option>Satellite Campus</option>
+                        <option>Online Campus</option>
+                    </select>
+                </div>
+                <div class="dm-field">
+                    <label>Head of Department <span class="req">*</span></label>
+                    <select id="deptHOD">
+                        <option value="">-- Select HOD --</option>
+                        <option>Dr. John Doe</option>
+                        <option>Dr. Jane Smith</option>
+                        <option>Dr. Sarah Wilson</option>
+                        <option>Prof. Mike Ross</option>
+                        <option>Dr. Emily Chen</option>
+                        <option>Dr. Robert Brown</option>
+                        <option>Prof. Lisa Taylor</option>
                     </select>
                 </div>
                 <div class="dm-field">
                     <label>Status</label>
                     <div class="dm-status-row">
-                        <label class="dm-switch"><input type="checkbox" id="deptStatus" checked><span class="dm-slider"></span></label>
+                        <label class="dm-switch">
+                            <input type="checkbox" id="deptStatus" checked>
+                            <span class="dm-slider"></span>
+                        </label>
                         <span class="dm-status-text dm-active" id="dmStatusText">Active</span>
                     </div>
                 </div>
             </div>
 
-            <div class="dm-section-lbl">Description</div>
+            <!-- Description -->
+            <div class="dm-section-lbl">
+                <i class="fas fa-align-left"></i> Description
+            </div>
             <div class="dm-grid">
                 <div class="dm-field dm-full">
-                    <label>Description</label>
-                    <textarea id="deptDesc" placeholder="Short description about the department"></textarea>
+                    <label>Department Description</label>
+                    <textarea id="deptDesc" placeholder="Brief description about the department, its objectives, and key focus areas..."></textarea>
                 </div>
             </div>
 
-            <div class="dm-section-lbl">Contact</div>
+            <!-- Contact Information -->
+            <div class="dm-section-lbl">
+                <i class="fas fa-address-card"></i> Contact Information
+            </div>
             <div class="dm-grid">
                 <div class="dm-field">
                     <label>Contact Email <span class="req">*</span></label>
@@ -141,87 +333,255 @@
                 </div>
                 <div class="dm-field">
                     <label>Office Number <span class="req">*</span></label>
-                    <input type="tel" id="deptOffice" placeholder="e.g. 0522-1234567">
+                    <input type="tel" id="deptOffice" placeholder="+1 234 567 890">
+                </div>
+                <div class="dm-field">
+                    <label>Alternative Phone</label>
+                    <input type="tel" id="deptAltPhone" placeholder="+1 234 567 891">
+                </div>
+                <div class="dm-field">
+                    <label>Fax Number</label>
+                    <input type="tel" id="deptFax" placeholder="+1 234 567 892">
                 </div>
             </div>
 
+            <!-- Additional Settings -->
+            <div class="dm-section-lbl">
+                <i class="fas fa-cog"></i> Additional Settings
+            </div>
+            <div class="dm-grid">
+                <div class="dm-field">
+                    <label>Establishment Year</label>
+                    <input type="number" id="deptEstYear" placeholder="e.g. 2000" min="1900" max="2099">
+                </div>
+                <div class="dm-field">
+                    <label>Budget Code</label>
+                    <input type="text" id="deptBudgetCode" placeholder="e.g. BUD-2025-001">
+                </div>
+                <div class="dm-field">
+                    <label>Department Type</label>
+                    <select id="deptType">
+                        <option value="Academic">Academic</option>
+                        <option value="Administrative">Administrative</option>
+                        <option value="Research">Research</option>
+                        <option value="Support">Support</option>
+                    </select>
+                </div>
+                <div class="dm-field">
+                    <label>Programs Offered</label>
+                    <input type="text" id="deptPrograms" placeholder="e.g. B.Tech, M.Tech, Ph.D.">
+                    <span class="dm-hint">Comma-separated list of programs</span>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
             <div class="dm-bar">
-                <button class="dm-btn dm-btn-ghost" onclick="showList()">Cancel</button>
+                <button class="dm-btn dm-btn-ghost" onclick="showList()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
                 <span></span>
                 <button class="dm-btn dm-btn-primary" onclick="saveDepartment()">
-                    <span class="dm-check">✔</span> Save Department
+                    <i class="fas fa-save"></i> Save Department
                 </button>
             </div>
         </div>
     </div>
 
     <!-- ================= VIEW DEPARTMENT (read-only) ================= -->
-    <div class="dm-card" id="dmViewWrap" style="display:none;">
+    <div class="dm-card dm-view-card" id="dmViewWrap" style="display:none;">
 
         <div class="dm-back-row">
-            <button class="dm-back-link" onclick="showList()">← Back to Department List</button>
+            <button class="dm-back-link" onclick="showList()">
+                <i class="fas fa-arrow-left"></i> Back to Department List
+            </button>
         </div>
 
         <div class="dm-body">
             <div class="dm-head">
-                <div class="dm-icon">🏢</div>
+                <div class="dm-icon"><i class="fas fa-building"></i></div>
                 <div>
-                    <h2 id="dmViewName">Computer Science</h2>
-                    <p>Department overview</p>
+                    <h2 id="dmViewName">Computer Science & Engineering</h2>
+                    <p>Department overview and details</p>
                 </div>
             </div>
 
+            <!-- View Grid -->
             <div class="dm-view-grid">
-                <div class="dm-view-item"><span>Department Code</span><strong id="dmViewCode">-</strong></div>
-                <div class="dm-view-item"><span>Faculty</span><strong id="dmViewFaculty">-</strong></div>
-                <div class="dm-view-item"><span>Campus</span><strong id="dmViewCampus">-</strong></div>
-                <div class="dm-view-item"><span>Status</span><strong id="dmViewStatus">-</strong></div>
-                <div class="dm-view-item"><span>Contact Email</span><strong id="dmViewEmail">-</strong></div>
-                <div class="dm-view-item"><span>Office Number</span><strong id="dmViewOffice">-</strong></div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-tag"></i> Department Code</span>
+                    <strong id="dmViewCode">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-university"></i> Faculty</span>
+                    <strong id="dmViewFaculty">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-map-pin"></i> Campus</span>
+                    <strong id="dmViewCampus">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-user-tie"></i> Head of Department</span>
+                    <strong id="dmViewHOD">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-circle"></i> Status</span>
+                    <strong id="dmViewStatus">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-users"></i> Faculty Count</span>
+                    <strong id="dmViewFacultyCount">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-envelope"></i> Contact Email</span>
+                    <strong id="dmViewEmail">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-phone"></i> Office Number</span>
+                    <strong id="dmViewOffice">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-phone-alt"></i> Alternative Phone</span>
+                    <strong id="dmViewAltPhone">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-fax"></i> Fax Number</span>
+                    <strong id="dmViewFax">-</strong>
+                </div>
+                <div class="dm-view-item">
+                    <span><i class="fas fa-calendar-alt"></i> Establishment Year</span>
+                    <strong id="dmViewEstYear">-</strong>
+                </div>
+                <div class="dm-view-item dm-full">
+                    <span><i class="fas fa-align-left"></i> Description</span>
+                    <strong id="dmViewDesc">-</strong>
+                </div>
+                <div class="dm-view-item dm-full">
+                    <span><i class="fas fa-graduation-cap"></i> Programs Offered</span>
+                    <strong id="dmViewPrograms">-</strong>
+                </div>
             </div>
 
+            <!-- Related Information -->
+            <div class="dm-section-lbl">
+                <i class="fas fa-link"></i> Related Information
+            </div>
+            <div class="dm-related-grid">
+                <div class="dm-related-item">
+                    <span class="dm-related-label">Faculty Members</span>
+                    <span class="dm-related-value" id="dmRelatedFaculty">45</span>
+                </div>
+                <div class="dm-related-item">
+                    <span class="dm-related-label">Programs</span>
+                    <span class="dm-related-value" id="dmRelatedPrograms">5</span>
+                </div>
+                <div class="dm-related-item">
+                    <span class="dm-related-label">Courses</span>
+                    <span class="dm-related-value" id="dmRelatedCourses">28</span>
+                </div>
+                <div class="dm-related-item">
+                    <span class="dm-related-label">Students</span>
+                    <span class="dm-related-value" id="dmRelatedStudents">1,245</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
             <div class="dm-bar">
                 <span></span>
-                <span></span>
-                <button class="dm-btn dm-btn-primary" onclick="showList()">Close</button>
+                <div class="dm-view-actions">
+                    <button class="dm-btn dm-btn-outline" onclick="showList()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="dm-btn dm-btn-primary" onclick="editFromView()">
+                        <i class="fas fa-edit"></i> Edit Department
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
 </div>
 
-<div class="dm-toast" id="dmToast"></div>
+<!-- Toast Notification -->
+<div class="dm-toast" id="dmToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="dmToastMessage">Success!</span>
+</div>
 
-<script>document.getElementById('deptStatus').addEventListener('change', function () {
-        const t = document.getElementById('dmStatusText');
-        if (this.checked) { t.textContent = 'Active'; t.className = 'dm-status-text dm-active'; }
-        else { t.textContent = 'Inactive'; t.className = 'dm-status-text dm-inactive'; }
-    });
+<script>
+    let currentViewRow = null;
 
-    function showToast(msg) {
-        const t = document.getElementById('dmToast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2200);
+    // ----- Toast Notification -----
+    function showToast(msg, type) {
+        const toast = document.getElementById('dmToast');
+        const messageEl = document.getElementById('dmToastMessage');
+        const icon = toast.querySelector('i');
+
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' :
+                'fas fa-info-circle';
+        toast.className = 'dm-toast show ' + (type || '');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
     }
 
+    // ----- Status Toggle -----
+    document.getElementById('deptStatus').addEventListener('change', function () {
+        const t = document.getElementById('dmStatusText');
+        if (this.checked) {
+            t.textContent = 'Active';
+            t.className = 'dm-status-text dm-active';
+        } else {
+            t.textContent = 'Inactive';
+            t.className = 'dm-status-text dm-inactive';
+        }
+    });
+
+    // ----- Hide All Views -----
     function hideAll() {
         document.getElementById('dmListWrap').style.display = 'none';
         document.getElementById('dmFormWrap').style.display = 'none';
         document.getElementById('dmViewWrap').style.display = 'none';
     }
 
+    // ----- Show List -----
+    function showList() {
+        hideAll();
+        document.getElementById('dmListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ----- Show Form (Add/Edit) -----
     function showForm(rowBtn) {
         hideAll();
         document.getElementById('dmFormWrap').style.display = 'block';
 
-        if (rowBtn) {
+        if (rowBtn && rowBtn.closest) {
             const row = rowBtn.closest('tr');
             document.getElementById('dmFormTitle').textContent = 'Edit Department';
-            document.getElementById('deptName').value = row.children[0].textContent.trim();
-            document.getElementById('deptCode').value = row.children[1].textContent.trim();
-            document.getElementById('deptFaculty').value = row.children[2].textContent.trim();
-            document.getElementById('deptCampus').value = row.children[3].textContent.trim();
+
+            // Extract data from row
+            const nameCell = row.children[0];
+            const codeCell = row.children[1];
+            const facultyCell = row.children[2];
+            const campusCell = row.children[3];
+            const hodCell = row.children[4];
+
+            document.getElementById('deptName').value = nameCell.textContent.trim().replace(/^[^\s]+\s/, '');
+            document.getElementById('deptCode').value = codeCell.textContent.trim();
+            document.getElementById('deptFaculty').value = facultyCell.textContent.trim();
+            document.getElementById('deptCampus').value = campusCell.textContent.trim();
+            document.getElementById('deptHOD').value = hodCell.textContent.trim();
+
+            const statusPill = row.querySelector('.dm-pill');
+            if (statusPill) {
+                const isActive = statusPill.classList.contains('dm-pill-active');
+                document.getElementById('deptStatus').checked = isActive;
+                document.getElementById('dmStatusText').textContent = isActive ? 'Active' : 'Inactive';
+                document.getElementById('dmStatusText').className = 'dm-status-text ' + (isActive ? 'dm-active' : 'dm-inactive');
+            }
         } else {
             document.getElementById('dmFormTitle').textContent = 'Add Department';
             clearForm();
@@ -229,54 +589,196 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ----- Show View -----
     function showView(rowBtn) {
         hideAll();
         document.getElementById('dmViewWrap').style.display = 'block';
+        currentViewRow = rowBtn;
 
         const row = rowBtn.closest('tr');
-        document.getElementById('dmViewName').textContent = row.children[0].textContent.trim();
-        document.getElementById('dmViewCode').textContent = row.children[1].textContent.trim();
-        document.getElementById('dmViewFaculty').textContent = row.children[2].textContent.trim();
-        document.getElementById('dmViewCampus').textContent = row.children[3].textContent.trim();
-        document.getElementById('dmViewStatus').textContent = row.children[4].textContent.trim();
-        document.getElementById('dmViewEmail').textContent = '-';
-        document.getElementById('dmViewOffice').textContent = '-';
+        const nameCell = row.children[0];
+        const codeCell = row.children[1];
+        const facultyCell = row.children[2];
+        const campusCell = row.children[3];
+        const hodCell = row.children[4];
+        const facultyCountCell = row.children[5];
+        const statusCell = row.children[6];
+
+        document.getElementById('dmViewName').textContent = nameCell.textContent.trim().replace(/^[^\s]+\s/, '');
+        document.getElementById('dmViewCode').textContent = codeCell.textContent.trim();
+        document.getElementById('dmViewFaculty').textContent = facultyCell.textContent.trim();
+        document.getElementById('dmViewCampus').textContent = campusCell.textContent.trim();
+        document.getElementById('dmViewHOD').textContent = hodCell.textContent.trim();
+        document.getElementById('dmViewFacultyCount').textContent = facultyCountCell.textContent.trim();
+        document.getElementById('dmViewStatus').textContent = statusCell.textContent.trim();
+        document.getElementById('dmViewStatus').className = 'dm-view-status ' +
+            (statusCell.textContent.includes('Active') ? 'dm-active' :
+                statusCell.textContent.includes('Inactive') ? 'dm-inactive' : 'dm-pending');
+
+        // Set additional fields (demo data)
+        document.getElementById('dmViewEmail').textContent = 'department@university.edu';
+        document.getElementById('dmViewOffice').textContent = '+1 234 567 890';
+        document.getElementById('dmViewAltPhone').textContent = '+1 234 567 891';
+        document.getElementById('dmViewFax').textContent = '+1 234 567 892';
+        document.getElementById('dmViewEstYear').textContent = '2005';
+        document.getElementById('dmViewDesc').textContent = 'A premier department dedicated to academic excellence and research.';
+        document.getElementById('dmViewPrograms').textContent = 'B.Tech, M.Tech, Ph.D.';
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showList() {
-        hideAll();
-        document.getElementById('dmListWrap').style.display = 'block';
+    // ----- Edit From View -----
+    function editFromView() {
+        if (currentViewRow) {
+            showForm(currentViewRow);
+        }
     }
 
+    // ----- Clear Form -----
     function clearForm() {
-        document.querySelectorAll('#dmFormWrap input[type=text], #dmFormWrap input[type=tel], #dmFormWrap input[type=email], #dmFormWrap select, #dmFormWrap textarea').forEach(el => el.value = '');
+        document.querySelectorAll('#dmFormWrap input[type=text], #dmFormWrap input[type=tel], #dmFormWrap input[type=email], #dmFormWrap input[type=number], #dmFormWrap select, #dmFormWrap textarea').forEach(el => el.value = '');
         document.getElementById('deptStatus').checked = true;
         document.getElementById('dmStatusText').textContent = 'Active';
         document.getElementById('dmStatusText').className = 'dm-status-text dm-active';
     }
 
+    // ----- Save Department -----
     function saveDepartment() {
         const name = document.getElementById('deptName').value.trim();
         const code = document.getElementById('deptCode').value.trim();
-        if (!name || !code) { showToast('Department Name and Code are required'); return; }
+        const faculty = document.getElementById('deptFaculty').value;
+        const campus = document.getElementById('deptCampus').value;
+        const hod = document.getElementById('deptHOD').value;
+        const email = document.getElementById('deptEmail').value.trim();
+        const office = document.getElementById('deptOffice').value.trim();
+
+        if (!name) { showToast('Department Name is required', 'error'); return; }
+        if (!code) { showToast('Department Code is required', 'error'); return; }
+        if (!faculty) { showToast('Please select a Faculty', 'error'); return; }
+        if (!campus) { showToast('Please select a Campus', 'error'); return; }
+        if (!hod) { showToast('Please select the Head of Department', 'error'); return; }
+        if (!email) { showToast('Contact Email is required', 'error'); return; }
+        if (!office) { showToast('Office Number is required', 'error'); return; }
+
+        const isActive = document.getElementById('deptStatus').checked;
+        const statusClass = isActive ? 'dm-pill-active' : 'dm-pill-inactive';
+        const statusText = isActive ? 'Active' : 'Inactive';
+        const icon = isActive ? 'fas fa-circle' : 'fas fa-circle';
 
         const tbody = document.getElementById('departmentTableBody');
-        const row = document.createElement('tr');
-        row.innerHTML =
-            '<td class="dm-name">' + name + '</td>' +
-            '<td>' + code + '</td>' +
-            '<td>' + document.getElementById('deptFaculty').value + '</td>' +
-            '<td>' + document.getElementById('deptCampus').value + '</td>' +
-            '<td><span class="dm-pill ' + (document.getElementById('deptStatus').checked ? 'dm-pill-active">Active' : 'dm-pill-inactive">Inactive') + '</span></td>' +
-            '<td class="dm-actions">' +
-                '<button class="dm-mini-btn dm-mini-view" onclick="showView(this)">View</button>' +
-                '<button class="dm-mini-btn" onclick="showForm(this)">Edit</button>' +
-            '</td>';
-        tbody.appendChild(row);
 
-        showToast('Department saved successfully');
+        // Check if editing (find row with matching code)
+        let existingRow = null;
+        const rows = tbody.querySelectorAll('tr');
+        for (const row of rows) {
+            const codeCell = row.children[1];
+            if (codeCell && codeCell.textContent.trim() === code) {
+                existingRow = row;
+                break;
+            }
+        }
+
+        if (existingRow) {
+            // Update existing row
+            existingRow.children[0].textContent = name;
+            existingRow.children[2].textContent = faculty;
+            existingRow.children[3].textContent = campus;
+            existingRow.children[4].textContent = hod;
+            existingRow.children[6].innerHTML = `<span class="dm-pill ${statusClass}"><i class="${icon}"></i> ${statusText}</span>`;
+            showToast('Department updated successfully!', 'success');
+        } else {
+            // Add new row
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="dm-name"><i class="fas fa-building"></i> ${name}</td>
+                <td><span class="dm-code-badge">${code}</span></td>
+                <td>${faculty}</td>
+                <td>${campus}</td>
+                <td>${hod}</td>
+                <td>0</td>
+                <td><span class="dm-pill ${statusClass}"><i class="${icon}"></i> ${statusText}</span></td>
+                <td class="dm-actions">
+                    <button class="dm-mini-btn dm-mini-view" onclick="showView(this)" title="View Details"><i class="fas fa-eye"></i></button>
+                    <button class="dm-mini-btn" onclick="showForm(this)" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="dm-mini-btn dm-mini-delete" onclick="deleteDepartment(this)" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            showToast('Department added successfully!', 'success');
+        }
+
+        // Update stats
+        updateStats();
         showList();
-    }</script>
+    }
 
+    // ----- Delete Department -----
+    function deleteDepartment(btn) {
+        const row = btn.closest('tr');
+        const name = row.children[0].textContent.trim().replace(/^[^\s]+\s/, '');
 
+        if (confirm(`Are you sure you want to delete "${name}"?`)) {
+            row.remove();
+            updateStats();
+            showToast('Department deleted successfully!', 'info');
+        }
+    }
+
+    // ----- Update Stats -----
+    function updateStats() {
+        const rows = document.querySelectorAll('#departmentTableBody tr');
+        const total = rows.length;
+        let active = 0;
+
+        rows.forEach(row => {
+            const statusCell = row.children[6];
+            if (statusCell) {
+                const statusText = statusCell.textContent.trim();
+                if (statusText.includes('Active')) active++;
+            }
+        });
+
+        document.getElementById('totalDepartments').textContent = total;
+        document.getElementById('activeDepartments').textContent = active;
+    }
+
+    // ----- Search Functionality -----
+    document.getElementById('departmentSearch')?.addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#departmentTableBody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // ----- Filter Functionality -----
+    document.getElementById('filterFaculty')?.addEventListener('change', applyFilters);
+    document.getElementById('filterCampus')?.addEventListener('change', applyFilters);
+    document.getElementById('filterStatus')?.addEventListener('change', applyFilters);
+
+    function applyFilters() {
+        const facultyFilter = document.getElementById('filterFaculty').value;
+        const campusFilter = document.getElementById('filterCampus').value;
+        const statusFilter = document.getElementById('filterStatus').value;
+
+        const rows = document.querySelectorAll('#departmentTableBody tr');
+
+        rows.forEach(row => {
+            const faculty = row.children[2]?.textContent.trim() || '';
+            const campus = row.children[3]?.textContent.trim() || '';
+            const status = row.children[6]?.textContent.trim() || '';
+
+            let show = true;
+            if (facultyFilter && faculty !== facultyFilter) show = false;
+            if (campusFilter && campus !== campusFilter) show = false;
+            if (statusFilter && !status.includes(statusFilter)) show = false;
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // ----- Initialize -----
+    updateStats();
+</script>
