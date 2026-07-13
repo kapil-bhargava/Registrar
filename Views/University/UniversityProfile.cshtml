@@ -1,0 +1,570 @@
+﻿@{
+    ViewBag.Title = "University Profile";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    ViewData["ActiveMenu"] = "University";
+    ViewData["ActiveSubMenu"] = "Profile";
+}
+
+<link href="~/Content/CSS/universityProfile.css" rel="stylesheet" />
+
+<div class="profile-container">
+
+    <!-- ===== HEADER ===== -->
+    <div class="profile-header">
+        <div class="header-left">
+            <h1><i class="fas fa-university"></i> University Profile</h1>
+            <p class="breadcrumb-text">Complete overview of your university's information</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-edit" onclick="enableEdit()">
+                <i class="fas fa-pen"></i> Edit Profile
+            </button>
+            <button class="btn btn-save" id="saveBtn" style="display:none;" onclick="saveProfile()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button class="btn btn-cancel" id="cancelBtn" style="display:none;" onclick="cancelEdit()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== STATUS BANNER ===== -->
+    <div class="status-banner">
+        <div class="status-item">
+            <span class="status-label">Status</span>
+            <span class="status-value active"><i class="fas fa-circle"></i> Active</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Last Updated</span>
+            <span class="status-value">January 15, 2025</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Profile Completeness</span>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" style="width: 85%;"></div>
+                <span class="progress-text">85%</span>
+            </div>
+        </div>
+        <div class="status-item">
+            <span class="status-label">University Code</span>
+            <span class="status-value">SPR-26</span>
+        </div>
+    </div>
+
+    <!-- ===== QUICK STATS ===== -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-building-columns"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">1</span>
+                <span class="stat-label">University</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-flag"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Campuses</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-certificate"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">5</span>
+                <span class="stat-label">Accreditations</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <span class="stat-number">15K+</span>
+                <span class="stat-label">Students</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE CONTENT ===== -->
+    <div class="profile-content">
+
+        <!-- ====== SECTION 1: BASIC INFORMATION ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-id-card"></i> Basic Information</h2>
+                <span class="section-badge required">Required</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-building-columns"></i> University Name</span>
+                        <span class="info-value" id="displayUniName">Springfield University</span>
+                        <input type="text" class="edit-field" id="editUniName" value="Springfield University" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-tag"></i> Short Name</span>
+                        <span class="info-value" id="displayShortName">SU</span>
+                        <input type="text" class="edit-field" id="editShortName" value="SU" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-barcode"></i> University Code</span>
+                        <span class="info-value" id="displayUniCode">SPR-26</span>
+                        <input type="text" class="edit-field" id="editUniCode" value="SPR-26" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-layer-group"></i> University Type</span>
+                        <span class="info-value" id="displayUniType">Public</span>
+                        <select class="edit-field" id="editUniType" style="display:none;">
+                            <option value="Public" selected>Public</option>
+                            <option value="Private">Private</option>
+                            <option value="Deemed">Deemed University</option>
+                            <option value="Central">Central University</option>
+                            <option value="State">State University</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-calendar-alt"></i> Established Year</span>
+                        <span class="info-value" id="displayEstYear">2005</span>
+                        <input type="number" class="edit-field" id="editEstYear" value="2005" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-circle-check"></i> Status</span>
+                        <span class="info-value">
+                            <span class="status-badge active"><i class="fas fa-circle"></i> Active</span>
+                        </span>
+                        <select class="edit-field" id="editStatus" style="display:none;">
+                            <option value="Active" selected>Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 2: CONTACT INFORMATION ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-address-card"></i> Contact Information</h2>
+                <span class="section-badge required">Required</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-envelope"></i> Official Email</span>
+                        <span class="info-value" id="displayEmail">info@springfield.edu</span>
+                        <input type="email" class="edit-field" id="editEmail" value="info@springfield.edu" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-phone-alt"></i> Contact Number</span>
+                        <span class="info-value" id="displayPhone">+1 555 0123 456</span>
+                        <input type="tel" class="edit-field" id="editPhone" value="+1 555 0123 456" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-globe"></i> Website</span>
+                        <span class="info-value" id="displayWebsite">
+                            <a href="https://springfield.edu" target="_blank">springfield.edu</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editWebsite" value="https://springfield.edu" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-file-invoice"></i> Tax / GST Number</span>
+                        <span class="info-value" id="displayTax">GSTIN 12ABCDE1234F1Z</span>
+                        <input type="text" class="edit-field" id="editTax" value="GSTIN 12ABCDE1234F1Z" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-sitemap"></i> Affiliated University</span>
+                        <span class="info-value" id="displayAffiliated">State University System</span>
+                        <input type="text" class="edit-field" id="editAffiliated" value="State University System" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 3: ACCREDITATION & LEGAL ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-certificate"></i> Accreditation & Legal</h2>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-certificate"></i> Accreditation Details</span>
+                        <span class="info-value" id="displayAccreditation">NAAC A++, NBA</span>
+                        <input type="text" class="edit-field" id="editAccreditation" value="NAAC A++, NBA" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-registered"></i> Registration Number</span>
+                        <span class="info-value" id="displayRegNumber">REG-2024-001</span>
+                        <input type="text" class="edit-field" id="editRegNumber" value="REG-2024-001" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-certificate"></i> UGC Approval Number</span>
+                        <span class="info-value" id="displayUGC">UGC-APP-1234</span>
+                        <input type="text" class="edit-field" id="editUGC" value="UGC-APP-1234" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-check-circle"></i> AICTE Approval</span>
+                        <span class="info-value" id="displayAICTE">AICTE-APP-5678</span>
+                        <input type="text" class="edit-field" id="editAICTE" value="AICTE-APP-5678" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-star"></i> NAAC Grade</span>
+                        <span class="info-value" id="displayNAAC">A++</span>
+                        <select class="edit-field" id="editNAAC" style="display:none;">
+                            <option value="A++" selected>A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-trophy"></i> NIRF Rank</span>
+                        <span class="info-value" id="displayNIRF">15</span>
+                        <input type="text" class="edit-field" id="editNIRF" value="15" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-certificate"></i> ISO Certification</span>
+                        <span class="info-value" id="displayISO">ISO 9001:2015</span>
+                        <input type="text" class="edit-field" id="editISO" value="ISO 9001:2015" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 4: ADDRESS ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-map-pin"></i> Address</h2>
+                <span class="section-badge required">Required</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-flag"></i> Country</span>
+                        <span class="info-value" id="displayCountry">United States</span>
+                        <input type="text" class="edit-field" id="editCountry" value="United States" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-map"></i> State</span>
+                        <span class="info-value" id="displayState">California</span>
+                        <input type="text" class="edit-field" id="editState" value="California" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-map-pin"></i> District</span>
+                        <span class="info-value" id="displayDistrict">Los Angeles County</span>
+                        <input type="text" class="edit-field" id="editDistrict" value="Los Angeles County" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-city"></i> City</span>
+                        <span class="info-value" id="displayCity">Los Angeles</span>
+                        <input type="text" class="edit-field" id="editCity" value="Los Angeles" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-location-dot"></i> Area / Locality</span>
+                        <span class="info-value" id="displayArea">Downtown</span>
+                        <input type="text" class="edit-field" id="editArea" value="Downtown" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-road"></i> Street</span>
+                        <span class="info-value" id="displayStreet">123 University Ave</span>
+                        <input type="text" class="edit-field" id="editStreet" value="123 University Ave" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-hashtag"></i> Building Number</span>
+                        <span class="info-value" id="displayBuilding">42</span>
+                        <input type="text" class="edit-field" id="editBuilding" value="42" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-mailbox"></i> Postal Code</span>
+                        <span class="info-value" id="displayPostal">90001</span>
+                        <input type="text" class="edit-field" id="editPostal" value="90001" style="display:none;" />
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label"><i class="fas fa-crosshairs"></i> Coordinates</span>
+                        <span class="info-value" id="displayCoordinates">34.0522, -118.2437</span>
+                        <div style="display:none;" class="edit-field coords-group">
+                            <input type="text" id="editLat" value="34.0522" placeholder="Latitude" />
+                            <input type="text" id="editLng" value="-118.2437" placeholder="Longitude" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 5: VISION & MISSION ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-bullseye"></i> Vision & Mission</h2>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-quote-left"></i> Motto</span>
+                        <span class="info-value" id="displayMotto">Knowledge is Power</span>
+                        <input type="text" class="edit-field" id="editMotto" value="Knowledge is Power" style="display:none;" />
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label"><i class="fas fa-eye"></i> Vision</span>
+                        <span class="info-value" id="displayVision">To be a global leader in education</span>
+                        <textarea class="edit-field" id="editVision" style="display:none;">To be a global leader in education</textarea>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label"><i class="fas fa-bullseye"></i> Mission</span>
+                        <span class="info-value" id="displayMission">To provide quality education and foster innovation</span>
+                        <textarea class="edit-field" id="editMission" style="display:none;">To provide quality education and foster innovation</textarea>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label"><i class="fas fa-align-left"></i> Description</span>
+                        <span class="info-value" id="displayDescription">A premier institution dedicated to academic excellence</span>
+                        <textarea class="edit-field" id="editDescription" style="display:none;">A premier institution dedicated to academic excellence</textarea>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label"><i class="fas fa-building"></i> About University</span>
+                        <span class="info-value" id="displayAbout">Springfield University was established in 2005 with a vision to transform education.</span>
+                        <textarea class="edit-field" id="editAbout" style="display:none;">Springfield University was established in 2005 with a vision to transform education.</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 6: SOCIAL MEDIA ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-share-alt"></i> Social Media</h2>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid social-grid">
+                    <div class="info-item social-item">
+                        <span class="info-label"><i class="fab fa-facebook" style="color:#1877f2;"></i> Facebook</span>
+                        <span class="info-value" id="displayFacebook">
+                            <a href="https://facebook.com/springfield" target="_blank">facebook.com/springfield</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editFacebook" value="https://facebook.com/springfield" style="display:none;" />
+                    </div>
+                    <div class="info-item social-item">
+                        <span class="info-label"><i class="fab fa-linkedin" style="color:#0a66c2;"></i> LinkedIn</span>
+                        <span class="info-value" id="displayLinkedIn">
+                            <a href="https://linkedin.com/school/springfield" target="_blank">linkedin.com/school/springfield</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editLinkedIn" value="https://linkedin.com/school/springfield" style="display:none;" />
+                    </div>
+                    <div class="info-item social-item">
+                        <span class="info-label"><i class="fab fa-instagram" style="color:#e4405f;"></i> Instagram</span>
+                        <span class="info-value" id="displayInstagram">
+                            <a href="https://instagram.com/springfield" target="_blank">instagram.com/springfield</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editInstagram" value="https://instagram.com/springfield" style="display:none;" />
+                    </div>
+                    <div class="info-item social-item">
+                        <span class="info-label"><i class="fab fa-twitter" style="color:#1da1f2;"></i> Twitter</span>
+                        <span class="info-value" id="displayTwitter">
+                            <a href="https://twitter.com/springfield" target="_blank">twitter.com/springfield</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editTwitter" value="https://twitter.com/springfield" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 7: CONTACT DETAILS ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-address-book"></i> Contact Details</h2>
+                <span class="section-badge required">Required</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-phone"></i> Office Number</span>
+                        <span class="info-value" id="displayContOffice">+1 234 567 890</span>
+                        <input type="tel" class="edit-field" id="editContOffice" value="+1 234 567 890" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-mobile-alt"></i> Mobile Number</span>
+                        <span class="info-value" id="displayContMobile">+1 234 567 891</span>
+                        <input type="tel" class="edit-field" id="editContMobile" value="+1 234 567 891" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-phone"></i> Alternate Number</span>
+                        <span class="info-value" id="displayContAlternate">+1 234 567 892</span>
+                        <input type="tel" class="edit-field" id="editContAlternate" value="+1 234 567 892" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-headset"></i> Admission Helpline</span>
+                        <span class="info-value" id="displayContAdmission">+1 234 567 893</span>
+                        <input type="tel" class="edit-field" id="editContAdmission" value="+1 234 567 893" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-user-tie"></i> Registrar Office</span>
+                        <span class="info-value" id="displayContRegistrar">+1 234 567 894</span>
+                        <input type="tel" class="edit-field" id="editContRegistrar" value="+1 234 567 894" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-envelope"></i> Contact Email</span>
+                        <span class="info-value" id="displayContEmail">contact@springfield.edu</span>
+                        <input type="email" class="edit-field" id="editContEmail" value="contact@springfield.edu" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-life-ring"></i> Support Email</span>
+                        <span class="info-value" id="displayContSupport">support@springfield.edu</span>
+                        <input type="email" class="edit-field" id="editContSupport" value="support@springfield.edu" style="display:none;" />
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-globe"></i> Website</span>
+                        <span class="info-value" id="displayContWebsite">
+                            <a href="https://springfield.edu" target="_blank">springfield.edu</a>
+                        </span>
+                        <input type="url" class="edit-field" id="editContWebsite" value="https://springfield.edu" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== SECTION 8: BRANDING ASSETS ====== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h2><i class="fas fa-image"></i> Branding Assets</h2>
+                <span class="section-badge optional">Optional</span>
+            </div>
+            <div class="section-body">
+                <div class="branding-grid">
+                    <div class="branding-item">
+                        <div class="branding-preview">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <span class="branding-label">University Logo</span>
+                        <button class="btn btn-upload">Upload</button>
+                    </div>
+                    <div class="branding-item">
+                        <div class="branding-preview dark">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <span class="branding-label">Dark Theme Logo</span>
+                        <button class="btn btn-upload">Upload</button>
+                    </div>
+                    <div class="branding-item">
+                        <div class="branding-preview light">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <span class="branding-label">Light Theme Logo</span>
+                        <button class="btn btn-upload">Upload</button>
+                    </div>
+                    <div class="branding-item">
+                        <div class="branding-preview small">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <span class="branding-label">Sidebar Logo</span>
+                        <button class="btn btn-upload">Upload</button>
+                    </div>
+                    <div class="branding-item full">
+                        <div class="branding-preview favicon">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <span class="branding-label">Favicon</span>
+                        <button class="btn btn-upload">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="profile-footer">
+        <div class="footer-left">
+            <span><i class="fas fa-info-circle"></i> All changes are saved automatically</span>
+        </div>
+        <div class="footer-right">
+            <button class="btn btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Profile
+            </button>
+            <button class="btn btn-download">
+                <i class="fas fa-download"></i> Export PDF
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ----- Edit Mode Toggle -----
+    function enableEdit() {
+        document.querySelectorAll('.info-value').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.edit-field').forEach(el => el.style.display = '');
+        document.querySelector('.btn-edit').style.display = 'none';
+        document.getElementById('saveBtn').style.display = 'inline-flex';
+        document.getElementById('cancelBtn').style.display = 'inline-flex';
+
+        const coordsGroup = document.querySelector('.coords-group');
+        if (coordsGroup) coordsGroup.style.display = 'flex';
+    }
+
+    function cancelEdit() {
+        document.querySelectorAll('.info-value').forEach(el => el.style.display = '');
+        document.querySelectorAll('.edit-field').forEach(el => el.style.display = 'none');
+        document.querySelector('.btn-edit').style.display = 'inline-flex';
+        document.getElementById('saveBtn').style.display = 'none';
+        document.getElementById('cancelBtn').style.display = 'none';
+
+        const coordsGroup = document.querySelector('.coords-group');
+        if (coordsGroup) coordsGroup.style.display = 'none';
+    }
+
+    function saveProfile() {
+        const data = {
+            universityName: document.getElementById('editUniName').value,
+            shortName: document.getElementById('editShortName').value,
+            universityCode: document.getElementById('editUniCode').value,
+            universityType: document.getElementById('editUniType').value,
+            establishedYear: document.getElementById('editEstYear').value,
+            status: document.getElementById('editStatus').value,
+            email: document.getElementById('editEmail').value,
+            phone: document.getElementById('editPhone').value,
+            website: document.getElementById('editWebsite').value,
+            tax: document.getElementById('editTax').value,
+            affiliated: document.getElementById('editAffiliated').value,
+            accreditation: document.getElementById('editAccreditation').value,
+            regNumber: document.getElementById('editRegNumber').value,
+            ugc: document.getElementById('editUGC').value,
+            aicte: document.getElementById('editAICTE').value,
+            naac: document.getElementById('editNAAC').value,
+            nirf: document.getElementById('editNIRF').value,
+            iso: document.getElementById('editISO').value,
+            motto: document.getElementById('editMotto').value,
+            vision: document.getElementById('editVision').value,
+            mission: document.getElementById('editMission').value,
+            description: document.getElementById('editDescription').value,
+            about: document.getElementById('editAbout').value,
+            country: document.getElementById('editCountry').value,
+            state: document.getElementById('editState').value,
+            district: document.getElementById('editDistrict').value,
+            city: document.getElementById('editCity').value,
+            area: document.getElementById('editArea').value,
+            street: document.getElementById('editStreet').value,
+            building: document.getElementById('editBuilding').value,
+            postal: document.getElementById('editPostal').value,
+            lat: document.getElementById('editLat').value,
+            lng: document.getElementById('editLng').value,
+            facebook: document.getElementById('editFacebook').value,
+            linkedin: document.getElementById('editLinkedIn').value,
+            instagram: document.getElementById('editInstagram').value,
+            twitter: document.getElementById('editTwitter').value,
+            contOffice: document.getElementById('editContOffice').value,
+            contMobile: document.getElementById('editContMobile').value,
+            contAlternate: document.getElementById('editContAlternate').value,
+            contAdmission: document.getElementById('editContAdmission').value,
+            contRegistrar: document.getElementById('editContRegistrar').value,
+            contEmail: document.getElementById('editContEmail').value,
+            contSupport: document.getElementById('editContSupport').value,
+            contWebsite: document.getElementById('editContWebsite').value
+        };
+
+        console.log('Profile Data:', data);
+        alert('✅ Profile updated successfully!');
+        cancelEdit();
+    }
+</script>

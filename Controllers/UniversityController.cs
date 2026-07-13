@@ -24,6 +24,10 @@ namespace Regis.Controllers
         {
             return View();
         }
+        public ActionResult UniversityProfile()
+        {
+            return View();
+        }
        
     }
 }
