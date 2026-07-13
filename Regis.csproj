@@ -109,6 +109,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AcademicSetupController.cs" />
     <Compile Include="Controllers\UniversityController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -133,6 +134,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\css\campusManagement.css" />
+    <Content Include="Content\css\Facultymanagement.css" />
     <Content Include="Content\css\site.css" />
     <Content Include="Content\css\footer.css" />
     <Content Include="Content\css\navbar.css" />
@@ -176,6 +179,9 @@
     <Content Include="Views\Shared\_Footer.cshtml" />
     <Content Include="Views\University\UniversityForm.cshtml" />
     <Content Include="Views\University\AcademicSession.cshtml" />
+    <Content Include="Views\University\CompusManagement.cshtml" />
+    <Content Include="Views\University\FacultyManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\AcademicSession.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

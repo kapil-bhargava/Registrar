@@ -20,7 +20,12 @@ namespace Regis.Controllers
             return View();
         }
        
-        public ActionResult AcademicSession()
+       
+        public ActionResult CompusManagement()
+        {
+            return View();
+        }
+        public ActionResult FacultyManagement()
         {
             return View();
         }
