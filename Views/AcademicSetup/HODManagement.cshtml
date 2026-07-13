@@ -1,0 +1,286 @@
+﻿
+@{
+    ViewBag.Title = "HODManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link href="~/Content/CSS/HODManagement.css" rel="stylesheet" />
+
+  
+
+    <div class="container">
+
+        <!-- ===================== LIST VIEW ===================== -->
+        <div id="listView" class="card">
+            <div class="page-head">
+                <div>
+                    <h2>HOD Mapping</h2>
+                    <p>Assign, change and track Head of Department across all departments.</p>
+                </div>
+                <button class="btn btn-primary" onclick="showForm('assign')">+ Assign New HOD</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Current HOD</th>
+                        <th>Effective Date</th>
+                        <th>Faculty</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="hodTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ===================== FORM VIEW ===================== -->
+        <div id="formView" class="card hidden">
+            <a class="back-link" onclick="showList()">&larr; Back to HOD Mapping</a>
+
+            <div class="form-head">
+                <div class="form-icon">&#128100;</div>
+                <p class="form-title" id="formTitle">Assign HOD</p>
+            </div>
+            <p class="form-sub" id="formSubtitle">Select a department and assign a Head of Department.</p>
+
+            <div id="currentHodBlock" class="hidden">
+                <div class="current-hod-card">
+                    <div class="avt" id="curAvt">-</div>
+                    <div>
+                        <p class="name" id="curName">-</p>
+                        <p class="meta" id="curMeta">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-label">Department</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Department <span class="req">*</span></label>
+                    <select id="deptSelect" onchange="onDeptChange()">
+                        <option value="">Select department</option>
+                        <option value="Computer Science|Faculty of Engineering">Computer Science</option>
+                        <option value="Physics|Faculty of Science">Physics</option>
+                        <option value="Accounting|Faculty of Commerce">Accounting</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Faculty</label>
+                    <input id="facultyField" type="text" placeholder="Auto-filled from department" readonly>
+                </div>
+            </div>
+
+            <div class="section-label">HOD Details</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>HOD Name <span class="req">*</span></label>
+                    <input id="hodName" type="text" placeholder="e.g. Dr. Ramesh Kumar">
+                </div>
+                <div class="field">
+                    <label>Employee ID <span class="req">*</span></label>
+                    <input id="empId" type="text" placeholder="e.g. EMP-1042">
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top:20px;">
+                <div class="field">
+                    <label>Designation</label>
+                    <input id="designation" type="text" placeholder="e.g. Professor">
+                </div>
+                <div class="field">
+                    <label>Contact Email <span class="req">*</span></label>
+                    <input id="hodEmail" type="text" placeholder="hod@university.edu">
+                </div>
+            </div>
+
+            <div class="section-label">Assignment</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Effective Date <span class="req">*</span></label>
+                    <input id="effDate" type="date">
+                    <p class="hint">Date from which this HOD assignment takes effect.</p>
+                </div>
+                <div class="field">
+                    <label>Status</label>
+                    <div class="toggle-row" style="margin-top:8px;">
+                        <div class="toggle" id="statusToggle" onclick="toggleStatus()"><div class="knob"></div></div>
+                        <span id="statusLabel" style="font-size:13px; font-weight:600; color:#16A34A;">Active</span>
+                    </div>
+                </div>
+            </div>
+            <div class="field" style="margin-top:20px;">
+                <label>Reason for Change</label>
+                <textarea id="reason" rows="3" placeholder="e.g. Promotion, transfer, term completion, resignation..."></textarea>
+            </div>
+
+            <div id="historySection">
+                <div class="section-label">Previous HOD History</div>
+                <div class="history-box">
+                    <table>
+                        <thead>
+                            <tr><th>HOD Name</th><th>From</th><th>To</th><th>Reason</th></tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr><td colspan="4" style="text-align:center; color:#9CA3AF; padding:20px;">Select a department to view HOD history</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button class="btn btn-secondary" onclick="showList()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveHod()">&#10003; Save HOD Mapping</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+const departments = [
+  { dept: "Computer Science", faculty: "Faculty of Engineering", hod: "Dr. Ramesh Kumar", empId: "EMP-1042", email: "ramesh.kumar@university.edu", date: "2024-07-01", status: "Active",
+    history: [
+      { name: "Dr. Anita Sharma", from: "2020-07-01", to: "2024-06-30", reason: "Term completion" },
+      { name: "Dr. Vinod Mehta", from: "2016-07-01", to: "2020-06-30", reason: "Retirement" }
+    ] },
+  { dept: "Physics", faculty: "Faculty of Science", hod: "Dr. Sunita Verma", empId: "EMP-0871", email: "sunita.verma@university.edu", date: "2023-01-15", status: "Active",
+    history: [
+      { name: "Dr. Alok Nigam", from: "2018-01-15", to: "2023-01-14", reason: "Transfer to another campus" }
+    ] },
+  { dept: "Accounting", faculty: "Faculty of Commerce", hod: "-", empId: "-", email: "-", date: "-", status: "Vacant",
+    history: [
+      { name: "Dr. Preeti Singh", from: "2019-04-01", to: "2025-03-31", reason: "Resignation" }
+    ] }
+];
+
+function initials(name){
+  if(!name || name === "-") return "-";
+  return name.replace("Dr. ","").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+}
+
+function renderList(){
+  const body = document.getElementById("hodTableBody");
+  body.innerHTML = departments.map(d => `
+    <tr>
+      <td class="dept-name">${d.dept}</td>
+      <td>${d.hod === "-" ? '<span class="sub">Not assigned</span>' : d.hod}</td>
+      <td>${d.date === "-" ? '<span class="sub">-</span>' : d.date}</td>
+      <td>${d.faculty}</td>
+      <td><span class="pill ${d.status === 'Active' ? 'active' : 'inactive'}">${d.status}</span></td>
+      <td class="actions">
+        <button class="btn-outline" onclick="showForm('assign','${d.dept}')">${d.hod === '-' ? 'Assign' : 'View'}</button>
+        <button class="btn-outline warn" onclick="showForm('change','${d.dept}')">Change HOD</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function showList(){
+  document.getElementById("listView").classList.remove("hidden");
+  document.getElementById("formView").classList.add("hidden");
+}
+
+function showForm(mode, deptName){
+  document.getElementById("listView").classList.add("hidden");
+  document.getElementById("formView").classList.remove("hidden");
+  document.getElementById("hodName").value = "";
+  document.getElementById("empId").value = "";
+  document.getElementById("designation").value = "";
+  document.getElementById("hodEmail").value = "";
+  document.getElementById("effDate").value = "";
+  document.getElementById("reason").value = "";
+  setStatus(true);
+
+  if(deptName){
+    const d = departments.find(x => x.dept === deptName);
+    document.getElementById("deptSelect").value = `${d.dept}|${d.faculty}`;
+    onDeptChange();
+  } else {
+    document.getElementById("deptSelect").value = "";
+    document.getElementById("facultyField").value = "";
+    document.getElementById("currentHodBlock").classList.add("hidden");
+    document.getElementById("historyBody").innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9CA3AF; padding:20px;">Select a department to view HOD history</td></tr>';
+  }
+
+  if(mode === "change"){
+    document.getElementById("formTitle").textContent = "Change HOD";
+    document.getElementById("formSubtitle").textContent = "Assign a new Head of Department to replace the current one.";
+  } else {
+    document.getElementById("formTitle").textContent = "Assign HOD";
+    document.getElementById("formSubtitle").textContent = "Select a department and assign a Head of Department.";
+  }
+}
+
+function onDeptChange(){
+  const val = document.getElementById("deptSelect").value;
+  if(!val){
+    document.getElementById("facultyField").value = "";
+    document.getElementById("currentHodBlock").classList.add("hidden");
+    return;
+  }
+  const [deptName, faculty] = val.split("|");
+  document.getElementById("facultyField").value = faculty;
+  const d = departments.find(x => x.dept === deptName);
+
+  if(d.hod !== "-"){
+    document.getElementById("currentHodBlock").classList.remove("hidden");
+    document.getElementById("curAvt").textContent = initials(d.hod);
+    document.getElementById("curName").textContent = "Current HOD: " + d.hod;
+    document.getElementById("curMeta").textContent = "Effective since " + d.date + " · " + d.email;
+  } else {
+    document.getElementById("currentHodBlock").classList.add("hidden");
+  }
+
+  const hist = d.history || [];
+  document.getElementById("historyBody").innerHTML = hist.length ? hist.map(h => `
+    <tr><td>${h.name}</td><td>${h.from}</td><td>${h.to}</td><td>${h.reason}</td></tr>
+  `).join("") : '<tr><td colspan="4" style="text-align:center; color:#9CA3AF; padding:20px;">No previous HOD history</td></tr>';
+}
+
+function toggleStatus(){
+  const el = document.getElementById("statusToggle");
+  setStatus(el.classList.contains("off"));
+}
+function setStatus(active){
+  const el = document.getElementById("statusToggle");
+  const label = document.getElementById("statusLabel");
+  if(active){
+    el.classList.remove("off");
+    label.textContent = "Active";
+    label.style.color = "#16A34A";
+  } else {
+    el.classList.add("off");
+    label.textContent = "Inactive";
+    label.style.color = "#6B7280";
+  }
+}
+
+function saveHod(){
+  const deptVal = document.getElementById("deptSelect").value;
+  const name = document.getElementById("hodName").value.trim();
+  const eff = document.getElementById("effDate").value;
+  if(!deptVal || !name || !eff){
+    alert("Please select a department, enter HOD name and effective date.");
+    return;
+  }
+  const [deptName, faculty] = deptVal.split("|");
+  const d = departments.find(x => x.dept === deptName);
+  if(d.hod !== "-"){
+    d.history.unshift({ name: d.hod, from: d.date, to: eff, reason: document.getElementById("reason").value || "Reassigned" });
+  }
+  d.hod = name;
+  d.empId = document.getElementById("empId").value;
+  d.email = document.getElementById("hodEmail").value;
+  d.date = eff;
+  d.status = document.getElementById("statusLabel").textContent;
+
+  renderList();
+  showList();
+}
+
+renderList();
+    </script>
+
+</body>
+</html>
+

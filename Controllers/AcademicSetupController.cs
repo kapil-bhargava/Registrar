@@ -17,5 +17,13 @@ namespace Regis.Controllers
         {
             return View();
         }
+        public ActionResult DepartmentManagement()
+        {
+            return View();
+        }
+        public ActionResult HODManagement()
+        {
+            return View();
+        }
     }
 }

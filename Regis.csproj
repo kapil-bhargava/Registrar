@@ -135,7 +135,9 @@
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\css\academicSession.css" />
     <Content Include="Content\css\campusManagement.css" />
+    <Content Include="Content\css\departmentManagement.css" />
     <Content Include="Content\css\Facultymanagement.css" />
+    <Content Include="Content\css\HODManagement.css" />
     <Content Include="Content\css\site.css" />
     <Content Include="Content\css\footer.css" />
     <Content Include="Content\css\navbar.css" />
@@ -183,6 +185,8 @@
     <Content Include="Views\University\CampusManagement.cshtml" />
     <Content Include="Views\University\FacultyManagement.cshtml" />
     <Content Include="Views\AcademicSetup\AcademicSession.cshtml" />
+    <Content Include="Views\AcademicSetup\DepartmentManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\HODManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

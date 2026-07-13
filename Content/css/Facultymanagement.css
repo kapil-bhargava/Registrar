@@ -736,6 +736,7 @@
         bottom: 30px;
     }
 
+<<<<<<< HEAD
     .fm-toast i {
         font-size: 1.1rem;
     }
@@ -1009,3 +1010,5 @@
         break-inside: avoid;
     }
 }
+=======
+>>>>>>> 129d24a2c55d3b8f4ad3b5543f57632b62191f91
