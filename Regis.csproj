@@ -181,7 +181,7 @@
     <Content Include="Views\University\UniversityForm.cshtml" />
     <Content Include="Views\University\AcademicSession.cshtml" />
     <Content Include="Views\University\UniversityProfile.cshtml" />
-    <Content Include="Views\University\CompusManagement.cshtml" />
+    <Content Include="Views\University\CampusManagement.cshtml" />
     <Content Include="Views\University\FacultyManagement.cshtml" />
     <Content Include="Views\AcademicSetup\AcademicSession.cshtml" />
   </ItemGroup>

@@ -21,7 +21,7 @@ namespace Regis.Controllers
         }
        
        
-        public ActionResult CompusManagement()
+        public ActionResult CampusManagement()
         {
             return View();
         }
