@@ -1,0 +1,232 @@
+﻿
+@{
+    ViewBag.Title = "CategoryMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+ 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="catListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-tag"></i> Category Master</h2>
+                <p>Manage student categories used across admission &amp; fee modules (General, OBC, SC, ST, EWS...).</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="catShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Category
+            </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-tags"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="catTotal">5</span>
+                    <span class="as-stat-label">Total Categories</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="catActive">5</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-percent"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="catWithConcession">3</span>
+                    <span class="as-stat-label">With Fee Concession</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Category Code</th>
+                        <th>Fee Concession %</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="catTableBody">
+                    <tr>
+                        <td><strong>General</strong></td>
+                        <td>GEN</td>
+                        <td>0%</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>OBC</strong></td>
+                        <td>OBC</td>
+                        <td>10%</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>SC</strong></td>
+                        <td>SC</td>
+                        <td>25%</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>ST</strong></td>
+                        <td>ST</td>
+                        <td>25%</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>EWS</strong></td>
+                        <td>EWS</td>
+                        <td>0%</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT CATEGORY FORM ================= -->
+    <div class="as-card as-wizard-card" id="catFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="catShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Category List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-tag"></i></div>
+                    <div>
+                        <h2 id="catFormTitle">Add Category</h2>
+                        <p>Define a new student category used in admission &amp; fee modules.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Category Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Category Name <span class="req">*</span></label>
+                        <input type="text" id="categoryName" placeholder="e.g. General, OBC, SC, ST, EWS">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Category Code <span class="req">*</span></label>
+                        <input type="text" id="categoryCode" placeholder="e.g. GEN, OBC, SC">
+                        <span class="as-hint">Short unique code used in reports &amp; forms</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Fee Concession (%)</label>
+                        <input type="number" id="categoryConcession" placeholder="e.g. 10" min="0" max="100">
+                        <span class="as-hint">Automatic fee discount applied for this category (0 if none)</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="categoryStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Description</label>
+                        <textarea id="categoryDescription" rows="3" placeholder="Optional note about this category..."></textarea>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="catShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="catSaveCategory()">
+                        <i class="fas fa-save"></i> Save Category
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="as-toast" id="catToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="catToastMessage">Success!</span>
+</div>
+
+<script>function catShowForm(btn) {
+        document.getElementById('catListWrap').style.display = 'none';
+        document.getElementById('catFormWrap').style.display = 'block';
+        document.getElementById('catFormTitle').textContent = btn ? 'Edit Category' : 'Add Category';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function catShowList() {
+        document.getElementById('catFormWrap').style.display = 'none';
+        document.getElementById('catListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function catShowToast(msg, type) {
+        const toast = document.getElementById('catToast');
+        const messageEl = document.getElementById('catToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function catSaveCategory() {
+        const name = document.getElementById('categoryName').value.trim();
+        if (!name) { catShowToast('Category Name is required', 'error'); return; }
+
+        const code = document.getElementById('categoryCode').value.trim();
+        if (!code) { catShowToast('Category Code is required', 'error'); return; }
+
+        catShowToast('Category "' + name + '" saved successfully!', 'success');
+        catShowList();
+    }</script>
+
+
