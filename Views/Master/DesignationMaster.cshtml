@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "DesignationMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card" id="desListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-id-badge"></i> Designation Master</h2>
+                <p>Manage staff &amp; faculty designations used across HR and access-control modules.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="desShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Designation
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-id-badge"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="desTotal">5</span>
+                    <span class="as-stat-label">Total Designations</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="desActive">5</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="desTeaching">3</span>
+                    <span class="as-stat-label">Teaching</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-briefcase"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="desNonTeaching">2</span>
+                    <span class="as-stat-label">Non-Teaching</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Designation Name</th>
+                        <th>Code</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="desTableBody">
+                    <tr>
+                        <td><strong>Professor</strong></td>
+                        <td>PROF</td>
+                        <td><span class="as-type-badge">Teaching</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="desShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Assistant Professor</strong></td>
+                        <td>AP</td>
+                        <td><span class="as-type-badge">Teaching</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="desShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>HOD</strong></td>
+                        <td>HOD</td>
+                        <td><span class="as-type-badge">Teaching</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="desShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Registrar</strong></td>
+                        <td>REG</td>
+                        <td><span class="as-type-badge">Non-Teaching</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="desShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Clerk</strong></td>
+                        <td>CLK</td>
+                        <td><span class="as-type-badge">Non-Teaching</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="desShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <div class="as-card as-wizard-card" id="desFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="desShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Designation List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-id-badge"></i></div>
+                    <div>
+                        <h2 id="desFormTitle">Add Designation</h2>
+                        <p>Define a new staff/faculty designation.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Designation Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Designation Name <span class="req">*</span></label>
+                        <input type="text" id="designationName" placeholder="e.g. Professor, Assistant Professor, HOD, Registrar, Clerk">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Designation Code <span class="req">*</span></label>
+                        <input type="text" id="designationCode" placeholder="e.g. PROF, AP, HOD">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Level <span class="req">*</span></label>
+                        <select id="designationLevel">
+                            <option value="">-- Select Level --</option>
+                            <option value="Teaching">Teaching</option>
+                            <option value="Non-Teaching">Non-Teaching</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="designationStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="desShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="desSaveDesignation()">
+                        <i class="fas fa-save"></i> Save Designation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="desToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="desToastMessage">Success!</span>
+</div>
+
+<script>function desShowForm(btn) {
+        document.getElementById('desListWrap').style.display = 'none';
+        document.getElementById('desFormWrap').style.display = 'block';
+        document.getElementById('desFormTitle').textContent = btn ? 'Edit Designation' : 'Add Designation';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function desShowList() {
+        document.getElementById('desFormWrap').style.display = 'none';
+        document.getElementById('desListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function desShowToast(msg, type) {
+        const toast = document.getElementById('desToast');
+        const messageEl = document.getElementById('desToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function desSaveDesignation() {
+        const name = document.getElementById('designationName').value.trim();
+        if (!name) { desShowToast('Designation Name is required', 'error'); return; }
+
+        const code = document.getElementById('designationCode').value.trim();
+        if (!code) { desShowToast('Designation Code is required', 'error'); return; }
+
+        const level = document.getElementById('designationLevel').value;
+        if (!level) { desShowToast('Please select a Level', 'error'); return; }
+
+        desShowToast('Designation "' + name + '" saved successfully!', 'success');
+        desShowList();
+    }</script>
+
+

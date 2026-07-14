@@ -1,0 +1,238 @@
+﻿
+@{
+    ViewBag.Title = "FeeheadMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card" id="fhListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-money-check-alt"></i> Fee Heads Master</h2>
+                <p>Manage individual fee components used while building fee structures.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="fhShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Fee Head
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-money-check-alt"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="fhTotal">4</span>
+                    <span class="as-stat-label">Total Fee Heads</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="fhActive">4</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-sync-alt"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="fhRecurring">2</span>
+                    <span class="as-stat-label">Recurring</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="fhOneTime">1</span>
+                    <span class="as-stat-label">One-Time</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Fee Head Name</th>
+                        <th>Code</th>
+                        <th>Fee Category</th>
+                        <th>Applicable To</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="fhTableBody">
+                    <tr>
+                        <td><strong>Tuition Fee</strong></td>
+                        <td>TUI</td>
+                        <td><span class="as-type-badge">Recurring (Semester-wise)</span></td>
+                        <td>All</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="fhShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hostel Fee</strong></td>
+                        <td>HOS</td>
+                        <td><span class="as-type-badge">Recurring (Semester-wise)</span></td>
+                        <td>All</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="fhShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Library Fee</strong></td>
+                        <td>LIB</td>
+                        <td><span class="as-type-badge">Annual</span></td>
+                        <td>All</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="fhShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Admission Fee</strong></td>
+                        <td>ADM</td>
+                        <td><span class="as-type-badge">One-Time</span></td>
+                        <td>All</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="fhShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <div class="as-card as-wizard-card" id="fhFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="fhShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Fee Heads List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-money-check-alt"></i></div>
+                    <div>
+                        <h2 id="fhFormTitle">Add Fee Head</h2>
+                        <p>Define a new fee component used to build fee structures.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Fee Head Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Fee Head Name <span class="req">*</span></label>
+                        <input type="text" id="feeHeadName" placeholder="e.g. Tuition Fee, Hostel Fee, Exam Fee">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Fee Head Code <span class="req">*</span></label>
+                        <input type="text" id="feeHeadCode" placeholder="e.g. TUI, HOS, EXM">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Fee Category <span class="req">*</span></label>
+                        <select id="feeCategory">
+                            <option value="">-- Select Category --</option>
+                            <option value="One-Time">One-Time</option>
+                            <option value="Recurring">Recurring (Semester-wise)</option>
+                            <option value="Annual">Annual</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Applicable To</label>
+                        <select id="feeApplicableTo">
+                            <option value="All">All Programs</option>
+                            <option value="UG">UG Only</option>
+                            <option value="PG">PG Only</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="feeHeadStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="fhShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="fhSaveFeeHead()">
+                        <i class="fas fa-save"></i> Save Fee Head
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="fhToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="fhToastMessage">Success!</span>
+</div>
+
+<script>function fhShowForm(btn) {
+        document.getElementById('fhListWrap').style.display = 'none';
+        document.getElementById('fhFormWrap').style.display = 'block';
+        document.getElementById('fhFormTitle').textContent = btn ? 'Edit Fee Head' : 'Add Fee Head';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fhShowList() {
+        document.getElementById('fhFormWrap').style.display = 'none';
+        document.getElementById('fhListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fhShowToast(msg, type) {
+        const toast = document.getElementById('fhToast');
+        const messageEl = document.getElementById('fhToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function fhSaveFeeHead() {
+        const name = document.getElementById('feeHeadName').value.trim();
+        if (!name) { fhShowToast('Fee Head Name is required', 'error'); return; }
+
+        const code = document.getElementById('feeHeadCode').value.trim();
+        if (!code) { fhShowToast('Fee Head Code is required', 'error'); return; }
+
+        const category = document.getElementById('feeCategory').value;
+        if (!category) { fhShowToast('Please select a Fee Category', 'error'); return; }
+
+        fhShowToast('Fee Head "' + name + '" saved successfully!', 'success');
+        fhShowList();
+    }</script>
+
+

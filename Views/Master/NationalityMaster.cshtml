@@ -1,0 +1,201 @@
+﻿
+@{
+    ViewBag.Title = "NationalityMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card" id="natListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-flag"></i> Nationality Master</h2>
+                <p>Manage nationalities used for student admission &amp; document requirements.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="natShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Nationality
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-flag"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="natTotal">3</span>
+                    <span class="as-stat-label">Total Nationalities</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="natActive">3</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-passport"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="natPassport">2</span>
+                    <span class="as-stat-label">Require Passport</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Nationality Name</th>
+                        <th>Code</th>
+                        <th>Requires Passport</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="natTableBody">
+                    <tr>
+                        <td><strong>Indian</strong></td>
+                        <td>IND</td>
+                        <td><span class="as-type-badge">No</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="natShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>NRI</strong></td>
+                        <td>NRI</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="natShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Foreign National</strong></td>
+                        <td>FN</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="natShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <div class="as-card as-wizard-card" id="natFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="natShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Nationality List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-flag"></i></div>
+                    <div>
+                        <h2 id="natFormTitle">Add Nationality</h2>
+                        <p>Define a new nationality option for student admission.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Nationality Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Nationality Name <span class="req">*</span></label>
+                        <input type="text" id="nationalityName" placeholder="e.g. Indian, NRI, Foreign National">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Nationality Code <span class="req">*</span></label>
+                        <input type="text" id="nationalityCode" placeholder="e.g. IND, NRI, FN">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="nationalityStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label class="as-checkbox">
+                            <input type="checkbox" id="requiresPassport">
+                            <span><strong>Requires Passport / Visa Documents</strong> for admission</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="natShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="natSaveNationality()">
+                        <i class="fas fa-save"></i> Save Nationality
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="natToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="natToastMessage">Success!</span>
+</div>
+
+<script>function natShowForm(btn) {
+        document.getElementById('natListWrap').style.display = 'none';
+        document.getElementById('natFormWrap').style.display = 'block';
+        document.getElementById('natFormTitle').textContent = btn ? 'Edit Nationality' : 'Add Nationality';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function natShowList() {
+        document.getElementById('natFormWrap').style.display = 'none';
+        document.getElementById('natListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function natShowToast(msg, type) {
+        const toast = document.getElementById('natToast');
+        const messageEl = document.getElementById('natToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function natSaveNationality() {
+        const name = document.getElementById('nationalityName').value.trim();
+        if (!name) { natShowToast('Nationality Name is required', 'error'); return; }
+
+        const code = document.getElementById('nationalityCode').value.trim();
+        if (!code) { natShowToast('Nationality Code is required', 'error'); return; }
+
+        natShowToast('Nationality "' + name + '" saved successfully!', 'success');
+        natShowList();
+    }</script>
+
+

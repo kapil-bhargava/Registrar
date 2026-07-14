@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "BoardUniversityMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card" id="bunListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-university"></i> Board / University Master</h2>
+                <p>Manage boards (10th/12th) and universities used to record students' previous education.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="bunShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Board / University
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-university"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bunTotal">4</span>
+                    <span class="as-stat-label">Total Entries</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bunActive">4</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-school"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bunBoards">2</span>
+                    <span class="as-stat-label">School Boards</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bunUniversities">2</span>
+                    <span class="as-stat-label">Universities</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Affiliation No.</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bunTableBody">
+                    <tr>
+                        <td><strong>CBSE</strong></td>
+                        <td>CBSE</td>
+                        <td><span class="as-type-badge">School Board</span></td>
+                        <td>—</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="bunShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>UP Board</strong></td>
+                        <td>UPB</td>
+                        <td><span class="as-type-badge">School Board</span></td>
+                        <td>—</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="bunShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lucknow University</strong></td>
+                        <td>LKO-UNIV</td>
+                        <td><span class="as-type-badge">University</span></td>
+                        <td>UGC-00123</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="bunShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>AKTU</strong></td>
+                        <td>AKTU</td>
+                        <td><span class="as-type-badge">University</span></td>
+                        <td>UGC-00987</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="bunShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <div class="as-card as-wizard-card" id="bunFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="bunShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Board / University List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-university"></i></div>
+                    <div>
+                        <h2 id="bunFormTitle">Add Board / University</h2>
+                        <p>Define a school board or university for previous education records.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Name <span class="req">*</span></label>
+                        <input type="text" id="bunName" placeholder="e.g. CBSE, UP Board, Lucknow University">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Code <span class="req">*</span></label>
+                        <input type="text" id="bunCode" placeholder="e.g. CBSE, UPB, AKTU">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Type <span class="req">*</span></label>
+                        <select id="bunType">
+                            <option value="">-- Select Type --</option>
+                            <option value="School Board">School Board (10+2 level)</option>
+                            <option value="University">University (Graduation level)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Affiliation / Registration No.</label>
+                        <input type="text" id="bunAffiliationNo" placeholder="e.g. UGC-00123 (optional)">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="bunStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="bunShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="bunSaveEntry()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="bunToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="bunToastMessage">Success!</span>
+</div>
+
+<script>function bunShowForm(btn) {
+        document.getElementById('bunListWrap').style.display = 'none';
+        document.getElementById('bunFormWrap').style.display = 'block';
+        document.getElementById('bunFormTitle').textContent = btn ? 'Edit Board / University' : 'Add Board / University';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bunShowList() {
+        document.getElementById('bunFormWrap').style.display = 'none';
+        document.getElementById('bunListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bunShowToast(msg, type) {
+        const toast = document.getElementById('bunToast');
+        const messageEl = document.getElementById('bunToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function bunSaveEntry() {
+        const name = document.getElementById('bunName').value.trim();
+        if (!name) { bunShowToast('Name is required', 'error'); return; }
+
+        const type = document.getElementById('bunType').value;
+        if (!type) { bunShowToast('Please select a Type', 'error'); return; }
+
+        bunShowToast('"' + name + '" saved successfully!', 'success');
+        bunShowList();
+    }</script>
+
+

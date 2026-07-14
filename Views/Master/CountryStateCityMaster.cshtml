@@ -1,0 +1,320 @@
+﻿
+@{
+    ViewBag.Title = "CountryStateCityMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE (with 3 sub-tabs) ================= -->
+    <div class="as-card" id="cscListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-globe-asia"></i> Country / State / City Master</h2>
+                <p>Manage the location hierarchy used for student &amp; address forms.</p>
+            </div>
+            <button class="as-btn as-btn-primary" id="cscAddBtn" onclick="cscShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Country
+            </button>
+        </div>
+
+        <!-- Sub Tabs -->
+        <div class="as-stepper" style="margin-bottom:20px;">
+            <div class="as-step current" onclick="cscSwitchTab('country')" id="tabCountry" style="cursor:pointer;">
+                <div class="as-step-circle"><i class="fas fa-flag"></i></div>
+                <div class="as-step-label">Country</div>
+            </div>
+            <div class="as-step" onclick="cscSwitchTab('state')" id="tabState" style="cursor:pointer;">
+                <div class="as-step-circle"><i class="fas fa-map"></i></div>
+                <div class="as-step-label">State</div>
+            </div>
+            <div class="as-step" onclick="cscSwitchTab('city')" id="tabCity" style="cursor:pointer;">
+                <div class="as-step-circle"><i class="fas fa-city"></i></div>
+                <div class="as-step-label">City</div>
+            </div>
+        </div>
+
+        <!-- Country Table -->
+        <div class="as-table-wrapper" id="countryTableWrap">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr><th>Country Name</th><th>Country Code</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>India</strong></td>
+                        <td>IN</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('country', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>United States</strong></td>
+                        <td>US</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('country', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- State Table -->
+        <div class="as-table-wrapper" id="stateTableWrap" style="display:none;">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr><th>State Name</th><th>Country</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Uttar Pradesh</strong></td>
+                        <td>India</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('state', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Delhi</strong></td>
+                        <td>India</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('state', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- City Table -->
+        <div class="as-table-wrapper" id="cityTableWrap" style="display:none;">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr><th>City Name</th><th>State</th><th>Country</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Lucknow</strong></td>
+                        <td>Uttar Pradesh</td>
+                        <td>India</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('city', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kanpur</strong></td>
+                        <td>Uttar Pradesh</td>
+                        <td>India</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cscShowForm('city', this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM (dynamic based on tab) ================= -->
+    <div class="as-card as-wizard-card" id="cscFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="cscShowList()">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-globe-asia"></i></div>
+                    <div>
+                        <h2 id="cscFormTitle">Add Country</h2>
+                        <p id="cscFormSubtitle">Define a new country used for address forms.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Details
+                </div>
+                <div class="as-grid">
+                    <!-- Country fields -->
+                    <div class="as-field as-full" id="fldCountryName">
+                        <label>Country Name <span class="req">*</span></label>
+                        <input type="text" id="countryName" placeholder="e.g. India">
+                    </div>
+                    <div class="as-field" id="fldCountryCode">
+                        <label>Country Code <span class="req">*</span></label>
+                        <input type="text" id="countryCode" placeholder="e.g. IN (ISO code)">
+                    </div>
+
+                    <!-- State fields -->
+                    <div class="as-field as-full" id="fldStateName" style="display:none;">
+                        <label>State Name <span class="req">*</span></label>
+                        <input type="text" id="stateName" placeholder="e.g. Uttar Pradesh">
+                    </div>
+                    <div class="as-field" id="fldStateCountry" style="display:none;">
+                        <label>Country <span class="req">*</span></label>
+                        <select id="stateCountry">
+                            <option value="">-- Select Country --</option>
+                            <option value="India">India</option>
+                            <option value="United States">United States</option>
+                        </select>
+                    </div>
+
+                    <!-- City fields -->
+                    <div class="as-field as-full" id="fldCityName" style="display:none;">
+                        <label>City Name <span class="req">*</span></label>
+                        <input type="text" id="cityName" placeholder="e.g. Lucknow">
+                    </div>
+                    <div class="as-field" id="fldCityCountry" style="display:none;">
+                        <label>Country <span class="req">*</span></label>
+                        <select id="cityCountry" onchange="cscFilterStates()">
+                            <option value="">-- Select Country --</option>
+                            <option value="India">India</option>
+                            <option value="United States">United States</option>
+                        </select>
+                    </div>
+                    <div class="as-field" id="fldCityState" style="display:none;">
+                        <label>State <span class="req">*</span></label>
+                        <select id="cityState">
+                            <option value="">-- Select State (choose Country first) --</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field" id="fldStatus">
+                        <label>Status</label>
+                        <select id="cscStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="cscShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="cscSave()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="cscToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="cscToastMessage">Success!</span>
+</div>
+
+<script>
+    let cscCurrentTab = 'country';
+
+    // Sample state data grouped by country, for the City form's state dropdown
+    const statesByCountry = {
+        'India': ['Uttar Pradesh', 'Delhi'],
+        'United States': ['California', 'Texas']
+    };
+
+    function cscSwitchTab(tab) {
+        cscCurrentTab = tab;
+        document.querySelectorAll('.as-step').forEach(s => s.classList.remove('current'));
+        document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('current');
+
+        document.getElementById('countryTableWrap').style.display = tab === 'country' ? 'block' : 'none';
+        document.getElementById('stateTableWrap').style.display = tab === 'state' ? 'block' : 'none';
+        document.getElementById('cityTableWrap').style.display = tab === 'city' ? 'block' : 'none';
+
+        document.getElementById('cscAddBtn').innerHTML =
+            '<i class="fas fa-plus-circle"></i> Add New ' + tab.charAt(0).toUpperCase() + tab.slice(1);
+    }
+
+    function cscShowForm(tab, btn) {
+        tab = tab || cscCurrentTab;
+        document.getElementById('cscListWrap').style.display = 'none';
+        document.getElementById('cscFormWrap').style.display = 'block';
+
+        // Hide all field groups first
+        ['fldCountryName', 'fldCountryCode', 'fldStateName', 'fldStateCountry',
+            'fldCityName', 'fldCityCountry', 'fldCityState'].forEach(id =>
+                document.getElementById(id).style.display = 'none');
+
+        const titles = { country: 'Country', state: 'State', city: 'City' };
+        document.getElementById('cscFormTitle').textContent = (btn ? 'Edit ' : 'Add ') + titles[tab];
+
+        if (tab === 'country') {
+            document.getElementById('fldCountryName').style.display = 'block';
+            document.getElementById('fldCountryCode').style.display = 'block';
+            document.getElementById('cscFormSubtitle').textContent = 'Define a new country used for address forms.';
+        } else if (tab === 'state') {
+            document.getElementById('fldStateName').style.display = 'block';
+            document.getElementById('fldStateCountry').style.display = 'block';
+            document.getElementById('cscFormSubtitle').textContent = 'Define a new state, linked to its country.';
+        } else if (tab === 'city') {
+            document.getElementById('fldCityName').style.display = 'block';
+            document.getElementById('fldCityCountry').style.display = 'block';
+            document.getElementById('fldCityState').style.display = 'block';
+            document.getElementById('cscFormSubtitle').textContent = 'Define a new city, linked to its state and country.';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cscFilterStates() {
+        const country = document.getElementById('cityCountry').value;
+        const stateSelect = document.getElementById('cityState');
+        stateSelect.innerHTML = '<option value="">-- Select State --</option>';
+        (statesByCountry[country] || []).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s; opt.textContent = s;
+            stateSelect.appendChild(opt);
+        });
+    }
+
+    function cscShowList() {
+        document.getElementById('cscFormWrap').style.display = 'none';
+        document.getElementById('cscListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cscShowToast(msg, type) {
+        const toast = document.getElementById('cscToast');
+        const messageEl = document.getElementById('cscToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cscSave() {
+        let name = '';
+        if (cscCurrentTab === 'country') name = document.getElementById('countryName').value.trim();
+        else if (cscCurrentTab === 'state') name = document.getElementById('stateName').value.trim();
+        else name = document.getElementById('cityName').value.trim();
+
+        if (!name) { cscShowToast('Name is required', 'error'); return; }
+
+        cscShowToast('"' + name + '" saved successfully!', 'success');
+        cscShowList();
+    }
+</script>

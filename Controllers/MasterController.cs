@@ -17,5 +17,35 @@ namespace Regis.Controllers
         {
             return View();
         }
+        public ActionResult NationalityMaster()
+        {
+            return View();
+        }
+        public ActionResult BoardUniversityMaster()
+        {
+            return View();
+        }
+        public ActionResult CountryStateCityMaster()
+        {
+            return View();
+        }
+        public ActionResult FeeheadMaster()
+        {
+            return View();
+        }
+        public ActionResult DiscountScholarshipMaster()
+        {
+            return View();
+        }
+
+        public ActionResult DesignationMaster()
+        {
+            return View();
+        }
+
+        public ActionResult SystemSettings()
+        {
+            return View();
+        }
     }
 }

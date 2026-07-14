@@ -1,0 +1,242 @@
+﻿
+@{
+    ViewBag.Title = "DiscountScholarshipMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card" id="dscListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-percent"></i> Discount / Scholarship Master</h2>
+                <p>Manage merit, sports &amp; need-based discounts that can be applied on top of category concessions.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="dscShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Scholarship
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-percent"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dscTotal">3</span>
+                    <span class="as-stat-label">Total Schemes</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dscActive">3</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-percentage"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dscPercentType">2</span>
+                    <span class="as-stat-label">Percentage-Based</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dscFixedType">1</span>
+                    <span class="as-stat-label">Fixed Amount</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Scholarship Name</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Applicable Fee Head</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="dscTableBody">
+                    <tr>
+                        <td><strong>Merit Scholarship</strong></td>
+                        <td><span class="as-type-badge">Percentage</span></td>
+                        <td>10%</td>
+                        <td>Tuition Fee</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="dscShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sports Quota Discount</strong></td>
+                        <td><span class="as-type-badge">Fixed Amount</span></td>
+                        <td>₹5,000</td>
+                        <td>Tuition Fee</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="dscShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sibling Discount</strong></td>
+                        <td><span class="as-type-badge">Percentage</span></td>
+                        <td>5%</td>
+                        <td>All Fee Heads</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="dscShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <div class="as-card as-wizard-card" id="dscFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="dscShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Scholarship List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-percent"></i></div>
+                    <div>
+                        <h2 id="dscFormTitle">Add Scholarship</h2>
+                        <p>Define a discount or scholarship scheme for eligible students.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Scheme Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Scholarship Name <span class="req">*</span></label>
+                        <input type="text" id="scholarshipName" placeholder="e.g. Merit Scholarship, Sports Quota Discount">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Type <span class="req">*</span></label>
+                        <select id="scholarshipType" onchange="dscUpdateValueHint()">
+                            <option value="">-- Select Type --</option>
+                            <option value="Percentage">Percentage (%)</option>
+                            <option value="Fixed">Fixed Amount (₹)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Value <span class="req">*</span></label>
+                        <input type="number" id="scholarshipValue" placeholder="e.g. 10 or 5000" min="0">
+                        <span class="as-hint" id="scholarshipValueHint">Enter % or ₹ amount based on Type selected</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Applicable Fee Head <span class="req">*</span></label>
+                        <select id="scholarshipFeeHead">
+                            <option value="">-- Select Fee Head --</option>
+                            <option value="All Fee Heads">All Fee Heads</option>
+                            <option value="Tuition Fee">Tuition Fee</option>
+                            <option value="Hostel Fee">Hostel Fee</option>
+                            <option value="Library Fee">Library Fee</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="scholarshipStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Eligibility Criteria</label>
+                        <textarea id="scholarshipEligibility" rows="3" placeholder="e.g. Minimum 85% in Class 12th, Sports certificate at State/National level"></textarea>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="dscShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="dscSaveScholarship()">
+                        <i class="fas fa-save"></i> Save Scholarship
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="dscToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="dscToastMessage">Success!</span>
+</div>
+
+<script>function dscShowForm(btn) {
+        document.getElementById('dscListWrap').style.display = 'none';
+        document.getElementById('dscFormWrap').style.display = 'block';
+        document.getElementById('dscFormTitle').textContent = btn ? 'Edit Scholarship' : 'Add Scholarship';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function dscShowList() {
+        document.getElementById('dscFormWrap').style.display = 'none';
+        document.getElementById('dscListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function dscUpdateValueHint() {
+        const type = document.getElementById('scholarshipType').value;
+        const hint = document.getElementById('scholarshipValueHint');
+        if (type === 'Percentage') hint.textContent = 'Enter a percentage value, e.g. 10 (means 10%)';
+        else if (type === 'Fixed') hint.textContent = 'Enter a fixed rupee amount, e.g. 5000';
+        else hint.textContent = 'Enter % or ₹ amount based on Type selected';
+    }
+
+    function dscShowToast(msg, type) {
+        const toast = document.getElementById('dscToast');
+        const messageEl = document.getElementById('dscToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function dscSaveScholarship() {
+        const name = document.getElementById('scholarshipName').value.trim();
+        if (!name) { dscShowToast('Scholarship Name is required', 'error'); return; }
+
+        const type = document.getElementById('scholarshipType').value;
+        if (!type) { dscShowToast('Please select a Type', 'error'); return; }
+
+        const value = document.getElementById('scholarshipValue').value;
+        if (!value) { dscShowToast('Please enter a Value', 'error'); return; }
+
+        dscShowToast('Scholarship "' + name + '" saved successfully!', 'success');
+        dscShowList();
+    }</script>
+
+
