@@ -25,5 +25,21 @@ namespace Regis.Controllers
         {
             return View();
         }
+        public ActionResult CourseManagement()
+        {
+            return View();
+        }
+        public ActionResult SubjectManagement()
+        {
+            return View();
+        }
+        public ActionResult ProgramManagement()
+        {
+            return View();
+        }
+        public ActionResult SemesterManagement()
+        {
+            return View();
+        }
     }
 }

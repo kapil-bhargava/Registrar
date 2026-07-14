@@ -1,0 +1,362 @@
+﻿
+@{
+    ViewBag.Title = "CourseManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="crsListWrap">
+        <!-- Header -->
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-book"></i> Course Management</h2>
+                <p>Manage all courses offered under the university.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="crsShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Course
+            </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-book"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="crsTotalCourses">4</span>
+                    <span class="as-stat-label">Total Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="crsActiveCourses">3</span>
+                    <span class="as-stat-label">Active Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="crsUgCourses">2</span>
+                    <span class="as-stat-label">UG Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="crsPgCourses">2</span>
+                    <span class="as-stat-label">PG Courses</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Course Code</th>
+                        <th>Program Type</th>
+                        <th>Duration</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="crsTableBody">
+                    <tr>
+                        <td><strong>Bachelor of Technology - CS</strong></td>
+                        <td>BTECH-CS</td>
+                        <td><span class="as-type-badge">UG</span></td>
+                        <td>4 Years</td>
+                        <td>Computer Science</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="crsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Master of Business Administration</strong></td>
+                        <td>MBA</td>
+                        <td><span class="as-type-badge">PG</span></td>
+                        <td>2 Years</td>
+                        <td>Management</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="crsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bachelor of Computer Applications</strong></td>
+                        <td>BCA</td>
+                        <td><span class="as-type-badge">UG</span></td>
+                        <td>3 Years</td>
+                        <td>Computer Science</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="crsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bachelor of Pharmacy</strong></td>
+                        <td>BPHARM</td>
+                        <td><span class="as-type-badge">Professional</span></td>
+                        <td>4 Years</td>
+                        <td>Pharmacy</td>
+                        <td><span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Upcoming</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="crsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Legend -->
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+            <span><span class="as-legend-dot draft"></span> Upcoming</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT COURSE FORM ================= -->
+    <div class="as-card as-wizard-card" id="crsFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="crsShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Courses List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-book-medical"></i></div>
+                    <div>
+                        <h2 id="crsFormTitle">Add Course</h2>
+                        <p>Define a new course with all necessary academic details.</p>
+                    </div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Basic Information
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Course Name <span class="req">*</span></label>
+                        <input type="text" id="courseName" placeholder="e.g. Bachelor of Technology - Computer Science">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course Short Name <span class="req">*</span></label>
+                        <input type="text" id="courseShortName" placeholder="e.g. B.Tech CS">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course Code <span class="req">*</span></label>
+                        <input type="text" id="courseCode" placeholder="e.g. BTECH-CS">
+                        <span class="as-hint">e.g. BTECH-CS, MBA, BCA, MCA, BPHARM</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Program Type <span class="req">*</span></label>
+                        <select id="programType">
+                            <option value="">-- Select Program Type --</option>
+                            <option value="UG">Undergraduate (UG)</option>
+                            <option value="PG">Postgraduate (PG)</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Certificate">Certificate</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Degree Name <span class="req">*</span></label>
+                        <select id="degreeName">
+                            <option value="">-- Select Degree Type --</option>
+                            <option value="Bachelor's">Bachelor's Degree</option>
+                            <option value="Master's">Master's Degree</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Certificate">Certificate</option>
+                            <option value="Doctoral">Doctoral Degree</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Duration <span class="req">*</span></label>
+                        <select id="courseDuration">
+                            <option value="1">1 Year</option>
+                            <option value="2">2 Years</option>
+                            <option value="3">3 Years</option>
+                            <option value="4" selected>4 Years</option>
+                            <option value="5">5 Years</option>
+                        </select>
+                        <span class="as-hint">B.Tech - 4 Yrs, BCA - 3 Yrs, MBA - 2 Yrs, Diploma - 3 Yrs</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Total Semesters <span class="req">*</span></label>
+                        <input type="number" id="totalSemesters" value="8" min="1" max="12">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Total Credits <span class="req">*</span></label>
+                        <input type="number" id="totalCredits" value="160" min="1">
+                        <span class="as-hint">B.Tech - 160, MBA - 80, BCA - 120 Credits</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Academic Department <span class="req">*</span></label>
+                        <select id="courseDepartment">
+                            <option value="">-- Select Department --</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Management">Management</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Faculty <span class="req">*</span></label>
+                        <select id="courseFaculty">
+                            <option value="">-- Select Faculty --</option>
+                            <option value="Faculty of Engineering">Faculty of Engineering</option>
+                            <option value="Faculty of Science">Faculty of Science</option>
+                            <option value="Faculty of Commerce">Faculty of Commerce</option>
+                            <option value="Faculty of Pharmacy">Faculty of Pharmacy</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Campus <span class="req">*</span></label>
+                        <select id="courseCampus">
+                            <option value="">-- Select Campus --</option>
+                            <option value="Main Campus">Main Campus</option>
+                            <option value="Gomti Nagar Campus">Gomti Nagar Campus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Academic Details -->
+                <div class="as-section-title">
+                    <i class="fas fa-graduation-cap"></i> Academic Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Medium of Instruction</label>
+                        <select id="courseMedium">
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Both">Both (Bilingual)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Intake Capacity (session-wise) <span class="req">*</span></label>
+                        <input type="number" id="intakeCapacity" placeholder="e.g. 120" min="1">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Admission Mode</label>
+                        <select id="admissionMode">
+                            <option value="Entrance Exam">Entrance Exam</option>
+                            <option value="Merit Based">Merit Based</option>
+                            <option value="Direct Admission">Direct Admission</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Eligibility Criteria</label>
+                        <input type="text" id="eligibilityCriteria" placeholder="e.g. 10+2 with Physics, Chemistry, Maths (Min 50%)">
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Course Description</label>
+                        <textarea id="courseDescription" rows="3" placeholder="Brief description about the course..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="as-section-title">
+                    <i class="fas fa-toggle-on"></i> Status
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Course Status</label>
+                        <select id="courseStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Upcoming">Upcoming</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="crsShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="crsSaveCourse()">
+                        <i class="fas fa-save"></i> Save Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="as-toast" id="crsToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="crsToastMessage">Success!</span>
+</div>
+
+<script>function crsShowForm(btn) {
+        document.getElementById('crsListWrap').style.display = 'none';
+        document.getElementById('crsFormWrap').style.display = 'block';
+        document.getElementById('crsFormTitle').textContent = btn ? 'Edit Course' : 'Add Course';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function crsShowList() {
+        document.getElementById('crsFormWrap').style.display = 'none';
+        document.getElementById('crsListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function crsShowToast(msg, type) {
+        const toast = document.getElementById('crsToast');
+        const messageEl = document.getElementById('crsToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function crsSaveCourse() {
+        const name = document.getElementById('courseName').value.trim();
+        if (!name) { crsShowToast('Course Name is required', 'error'); return; }
+
+        const code = document.getElementById('courseCode').value.trim();
+        if (!code) { crsShowToast('Course Code is required', 'error'); return; }
+
+        const type = document.getElementById('programType').value;
+        if (!type) { crsShowToast('Please select a Program Type', 'error'); return; }
+
+        crsShowToast('Course "' + name + '" saved successfully!', 'success');
+        crsShowList();
+    }</script>
+
+

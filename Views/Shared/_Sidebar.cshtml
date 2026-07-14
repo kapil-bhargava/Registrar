@@ -98,28 +98,33 @@
                     </a>
                 </li>
                 <li>
-                    <a class="@(activeSubMenu == "Program" ? "active-link" : "")"
+                    <a href="@Url.Action("" +
+                            "ProgramManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Program" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Program">
                         <i class="fas fa-graduation-cap"></i> Program
                     </a>
                 </li>
                 <!-- Course -->
                 <li>
-                    <a class="@(activeSubMenu == "Course" ? "active-link" : "")"
+                    <a href="@Url.Action("CourseManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Course" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Course">
                         <i class="fas fa-book"></i> Course
                     </a>
                 </li>
                 <!-- Semester -->
                 <li>
-                    <a class="@(activeSubMenu == "Semester" ? "active-link" : "")"
+                    <a href="@Url.Action("SemesterManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Semester" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Semester">
                         <i class="fas fa-clock"></i> Semester
                     </a>
                 </li>
                 <!-- Subject -->
                 <li>
-                    <a class="@(activeSubMenu == "Subject" ? "active-link" : "")"
+                    <a href="@Url.Action("SubjectManagement", "AcademicSetup")"
+                       class="@(activeSubMenu == "Subject" ? "active-link" : "")"
                        asp-controller="Academic" asp-action="Subject">
                         <i class="fas fa-puzzle-piece"></i> Subject
                     </a>

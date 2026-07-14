@@ -187,6 +187,10 @@
     <Content Include="Views\AcademicSetup\AcademicSession.cshtml" />
     <Content Include="Views\AcademicSetup\DepartmentManagement.cshtml" />
     <Content Include="Views\AcademicSetup\HODManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\CourseManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\SubjectManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\ProgramManagement.cshtml" />
+    <Content Include="Views\AcademicSetup\SemesterManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

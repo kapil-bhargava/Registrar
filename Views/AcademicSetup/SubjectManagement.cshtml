@@ -1,0 +1,302 @@
+﻿
+@{
+    ViewBag.Title = "SubjectManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="subListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-book-open"></i> Subject Management</h2>
+                <p>Manage all subjects — theory, practical &amp; mixed — across departments and semesters.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="subShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Subject
+            </button>
+        </div>
+
+        <!-- Subject Dashboard -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="subTotalSubjects">6</span>
+                    <span class="as-stat-label">Total Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="subActiveSubjects">5</span>
+                    <span class="as-stat-label">Active Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="subTheorySubjects">3</span>
+                    <span class="as-stat-label">Theory Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-flask"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="subPracticalSubjects">2</span>
+                    <span class="as-stat-label">Practical Subjects</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Subject Code</th>
+                        <th>Type</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Credits</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subTableBody">
+                    <tr>
+                        <td><strong>Data Structures</strong></td>
+                        <td>CS201</td>
+                        <td><span class="as-type-badge">Theory</span></td>
+                        <td>B.Tech - CS</td>
+                        <td>Semester 3</td>
+                        <td>4</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Electronics Lab</strong></td>
+                        <td>EC202L</td>
+                        <td><span class="as-type-badge">Practical</span></td>
+                        <td>B.Tech - CS</td>
+                        <td>Semester 3</td>
+                        <td>2</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database Management Systems</strong></td>
+                        <td>CS301</td>
+                        <td><span class="as-type-badge">Mixed</span></td>
+                        <td>B.Tech - CS</td>
+                        <td>Semester 5</td>
+                        <td>5</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Marketing Management</strong></td>
+                        <td>MBA104</td>
+                        <td><span class="as-type-badge">Theory</span></td>
+                        <td>MBA</td>
+                        <td>Semester 1</td>
+                        <td>3</td>
+                        <td><span class="as-pill as-pill-draft"><i class="fas fa-pencil"></i> Draft</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot draft"></span> Draft</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT SUBJECT FORM ================= -->
+    <div class="as-card as-wizard-card" id="subFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="subShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Subjects List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-book-medical"></i></div>
+                    <div>
+                        <h2 id="subFormTitle">Add Subject</h2>
+                        <p>Define a new subject and map it to a course &amp; semester.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Basic Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Subject Name <span class="req">*</span></label>
+                        <input type="text" id="subjectName" placeholder="e.g. Data Structures">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Subject Code <span class="req">*</span></label>
+                        <input type="text" id="subjectCode" placeholder="e.g. CS201">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Subject Type <span class="req">*</span></label>
+                        <select id="subjectType">
+                            <option value="">-- Select Subject Type --</option>
+                            <option value="Theory">Theory</option>
+                            <option value="Practical">Practical (e.g. Electronics Lab)</option>
+                            <option value="Mixed">Mixed (Theory + Practical)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="subjectCourse">
+                            <option value="">-- Select Course --</option>
+                            <option value="BTECH-CS">B.Tech - Computer Science</option>
+                            <option value="MBA">MBA</option>
+                            <option value="BCA">BCA</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Semester <span class="req">*</span></label>
+                        <select id="subjectSemester">
+                            <option value="">-- Select Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Academic Department <span class="req">*</span></label>
+                        <select id="subjectDepartment">
+                            <option value="">-- Select Department --</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Management">Management</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Credits <span class="req">*</span></label>
+                        <input type="number" id="subjectCredits" placeholder="e.g. 4" min="1" max="10">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Faculty</label>
+                        <select id="subjectFaculty">
+                            <option value="">-- Select Faculty --</option>
+                            <option value="Faculty of Engineering">Faculty of Engineering</option>
+                            <option value="Faculty of Science">Faculty of Science</option>
+                            <option value="Faculty of Commerce">Faculty of Commerce</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="subjectStatus">
+                            <option value="Active">Active</option>
+                            <option value="Draft">Draft</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Description</label>
+                        <textarea id="subjectDescription" rows="3" placeholder="Brief description about this subject..."></textarea>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="subShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="subSaveSubject()">
+                        <i class="fas fa-save"></i> Save Subject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="as-toast" id="subToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="subToastMessage">Success!</span>
+</div>
+
+<script>function subShowForm(btn) {
+        document.getElementById('subListWrap').style.display = 'none';
+        document.getElementById('subFormWrap').style.display = 'block';
+        document.getElementById('subFormTitle').textContent = btn ? 'Edit Subject' : 'Add Subject';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function subShowList() {
+        document.getElementById('subFormWrap').style.display = 'none';
+        document.getElementById('subListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function subShowToast(msg, type) {
+        const toast = document.getElementById('subToast');
+        const messageEl = document.getElementById('subToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function subSaveSubject() {
+        const name = document.getElementById('subjectName').value.trim();
+        if (!name) { subShowToast('Subject Name is required', 'error'); return; }
+
+        const code = document.getElementById('subjectCode').value.trim();
+        if (!code) { subShowToast('Subject Code is required', 'error'); return; }
+
+        const type = document.getElementById('subjectType').value;
+        if (!type) { subShowToast('Please select a Subject Type', 'error'); return; }
+
+        subShowToast('Subject "' + name + '" saved successfully!', 'success');
+        subShowList();
+    }</script>
+
+

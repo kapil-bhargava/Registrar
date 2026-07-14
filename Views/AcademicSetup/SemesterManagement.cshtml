@@ -1,0 +1,271 @@
+﻿
+@{
+    ViewBag.Title = "SemesterManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="semListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-stream"></i> Semester Management</h2>
+                <p>Manage semesters / sections and map them to courses.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="semShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Semester
+            </button>
+        </div>
+
+        <!-- Semester Dashboard -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-stream"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="semTotalSemesters">12</span>
+                    <span class="as-stat-label">Total Semesters</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-play-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="semActiveSemester">Semester 3</span>
+                    <span class="as-stat-label">Active Semester</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="semStudentsRegistered">1,842</span>
+                    <span class="as-stat-label">Students Registered</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="semSubjectsOffered">36</span>
+                    <span class="as-stat-label">Subjects Offered</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semester List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>Course</th>
+                        <th>Academic Session</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Credit Limit</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="semTableBody">
+                    <tr>
+                        <td><strong>Semester 1</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td>2025-26</td>
+                        <td>01/07/2025</td>
+                        <td>15/12/2025</td>
+                        <td>22</td>
+                        <td><span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Completed</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="semShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 2</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td>2025-26</td>
+                        <td>05/01/2026</td>
+                        <td>20/05/2026</td>
+                        <td>24</td>
+                        <td><span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Completed</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="semShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 3</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td>2025-26</td>
+                        <td>01/07/2026</td>
+                        <td>15/12/2026</td>
+                        <td>24</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="semShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Semester 1</strong></td>
+                        <td>MBA</td>
+                        <td>2025-26</td>
+                        <td>01/07/2025</td>
+                        <td>15/12/2025</td>
+                        <td>20</td>
+                        <td><span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Completed</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="semShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot closed"></span> Completed</span>
+            <span><span class="as-legend-dot draft"></span> Upcoming</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT SEMESTER FORM ================= -->
+    <div class="as-card as-wizard-card" id="semFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="semShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Semesters List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-calendar-plus"></i></div>
+                    <div>
+                        <h2 id="semFormTitle">Add Semester</h2>
+                        <p>Create a semester / section and map it to a course.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Semester Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Semester Number <span class="req">*</span></label>
+                        <input type="number" id="semesterNumber" min="1" max="12" placeholder="e.g. 3">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Semester Name <span class="req">*</span></label>
+                        <input type="text" id="semesterName" placeholder="e.g. Semester 3">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Academic Session <span class="req">*</span></label>
+                        <select id="semesterSession">
+                            <option value="">-- Select Session --</option>
+                            <option value="2025-26">2025-26</option>
+                            <option value="2024-25">2024-25</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="semesterCourse">
+                            <option value="">-- Select Course --</option>
+                            <option value="BTECH-CS">B.Tech - Computer Science (Semester 1–8)</option>
+                            <option value="MBA">MBA (Semester 1–4)</option>
+                            <option value="BCA">BCA (Semester 1–6)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Start Date <span class="req">*</span></label>
+                        <input type="date" id="semesterStartDate">
+                    </div>
+
+                    <div class="as-field">
+                        <label>End Date <span class="req">*</span></label>
+                        <input type="date" id="semesterEndDate">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Credit Limit</label>
+                        <input type="number" id="semesterCreditLimit" placeholder="e.g. 24" min="1">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="semesterStatus">
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Active">Active</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="semShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="semSaveSemester()">
+                        <i class="fas fa-save"></i> Save Semester
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="as-toast" id="semToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="semToastMessage">Success!</span>
+</div>
+
+<script>function semShowForm(btn) {
+        document.getElementById('semListWrap').style.display = 'none';
+        document.getElementById('semFormWrap').style.display = 'block';
+        document.getElementById('semFormTitle').textContent = btn ? 'Edit Semester' : 'Add Semester';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function semShowList() {
+        document.getElementById('semFormWrap').style.display = 'none';
+        document.getElementById('semListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function semShowToast(msg, type) {
+        const toast = document.getElementById('semToast');
+        const messageEl = document.getElementById('semToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function semSaveSemester() {
+        const name = document.getElementById('semesterName').value.trim();
+        if (!name) { semShowToast('Semester Name is required', 'error'); return; }
+
+        const course = document.getElementById('semesterCourse').value;
+        if (!course) { semShowToast('Please select a Course', 'error'); return; }
+
+        const start = document.getElementById('semesterStartDate').value;
+        const end = document.getElementById('semesterEndDate').value;
+        if (start && end && start >= end) { semShowToast('End date must be after start date', 'error'); return; }
+
+        semShowToast('Semester "' + name + '" saved successfully!', 'success');
+        semShowList();
+    }</script>
+
+
