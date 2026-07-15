@@ -143,17 +143,20 @@
             </div>
             <ul class="submenu @(activeMenu == "Seat" ? "open" : "")" id="subSeat">
                 <li>
-                    <a asp-controller="Seat" asp-action="Matrix">
+                    <a href=@Url.Action("SeatMatrix", "SeatManagement")
+                       asp-controller="Seat" asp-action="Matrix">
                         <i class="fas fa-table"></i> Seat Matrix
                     </a>
                 </li>
                 <li>
-                    <a asp-controller="Seat" asp-action="Category">
+                    <a href=@Url.Action("CategorywiseSeats", "SeatManagement")
+                       asp-controller="Seat" asp-action="Category">
                         <i class="fas fa-people-arrows"></i> Category-wise Seats
                     </a>
                 </li>
                 <li>
-                    <a asp-controller="Seat" asp-action="Allotment">
+                    <a href=@Url.Action("SeatAllotment", "SeatManagement")
+                       asp-controller="Seat" asp-action="Allotment">
                         <i class="fas fa-arrows-spin"></i> Seat Allotment
                     </a>
                 </li>

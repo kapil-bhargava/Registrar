@@ -1,0 +1,268 @@
+﻿
+@{
+    ViewBag.Title = "CategorywiseSeats";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="cwsListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-users-cog"></i> Category-wise Seats</h2>
+                <p>Split each course's total seats (from Seat Matrix) across reservation categories.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="cwsShowForm()">
+                <i class="fas fa-plus-circle"></i> Add Category Mapping
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-users-cog"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="cwsTotalMapped">2</span>
+                    <span class="as-stat-label">Courses Mapped</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="cwsUnmapped">1</span>
+                    <span class="as-stat-label">Pending Mapping</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Session</th>
+                        <th>Total Seats</th>
+                        <th>General</th>
+                        <th>OBC</th>
+                        <th>SC</th>
+                        <th>ST</th>
+                        <th>EWS</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cwsTableBody">
+                    <tr>
+                        <td><strong>B.Tech - Computer Science</strong></td>
+                        <td>2025-26</td>
+                        <td>120</td>
+                        <td>54</td>
+                        <td>32</td>
+                        <td>18</td>
+                        <td>9</td>
+                        <td>12</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Balanced</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cwsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>MBA</strong></td>
+                        <td>2025-26</td>
+                        <td>60</td>
+                        <td>27</td>
+                        <td>16</td>
+                        <td>9</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Balanced</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="cwsShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Balanced (sum = total seats)</span>
+            <span><span class="as-legend-dot archived"></span> Mismatch</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT CATEGORY MAPPING FORM ================= -->
+    <div class="as-card as-wizard-card" id="cwsFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="cwsShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Category-wise Seats List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-users-cog"></i></div>
+                    <div>
+                        <h2 id="cwsFormTitle">Add Category Mapping</h2>
+                        <p>Choose a Seat Matrix entry, then split its total seats across categories.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-chair"></i> Select Seat Matrix
+                </div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Course + Session (from Seat Matrix) <span class="req">*</span></label>
+                        <select id="cwsSeatMatrix" onchange="cwsLoadTotal()">
+                            <option value="">-- Select Seat Matrix Entry --</option>
+                            <option value="120">B.Tech - Computer Science — 2025-26 (Total: 120)</option>
+                            <option value="60">MBA — 2025-26 (Total: 60)</option>
+                            <option value="120">BCA — 2025-26 (Total: 120)</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Total Seats</label>
+                        <input type="number" id="cwsTotalSeats" readonly disabled placeholder="Auto-filled from Seat Matrix">
+                    </div>
+                </div>
+
+                <!-- Category Split -->
+                <div class="as-section-title">
+                    <i class="fas fa-tag"></i> Split by Category
+                    <span class="as-hint" style="display:inline-block; margin-left:8px;">(Categories come from Category Master)</span>
+                </div>
+                <div class="as-grid as-calendar-grid">
+                    <div class="as-field">
+                        <label>General <span class="as-hint">(no reservation)</span></label>
+                        <input type="number" class="cws-cat-input" id="catGeneral" min="0" oninput="cwsRecalculate()">
+                    </div>
+                    <div class="as-field">
+                        <label>OBC <span class="as-hint">(typically 27%)</span></label>
+                        <input type="number" class="cws-cat-input" id="catOBC" min="0" oninput="cwsRecalculate()">
+                    </div>
+                    <div class="as-field">
+                        <label>SC <span class="as-hint">(typically 15%)</span></label>
+                        <input type="number" class="cws-cat-input" id="catSC" min="0" oninput="cwsRecalculate()">
+                    </div>
+                    <div class="as-field">
+                        <label>ST <span class="as-hint">(typically 7.5%)</span></label>
+                        <input type="number" class="cws-cat-input" id="catST" min="0" oninput="cwsRecalculate()">
+                    </div>
+                    <div class="as-field">
+                        <label>EWS <span class="as-hint">(typically 10%)</span></label>
+                        <input type="number" class="cws-cat-input" id="catEWS" min="0" oninput="cwsRecalculate()">
+                    </div>
+                </div>
+
+                <!-- Live Balance Check -->
+                <div class="as-current-session" id="cwsBalanceBox">
+                    <div class="as-current-label">📊 Live Balance Check</div>
+                    <div class="as-current-value">
+                        Allocated: <span id="cwsAllocatedSum">0</span> / <span id="cwsTargetTotal">0</span> Total Seats
+                    </div>
+                    <span class="as-pill" id="cwsBalancePill">Enter seats above</span>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="cwsShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="cwsSaveMapping()">
+                        <i class="fas fa-save"></i> Save Category Mapping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="cwsToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="cwsToastMessage">Success!</span>
+</div>
+
+<script>
+    function cwsShowForm(btn) {
+        document.getElementById('cwsListWrap').style.display = 'none';
+        document.getElementById('cwsFormWrap').style.display = 'block';
+        document.getElementById('cwsFormTitle').textContent = btn ? 'Edit Category Mapping' : 'Add Category Mapping';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cwsShowList() {
+        document.getElementById('cwsFormWrap').style.display = 'none';
+        document.getElementById('cwsListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cwsLoadTotal() {
+        const select = document.getElementById('cwsSeatMatrix');
+        const total = select.value || 0;
+        document.getElementById('cwsTotalSeats').value = total;
+        document.getElementById('cwsTargetTotal').textContent = total;
+        cwsRecalculate();
+    }
+
+    function cwsRecalculate() {
+        const inputs = document.querySelectorAll('.cws-cat-input');
+        let sum = 0;
+        inputs.forEach(inp => sum += parseInt(inp.value || 0));
+
+        const target = parseInt(document.getElementById('cwsTotalSeats').value || 0);
+        document.getElementById('cwsAllocatedSum').textContent = sum;
+        document.getElementById('cwsTargetTotal').textContent = target;
+
+        const pill = document.getElementById('cwsBalancePill');
+        if (target === 0) {
+            pill.className = 'as-pill as-pill-draft';
+            pill.innerHTML = '<i class="fas fa-info-circle"></i> Select a Seat Matrix entry first';
+        } else if (sum === target) {
+            pill.className = 'as-pill as-pill-active';
+            pill.innerHTML = '<i class="fas fa-check-circle"></i> Balanced';
+        } else if (sum < target) {
+            pill.className = 'as-pill as-pill-draft';
+            pill.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (target - sum) + ' seats remaining';
+        } else {
+            pill.className = 'as-pill as-pill-locked';
+            pill.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Over by ' + (sum - target) + ' seats';
+        }
+    }
+
+    function cwsShowToast(msg, type) {
+        const toast = document.getElementById('cwsToast');
+        const messageEl = document.getElementById('cwsToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cwsSaveMapping() {
+        const matrix = document.getElementById('cwsSeatMatrix').value;
+        if (!matrix) { cwsShowToast('Please select a Seat Matrix entry', 'error'); return; }
+
+        const sum = parseInt(document.getElementById('cwsAllocatedSum').textContent);
+        const target = parseInt(document.getElementById('cwsTotalSeats').value);
+
+        if (sum !== target) {
+            cwsShowToast('Category seats (' + sum + ') must equal Total Seats (' + target + ')', 'error');
+            return;
+        }
+
+        cwsShowToast('Category-wise seats saved successfully!', 'success');
+        cwsShowList();
+    }
+</script>
+
+

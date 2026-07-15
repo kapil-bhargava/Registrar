@@ -1,0 +1,331 @@
+﻿
+@{
+    ViewBag.Title = "SeatAllotment";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="saListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-user-check"></i> Seat Allotment</h2>
+                <p>Assign an available seat to an applicant based on their category's remaining quota.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="saShowForm()">
+                <i class="fas fa-plus-circle"></i> Allot New Seat
+            </button>
+        </div>
+
+        <!-- Available Seats Snapshot (from Category-wise Seats) -->
+        <div class="as-quick-stats">
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="saTotalAllotted">3</span>
+                    <span class="as-stat-label">Seats Allotted</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chair"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="saTotalAvailable">117</span>
+                    <span class="as-stat-label">Seats Remaining (B.Tech CS)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category-wise Available Seats -->
+        <div class="as-section-title">
+            <i class="fas fa-chart-pie"></i> Available Seats by Category — B.Tech CS (2025-26)
+        </div>
+        <div class="as-quick-stats" id="saCategorySnapshot">
+            <div class="as-stat-card">
+                <div class="as-stat-info">
+                    <span class="as-stat-number">53 / 54</span>
+                    <span class="as-stat-label">General Available</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-info">
+                    <span class="as-stat-number">31 / 32</span>
+                    <span class="as-stat-label">OBC Available</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-info">
+                    <span class="as-stat-number">17 / 18</span>
+                    <span class="as-stat-label">SC Available</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-info">
+                    <span class="as-stat-number">9 / 9</span>
+                    <span class="as-stat-label">ST Available</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-info">
+                    <span class="as-stat-number">12 / 12</span>
+                    <span class="as-stat-label">EWS Available</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Allotment List -->
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Applicant Name</th>
+                        <th>Course</th>
+                        <th>Category</th>
+                        <th>Allotted Seat No.</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="saTableBody">
+                    <tr>
+                        <td>APP-2026-001</td>
+                        <td><strong>Rohit Sharma</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td><span class="as-type-badge">General</span></td>
+                        <td>CS-GEN-001</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Allotted</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Cancel Allotment"><i class="fas fa-times-circle"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>APP-2026-002</td>
+                        <td><strong>Priya Verma</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td><span class="as-type-badge">OBC</span></td>
+                        <td>CS-OBC-001</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Allotted</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Cancel Allotment"><i class="fas fa-times-circle"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>APP-2026-003</td>
+                        <td><strong>Aman Kumar</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td><span class="as-type-badge">SC</span></td>
+                        <td>CS-SC-001</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Allotted</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Cancel Allotment"><i class="fas fa-times-circle"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>APP-2026-004</td>
+                        <td><strong>Neha Singh</strong></td>
+                        <td>B.Tech - CS</td>
+                        <td><span class="as-type-badge">General</span></td>
+                        <td>—</td>
+                        <td><span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Allot Seat" onclick="saShowForm(this)"><i class="fas fa-user-check"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Allotted</span>
+            <span><span class="as-legend-dot draft"></span> Pending</span>
+            <span><span class="as-legend-dot archived"></span> Cancelled</span>
+        </div>
+    </div>
+
+    <!-- ================= ALLOT SEAT FORM ================= -->
+    <div class="as-card as-wizard-card" id="saFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="saShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Seat Allotment List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-user-check"></i></div>
+                    <div>
+                        <h2>Allot Seat</h2>
+                        <p>Select an applicant — their category is auto-fetched, and a seat is assigned from that category's remaining quota.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-user"></i> Applicant Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Application No. <span class="req">*</span></label>
+                        <select id="saApplication" onchange="saLoadApplicant()">
+                            <option value="">-- Select Application --</option>
+                            <option value="APP-2026-004" data-name="Neha Singh" data-course="B.Tech - CS" data-category="General">APP-2026-004 — Neha Singh</option>
+                            <option value="APP-2026-005" data-name="Kabir Alam" data-course="B.Tech - CS" data-category="OBC">APP-2026-005 — Kabir Alam</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Applicant Name</label>
+                        <input type="text" id="saApplicantName" readonly disabled placeholder="Auto-fetched">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course</label>
+                        <input type="text" id="saApplicantCourse" readonly disabled placeholder="Auto-fetched">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Category <span class="as-hint">(from Student's profile, Category Master)</span></label>
+                        <input type="text" id="saApplicantCategory" readonly disabled placeholder="Auto-fetched">
+                    </div>
+                </div>
+
+                <!-- Seat Availability Check -->
+                <div class="as-current-session" id="saAvailabilityBox" style="display:none;">
+                    <div class="as-current-label">🪑 Category Quota Check</div>
+                    <div class="as-current-value" id="saAvailabilityText">—</div>
+                    <span class="as-pill" id="saAvailabilityPill">—</span>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-hashtag"></i> Seat Assignment
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Allotted Seat No.</label>
+                        <input type="text" id="saSeatNumber" readonly disabled placeholder="Auto-generated on allotment">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Allotment Date</label>
+                        <input type="date" id="saAllotmentDate">
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="saShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="saAllotSeat()">
+                        <i class="fas fa-check-circle"></i> Confirm Allotment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="saToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="saToastMessage">Success!</span>
+</div>
+
+<script>
+// Simulated remaining quota per category (would come from Category-wise Seats module)
+    const categoryQuota = {
+        'General': { total: 54, used: 53 },
+        'OBC': { total: 32, used: 31 },
+        'SC': { total: 18, used: 17 },
+        'ST': { total: 9, used: 9 },
+        'EWS': { total: 12, used: 12 }
+    };
+
+    function saShowForm(btn) {
+        document.getElementById('saListWrap').style.display = 'none';
+        document.getElementById('saFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function saShowList() {
+        document.getElementById('saFormWrap').style.display = 'none';
+        document.getElementById('saListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function saLoadApplicant() {
+        const select = document.getElementById('saApplication');
+        const opt = select.options[select.selectedIndex];
+
+        if (!opt.value) {
+            document.getElementById('saAvailabilityBox').style.display = 'none';
+            return;
+        }
+
+        const name = opt.getAttribute('data-name');
+        const course = opt.getAttribute('data-course');
+        const category = opt.getAttribute('data-category');
+
+        document.getElementById('saApplicantName').value = name;
+        document.getElementById('saApplicantCourse').value = course;
+        document.getElementById('saApplicantCategory').value = category;
+
+        // Check remaining quota for this category
+        const quota = categoryQuota[category];
+        const remaining = quota.total - quota.used;
+
+        const box = document.getElementById('saAvailabilityBox');
+        const text = document.getElementById('saAvailabilityText');
+        const pill = document.getElementById('saAvailabilityPill');
+
+        box.style.display = 'block';
+        text.textContent = category + ' Category: ' + quota.used + ' / ' + quota.total + ' seats used';
+
+        if (remaining > 0) {
+            pill.className = 'as-pill as-pill-active';
+            pill.innerHTML = '<i class="fas fa-check-circle"></i> ' + remaining + ' Seat(s) Available';
+        } else {
+            pill.className = 'as-pill as-pill-locked';
+            pill.innerHTML = '<i class="fas fa-times-circle"></i> No Seats Left in this Category';
+        }
+    }
+
+    function saShowToast(msg, type) {
+        const toast = document.getElementById('saToast');
+        const messageEl = document.getElementById('saToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function saAllotSeat() {
+        const category = document.getElementById('saApplicantCategory').value;
+        if (!category) { saShowToast('Please select an Application first', 'error'); return; }
+
+        const quota = categoryQuota[category];
+        const remaining = quota.total - quota.used;
+
+        if (remaining <= 0) {
+            saShowToast('No seats available in ' + category + ' category', 'error');
+            return;
+        }
+
+        // Simulate allotment: generate seat number, decrement quota
+        quota.used += 1;
+        const seatNo = category.substring(0, 3).toUpperCase() + '-' + String(quota.used).padStart(3, '0');
+        document.getElementById('saSeatNumber').value = seatNo;
+
+        saShowToast('Seat ' + seatNo + ' allotted successfully!', 'success');
+        saShowList();
+    }</script>
+
+

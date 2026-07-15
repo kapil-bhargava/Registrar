@@ -1,0 +1,238 @@
+﻿
+@{
+    ViewBag.Title = "SeatMatrix";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE =================ch -->
+    <div class="as-card" id="smListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-chair"></i> Seat Matrix</h2>
+                <p>Define the total intake capacity (seats) for each course, per academic session.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="smShowForm()">
+                <i class="fas fa-plus-circle"></i> Add Seat Matrix
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chair"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smTotalEntries">3</span>
+                    <span class="as-stat-label">Course Entries</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smTotalSeats">300</span>
+                    <span class="as-stat-label">Total Seats (All Courses)</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smUnmapped">1</span>
+                    <span class="as-stat-label">Not Yet Category-Mapped</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Academic Session</th>
+                        <th>Intake Type</th>
+                        <th>Total Seats</th>
+                        <th>Category Mapping</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="smTableBody">
+                    <tr>
+                        <td><strong>B.Tech - Computer Science</strong></td>
+                        <td>2025-26</td>
+                        <td><span class="as-type-badge">Regular</span></td>
+                        <td>120</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Mapped</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="smShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>MBA</strong></td>
+                        <td>2025-26</td>
+                        <td><span class="as-type-badge">Regular</span></td>
+                        <td>60</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Mapped</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="smShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>BCA</strong></td>
+                        <td>2025-26</td>
+                        <td><span class="as-type-badge">Regular</span></td>
+                        <td>120</td>
+                        <td><span class="as-pill as-pill-draft"><i class="fas fa-exclamation-circle"></i> Not Mapped</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="as-mini-btn" title="Edit" onclick="smShowForm(this)"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT SEAT MATRIX FORM ================= -->
+    <div class="as-card as-wizard-card" id="smFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="smShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Seat Matrix List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-chair"></i></div>
+                    <div>
+                        <h2 id="smFormTitle">Add Seat Matrix</h2>
+                        <p>Define the total number of seats available for a course in a session.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Seat Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="smCourse">
+                            <option value="">-- Select Course --</option>
+                            <option value="BTECH-CS">B.Tech - Computer Science</option>
+                            <option value="MBA">MBA</option>
+                            <option value="BCA">BCA</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Academic Session <span class="req">*</span></label>
+                        <select id="smSession">
+                            <option value="">-- Select Session --</option>
+                            <option value="2025-26">2025-26</option>
+                            <option value="2024-25">2024-25</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Intake Type <span class="req">*</span></label>
+                        <select id="smIntakeType">
+                            <option value="Regular">Regular</option>
+                            <option value="Management Quota">Management Quota</option>
+                            <option value="NRI Quota">NRI Quota</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Total Seats <span class="req">*</span></label>
+                        <input type="number" id="smTotalSeatsInput" placeholder="e.g. 120" min="1">
+                        <span class="as-hint">This is the overall intake capacity — you'll split it by category next</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="smStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-warning-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Next Step:</strong> After saving, go to <strong>Category-wise Seats</strong> to split this total into General / OBC / SC / ST / EWS.
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="smShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="smSaveMatrix()">
+                        <i class="fas fa-save"></i> Save Seat Matrix
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="smToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="smToastMessage">Success!</span>
+</div>
+
+<script>
+function smShowForm(btn) {
+        document.getElementById('smListWrap').style.display = 'none';
+        document.getElementById('smFormWrap').style.display = 'block';
+        document.getElementById('smFormTitle').textContent = btn ? 'Edit Seat Matrix' : 'Add Seat Matrix';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function smShowList() {
+        document.getElementById('smFormWrap').style.display = 'none';
+        document.getElementById('smListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function smShowToast(msg, type) {
+        const toast = document.getElementById('smToast');
+        const messageEl = document.getElementById('smToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function smSaveMatrix() {
+        const course = document.getElementById('smCourse').value;
+        if (!course) { smShowToast('Please select a Course', 'error'); return; }
+
+        const session = document.getElementById('smSession').value;
+        if (!session) { smShowToast('Please select an Academic Session', 'error'); return; }
+
+        const seats = document.getElementById('smTotalSeatsInput').value;
+        if (!seats || seats <= 0) { smShowToast('Please enter valid Total Seats', 'error'); return; }
+
+        smShowToast('Seat Matrix saved! Now map it to categories.', 'success');
+        smShowList();
+    }</script>
+
+
