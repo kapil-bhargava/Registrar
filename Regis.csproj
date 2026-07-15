@@ -110,6 +110,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AcademicSetupController.cs" />
+    <Compile Include="Controllers\MasterController.cs" />
+    <Compile Include="Controllers\SeatManagementController.cs" />
     <Compile Include="Controllers\UniversityController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -191,9 +193,20 @@
     <Content Include="Views\AcademicSetup\SubjectManagement.cshtml" />
     <Content Include="Views\AcademicSetup\ProgramManagement.cshtml" />
     <Content Include="Views\AcademicSetup\SemesterManagement.cshtml" />
+    <Content Include="Views\Master\BoardUniversityMaster.cshtml" />
+    <Content Include="Views\Master\CategoryMaster.cshtml" />
+    <Content Include="Views\Master\CountryStateCityMaster.cshtml" />
+    <Content Include="Views\Master\DesignationMaster.cshtml" />
+    <Content Include="Views\Master\DiscountScholarshipMaster.cshtml" />
+    <Content Include="Views\Master\FeeheadMaster.cshtml" />
+    <Content Include="Views\Master\NationalityMaster.cshtml" />
+    <Content Include="Views\SeatManagement\CategorywiseSeats.cshtml" />
+    <Content Include="Views\SeatManagement\SeatAllotment.cshtml" />
+    <Content Include="Views\SeatManagement\SeatMatrix.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Database\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>

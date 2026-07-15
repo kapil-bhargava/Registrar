@@ -1,0 +1,5 @@
+CREATE DATABASE UniversityERP;
+GO
+
+USE UniversityERP;
+GO
