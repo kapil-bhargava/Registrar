@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "StudentRegistration";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="srListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-user-plus"></i> Student Registration <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 3</span></h2>
+                <p>Course dropdown comes from <strong>Admission Setup</strong>. Saving here creates an Application that flows to Application Management.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="srShowForm()">
+                <i class="fas fa-plus-circle"></i> Register New Student
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-user-plus"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srTotal">0</span>
+                    <span class="as-stat-label">Registered Applications</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Category</th>
+                        <th>Registered On</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="srTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= REGISTRATION FORM ================= -->
+    <div class="as-card as-wizard-card" id="srFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="srShowList()"><i class="fas fa-arrow-left"></i> Back to Registration List</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-user-plus"></i></div>
+                    <div>
+                        <h2>Register New Student</h2>
+                        <p>Fill applicant details to create a new admission application.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-user"></i> Personal Details</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Full Name <span class="req">*</span></label>
+                        <input type="text" id="srName" placeholder="e.g. Rohit Sharma">
+                    </div>
+                    <div class="as-field">
+                        <label>Email <span class="req">*</span></label>
+                        <input type="email" id="srEmail" placeholder="e.g. rohit@example.com">
+                    </div>
+                    <div class="as-field">
+                        <label>Phone <span class="req">*</span></label>
+                        <input type="text" id="srPhone" placeholder="e.g. 9876543210">
+                    </div>
+                    <div class="as-field">
+                        <label>Date of Birth</label>
+                        <input type="date" id="srDob">
+                    </div>
+                    <div class="as-field">
+                        <label>Gender</label>
+                        <select id="srGender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="as-field">
+                        <label>Category <span class="req">*</span></label>
+                        <select id="srCategory">
+                            <option value="General">General</option>
+                            <option value="OBC">OBC</option>
+                            <option value="SC">SC</option>
+                            <option value="ST">ST</option>
+                            <option value="EWS">EWS</option>
+                        </select>
+                        <span class="as-hint">From Category Master</span>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-book"></i> Course Details</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="srCourse">
+                            <option value="">-- Select Course --</option>
+                        </select>
+                        <span class="as-hint">Only courses "Open" in Admission Setup appear here</span>
+                    </div>
+                    <div class="as-field">
+                        <label>Previous Percentage</label>
+                        <input type="number" id="srPct" min="0" max="100" placeholder="e.g. 62">
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="srShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="srSave()"><i class="fas fa-save"></i> Submit Registration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="srToast"><i class="fas fa-check-circle"></i><span id="srToastMessage">Success!</span></div>
+
+<script>function getSetups() { return JSON.parse(localStorage.getItem('erp_admissionSetups') || '[]'); }
+    function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
+    function saveApps(arr) { localStorage.setItem('erp_applications', JSON.stringify(arr)); }
+
+    function srPopulateCourses() {
+        const openSetups = getSetups().filter(s => s.status === 'Open');
+        const select = document.getElementById('srCourse');
+        select.innerHTML = '<option value="">-- Select Course --</option>' +
+            openSetups.map(s => `<option value="${s.id}" data-name="${s.courseName}" data-session="${s.session}">${s.courseName} (${s.session})</option>`).join('');
+    }
+
+    function srShowForm() {
+        document.getElementById('srListWrap').style.display = 'none';
+        document.getElementById('srFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function srShowList() {
+        document.getElementById('srFormWrap').style.display = 'none';
+        document.getElementById('srListWrap').style.display = 'block';
+        srRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function srShowToast(msg, type) {
+        const toast = document.getElementById('srToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function srRender() {
+        const apps = getApps();
+        document.getElementById('srTotal').textContent = apps.length;
+        const body = document.getElementById('srTableBody');
+        body.innerHTML = apps.map(a => `
+            <tr>
+                <td>${a.appId}</td>
+                <td><strong>${a.name}</strong></td>
+                <td>${a.courseName}</td>
+                <td><span class="as-type-badge">${a.category}</span></td>
+                <td>${a.registeredOn}</td>
+                <td><span class="as-pill as-pill-draft">${a.stage}</span></td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No registrations yet</td></tr>';
+    }
+
+    function srSave() {
+        const name = document.getElementById('srName').value.trim();
+        if (!name) { srShowToast('Full Name is required', 'error'); return; }
+        const email = document.getElementById('srEmail').value.trim();
+        if (!email) { srShowToast('Email is required', 'error'); return; }
+        const phone = document.getElementById('srPhone').value.trim();
+        if (!phone) { srShowToast('Phone is required', 'error'); return; }
+        const courseSelect = document.getElementById('srCourse');
+        const courseId = courseSelect.value;
+        if (!courseId) { srShowToast('Please select a Course', 'error'); return; }
+
+        const opt = courseSelect.options[courseSelect.selectedIndex];
+        const apps = getApps();
+        const appId = 'APP-2026-' + String(apps.length + 1).padStart(3, '0');
+
+        apps.push({
+            appId: appId,
+            name: name,
+            email: email,
+            phone: phone,
+            dob: document.getElementById('srDob').value,
+            gender: document.getElementById('srGender').value,
+            category: document.getElementById('srCategory').value,
+            courseId: courseId,
+            courseName: opt.getAttribute('data-name'),
+            session: opt.getAttribute('data-session'),
+            pct: document.getElementById('srPct').value,
+            registeredOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            stage: 'Registered',
+            documents: {},
+            docVerified: false,
+            counsellingDone: false,
+            seatNumber: null,
+            feePaid: false,
+            studentId: null
+        });
+        saveApps(apps);
+
+        srShowToast('Application ' + appId + ' created! Now visible in Application Management.', 'success');
+        srShowList();
+    }
+
+    // Prefill from Eligibility Check (via query string), if present
+    function srPrefillFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('name')) {
+            srShowForm();
+            document.getElementById('srName').value = params.get('name') || '';
+            document.getElementById('srPct').value = params.get('pct') || '';
+            if (params.get('courseId')) document.getElementById('srCourse').value = params.get('courseId');
+        }
+    }
+
+    srPopulateCourses();
+    srRender();
+    srPrefillFromQuery();</script>
+
+

@@ -1,0 +1,198 @@
+﻿
+@{
+    ViewBag.Title = "Final";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST MODE ================= -->
+    <div class="as-card" id="afListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-graduation-cap"></i> Admission (Final) <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 8</span></h2>
+                <p>Only applications with <strong>fee paid</strong> appear here. Confirming here creates the Student record.</p>
+            </div>
+        </div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Seat No.</th><th>Fee Receipt</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="afListBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= CONFIRMATION MODE ================= -->
+    <div class="as-card as-wizard-card" id="afDetailWrap" style="display:none;">
+        <div class="as-back-row">
+            <a class="as-back-link" href="ApplicationManagement.cshtml"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div>
+                        <h2>Confirm Final Admission</h2>
+                        <p id="afAppSubtitle">—</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-clipboard-check"></i> Application Summary</div>
+                <div class="as-grid">
+                    <div class="as-field"><label>Name</label><input type="text" id="afName" readonly disabled></div>
+                    <div class="as-field"><label>Course</label><input type="text" id="afCourse" readonly disabled></div>
+                    <div class="as-field"><label>Category</label><input type="text" id="afCategory" readonly disabled></div>
+                    <div class="as-field"><label>Seat No.</label><input type="text" id="afSeat" readonly disabled></div>
+                    <div class="as-field"><label>Fee Receipt</label><input type="text" id="afReceipt" readonly disabled></div>
+                    <div class="as-field"><label>Documents</label><input type="text" value="All Verified ✓" readonly disabled></div>
+                </div>
+
+                <div class="as-warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div><strong>This action cannot be undone.</strong> Confirming will generate a permanent Student ID and move this record to Student Master.</div>
+                </div>
+
+                <div class="as-bar">
+                    <a class="as-btn as-btn-ghost" href="ApplicationManagement.cshtml">Cancel</a>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="afConfirm()"><i class="fas fa-check-circle"></i> Confirm Admission</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DONE STATE ================= -->
+    <div class="as-card as-wizard-card" id="afDoneWrap" style="display:none;">
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-done">
+                    <div class="as-done-icon"><i class="fas fa-check-circle"></i></div>
+                    <h2>Admission Confirmed!</h2>
+                    <p id="afDoneText">—</p>
+                    <div class="as-done-actions">
+                        <a class="as-btn as-btn-primary" href="ApplicationManagement.cshtml"><i class="fas fa-list"></i> Back to Applications</a>
+                        <a class="as-btn as-btn-outline" href="AdmissionSetup.cshtml"><i class="fas fa-plus-circle"></i> Start Another Admission</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="afToast"><i class="fas fa-check-circle"></i><span id="afToastMessage">Success!</span></div>
+
+<script>
+    function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
+    function saveApps(arr) { localStorage.setItem('erp_applications', JSON.stringify(arr)); }
+    function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function saveStudents(arr) { localStorage.setItem('erp_students', JSON.stringify(arr)); }
+
+    // Seed 4 dummy applications (one per stage) so every Admission page has consistent demo data
+    if (localStorage.getItem('erp_seedVersion') !== 'v2') {
+        localStorage.setItem('erp_seedVersion', 'v2');
+        saveApps([
+            {
+                appId: 'APP-2026-001', name: 'Rohit Sharma', email: 'rohit@example.com', phone: '9876500001',
+                category: 'General', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
+                pct: '78', registeredOn: '12 Jul 2026', stage: 'Registered',
+                documents: {}, docVerified: false, counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
+            },
+            {
+                appId: 'APP-2026-002', name: 'Priya Verma', email: 'priya@example.com', phone: '9876500002',
+                category: 'OBC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
+                pct: '71', registeredOn: '12 Jul 2026', stage: 'Docs Verified',
+                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
+                counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
+            },
+            {
+                appId: 'APP-2026-003', name: 'Aman Kumar', email: 'aman@example.com', phone: '9876500003',
+                category: 'SC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
+                pct: '68', registeredOn: '13 Jul 2026', stage: 'Counselling Done',
+                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
+                counsellingDone: true, counsellingDate: '2026-07-20', seatNumber: 'SC-BTECH-CS-003', feePaid: false, studentId: null
+            },
+            {
+                appId: 'APP-2026-004', name: 'Neha Singh', email: 'neha@example.com', phone: '9876500004',
+                category: 'General', courseId: 'BCA', courseName: 'BCA', session: '2025-26',
+                pct: '82', registeredOn: '14 Jul 2026', stage: 'Fee Paid',
+                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
+                counsellingDone: true, counsellingDate: '2026-07-21', seatNumber: 'GEN-BCA-004',
+                feePaid: true, receiptNo: 'RCPT-100456', feeAmount: 26000, studentId: null
+            }
+        ]);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const appId = params.get('appId');
+
+    function afShowToast(msg, type) {
+        const toast = document.getElementById('afToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    if (appId) {
+        document.getElementById('afListWrap').style.display = 'none';
+        document.getElementById('afDetailWrap').style.display = 'block';
+
+        const apps = getApps();
+        const app = apps.find(a => a.appId === appId);
+
+        if (app) {
+            document.getElementById('afAppSubtitle').textContent = 'Application ' + app.appId;
+            document.getElementById('afName').value = app.name;
+            document.getElementById('afCourse').value = app.courseName;
+            document.getElementById('afCategory').value = app.category;
+            document.getElementById('afSeat').value = app.seatNumber || '—';
+            document.getElementById('afReceipt').value = app.receiptNo || '—';
+        }
+
+        window.afConfirm = function () {
+            const apps = getApps();
+            const idx = apps.findIndex(a => a.appId === appId);
+            if (idx === -1) return;
+
+            const students = getStudents();
+            const studentId = 'STU-2026' + String(1000 + students.length).slice(-4);
+
+            apps[idx].studentId = studentId;
+            apps[idx].stage = 'Admitted';
+            saveApps(apps);
+
+            students.push({
+                studentId: studentId,
+                name: apps[idx].name,
+                courseName: apps[idx].courseName,
+                category: apps[idx].category,
+                seatNumber: apps[idx].seatNumber,
+                session: apps[idx].session,
+                admittedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+            });
+            saveStudents(students);
+
+            document.getElementById('afDetailWrap').style.display = 'none';
+            document.getElementById('afDoneWrap').style.display = 'block';
+            document.getElementById('afDoneText').innerHTML =
+                '<strong>' + apps[idx].name + '</strong> has been admitted to <strong>' + apps[idx].courseName + '</strong>.<br>Student ID: <strong>' + studentId + '</strong>';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    } else {
+        const apps = getApps().filter(a => a.feePaid && !a.studentId);
+        document.getElementById('afListBody').innerHTML = apps.map(a => `
+            <tr>
+                <td>${a.appId}</td>
+                <td><strong>${a.name}</strong></td>
+                <td>${a.courseName}</td>
+                <td>${a.seatNumber || '—'}</td>
+                <td>${a.receiptNo || '—'}</td>
+                <td><span class="as-pill as-pill-locked"><i class="fas fa-check-circle"></i> Fee Paid</span></td>
+                <td><a class="as-btn as-btn-primary as-btn-sm" href="AdmissionFinal.cshtml?appId=${a.appId}">Confirm</a></td>
+            </tr>`).join('') || '<tr><td colspan="7" style="text-align:center; color:#6B7A99;">No applications ready for final admission yet</td></tr>';
+    }
+</script>

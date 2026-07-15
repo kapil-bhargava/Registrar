@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "Application";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-folder-open"></i> Application Management <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 4</span></h2>
+                <p>Every application submitted via <strong>Student Registration</strong> automatically appears here — no re-entry needed.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-folder-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="amTotal">0</span>
+                    <span class="as-stat-label">Total Applications</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="amVerified">0</span>
+                    <span class="as-stat-label">Documents Verified</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="amPending">0</span>
+                    <span class="as-stat-label">Pending Verification</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Category</th>
+                        <th>Registered On</th>
+                        <th>Current Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="amTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot draft"></span> Registered</span>
+            <span><span class="as-legend-dot active"></span> Docs Verified</span>
+            <span><span class="as-legend-dot closed"></span> Counselling Done</span>
+            <span><span class="as-legend-dot locked"></span> Fee Paid</span>
+        </div>
+    </div>
+</div>
+
+<script>function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
+
+    function stagePill(app) {
+        if (app.studentId) return '<span class="as-pill as-pill-active"><i class="fas fa-graduation-cap"></i> Admitted</span>';
+        if (app.feePaid) return '<span class="as-pill as-pill-locked"><i class="fas fa-check-circle"></i> Fee Paid</span>';
+        if (app.counsellingDone) return '<span class="as-pill as-pill-closed"><i class="fas fa-comments"></i> Counselling Done</span>';
+        if (app.docVerified) return '<span class="as-pill as-pill-active"><i class="fas fa-file-check"></i> Docs Verified</span>';
+        return '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Registered</span>';
+    }
+
+    function amRender() {
+        const apps = getApps();
+        document.getElementById('amTotal').textContent = apps.length;
+        document.getElementById('amVerified').textContent = apps.filter(a => a.docVerified).length;
+        document.getElementById('amPending').textContent = apps.filter(a => !a.docVerified).length;
+
+        const body = document.getElementById('amTableBody');
+        body.innerHTML = apps.map(a => `
+            <tr>
+                <td>${a.appId}</td>
+                <td><strong>${a.name}</strong></td>
+                <td>${a.courseName}</td>
+                <td><span class="as-type-badge">${a.category}</span></td>
+                <td>${a.registeredOn}</td>
+                <td>${stagePill(a)}</td>
+                <td>
+                    <button class="as-mini-btn" title="View" onclick="amView('${a.appId}')"><i class="fas fa-eye"></i></button>
+                    ${!a.docVerified
+                        ? `<button class="as-mini-btn" title="Verify Documents" onclick="amGoTo('DocumentVerification.cshtml', '${a.appId}')"><i class="fas fa-file-check"></i></button>`
+                        : !a.counsellingDone
+                        ? `<button class="as-mini-btn" title="Counselling" onclick="amGoTo('Counselling.cshtml', '${a.appId}')"><i class="fas fa-comments"></i></button>`
+                        : !a.feePaid
+                        ? `<button class="as-mini-btn" title="Fee Payment" onclick="amGoTo('FeePayment.cshtml', '${a.appId}')"><i class="fas fa-sack-dollar"></i></button>`
+                        : !a.studentId
+                        ? `<button class="as-mini-btn" title="Final Admission" onclick="amGoTo('AdmissionFinal.cshtml', '${a.appId}')"><i class="fas fa-graduation-cap"></i></button>`
+                        : ''
+                    }
+                </td>
+            </tr>`).join('') || '<tr><td colspan="7" style="text-align:center; color:#6B7A99;">No applications yet — register a student first</td></tr>';
+    }
+
+    function amGoTo(page, appId) {
+        window.location.href = page + '?appId=' + encodeURIComponent(appId);
+    }
+    function amView(appId) {
+        alert('Application: ' + appId);
+    }
+
+    amRender();</script>
+
+

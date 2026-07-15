@@ -1,0 +1,359 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="~/Content/CSS/dasboard.css" rel="stylesheet" />
+
+<div class="dash-wrap">
+
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+        <div class="page-sub">Welcome back, here's what's happening today.</div>
+        <div class="page-sub d-flex align-items-center gap-2">
+            Session:
+            <select id="sessionSwitch" class="session-select" onchange="showToast('Session changed to ' + this.value)">
+                <option value="2025-26" selected>2025-26</option>
+                <option value="2024-25">2024-25</option>
+                <option value="2023-24">2023-24</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ============ SUMMARY CARDS ============ -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-user-graduate"></i></div>
+                <div>
+                    <div class="stat-value">8,240</div>
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 4.2%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-user-plus"></i></div>
+                <div>
+                    <div class="stat-value">312</div>
+                    <div class="stat-label">New Admissions</div>
+                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 12%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--info-soft); color:var(--info);"><i class="fa-solid fa-chalkboard-user"></i></div>
+                <div>
+                    <div class="stat-value">486</div>
+                    <div class="stat-label">Faculty Members</div>
+                    <div class="stat-trend text-muted"><i class="fa-solid fa-minus"></i> 0%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--warning-soft); color:var(--warning);"><i class="fa-solid fa-building-columns"></i></div>
+                <div>
+                    <div class="stat-value">18</div>
+                    <div class="stat-label">Departments</div>
+                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 2</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-book-open"></i></div>
+                <div>
+                    <div class="stat-value">142</div>
+                    <div class="stat-label">Courses</div>
+                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 6</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div>
+                    <div class="stat-value">₹4.82Cr</div>
+                    <div class="stat-label">Total Fee Collected</div>
+                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 8.1%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--danger-soft); color:var(--danger);"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div>
+                    <div class="stat-value">₹62.4L</div>
+                    <div class="stat-label">Pending Fees</div>
+                    <div class="stat-trend text-danger"><i class="fa-solid fa-arrow-up"></i> 3.4%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:var(--info-soft); color:var(--info);"><i class="fa-solid fa-signal"></i></div>
+                <div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Active Sessions</div>
+                    <div class="stat-trend text-muted">2025-26</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CHARTS ROW 1 ============ -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-8">
+            <div class="panel">
+                <div class="panel-title">Admission Trend</div>
+                <div class="panel-sub">Monthly new admissions — current academic year</div>
+                <div class="chart-wrap"><canvas id="admissionTrendChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="panel">
+                <div class="panel-title">Student Category Distribution</div>
+                <div class="panel-sub">By category</div>
+                <div class="chart-wrap"><canvas id="categoryPieChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CHARTS ROW 2 ============ -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="panel">
+                <div class="panel-title">Fee Collection</div>
+                <div class="panel-sub">Monthly collected vs pending (₹ Lakhs)</div>
+                <div class="chart-wrap sm"><canvas id="feeBarChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="panel">
+                <div class="panel-title">Department-wise Students</div>
+                <div class="panel-sub">Distribution across top departments</div>
+                <div class="chart-wrap sm"><canvas id="deptDoughnutChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TABLE + NOTICES ============ -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-8">
+            <div class="panel">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="panel-title mb-0">Recent Admissions</div>
+                    <a href="#" class="small fw-semibold text-decoration-none">View All →</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-recent mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Date</th>
+                                <th>Fee Status</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">AK</div> Ayesha Khan</td>
+                                <td>B.Tech CSE</td>
+                                <td>12 Jul 2026</td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
+                            </tr>
+                            <tr>
+                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">RS</div> Rohit Sharma</td>
+                                <td>B.Com Hons</td>
+                                <td>11 Jul 2026</td>
+                                <td><span class="status-pill" style="background:var(--warning-soft); color:var(--warning);">Partial</span></td>
+                                <td><span class="status-pill" style="background:var(--warning-soft); color:var(--warning);">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">MP</div> Meera Pillai</td>
+                                <td>M.Sc Physics</td>
+                                <td>10 Jul 2026</td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
+                            </tr>
+                            <tr>
+                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">SV</div> Sahil Verma</td>
+                                <td>BBA</td>
+                                <td>09 Jul 2026</td>
+                                <td><span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Unpaid</span></td>
+                                <td><span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Rejected</span></td>
+                            </tr>
+                            <tr>
+                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">NG</div> Nisha Gupta</td>
+                                <td>B.Tech ECE</td>
+                                <td>08 Jul 2026</td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
+                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="panel">
+                <div class="panel-title mb-2">Upcoming Events / Notices</div>
+                <div class="notice-item">
+                    <div class="notice-date"><span class="d">18</span><span class="m">Jul</span></div>
+                    <div>
+                        <div class="notice-title">Semester Fee Due Date</div>
+                        <div class="notice-meta">All departments · Finance office</div>
+                    </div>
+                </div>
+                <div class="notice-item">
+                    <div class="notice-date"><span class="d">22</span><span class="m">Jul</span></div>
+                    <div>
+                        <div class="notice-title">Faculty Development Workshop</div>
+                        <div class="notice-meta">Seminar Hall A · 10:00 AM</div>
+                    </div>
+                </div>
+                <div class="notice-item">
+                    <div class="notice-date"><span class="d">28</span><span class="m">Jul</span></div>
+                    <div>
+                        <div class="notice-title">Mid-Semester Exams Begin</div>
+                        <div class="notice-meta">All UG & PG courses</div>
+                    </div>
+                </div>
+                <div class="notice-item">
+                    <div class="notice-date"><span class="d">02</span><span class="m">Aug</span></div>
+                    <div>
+                        <div class="notice-title">Annual Sports Meet</div>
+                        <div class="notice-meta">University Ground</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ ATTENDANCE + QUICK ACTIONS ============ -->
+    <div class="row g-3">
+        <div class="col-12 col-xl-4">
+            <div class="panel">
+                <div class="panel-title mb-3">Today's Attendance</div>
+
+                <div class="attendance-row">
+                    <div class="label-row"><span>Present</span><span class="text-success">86%</span></div>
+                    <div class="progress"><div class="progress-bar bg-success" style="width:86%"></div></div>
+                </div>
+                <div class="attendance-row">
+                    <div class="label-row"><span>Absent</span><span class="text-danger">9%</span></div>
+                    <div class="progress"><div class="progress-bar bg-danger" style="width:9%"></div></div>
+                </div>
+                <div class="attendance-row mb-0">
+                    <div class="label-row"><span>On Leave</span><span style="color:var(--warning);">5%</span></div>
+                    <div class="progress"><div class="progress-bar" style="width:5%; background:var(--warning);"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-8">
+            <div class="panel">
+                <div class="panel-title mb-3">Quick Actions</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <a href="#" class="quick-btn"><i class="fa-solid fa-user-plus"></i><span>New Admission</span></a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="#" class="quick-btn"><i class="fa-solid fa-money-bill-wave"></i><span>Fee Collection</span></a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="#" class="quick-btn"><i class="fa-solid fa-magnifying-glass"></i><span>Student Search</span></a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="#" class="quick-btn"><i class="fa-solid fa-chart-column"></i><span>Reports</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chhota toast, session change confirm karne ke liye -->
+<div id="dashToast" class="dash-toast"></div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    function showToast(msg) {
+        const t = document.getElementById('dashToast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 11.5;
+    Chart.defaults.color = '#6b7280';
+
+    /* 1. ADMISSION TREND (LINE) */
+    new Chart(document.getElementById('admissionTrendChart'), {
+        type: 'line',
+        data: {
+            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+            datasets: [{
+                label: 'New Admissions',
+                data: [120, 145, 180, 312, 260, 190, 150, 130, 110, 95, 105, 140],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2563eb'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
+        }
+    });
+
+    /* 2. STUDENT CATEGORY DISTRIBUTION (PIE) */
+    new Chart(document.getElementById('categoryPieChart'), {
+        type: 'pie',
+        data: {
+            labels: ['General', 'OBC', 'SC/ST', 'EWS', 'International'],
+            datasets: [{ data: [38, 27, 18, 12, 5], backgroundColor: ['#2563eb', '#16a34a', '#d97706', '#0891b2', '#dc2626'], borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
+    });
+
+    /* 3. FEE COLLECTION (BAR) */
+    new Chart(document.getElementById('feeBarChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            datasets: [
+                { label: 'Collected', data: [42, 55, 48, 62, 58, 65], backgroundColor: '#2563eb', borderRadius: 5, barPercentage: 0.6 },
+                { label: 'Pending', data: [10, 8, 12, 6, 9, 5], backgroundColor: '#fca5a5', borderRadius: 5, barPercentage: 0.6 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } },
+            scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
+        }
+    });
+
+    /* 4. DEPARTMENT-WISE STUDENTS (DOUGHNUT) */
+    new Chart(document.getElementById('deptDoughnutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Engineering', 'Science', 'Commerce', 'Arts', 'Management'],
+            datasets: [{ data: [3200, 1800, 1450, 1100, 690], backgroundColor: ['#2563eb', '#0891b2', '#16a34a', '#d97706', '#7c3aed'], borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
+    });
+</script>
