@@ -3,7 +3,7 @@
     ViewBag.Title = "CategoryMaster";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
- 
+
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,62 +53,80 @@
             <table class="as-table as-list-table">
                 <thead>
                     <tr>
-                        <th>Category Name</th>
+                        <th>S.No</th>
                         <th>Category Code</th>
-                        <th>Fee Concession %</th>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th>Created On</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="catTableBody">
                     <tr>
-                        <td><strong>General</strong></td>
-                        <td>GEN</td>
-                        <td>0%</td>
+                        <td>1</td>
+                        <td><strong>GEN</strong></td>
+                        <td>General</td>
+                        <td>General Category</td>
+                        <td>1</td>
                         <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
                         <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
                             <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                     <tr>
+                        <td>2</td>
                         <td><strong>OBC</strong></td>
-                        <td>OBC</td>
-                        <td>10%</td>
+                        <td>Other Backward Class</td>
+                        <td>OBC Category</td>
+                        <td>2</td>
                         <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
                         <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
                             <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                     <tr>
+                        <td>3</td>
                         <td><strong>SC</strong></td>
-                        <td>SC</td>
-                        <td>25%</td>
+                        <td>Scheduled Caste</td>
+                        <td>SC Category</td>
+                        <td>3</td>
                         <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
                         <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
                             <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                     <tr>
+                        <td>4</td>
                         <td><strong>ST</strong></td>
-                        <td>ST</td>
-                        <td>25%</td>
+                        <td>Scheduled Tribe</td>
+                        <td>ST Category</td>
+                        <td>4</td>
                         <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
                         <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
                             <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                     <tr>
+                        <td>5</td>
                         <td><strong>EWS</strong></td>
-                        <td>EWS</td>
-                        <td>0%</td>
+                        <td>Economically Weaker Section</td>
+                        <td>EWS Category</td>
+                        <td>5</td>
                         <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
                         <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
                             <button class="as-mini-btn" title="Edit" onclick="catShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -162,6 +180,12 @@
                     </div>
 
                     <div class="as-field">
+                        <label>Display Order <span class="req">*</span></label>
+                        <input type="number" id="categoryDisplayOrder" placeholder="e.g. 1" min="1">
+                        <span class="as-hint">Controls the order this category appears in dropdowns</span>
+                    </div>
+
+                    <div class="as-field">
                         <label>Status</label>
                         <select id="categoryStatus">
                             <option value="Active">Active</option>
@@ -170,8 +194,8 @@
                     </div>
 
                     <div class="as-field as-full">
-                        <label>Description</label>
-                        <textarea id="categoryDescription" rows="3" placeholder="Optional note about this category..."></textarea>
+                        <label>Description <span class="req">*</span></label>
+                        <textarea id="categoryDescription" rows="3" placeholder="e.g. General Category"></textarea>
                     </div>
                 </div>
 
@@ -194,7 +218,8 @@
     <span id="catToastMessage">Success!</span>
 </div>
 
-<script>function catShowForm(btn) {
+<script>
+    function catShowForm(btn) {
         document.getElementById('catListWrap').style.display = 'none';
         document.getElementById('catFormWrap').style.display = 'block';
         document.getElementById('catFormTitle').textContent = btn ? 'Edit Category' : 'Add Category';
@@ -225,8 +250,13 @@
         const code = document.getElementById('categoryCode').value.trim();
         if (!code) { catShowToast('Category Code is required', 'error'); return; }
 
+        const description = document.getElementById('categoryDescription').value.trim();
+        if (!description) { catShowToast('Description is required', 'error'); return; }
+
+        const displayOrder = document.getElementById('categoryDisplayOrder').value;
+        if (!displayOrder) { catShowToast('Display Order is required', 'error'); return; }
+
         catShowToast('Category "' + name + '" saved successfully!', 'success');
         catShowList();
-    }</script>
-
-
+    }
+</script>
