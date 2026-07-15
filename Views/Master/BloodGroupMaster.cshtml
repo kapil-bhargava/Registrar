@@ -1,0 +1,262 @@
+﻿
+@{
+    ViewBag.Title = "BloodGroupMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="bgListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-tint"></i> Blood Group Master</h2>
+                <p>Manage blood group options used in student &amp; staff medical records.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="bgShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Blood Group
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-tint"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bgTotal">8</span>
+                    <span class="as-stat-label">Total Blood Groups</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="bgActive">8</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Blood Group</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bgTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td><strong>AP</strong></td>
+                        <td>A+</td>
+                        <td>1</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>AN</strong></td>
+                        <td>A-</td>
+                        <td>2</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>BP</strong></td>
+                        <td>B+</td>
+                        <td>3</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>BN</strong></td>
+                        <td>B-</td>
+                        <td>4</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>ABP</strong></td>
+                        <td>AB+</td>
+                        <td>5</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>ABN</strong></td>
+                        <td>AB-</td>
+                        <td>6</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><strong>OP</strong></td>
+                        <td>O+</td>
+                        <td>7</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><strong>ON</strong></td>
+                        <td>O-</td>
+                        <td>8</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="bgShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT BLOOD GROUP FORM ================= -->
+    <div class="as-card as-wizard-card" id="bgFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="bgShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Blood Group List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-tint"></i></div>
+                    <div>
+                        <h2 id="bgFormTitle">Add Blood Group</h2>
+                        <p>Define a new blood group option.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Blood Group Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Code <span class="req">*</span></label>
+                        <input type="text" id="bloodGroupCode" placeholder="e.g. AP, AN, BP">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Blood Group <span class="req">*</span></label>
+                        <select id="bloodGroupName">
+                            <option value="">-- Select Blood Group --</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Display Order</label>
+                        <input type="number" id="bloodGroupDisplayOrder" placeholder="e.g. 1" min="1">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="bloodGroupStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="bgShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="bgSaveBloodGroup()">
+                        <i class="fas fa-save"></i> Save Blood Group
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="bgToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="bgToastMessage">Success!</span>
+</div>
+
+<script>function bgShowForm(btn) {
+        document.getElementById('bgListWrap').style.display = 'none';
+        document.getElementById('bgFormWrap').style.display = 'block';
+        document.getElementById('bgFormTitle').textContent = btn ? 'Edit Blood Group' : 'Add Blood Group';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bgShowList() {
+        document.getElementById('bgFormWrap').style.display = 'none';
+        document.getElementById('bgListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bgShowToast(msg, type) {
+        const toast = document.getElementById('bgToast');
+        const messageEl = document.getElementById('bgToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function bgSaveBloodGroup() {
+        const code = document.getElementById('bloodGroupCode').value.trim();
+        if (!code) { bgShowToast('Code is required', 'error'); return; }
+
+        const name = document.getElementById('bloodGroupName').value;
+        if (!name) { bgShowToast('Please select a Blood Group', 'error'); return; }
+
+        bgShowToast('Blood Group "' + name + '" saved successfully!', 'success');
+        bgShowList();
+    }</script>
+
+

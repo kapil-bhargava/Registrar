@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewBag.Title = "MaritalStatusMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="msListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-ring"></i> Marital Status Master</h2>
+                <p>Manage marital status options used in staff &amp; student profile forms.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="msShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Marital Status
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-ring"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="msTotal">4</span>
+                    <span class="as-stat-label">Total Statuses</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="msActive">4</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Marital Status</th>
+                        <th>Order</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="msTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td><strong>S</strong></td>
+                        <td>Single</td>
+                        <td>1</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="msShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>M</strong></td>
+                        <td>Married</td>
+                        <td>2</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="msShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>D</strong></td>
+                        <td>Divorced</td>
+                        <td>3</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="msShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>W</strong></td>
+                        <td>Widowed</td>
+                        <td>4</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="msShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT MARITAL STATUS FORM ================= -->
+    <div class="as-card as-wizard-card" id="msFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="msShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Marital Status List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-ring"></i></div>
+                    <div>
+                        <h2 id="msFormTitle">Add Marital Status</h2>
+                        <p>Define a new marital status option.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Marital Status Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Code <span class="req">*</span></label>
+                        <input type="text" id="maritalCode" placeholder="e.g. S, M, D, W">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Marital Status <span class="req">*</span></label>
+                        <input type="text" id="maritalStatus" placeholder="e.g. Single, Married, Divorced, Widowed">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Order</label>
+                        <input type="number" id="maritalOrder" placeholder="e.g. 1" min="1">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="maritalStatusFlag">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="msShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="msSaveMaritalStatus()">
+                        <i class="fas fa-save"></i> Save Marital Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="msToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="msToastMessage">Success!</span>
+</div>
+
+<script>function msShowForm(btn) {
+        document.getElementById('msListWrap').style.display = 'none';
+        document.getElementById('msFormWrap').style.display = 'block';
+        document.getElementById('msFormTitle').textContent = btn ? 'Edit Marital Status' : 'Add Marital Status';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function msShowList() {
+        document.getElementById('msFormWrap').style.display = 'none';
+        document.getElementById('msListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function msShowToast(msg, type) {
+        const toast = document.getElementById('msToast');
+        const messageEl = document.getElementById('msToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function msSaveMaritalStatus() {
+        const code = document.getElementById('maritalCode').value.trim();
+        if (!code) { msShowToast('Code is required', 'error'); return; }
+
+        const status = document.getElementById('maritalStatus').value.trim();
+        if (!status) { msShowToast('Marital Status is required', 'error'); return; }
+
+        msShowToast('Marital Status "' + status + '" saved successfully!', 'success');
+        msShowList();
+    }</script>
+
+

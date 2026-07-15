@@ -1,0 +1,275 @@
+﻿
+@{
+    ViewBag.Title = "ReligionMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="relListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-praying-hands"></i> Religion Master</h2>
+                <p>Manage religions used in student &amp; staff profile forms.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="relShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Religion
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-praying-hands"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="relTotal">8</span>
+                    <span class="as-stat-label">Total Religions</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="relActive">8</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Religion Code</th>
+                        <th>Religion Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="relTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td><strong>HIN</strong></td>
+                        <td>Hindu</td>
+                        <td>Hindu Religion</td>
+                        <td>1</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>MUS</strong></td>
+                        <td>Muslim</td>
+                        <td>Muslim Religion</td>
+                        <td>2</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>CHR</strong></td>
+                        <td>Christian</td>
+                        <td>Christian Religion</td>
+                        <td>3</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>SIK</strong></td>
+                        <td>Sikh</td>
+                        <td>Sikh Religion</td>
+                        <td>4</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>JAI</strong></td>
+                        <td>Jain</td>
+                        <td>Jain Religion</td>
+                        <td>5</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>BUD</strong></td>
+                        <td>Buddhist</td>
+                        <td>Buddhist Religion</td>
+                        <td>6</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><strong>PAR</strong></td>
+                        <td>Parsi</td>
+                        <td>Parsi Religion</td>
+                        <td>7</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><strong>OTH</strong></td>
+                        <td>Others</td>
+                        <td>Other Religion</td>
+                        <td>8</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="relShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT RELIGION FORM ================= -->
+    <div class="as-card as-wizard-card" id="relFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="relShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Religion List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-praying-hands"></i></div>
+                    <div>
+                        <h2 id="relFormTitle">Add Religion</h2>
+                        <p>Define a new religion option used in profile forms.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Religion Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Religion Code <span class="req">*</span></label>
+                        <input type="text" id="religionCode" placeholder="e.g. HIN, MUS, CHR">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Religion Name <span class="req">*</span></label>
+                        <input type="text" id="religionName" placeholder="e.g. Hindu, Muslim, Christian">
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Description</label>
+                        <input type="text" id="religionDescription" placeholder="e.g. Hindu Religion">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Display Order</label>
+                        <input type="number" id="religionDisplayOrder" placeholder="e.g. 1" min="1">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="religionStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="relShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="relSaveReligion()">
+                        <i class="fas fa-save"></i> Save Religion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="relToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="relToastMessage">Success!</span>
+</div>
+
+<script>function relShowForm(btn) {
+        document.getElementById('relListWrap').style.display = 'none';
+        document.getElementById('relFormWrap').style.display = 'block';
+        document.getElementById('relFormTitle').textContent = btn ? 'Edit Religion' : 'Add Religion';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function relShowList() {
+        document.getElementById('relFormWrap').style.display = 'none';
+        document.getElementById('relListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function relShowToast(msg, type) {
+        const toast = document.getElementById('relToast');
+        const messageEl = document.getElementById('relToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function relSaveReligion() {
+        const code = document.getElementById('religionCode').value.trim();
+        if (!code) { relShowToast('Religion Code is required', 'error'); return; }
+
+        const name = document.getElementById('religionName').value.trim();
+        if (!name) { relShowToast('Religion Name is required', 'error'); return; }
+
+        relShowToast('Religion "' + name + '" saved successfully!', 'success');
+        relShowList();
+    }</script>
+
+

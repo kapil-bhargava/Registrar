@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "UniversityType";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="utListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-landmark"></i> University Type Master</h2>
+                <p>Manage the types of universities (Private, Central, State...) used across the system.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="utShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New University Type
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-landmark"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="utTotal">3</span>
+                    <span class="as-stat-label">Total Types</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="utActive">3</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>University Type Code</th>
+                        <th>University Type Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="utTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td><strong>PU</strong></td>
+                        <td>Private University</td>
+                        <td>Private universities</td>
+                        <td>1</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="utShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>CU</strong></td>
+                        <td>Central University</td>
+                        <td>Central Govt. universities</td>
+                        <td>2</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="utShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>SU</strong></td>
+                        <td>State University</td>
+                        <td>State Govt. universities</td>
+                        <td>3</td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>15-Jul-2026</td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="utShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT UNIVERSITY TYPE FORM ================= -->
+    <div class="as-card as-wizard-card" id="utFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="utShowList()">
+                <i class="fas fa-arrow-left"></i> Back to University Type List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-landmark"></i></div>
+                    <div>
+                        <h2 id="utFormTitle">Add University Type</h2>
+                        <p>Define a new university type used across the system.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> University Type Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>University Type Code <span class="req">*</span></label>
+                        <input type="text" id="utCode" placeholder="e.g. PU, CU, SU">
+                    </div>
+
+                    <div class="as-field">
+                        <label>University Type Name <span class="req">*</span></label>
+                        <input type="text" id="utName" placeholder="e.g. Private University">
+                    </div>
+
+                    <div class="as-field as-full">
+                        <label>Description</label>
+                        <textarea id="utDescription" rows="3" placeholder="e.g. Private universities"></textarea>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Display Order</label>
+                        <input type="number" id="utDisplayOrder" placeholder="e.g. 1" min="1">
+                        <span class="as-hint">Controls the order this type appears in dropdowns</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="utStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="utShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="utSaveType()">
+                        <i class="fas fa-save"></i> Save University Type
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="utToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="utToastMessage">Success!</span>
+</div>
+
+<script>function utShowForm(btn) {
+        document.getElementById('utListWrap').style.display = 'none';
+        document.getElementById('utFormWrap').style.display = 'block';
+        document.getElementById('utFormTitle').textContent = btn ? 'Edit University Type' : 'Add University Type';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function utShowList() {
+        document.getElementById('utFormWrap').style.display = 'none';
+        document.getElementById('utListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function utShowToast(msg, type) {
+        const toast = document.getElementById('utToast');
+        const messageEl = document.getElementById('utToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function utSaveType() {
+        const code = document.getElementById('utCode').value.trim();
+        if (!code) { utShowToast('University Type Code is required', 'error'); return; }
+
+        const name = document.getElementById('utName').value.trim();
+        if (!name) { utShowToast('University Type Name is required', 'error'); return; }
+
+        utShowToast('University Type "' + name + '" saved successfully!', 'success');
+        utShowList();
+    }</script>
+
+

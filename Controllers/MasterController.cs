@@ -13,6 +13,10 @@ namespace Regis.Controllers
         {
             return View();
         }
+        public ActionResult UniversityType()
+        {
+            return View();
+        }
         public ActionResult CategoryMaster()
         {
             return View();
@@ -39,6 +43,25 @@ namespace Regis.Controllers
         }
 
         public ActionResult DesignationMaster()
+        {
+            return View();
+        }
+        public ActionResult ReligionMaster()
+        {
+            return View();
+        }
+
+        public ActionResult BloodGroupMaster()
+        {
+            return View();
+        }
+
+        public ActionResult MaritalStatusMaster()
+        {
+            return View();
+        }
+
+        public ActionResult DocumentTypeMaster()
         {
             return View();
         }

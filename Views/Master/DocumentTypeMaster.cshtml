@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "DocumentTypeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="dtListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-file-alt"></i> Document Type Master</h2>
+                <p>Manage document types required during admission &amp; verification.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="dtShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Document Type
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dtTotal">5</span>
+                    <span class="as-stat-label">Total Document Types</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dtActive">5</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="dtMandatory">4</span>
+                    <span class="as-stat-label">Mandatory</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Document Type</th>
+                        <th>Mandatory</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="dtTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td><strong>AAD</strong></td>
+                        <td>Aadhaar Card</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="dtShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>PAN</strong></td>
+                        <td>PAN Card</td>
+                        <td><span class="as-type-badge">No</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="dtShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>PHO</strong></td>
+                        <td>Passport Photo</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="dtShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>SIG</strong></td>
+                        <td>Signature</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="dtShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>TC</strong></td>
+                        <td>Transfer Certificate</td>
+                        <td><span class="as-type-badge">Yes</span></td>
+                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
+                        <td>
+                            <button class="as-mini-btn" title="Edit" onclick="dtShowForm(this)"><i class="fas fa-edit"></i></button>
+                            <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT DOCUMENT TYPE FORM ================= -->
+    <div class="as-card as-wizard-card" id="dtFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="dtShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Document Type List
+            </button>
+        </div>
+
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-file-alt"></i></div>
+                    <div>
+                        <h2 id="dtFormTitle">Add Document Type</h2>
+                        <p>Define a new document type required during admission.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title">
+                    <i class="fas fa-info-circle"></i> Document Type Details
+                </div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Code <span class="req">*</span></label>
+                        <input type="text" id="docTypeCode" placeholder="e.g. AAD, PAN, PHO">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Document Type <span class="req">*</span></label>
+                        <input type="text" id="docTypeName" placeholder="e.g. Aadhaar Card, PAN Card">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Mandatory <span class="req">*</span></label>
+                        <select id="docTypeMandatory">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        <span class="as-hint">Whether student must upload this during admission</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="docTypeStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="dtShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="dtSaveDocType()">
+                        <i class="fas fa-save"></i> Save Document Type
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="as-toast" id="dtToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="dtToastMessage">Success!</span>
+</div>
+
+<script>function dtShowForm(btn) {
+        document.getElementById('dtListWrap').style.display = 'none';
+        document.getElementById('dtFormWrap').style.display = 'block';
+        document.getElementById('dtFormTitle').textContent = btn ? 'Edit Document Type' : 'Add Document Type';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function dtShowList() {
+        document.getElementById('dtFormWrap').style.display = 'none';
+        document.getElementById('dtListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function dtShowToast(msg, type) {
+        const toast = document.getElementById('dtToast');
+        const messageEl = document.getElementById('dtToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function dtSaveDocType() {
+        const code = document.getElementById('docTypeCode').value.trim();
+        if (!code) { dtShowToast('Code is required', 'error'); return; }
+
+        const name = document.getElementById('docTypeName').value.trim();
+        if (!name) { dtShowToast('Document Type Name is required', 'error'); return; }
+
+        dtShowToast('Document Type "' + name + '" saved successfully!', 'success');
+        dtShowList();
+    }</script>
+
+
