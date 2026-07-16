@@ -1,7 +1,8 @@
-﻿using Regis.Models;
-using Regis.Services;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
+using Regis.Models;
+using Regis.Services;
 
 namespace Regis.Controllers
 {
@@ -14,6 +15,8 @@ namespace Regis.Controllers
         // ============================================================
 
         private readonly UniversityTypeService universityTypeService = new UniversityTypeService();
+        private readonly CategoryService categoryService = new CategoryService();
+        private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
 
         // ============================================================
         // Dashboard / Master Home Page
@@ -87,16 +90,55 @@ namespace Regis.Controllers
             return RedirectToAction("UniversityType");
         }
 
-
         // ============================================================
         // Category Master
+        // URL : /Master/CategoryMaster
         // ============================================================
 
         public ActionResult CategoryMaster()
         {
-            return View();
+            List<CategoryModel> categoryList = categoryService.GetAllCategories();
+            return View(categoryList);
         }
+        [HttpPost]
+        public ActionResult CategoryMaster(CategoryModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
 
+                if (model.CategoryId > 0)
+                {
+                    result = categoryService.UpdateCategory(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Category Updated Successfully." : "Unable to Update Category.";
+                }
+                else
+                {
+                    result = categoryService.InsertCategory(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Category Saved Successfully." : "Unable to Save Category.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
+            return RedirectToAction("CategoryMaster");
+        }
+        public ActionResult DeleteCategory(int id)
+        {
+            bool result = categoryService.DeleteCategory(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Category Deleted Successfully." : "Unable to Delete Category.";
+
+            return RedirectToAction("CategoryMaster");
+        }
         // ============================================================
         // Nationality Master
         // ============================================================
@@ -190,7 +232,44 @@ namespace Regis.Controllers
         // ============================================================
         // System Settings
         // ============================================================
+        public ActionResult CampusCategoryMaster()
+        {
+            List<CampusCategoryModel> list = campusCategoryService.GetAllCampusCategories();
+            return View(list);
+        }
 
+        [HttpPost]
+        public ActionResult CampusCategoryMaster(CampusCategoryModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.CampusCategoryId > 0)
+                {
+                    result = campusCategoryService.UpdateCampusCategory(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Campus Category Updated Successfully." : "Unable to Update Campus Category.";
+                }
+                else
+                {
+                    result = campusCategoryService.InsertCampusCategory(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Campus Category Saved Successfully." : "Unable to Save Campus Category.";
+                }
+            }
+
+            return RedirectToAction("CampusCategoryMaster");
+        }
+
+        public ActionResult DeleteCampusCategory(int id)
+        {
+            bool result = campusCategoryService.DeleteCampusCategory(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Campus Category Deleted Successfully." : "Unable to Delete Campus Category.";
+
+            return RedirectToAction("CampusCategoryMaster");
+        }
         public ActionResult SystemSettings()
         {
             return View();

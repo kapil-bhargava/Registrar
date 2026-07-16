@@ -1,0 +1,219 @@
+﻿@model List<Regis.Models.CampusCategoryModel>
+
+@{
+    ViewBag.Title = "CampusCategoryMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="ccListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-building"></i> Campus Category Master</h2>
+                <p>Manage campus types (Main Campus, Sub Campus, Study Centre...) used in Campus Management.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="ccShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Campus Category
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Categories</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(c => c.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ccTableBody">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.CampusCategoryId</td>
+                            <td><strong>@item.CampusCategoryCode</strong></td>
+                            <td>@item.CampusCategoryName</td>
+                            <td>@item.Description</td>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-circle"></i> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-circle"></i> Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td>@item.CreatedDate?.ToString("dd-MM-yyyy")</td>
+                            <td>
+                                <button type="button"
+                                        class="as-mini-btn"
+                                        title="Edit"
+                                        onclick="ccShowForm(this)"
+                                        data-id="@item.CampusCategoryId"
+                                        data-code="@item.CampusCategoryCode"
+                                        data-name="@item.CampusCategoryName"
+                                        data-desc="@item.Description"
+                                        data-order="@item.DisplayOrder"
+                                        data-active="@item.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn"
+                                   title="Delete"
+                                   href="@Url.Action("DeleteCampusCategory", "Master", new { id = item.CampusCategoryId })"
+                                   onclick="return confirm('Are you sure you want to delete this campus category?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT CAMPUS CATEGORY FORM ================= -->
+    @using (Html.BeginForm("CampusCategoryMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="ccFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="ccShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Campus Category List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-building"></i></div>
+                        <div>
+                            <h2 id="ccFormTitle">Add Campus Category</h2>
+                            <p>Define a new campus type used in Campus Management.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Campus Category Details
+                    </div>
+
+                    <input type="hidden" id="ccId" name="CampusCategoryId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Category Code <span class="req">*</span></label>
+                            <input type="text" id="ccCode" name="CampusCategoryCode" class="form-control" placeholder="e.g. MAIN, SUB, STC" required />
+                        </div>
+
+                        <div class="as-field">
+                            <label>Category Name <span class="req">*</span></label>
+                            <input type="text" id="ccName" name="CampusCategoryName" class="form-control" placeholder="e.g. Main Campus, Sub Campus" required />
+                        </div>
+
+                        <div class="as-field as-full">
+                            <label>Description</label>
+                            <textarea id="ccDescription" name="Description" class="form-control" rows="3" placeholder="e.g. Primary university campus"></textarea>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Display Order</label>
+                            <input type="number" id="ccDisplayOrder" name="DisplayOrder" class="form-control" min="1" placeholder="e.g. 1" />
+                            <span class="as-hint">Controls the order this type appears in the Campus dropdown.</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="ccStatus" name="IsActive" class="form-control">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="ccShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span id="ccSubmitText">Save Campus Category</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script>function ccShowForm(btn) {
+        document.getElementById('ccListWrap').style.display = 'none';
+        document.getElementById('ccFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('ccFormTitle').textContent = 'Edit Campus Category';
+            document.getElementById('ccSubmitText').textContent = 'Update Campus Category';
+
+            document.getElementById('ccId').value = btn.dataset.id;
+            document.getElementById('ccCode').value = btn.dataset.code;
+            document.getElementById('ccName').value = btn.dataset.name;
+            document.getElementById('ccDescription').value = btn.dataset.desc;
+            document.getElementById('ccDisplayOrder').value = btn.dataset.order;
+            document.getElementById('ccStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('ccFormTitle').textContent = 'Add Campus Category';
+            document.getElementById('ccSubmitText').textContent = 'Save Campus Category';
+
+            document.getElementById('ccId').value = 0;
+            document.getElementById('ccCode').value = '';
+            document.getElementById('ccName').value = '';
+            document.getElementById('ccDescription').value = '';
+            document.getElementById('ccDisplayOrder').value = '';
+            document.getElementById('ccStatus').value = 'true';
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function ccShowList() {
+        document.getElementById('ccFormWrap').style.display = 'none';
+        document.getElementById('ccListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }</script>
