@@ -1,4 +1,5 @@
-﻿
+﻿@model List<Regis.Models.UniversityTypeModel>
+
 @{
     ViewBag.Title = "UniversityType";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
@@ -93,6 +94,35 @@
                             <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.UniversityTypeId</td>
+                            <td>@item.UniversityTypeCode</td>
+                            <td>@item.UniversityTypeName</td>
+                            <td>@item.Description</td>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-circle"></i> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-circle"></i> Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td>@item.CreatedDate?.ToString("dd-MM-yyyy")</td>
+                            <td>
+                                <button class="as-mini-btn" title="Edit" onclick="utShowForm(this)"><i class="fas fa-edit"></i></button>
+                                <button class="as-mini-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -104,67 +134,145 @@
     </div>
 
     <!-- ================= ADD / EDIT UNIVERSITY TYPE FORM ================= -->
-    <div class="as-card as-wizard-card" id="utFormWrap" style="display:none;">
-        <div class="as-back-row">
-            <button class="as-back-link" onclick="utShowList()">
-                <i class="fas fa-arrow-left"></i> Back to University Type List
-            </button>
-        </div>
+    @using (Html.BeginForm("UniversityType", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="utFormWrap" style="display:none;">
 
-        <div class="as-body">
-            <div class="as-page active">
-                <div class="as-head">
-                    <div class="as-icon"><i class="fas fa-landmark"></i></div>
-                    <div>
-                        <h2 id="utFormTitle">Add University Type</h2>
-                        <p>Define a new university type used across the system.</p>
-                    </div>
-                </div>
-
-                <div class="as-section-title">
-                    <i class="fas fa-info-circle"></i> University Type Details
-                </div>
-                <div class="as-grid">
-                    <div class="as-field">
-                        <label>University Type Code <span class="req">*</span></label>
-                        <input type="text" id="utCode" placeholder="e.g. PU, CU, SU">
-                    </div>
-
-                    <div class="as-field">
-                        <label>University Type Name <span class="req">*</span></label>
-                        <input type="text" id="utName" placeholder="e.g. Private University">
-                    </div>
-
-                    <div class="as-field as-full">
-                        <label>Description</label>
-                        <textarea id="utDescription" rows="3" placeholder="e.g. Private universities"></textarea>
-                    </div>
-
-                    <div class="as-field">
-                        <label>Display Order</label>
-                        <input type="number" id="utDisplayOrder" placeholder="e.g. 1" min="1">
-                        <span class="as-hint">Controls the order this type appears in dropdowns</span>
-                    </div>
-
-                    <div class="as-field">
-                        <label>Status</label>
-                        <select id="utStatus">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="as-bar">
-                    <button class="as-btn as-btn-ghost" onclick="utShowList()">Cancel</button>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="utSaveType()">
-                        <i class="fas fa-save"></i> Save University Type
-                    </button>
-                </div>
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="utShowList()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to University Type List
+                </button>
             </div>
+
+            <div class="as-body">
+
+                <div class="as-page active">
+
+                    <div class="as-head">
+                        <div class="as-icon">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+
+                        <div>
+                            <h2 id="utFormTitle">Add University Type</h2>
+                            <p>Define a new university type used across the system.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i>
+                        University Type Details
+                    </div>
+
+                    <div class="as-grid">
+
+                        <!-- University Type Code -->
+                        <div class="as-field">
+                            <label>
+                                University Type Code
+                                <span class="req">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="utCode"
+                                   name="UniversityTypeCode"
+                                   class="form-control"
+                                   placeholder="e.g. PU, CU, SU"
+                                   required />
+                        </div>
+
+                        <!-- University Type Name -->
+                        <div class="as-field">
+                            <label>
+                                University Type Name
+                                <span class="req">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="utName"
+                                   name="UniversityTypeName"
+                                   class="form-control"
+                                   placeholder="e.g. Private University"
+                                   required />
+                        </div>
+
+                        <!-- Description -->
+                        <div class="as-field as-full">
+                            <label>Description</label>
+
+                            <textarea id="utDescription"
+                                      name="Description"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="e.g. Private Universities"></textarea>
+                        </div>
+
+                        <!-- Display Order -->
+                        <div class="as-field">
+                            <label>Display Order</label>
+
+                            <input type="number"
+                                   id="utDisplayOrder"
+                                   name="DisplayOrder"
+                                   class="form-control"
+                                   min="1"
+                                   placeholder="e.g. 1" />
+
+                            <span class="as-hint">
+                                Controls the order this type appears in dropdowns.
+                            </span>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="as-field">
+                            <label>Status</label>
+
+                            <select id="utStatus"
+                                    name="IsActive"
+                                    class="form-control">
+
+                                <option value="true">
+                                    Active
+                                </option>
+
+                                <option value="false">
+                                    Inactive
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="as-bar">
+
+                        <button type="button"
+                                class="as-btn as-btn-ghost"
+                                onclick="utShowList()">
+
+                            Cancel
+
+                        </button>
+
+                        <span></span>
+
+                        <button type="submit"
+                                class="as-btn as-btn-primary">
+
+                            <i class="fas fa-save"></i>
+                            Save University Type
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-    </div>
+    }
 
 </div>
 
@@ -173,7 +281,8 @@
     <span id="utToastMessage">Success!</span>
 </div>
 
-<script>function utShowForm(btn) {
+<script>
+    function utShowForm(btn) {
         document.getElementById('utListWrap').style.display = 'none';
         document.getElementById('utFormWrap').style.display = 'block';
         document.getElementById('utFormTitle').textContent = btn ? 'Edit University Type' : 'Add University Type';

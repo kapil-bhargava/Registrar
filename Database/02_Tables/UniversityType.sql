@@ -14,3 +14,4 @@ CREATE TABLE UniversityType
 
     CreatedDate DATETIME
 )
+
