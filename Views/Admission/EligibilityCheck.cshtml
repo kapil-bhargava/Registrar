@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewBag.Title = "EligibilityCheck";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="as-card as-wizard-card">
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-user-check"></i></div>
+                    <div>
+                        <h2>Eligibility Check <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 2</span></h2>
+                        <p>Course list below comes directly from <strong>Admission Setup</strong> (only "Open" courses appear).</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-info-circle"></i> Applicant Details</div>
+                <div class="as-grid">
+                    <div class="as-field as-full">
+                        <label>Applicant Name <span class="req">*</span></label>
+                        <input type="text" id="ecName" placeholder="e.g. Rohit Sharma">
+                    </div>
+
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="ecCourse" onchange="ecLoadCriteria()">
+                            <option value="">-- Select Course --</option>
+                        </select>
+                        <span class="as-hint">Only courses marked "Open" in Admission Setup appear here</span>
+                    </div>
+
+                    <div class="as-field">
+                        <label>Percentage Obtained <span class="req">*</span></label>
+                        <input type="number" id="ecPct" placeholder="e.g. 62" min="0" max="100">
+                    </div>
+                </div>
+
+                <!-- Criteria box (auto-filled from Admission Setup) -->
+                <div class="as-current-session" id="ecCriteriaBox" style="display:none;">
+                    <div class="as-current-label">📋 Eligibility Criteria (from Admission Setup)</div>
+                    <div class="as-current-value" id="ecCriteriaText">—</div>
+                    <span class="as-pill as-pill-active" id="ecMinPctPill">—</span>
+                </div>
+
+                <div class="as-bar">
+                    <span></span>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="ecCheckEligibility()"><i class="fas fa-check-circle"></i> Check Eligibility</button>
+                </div>
+
+                <!-- Result box -->
+                <div id="ecResultBox" style="display:none; margin-top:16px;">
+                    <div class="as-warning-box" id="ecResultInner">
+                        <i class="fas fa-info-circle"></i>
+                        <div id="ecResultText">—</div>
+                    </div>
+                    <div class="as-bar" id="ecProceedBar" style="display:none;">
+                        <span></span><span></span>
+                        <button class="as-btn as-btn-primary" onclick="ecProceedToRegistration()">
+                            <i class="fas fa-arrow-right"></i> Proceed to Student Registration
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent checks history -->
+                <div class="as-section-title" style="margin-top:24px;"><i class="fas fa-history"></i> Recent Checks</div>
+                <div class="as-table-wrapper">
+                    <table class="as-table as-list-table">
+                        <thead><tr><th>Name</th><th>Course</th><th>% Obtained</th><th>Result</th></tr></thead>
+                        <tbody id="ecHistoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="ecToast"><i class="fas fa-check-circle"></i><span id="ecToastMessage">Success!</span></div>
+
+<script>function getSetups() { return JSON.parse(localStorage.getItem('erp_admissionSetups') || '[]'); }
+    function getChecks() { return JSON.parse(localStorage.getItem('erp_eligibilityChecks') || '[]'); }
+    function saveChecks(arr) { localStorage.setItem('erp_eligibilityChecks', JSON.stringify(arr)); }
+
+    let ecLastResult = null;
+
+    function ecPopulateCourses() {
+        const openSetups = getSetups().filter(s => s.status === 'Open');
+        const select = document.getElementById('ecCourse');
+        select.innerHTML = '<option value="">-- Select Course --</option>' +
+            openSetups.map(s => `<option value="${s.id}">${s.courseName} (${s.session})</option>`).join('');
+    }
+
+    function ecLoadCriteria() {
+        const id = document.getElementById('ecCourse').value;
+        const setup = getSetups().find(s => s.id === id);
+        const box = document.getElementById('ecCriteriaBox');
+        if (!setup) { box.style.display = 'none'; return; }
+
+        box.style.display = 'block';
+        document.getElementById('ecCriteriaText').textContent = setup.criteria || 'No specific criteria set';
+        document.getElementById('ecMinPctPill').innerHTML = '<i class="fas fa-percent"></i> Minimum Required: ' + setup.minPct + '%';
+    }
+
+    function ecShowToast(msg, type) {
+        const toast = document.getElementById('ecToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function ecCheckEligibility() {
+        const name = document.getElementById('ecName').value.trim();
+        if (!name) { ecShowToast('Please enter Applicant Name', 'error'); return; }
+        const courseId = document.getElementById('ecCourse').value;
+        if (!courseId) { ecShowToast('Please select a Course', 'error'); return; }
+        const pct = document.getElementById('ecPct').value;
+        if (!pct) { ecShowToast('Please enter Percentage Obtained', 'error'); return; }
+
+        const setup = getSetups().find(s => s.id === courseId);
+        const eligible = parseFloat(pct) >= setup.minPct;
+
+        const resultBox = document.getElementById('ecResultBox');
+        const inner = document.getElementById('ecResultInner');
+        const text = document.getElementById('ecResultText');
+        resultBox.style.display = 'block';
+
+        if (eligible) {
+            inner.className = 'as-warning-box';
+            inner.style.background = '#E4F7EF'; inner.style.borderColor = '#1AAE7C';
+            text.innerHTML = '<strong>✅ Eligible!</strong> ' + name + ' meets the eligibility criteria for ' + setup.courseName + ' (' + pct + '% ≥ ' + setup.minPct + '% required).';
+            document.getElementById('ecProceedBar').style.display = 'flex';
+        } else {
+            inner.className = 'as-warning-box as-warning-danger';
+            inner.style.background = ''; inner.style.borderColor = '';
+            text.innerHTML = '<strong>❌ Not Eligible.</strong> ' + name + ' does not meet the minimum ' + setup.minPct + '% required for ' + setup.courseName + ' (obtained ' + pct + '%).';
+            document.getElementById('ecProceedBar').style.display = 'none';
+        }
+
+        ecLastResult = { name, courseId, courseName: setup.courseName, session: setup.session, pct, eligible };
+
+        // save to history
+        const checks = getChecks();
+        checks.unshift(ecLastResult);
+        saveChecks(checks.slice(0, 10));
+        ecRenderHistory();
+    }
+
+    function ecProceedToRegistration() {
+        if (!ecLastResult) return;
+        // Pass data via query string so Student Registration can prefill the form
+        const params = new URLSearchParams({
+            name: ecLastResult.name,
+            courseId: ecLastResult.courseId,
+            pct: ecLastResult.pct
+        });
+        window.location.href = 'StudentRegistration.cshtml?' + params.toString();
+    }
+
+    function ecRenderHistory() {
+        const body = document.getElementById('ecHistoryBody');
+        const checks = getChecks();
+        body.innerHTML = checks.map(c => `
+            <tr>
+                <td>${c.name}</td>
+                <td>${c.courseName}</td>
+                <td>${c.pct}%</td>
+                <td>${c.eligible
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Eligible</span>'
+                    : '<span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Not Eligible</span>'}</td>
+            </tr>`).join('') || '<tr><td colspan="4" style="text-align:center; color:#6B7A99;">No checks yet</td></tr>';
+    }
+
+    ecPopulateCourses();
+    ecRenderHistory();</script>
+
+

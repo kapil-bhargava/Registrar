@@ -1,0 +1,226 @@
+﻿
+@{
+    ViewBag.Title = "AdmissionSetup";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="asuListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-cog"></i> Admission Setup <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 1</span></h2>
+                <p>Decide which courses are open for admission this session, total seats &amp; eligibility rules. This feeds the Course dropdown in Student Registration.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="asuShowForm()">
+                <i class="fas fa-plus-circle"></i> Open New Admission
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-cog"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="asuTotal">0</span>
+                    <span class="as-stat-label">Total Setups</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-door-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="asuOpen">0</span>
+                    <span class="as-stat-label">Open for Admission</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Academic Session</th>
+                        <th>Total Seats</th>
+                        <th>Application Window</th>
+                        <th>Min. Eligibility %</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="asuTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Open</span>
+            <span><span class="as-legend-dot archived"></span> Closed</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD FORM ================= -->
+    <div class="as-card as-wizard-card" id="asuFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="asuShowList()"><i class="fas fa-arrow-left"></i> Back to Admission Setup List</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-cog"></i></div>
+                    <div>
+                        <h2>Open New Admission</h2>
+                        <p>Once saved, this course becomes selectable in Eligibility Check &amp; Student Registration.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-info-circle"></i> Setup Details</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Course <span class="req">*</span></label>
+                        <select id="asuCourse">
+                            <option value="">-- Select Course --</option>
+                            <option value="BTECH-CS">B.Tech - Computer Science</option>
+                            <option value="MBA">MBA</option>
+                            <option value="BCA">BCA</option>
+                        </select>
+                    </div>
+                    <div class="as-field">
+                        <label>Academic Session <span class="req">*</span></label>
+                        <select id="asuSession">
+                            <option value="">-- Select Session --</option>
+                            <option value="2025-26">2025-26</option>
+                            <option value="2024-25">2024-25</option>
+                        </select>
+                    </div>
+                    <div class="as-field">
+                        <label>Total Seats <span class="req">*</span></label>
+                        <input type="number" id="asuSeats" placeholder="e.g. 120" min="1">
+                    </div>
+                    <div class="as-field">
+                        <label>Minimum Eligibility % <span class="req">*</span></label>
+                        <input type="number" id="asuMinPct" placeholder="e.g. 50" min="0" max="100">
+                        <span class="as-hint">Used by Eligibility Check to auto pass/fail applicants</span>
+                    </div>
+                    <div class="as-field">
+                        <label>Application Start Date <span class="req">*</span></label>
+                        <input type="date" id="asuStartDate">
+                    </div>
+                    <div class="as-field">
+                        <label>Application End Date <span class="req">*</span></label>
+                        <input type="date" id="asuEndDate">
+                    </div>
+                    <div class="as-field as-full">
+                        <label>Eligibility Criteria (text)</label>
+                        <input type="text" id="asuCriteria" placeholder="e.g. 10+2 with PCM, minimum 50%">
+                    </div>
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="asuStatus">
+                            <option value="Open">Open</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="asuShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="asuSave()"><i class="fas fa-save"></i> Save Setup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="asuToast"><i class="fas fa-check-circle"></i><span id="asuToastMessage">Success!</span></div>
+
+<script>/* ============ Shared ERP Store (localStorage based) ============ */
+    function getSetups() { return JSON.parse(localStorage.getItem('erp_admissionSetups') || '[]'); }
+    function saveSetups(arr) { localStorage.setItem('erp_admissionSetups', JSON.stringify(arr)); }
+
+    // Seed dummy data on first run
+    if (getSetups().length === 0) {
+        saveSetups([
+            { id: 'SET-1', course: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26', seats: 120, minPct: 50, startDate: '2026-06-01', endDate: '2026-07-31', criteria: '10+2 with PCM, minimum 50%', status: 'Open' },
+            { id: 'SET-2', course: 'BCA', courseName: 'BCA', session: '2025-26', seats: 120, minPct: 45, startDate: '2026-06-01', endDate: '2026-07-31', criteria: '10+2 any stream, minimum 45%', status: 'Open' },
+            { id: 'SET-3', course: 'MBA', courseName: 'MBA', session: '2025-26', seats: 60, minPct: 50, startDate: '2026-05-01', endDate: '2026-06-30', criteria: 'Graduation with min 50%', status: 'Closed' }
+        ]);
+    }
+
+    const courseNames = { 'BTECH-CS': 'B.Tech - Computer Science', 'MBA': 'MBA', 'BCA': 'BCA' };
+
+    function asuRender() {
+        const rows = getSetups();
+        document.getElementById('asuTotal').textContent = rows.length;
+        document.getElementById('asuOpen').textContent = rows.filter(r => r.status === 'Open').length;
+
+        const body = document.getElementById('asuTableBody');
+        body.innerHTML = rows.map(r => `
+            <tr>
+                <td><strong>${r.courseName}</strong></td>
+                <td>${r.session}</td>
+                <td>${r.seats}</td>
+                <td>${r.startDate} to ${r.endDate}</td>
+                <td>${r.minPct}%</td>
+                <td>${r.status === 'Open'
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Open</span>'
+                    : '<span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Closed</span>'}</td>
+                <td><button class="as-mini-btn" title="View"><i class="fas fa-eye"></i></button></td>
+            </tr>`).join('');
+    }
+
+    function asuShowForm() {
+        document.getElementById('asuListWrap').style.display = 'none';
+        document.getElementById('asuFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function asuShowList() {
+        document.getElementById('asuFormWrap').style.display = 'none';
+        document.getElementById('asuListWrap').style.display = 'block';
+        asuRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function asuShowToast(msg, type) {
+        const toast = document.getElementById('asuToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function asuSave() {
+        const course = document.getElementById('asuCourse').value;
+        if (!course) { asuShowToast('Please select a Course', 'error'); return; }
+        const session = document.getElementById('asuSession').value;
+        if (!session) { asuShowToast('Please select a Session', 'error'); return; }
+        const seats = document.getElementById('asuSeats').value;
+        if (!seats) { asuShowToast('Please enter Total Seats', 'error'); return; }
+        const minPct = document.getElementById('asuMinPct').value;
+        if (!minPct) { asuShowToast('Please enter Minimum Eligibility %', 'error'); return; }
+
+        const rows = getSetups();
+        rows.push({
+            id: 'SET-' + (rows.length + 1),
+            course: course,
+            courseName: courseNames[course],
+            session: session,
+            seats: parseInt(seats),
+            minPct: parseInt(minPct),
+            startDate: document.getElementById('asuStartDate').value,
+            endDate: document.getElementById('asuEndDate').value,
+            criteria: document.getElementById('asuCriteria').value,
+            status: document.getElementById('asuStatus').value
+        });
+        saveSetups(rows);
+
+        asuShowToast('Admission opened for ' + courseNames[course] + '! Now visible in Eligibility Check & Student Registration.', 'success');
+        asuShowList();
+    }
+
+    asuRender();</script>
+
+

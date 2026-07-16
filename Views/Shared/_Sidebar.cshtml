@@ -20,11 +20,10 @@
         <!-- DASHBOARD -->
         <!-- ============================================================ -->
         <li>
-            <div class="parent @(activeMenu == "Dashboard" ? "active" : "")" data-target="">
+            <a href="@Url.Action("Dashboard", "Dashboard")" class="parent @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")">
                 <i class="fas fa-th-large"></i>
-                Dashboard
-                <span class="badge-dot"></span>
-            </div>
+                <span>Dashboard</span>
+            </a>
         </li>
 
         <!-- ============================================================ -->
@@ -174,33 +173,49 @@
             </div>
             <ul class="submenu @(activeMenu == "Admission" ? "open" : "")" id="subAdmission">
                 <li>
-                    <a asp-controller="Admission" asp-action="Setup">
+                    <a href="@Url.Action("AdmissionSetup", "Admission")">
                         <i class="fas fa-gear"></i> Admission Setup
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Admission" asp-action="StudentRegistration">
+                    <a href="@Url.Action("EligibilityCheck", "Admission")">
+                        <i class="fas fa-user-check"></i> Eligibility Check
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("StudentRegistration", "Admission")">
                         <i class="fas fa-user-plus"></i> Student Registration
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Admission" asp-action="Application">
+                    <a href="@Url.Action("Application", "Admission")">
                         <i class="fas fa-file-lines"></i> Application Management
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Admission" asp-action="DocumentVerification">
+                    <a href="@Url.Action("DocumentVerification", "Admission")">
                         <i class="fas fa-check-double"></i> Document Verification
                     </a>
                 </li>
 
                 <li>
-                    <a asp-controller="Admission" asp-action="Counselling">
+                    <a href="@Url.Action("Counselling", "Admission")">
                         <i class="fas fa-handshake"></i> Counselling
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Admission" asp-action="Final">
+                    <a href="@Url.Action("FeePayment", "Admission")">
+                        <i class="fas fa-money-bill-wave"></i> Fee Payment
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("Final", "Admission")">
                         <i class="fas fa-check-circle"></i> Admission (Final)
                     </a>
                 </li>

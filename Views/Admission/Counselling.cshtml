@@ -1,0 +1,169 @@
+﻿
+@{
+    ViewBag.Title = "Counselling";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST MODE ================= -->
+    <div class="as-card" id="cnListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-comments"></i> Counselling <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 6</span></h2>
+                <p>Only applications with <strong>documents verified</strong> appear here — auto-filtered from Application Management.</p>
+            </div>
+        </div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="cnListBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= DETAIL MODE ================= -->
+    <div class="as-card as-wizard-card" id="cnDetailWrap" style="display:none;">
+        <div class="as-back-row">
+            <a class="as-back-link" href="ApplicationManagement.cshtml"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-comments"></i></div>
+                    <div>
+                        <h2>Schedule Counselling &amp; Allot Seat</h2>
+                        <p id="cnAppSubtitle">—</p>
+                    </div>
+                </div>
+
+                <div class="as-current-session">
+                    <div class="as-current-label">👤 Applicant</div>
+                    <div class="as-current-value" id="cnApplicantName">—</div>
+                    <span class="as-pill as-pill-active" id="cnApplicantMeta">—</span>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-calendar-alt"></i> Counselling Schedule</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Counselling Date <span class="req">*</span></label>
+                        <input type="date" id="cnDate">
+                    </div>
+                    <div class="as-field">
+                        <label>Counselling Time</label>
+                        <input type="time" id="cnTime">
+                    </div>
+                    <div class="as-field">
+                        <label>Mode</label>
+                        <select id="cnMode">
+                            <option value="In-Person">In-Person</option>
+                            <option value="Online">Online</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-chair"></i> Seat Allotment</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Category (auto)</label>
+                        <input type="text" id="cnCategory" readonly disabled>
+                    </div>
+                    <div class="as-field">
+                        <label>Allotted Seat No.</label>
+                        <input type="text" id="cnSeatNumber" readonly disabled placeholder="Auto-generated on save">
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <a class="as-btn as-btn-ghost" href="ApplicationManagement.cshtml">Cancel</a>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="cnSave()"><i class="fas fa-check-circle"></i> Complete Counselling</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="cnToast"><i class="fas fa-check-circle"></i><span id="cnToastMessage">Success!</span></div>
+
+<script>
+    function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
+    function saveApps(arr) { localStorage.setItem('erp_applications', JSON.stringify(arr)); }
+
+    // Seed a sample "docs verified" application so this page has something to show on first open
+    if (getApps().length === 0) {
+        saveApps([
+            {
+                appId: 'APP-2026-001', name: 'Rohit Sharma', email: 'rohit@example.com', phone: '9876543210',
+                category: 'General', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
+                pct: '78', registeredOn: '12 Jul 2026', stage: 'Docs Verified',
+                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
+                counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
+            }
+        ]);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const appId = params.get('appId');
+
+    function cnShowToast(msg, type) {
+        const toast = document.getElementById('cnToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    if (appId) {
+        document.getElementById('cnListWrap').style.display = 'none';
+        document.getElementById('cnDetailWrap').style.display = 'block';
+
+        const apps = getApps();
+        const app = apps.find(a => a.appId === appId);
+
+        if (app) {
+            document.getElementById('cnAppSubtitle').textContent = 'Application ' + app.appId;
+            document.getElementById('cnApplicantName').textContent = app.name;
+            document.getElementById('cnApplicantMeta').textContent = app.courseName + ' · ' + app.category;
+            document.getElementById('cnCategory').value = app.category;
+        }
+
+        window.cnSave = function () {
+            const date = document.getElementById('cnDate').value;
+            if (!date) { cnShowToast('Please select a Counselling Date', 'error'); return; }
+
+            const apps = getApps();
+            const idx = apps.findIndex(a => a.appId === appId);
+            if (idx === -1) return;
+
+            const seatNo = apps[idx].category.substring(0, 3).toUpperCase() + '-' + apps[idx].courseId + '-' + String(idx + 1).padStart(3, '0');
+            document.getElementById('cnSeatNumber').value = seatNo;
+
+            apps[idx].counsellingDone = true;
+            apps[idx].counsellingDate = date;
+            apps[idx].seatNumber = seatNo;
+            apps[idx].stage = 'Counselling Done';
+            saveApps(apps);
+
+            cnShowToast('Counselling completed! Seat ' + seatNo + ' allotted. Now visible in Fee Payment.', 'success');
+            setTimeout(() => window.location.href = 'ApplicationManagement.cshtml', 1200);
+        };
+    } else {
+        const apps = getApps().filter(a => a.docVerified && !a.counsellingDone);
+        document.getElementById('cnListBody').innerHTML = apps.map(a => `
+            <tr>
+                <td>${a.appId}</td>
+                <td><strong>${a.name}</strong></td>
+                <td>${a.courseName}</td>
+                <td><span class="as-type-badge">${a.category}</span></td>
+                <td><span class="as-pill as-pill-active"><i class="fas fa-file-check"></i> Docs Verified</span></td>
+                <td><a class="as-btn as-btn-primary as-btn-sm" href="Counselling.cshtml?appId=${a.appId}">Schedule</a></td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications ready for counselling yet</td></tr>';
+    }
+</script>
+
+
