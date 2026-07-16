@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "AdmissionReports";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<div class="as-wrap">
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-file-invoice"></i> Admission Reports</h2>
+                <p>Live summary of all applications, pulled from Admission Setup &amp; Application Management.</p>
+            </div>
+            <select class="filter-select" id="arSessionFilter" onchange="arRender()" style="border:1px solid #E6E9F0; border-radius:9px; padding:8px 12px; font-size:12.5px; font-weight:600; color:#6B7A99;">
+                <option value="all">All Sessions</option>
+                <option value="2025-26">2025-26</option>
+            </select>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="arTotal">0</span>
+                    <span class="as-stat-label">Total Applications</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="arAdmitted">0</span>
+                    <span class="as-stat-label">Admitted</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="arInProgress">0</span>
+                    <span class="as-stat-label">In Progress</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-percent"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="arConversion">0%</span>
+                    <span class="as-stat-label">Conversion Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-grid" style="display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+                <div class="as-section-title"><i class="fas fa-filter"></i> Admission Funnel</div>
+                <div style="position:relative; height:240px;"><canvas id="arFunnelChart"></canvas></div>
+            </div>
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-pie"></i> Course-wise Applications</div>
+                <div style="position:relative; height:240px;"><canvas id="arCourseChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="as-section-title"><i class="fas fa-table"></i> Course-wise Breakdown</div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Course</th><th>Total Applications</th><th>Docs Verified</th><th>Counselling Done</th><th>Fee Paid</th><th>Admitted</th></tr></thead>
+                <tbody id="arTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
+
+    let arFunnelChart, arCourseChart;
+
+    function arRender() {
+        const apps = getApps();
+        document.getElementById('arTotal').textContent = apps.length;
+        const admitted = apps.filter(a => a.studentId).length;
+        document.getElementById('arAdmitted').textContent = admitted;
+        document.getElementById('arInProgress').textContent = apps.length - admitted;
+        document.getElementById('arConversion').textContent = apps.length ? Math.round((admitted / apps.length) * 100) + '%' : '0%';
+
+        // Funnel stages
+        const stages = {
+            'Registered': apps.length,
+            'Docs Verified': apps.filter(a => a.docVerified).length,
+            'Counselling Done': apps.filter(a => a.counsellingDone).length,
+            'Fee Paid': apps.filter(a => a.feePaid).length,
+            'Admitted': admitted
+        };
+
+        if (arFunnelChart) arFunnelChart.destroy();
+        arFunnelChart = new Chart(document.getElementById('arFunnelChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(stages),
+                datasets: [{ data: Object.values(stages), backgroundColor: ['#1E5EFF','#3D8BFF','#7C5CFC','#F5A524','#1AAE7C'], borderRadius: 6 }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { color: '#EEF1F7' } }, y: { grid: { display: false } } } }
+        });
+
+        // Course-wise pie
+        const byCourse = {};
+        apps.forEach(a => byCourse[a.courseName] = (byCourse[a.courseName] || 0) + 1);
+
+        if (arCourseChart) arCourseChart.destroy();
+        arCourseChart = new Chart(document.getElementById('arCourseChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(byCourse),
+                datasets: [{ data: Object.values(byCourse), backgroundColor: ['#1E5EFF','#1AAE7C','#F5A524','#7C5CFC','#3D8BFF'], borderWidth: 2, borderColor: '#fff' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, boxHeight: 9, usePointStyle: true, pointStyle: 'circle', font: { size: 10.5 } } } } }
+        });
+
+        // Table
+        document.getElementById('arTableBody').innerHTML = Object.keys(byCourse).map(course => {
+            const list = apps.filter(a => a.courseName === course);
+            return `<tr>
+                <td><strong>${course}</strong></td>
+                <td>${list.length}</td>
+                <td>${list.filter(a => a.docVerified).length}</td>
+                <td>${list.filter(a => a.counsellingDone).length}</td>
+                <td>${list.filter(a => a.feePaid).length}</td>
+                <td>${list.filter(a => a.studentId).length}</td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications yet</td></tr>';
+    }
+
+    arRender();</script>
+
+

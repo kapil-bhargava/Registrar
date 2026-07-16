@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "StudentRecords";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="srListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-id-card"></i> Student Records <span style="font-size:12px; color:#7C5CFC; font-weight:700;">MASTER SOURCE</span></h2>
+                <p>Central student list — auto-populated when Admission (Final) is confirmed. Every other Student Master page reads from here.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srTotal">0</span>
+                    <span class="as-stat-label">Total Students</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srActive">0</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srGraduated">0</span>
+                    <span class="as-stat-label">Graduated (Alumni)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Category</th>
+                        <th>Session</th>
+                        <th>Admitted On</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="srTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot closed"></span> Graduated</span>
+        </div>
+    </div>
+
+    <!-- ================= DETAIL / EDIT PROFILE ================= -->
+    <div class="as-card as-wizard-card" id="srDetailWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="srShowList()"><i class="fas fa-arrow-left"></i> Back to Student Records</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-id-card"></i></div>
+                    <div>
+                        <h2 id="srDetailTitle">Student Profile</h2>
+                        <p id="srDetailSub">—</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-info-circle"></i> Profile Details</div>
+                <div class="as-grid">
+                    <div class="as-field"><label>Student ID</label><input type="text" id="srdStudentId" readonly disabled></div>
+                    <div class="as-field"><label>Name</label><input type="text" id="srdName" readonly disabled></div>
+                    <div class="as-field"><label>Course</label><input type="text" id="srdCourse" readonly disabled></div>
+                    <div class="as-field"><label>Category</label><input type="text" id="srdCategory" readonly disabled></div>
+                    <div class="as-field"><label>Academic Session</label><input type="text" id="srdSession" readonly disabled></div>
+                    <div class="as-field"><label>Seat No.</label><input type="text" id="srdSeat" readonly disabled></div>
+                    <div class="as-field"><label>Admitted On</label><input type="text" id="srdAdmitted" readonly disabled></div>
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="srdStatus">
+                            <option value="Active">Active</option>
+                            <option value="Graduated">Graduated</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                        <span class="as-hint">Marking "Graduated" moves this student to Alumni</span>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="srShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="srSaveStatus()"><i class="fas fa-save"></i> Save Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="srToast"><i class="fas fa-check-circle"></i><span id="srToastMessage">Success!</span></div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function saveStudents(arr) { localStorage.setItem('erp_students', JSON.stringify(arr)); }
+
+    // Seed sample students (as if 4 admissions were already confirmed via Admission Final)
+    if (localStorage.getItem('erp_studentSeedVersion') !== 'v1') {
+        localStorage.setItem('erp_studentSeedVersion', 'v1');
+        saveStudents([
+            { studentId: 'STU-20260001', name: 'Rohit Sharma', courseName: 'B.Tech - Computer Science', category: 'General', seatNumber: 'GEN-BTECH-CS-001', session: '2025-26', admittedOn: '15 Jul 2026', status: 'Active' },
+            { studentId: 'STU-20260002', name: 'Priya Verma', courseName: 'B.Tech - Computer Science', category: 'OBC', seatNumber: 'OBC-BTECH-CS-002', session: '2025-26', admittedOn: '15 Jul 2026', status: 'Active' },
+            { studentId: 'STU-20260003', name: 'Aman Kumar', courseName: 'B.Tech - Computer Science', category: 'SC', seatNumber: 'SC-BTECH-CS-003', session: '2025-26', admittedOn: '16 Jul 2026', status: 'Active' },
+            { studentId: 'STU-20260004', name: 'Neha Singh', courseName: 'BCA', category: 'General', seatNumber: 'GEN-BCA-004', session: '2025-26', admittedOn: '16 Jul 2026', status: 'Active' },
+            { studentId: 'STU-20250099', name: 'Kavita Rao', courseName: 'B.Tech - Computer Science', category: 'General', seatNumber: 'GEN-BTECH-CS-099', session: '2021-22', admittedOn: '10 Jul 2021', status: 'Graduated' }
+        ]);
+    }
+
+    let srSelectedId = null;
+
+    function srRender() {
+        const students = getStudents();
+        document.getElementById('srTotal').textContent = students.length;
+        document.getElementById('srActive').textContent = students.filter(s => s.status === 'Active').length;
+        document.getElementById('srGraduated').textContent = students.filter(s => s.status === 'Graduated').length;
+
+        document.getElementById('srTableBody').innerHTML = students.map(s => `
+            <tr>
+                <td><strong>${s.studentId}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.courseName}</td>
+                <td><span class="as-type-badge">${s.category}</span></td>
+                <td>${s.session}</td>
+                <td>${s.admittedOn}</td>
+                <td>${s.status === 'Active'
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>'
+                    : s.status === 'Graduated'
+                    ? '<span class="as-pill as-pill-closed"><i class="fas fa-graduation-cap"></i> Graduated</span>'
+                    : '<span class="as-pill as-pill-locked"><i class="fas fa-ban"></i> Suspended</span>'}</td>
+                <td><button class="as-mini-btn" title="View / Edit" onclick="srOpenDetail('${s.studentId}')"><i class="fas fa-eye"></i></button></td>
+            </tr>`).join('') || '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No students yet — confirm an admission first</td></tr>';
+    }
+
+    function srOpenDetail(studentId) {
+        const s = getStudents().find(x => x.studentId === studentId);
+        if (!s) return;
+        srSelectedId = studentId;
+
+        document.getElementById('srListWrap').style.display = 'none';
+        document.getElementById('srDetailWrap').style.display = 'block';
+        document.getElementById('srDetailSub').textContent = s.studentId;
+
+        document.getElementById('srdStudentId').value = s.studentId;
+        document.getElementById('srdName').value = s.name;
+        document.getElementById('srdCourse').value = s.courseName;
+        document.getElementById('srdCategory').value = s.category;
+        document.getElementById('srdSession').value = s.session;
+        document.getElementById('srdSeat').value = s.seatNumber || '—';
+        document.getElementById('srdAdmitted').value = s.admittedOn;
+        document.getElementById('srdStatus').value = s.status;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function srShowList() {
+        document.getElementById('srDetailWrap').style.display = 'none';
+        document.getElementById('srListWrap').style.display = 'block';
+        srRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function srShowToast(msg, type) {
+        const toast = document.getElementById('srToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function srSaveStatus() {
+        const students = getStudents();
+        const idx = students.findIndex(s => s.studentId === srSelectedId);
+        if (idx === -1) return;
+
+        students[idx].status = document.getElementById('srdStatus').value;
+        saveStudents(students);
+
+        if (students[idx].status === 'Graduated') {
+            srShowToast(students[idx].name + ' marked as Graduated — now visible in Alumni.', 'success');
+        } else {
+            srShowToast('Status updated successfully!', 'success');
+        }
+        srShowList();
+    }
+
+    srRender();</script>
+
+

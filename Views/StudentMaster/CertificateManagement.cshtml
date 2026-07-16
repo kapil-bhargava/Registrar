@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "CertificateManagement";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="cmListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-certificate"></i> Certificate Management</h2>
+                <p>Issue Bonafide, Character, Transfer &amp; other certificates — student info auto-fetches from Student Records.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="cmShowForm()">
+                <i class="fas fa-plus-circle"></i> Issue New Certificate
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-certificate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="cmTotal">0</span>
+                    <span class="as-stat-label">Certificates Issued</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Certificate No.</th>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Certificate Type</th>
+                        <th>Purpose</th>
+                        <th>Issued On</th>
+                    </tr>
+                </thead>
+                <tbody id="cmTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= ISSUE CERTIFICATE FORM ================= -->
+    <div class="as-card as-wizard-card" id="cmFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="cmShowList()"><i class="fas fa-arrow-left"></i> Back to Certificate List</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-certificate"></i></div>
+                    <div>
+                        <h2>Issue New Certificate</h2>
+                        <p>Select a student — their details auto-fetch from Student Records.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-user"></i> Student</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Student <span class="req">*</span></label>
+                        <select id="cmStudent" onchange="cmLoadStudent()">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                    <div class="as-field"><label>Course (auto)</label><input type="text" id="cmCourse" readonly disabled></div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-file-alt"></i> Certificate Details</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Certificate Type <span class="req">*</span></label>
+                        <select id="cmType">
+                            <option value="">-- Select Type --</option>
+                            <option value="Bonafide Certificate">Bonafide Certificate</option>
+                            <option value="Character Certificate">Character Certificate</option>
+                            <option value="Migration Certificate">Migration Certificate</option>
+                            <option value="Transfer Certificate">Transfer Certificate</option>
+                            <option value="Provisional Degree">Provisional Degree</option>
+                        </select>
+                    </div>
+                    <div class="as-field as-full">
+                        <label>Purpose</label>
+                        <input type="text" id="cmPurpose" placeholder="e.g. Bank loan application, Passport, Higher studies">
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="cmShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="cmIssue()"><i class="fas fa-certificate"></i> Generate Certificate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="cmToast"><i class="fas fa-check-circle"></i><span id="cmToastMessage">Success!</span></div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function getCertificates() { return JSON.parse(localStorage.getItem('erp_certificates') || '[]'); }
+    function saveCertificates(arr) { localStorage.setItem('erp_certificates', JSON.stringify(arr)); }
+
+    function cmPopulateStudents() {
+        const students = getStudents();
+        document.getElementById('cmStudent').innerHTML = '<option value="">-- Select Student --</option>' +
+            students.map(s => `<option value="${s.studentId}" data-name="${s.name}" data-course="${s.courseName}">${s.studentId} — ${s.name}</option>`).join('');
+    }
+
+    function cmLoadStudent() {
+        const select = document.getElementById('cmStudent');
+        const opt = select.options[select.selectedIndex];
+        document.getElementById('cmCourse').value = opt.getAttribute('data-course') || '';
+    }
+
+    function cmRender() {
+        const certs = getCertificates();
+        document.getElementById('cmTotal').textContent = certs.length;
+        document.getElementById('cmTableBody').innerHTML = certs.map(c => `
+            <tr>
+                <td><strong>${c.certNo}</strong></td>
+                <td>${c.studentId}</td>
+                <td>${c.name}</td>
+                <td><span class="as-type-badge">${c.type}</span></td>
+                <td>${c.purpose || '—'}</td>
+                <td>${c.issuedOn}</td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No certificates issued yet</td></tr>';
+    }
+
+    function cmShowForm() {
+        cmPopulateStudents();
+        document.getElementById('cmListWrap').style.display = 'none';
+        document.getElementById('cmFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function cmShowList() {
+        document.getElementById('cmFormWrap').style.display = 'none';
+        document.getElementById('cmListWrap').style.display = 'block';
+        cmRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function cmShowToast(msg, type) {
+        const toast = document.getElementById('cmToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cmIssue() {
+        const select = document.getElementById('cmStudent');
+        const studentId = select.value;
+        if (!studentId) { cmShowToast('Please select a Student', 'error'); return; }
+        const type = document.getElementById('cmType').value;
+        if (!type) { cmShowToast('Please select a Certificate Type', 'error'); return; }
+
+        const opt = select.options[select.selectedIndex];
+        const certs = getCertificates();
+        const certNo = 'CERT-2026-' + String(certs.length + 1).padStart(4, '0');
+
+        certs.push({
+            certNo,
+            studentId,
+            name: opt.getAttribute('data-name'),
+            type,
+            purpose: document.getElementById('cmPurpose').value,
+            issuedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+        });
+        saveCertificates(certs);
+
+        cmShowToast('Certificate ' + certNo + ' generated!', 'success');
+        cmShowList();
+    }
+
+    cmRender();</script>
+
+

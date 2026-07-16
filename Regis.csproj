@@ -110,6 +110,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AcademicSetupController.cs" />
+    <Compile Include="Controllers\AdmissionController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\StudentMasterController.cs" />
     <Compile Include="Controllers\MasterController.cs" />
     <Compile Include="Controllers\SeatManagementController.cs" />
     <Compile Include="Controllers\UniversityController.cs" />
@@ -137,6 +141,7 @@
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\css\academicSession.css" />
     <Content Include="Content\css\campusManagement.css" />
+    <Content Include="Content\css\dasboard.css" />
     <Content Include="Content\css\departmentManagement.css" />
     <Content Include="Content\css\Facultymanagement.css" />
     <Content Include="Content\css\HODManagement.css" />
@@ -203,11 +208,31 @@
     <Content Include="Views\SeatManagement\CategorywiseSeats.cshtml" />
     <Content Include="Views\SeatManagement\SeatAllotment.cshtml" />
     <Content Include="Views\SeatManagement\SeatMatrix.cshtml" />
+    <Content Include="Views\Dashboard\Dashboard.cshtml" />
+    <Content Include="Views\Admission\AdmissionSetup.cshtml" />
+    <Content Include="Views\Admission\EligibilityCheck.cshtml" />
+    <Content Include="Views\Admission\StudentRegistration.cshtml" />
+    <Content Include="Views\Admission\Application.cshtml" />
+    <Content Include="Views\Admission\DocumentVerification.cshtml" />
+    <Content Include="Views\Admission\Counselling.cshtml" />
+    <Content Include="Views\Admission\FeePayment.cshtml" />
+    <Content Include="Views\Admission\Final.cshtml" />
+    <Content Include="Views\StudentMaster\StudentRecords.cshtml" />
+    <Content Include="Views\StudentMaster\StudentMapping.cshtml" />
+    <Content Include="Views\StudentMaster\IdentityGeneration.cshtml" />
+    <Content Include="Views\StudentMaster\AcademicProgress.cshtml" />
+    <Content Include="Views\StudentMaster\CertificateManagement.cshtml" />
+    <Content Include="Views\StudentMaster\Alumni.cshtml" />
+    <Content Include="Views\Reports\AdmissionReports.cshtml" />
+    <Content Include="Views\Reports\SeatAllotmentReport.cshtml" />
+    <Content Include="Views\Reports\StudentMasterReport.cshtml" />
+    <Content Include="Views\Reports\AcademicReports.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Database\" />
     <Folder Include="Models\" />
+    <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

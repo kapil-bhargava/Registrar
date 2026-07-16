@@ -1,0 +1,201 @@
+﻿
+@{
+    ViewBag.Title = "StudentMapping";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+@{
+    ViewBag.Title = "Student Mapping";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    ViewBag.ActiveMenu = "StudentMaster";
+    ViewData["ActiveSubMenu"] = "StudentMapping";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="smListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-link"></i> Student Mapping</h2>
+                <p>Assign each student (from Student Records) to a Section &amp; Semester.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="smShowForm()">
+                <i class="fas fa-plus-circle"></i> Add Mapping
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-link"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smMapped">0</span>
+                    <span class="as-stat-label">Students Mapped</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smUnmapped">0</span>
+                    <span class="as-stat-label">Not Yet Mapped</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Section</th>
+                        <th>Semester</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="smTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= ADD MAPPING FORM ================= -->
+    <div class="as-card as-wizard-card" id="smFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="smShowList()"><i class="fas fa-arrow-left"></i> Back to Mapping List</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-link"></i></div>
+                    <div>
+                        <h2>Add Student Mapping</h2>
+                        <p>Select a student — their course &amp; category auto-fetch from Student Records.</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-user"></i> Student</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Student <span class="req">*</span></label>
+                        <select id="smStudent" onchange="smLoadStudent()">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                    <div class="as-field"><label>Course (auto)</label><input type="text" id="smCourse" readonly disabled></div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-users"></i> Mapping Details</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Section <span class="req">*</span></label>
+                        <select id="smSection">
+                            <option value="">-- Select Section --</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                            <option value="C">Section C</option>
+                        </select>
+                    </div>
+                    <div class="as-field">
+                        <label>Semester <span class="req">*</span></label>
+                        <select id="smSemester">
+                            <option value="">-- Select Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                        </select>
+                        <span class="as-hint">From Semester Master</span>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="smShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="smSaveMapping()"><i class="fas fa-save"></i> Save Mapping</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="smToast"><i class="fas fa-check-circle"></i><span id="smToastMessage">Success!</span></div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function getMappings() { return JSON.parse(localStorage.getItem('erp_studentMappings') || '[]'); }
+    function saveMappings(arr) { localStorage.setItem('erp_studentMappings', JSON.stringify(arr)); }
+
+    function smPopulateStudents() {
+        const students = getStudents().filter(s => s.status === 'Active');
+        document.getElementById('smStudent').innerHTML = '<option value="">-- Select Student --</option>' +
+            students.map(s => `<option value="${s.studentId}" data-course="${s.courseName}">${s.studentId} — ${s.name}</option>`).join('');
+    }
+
+    function smLoadStudent() {
+        const select = document.getElementById('smStudent');
+        const opt = select.options[select.selectedIndex];
+        document.getElementById('smCourse').value = opt.getAttribute('data-course') || '';
+    }
+
+    function smRender() {
+        const students = getStudents().filter(s => s.status === 'Active');
+        const mappings = getMappings();
+        document.getElementById('smMapped').textContent = mappings.length;
+        document.getElementById('smUnmapped').textContent = students.length - mappings.length;
+
+        document.getElementById('smTableBody').innerHTML = students.map(s => {
+            const m = mappings.find(x => x.studentId === s.studentId);
+            return `
+            <tr>
+                <td><strong>${s.studentId}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.courseName}</td>
+                <td>${m ? 'Section ' + m.section : '—'}</td>
+                <td>${m ? 'Semester ' + m.semester : '—'}</td>
+                <td>${m
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Mapped</span>'
+                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Not Mapped</span>'}</td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
+    }
+
+    function smShowForm() {
+        smPopulateStudents();
+        document.getElementById('smListWrap').style.display = 'none';
+        document.getElementById('smFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function smShowList() {
+        document.getElementById('smFormWrap').style.display = 'none';
+        document.getElementById('smListWrap').style.display = 'block';
+        smRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function smShowToast(msg, type) {
+        const toast = document.getElementById('smToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function smSaveMapping() {
+        const studentId = document.getElementById('smStudent').value;
+        if (!studentId) { smShowToast('Please select a Student', 'error'); return; }
+        const section = document.getElementById('smSection').value;
+        if (!section) { smShowToast('Please select a Section', 'error'); return; }
+        const semester = document.getElementById('smSemester').value;
+        if (!semester) { smShowToast('Please select a Semester', 'error'); return; }
+
+        const mappings = getMappings().filter(m => m.studentId !== studentId); // replace if exists
+        mappings.push({ studentId, section, semester });
+        saveMappings(mappings);
+
+        smShowToast('Mapping saved successfully!', 'success');
+        smShowList();
+    }
+
+    smRender();</script>
+
+

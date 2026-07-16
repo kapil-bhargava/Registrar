@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "Alumni";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="alListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-user-graduate"></i> Alumni</h2>
+                <p>Students marked "Graduated" in Student Records automatically appear here — no manual re-entry.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="alTotal">0</span>
+                    <span class="as-stat-label">Total Alumni</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Session</th>
+                        <th>Current Company / Job</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="alTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= EDIT ALUMNI INFO ================= -->
+    <div class="as-card as-wizard-card" id="alFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="alShowList()"><i class="fas fa-arrow-left"></i> Back to Alumni List</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div>
+                        <h2>Update Alumni Info</h2>
+                        <p id="alFormSub">—</p>
+                    </div>
+                </div>
+
+                <div class="as-section-title"><i class="fas fa-briefcase"></i> Career Details (Optional)</div>
+                <div class="as-grid">
+                    <div class="as-field">
+                        <label>Current Company</label>
+                        <input type="text" id="alCompany" placeholder="e.g. TCS, Infosys">
+                    </div>
+                    <div class="as-field">
+                        <label>Designation</label>
+                        <input type="text" id="alDesignation" placeholder="e.g. Software Engineer">
+                    </div>
+                    <div class="as-field">
+                        <label>Contact Email</label>
+                        <input type="email" id="alEmail" placeholder="e.g. alumni@example.com">
+                    </div>
+                    <div class="as-field">
+                        <label>LinkedIn Profile</label>
+                        <input type="text" id="alLinkedin" placeholder="Profile URL">
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="alShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="alSave()"><i class="fas fa-save"></i> Save Alumni Info</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="alToast"><i class="fas fa-check-circle"></i><span id="alToastMessage">Success!</span></div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function getAlumniInfo() { return JSON.parse(localStorage.getItem('erp_alumniInfo') || '[]'); }
+    function saveAlumniInfo(arr) { localStorage.setItem('erp_alumniInfo', JSON.stringify(arr)); }
+
+    let alSelectedId = null;
+
+    function alRender() {
+        const alumni = getStudents().filter(s => s.status === 'Graduated');
+        const infos = getAlumniInfo();
+        document.getElementById('alTotal').textContent = alumni.length;
+
+        document.getElementById('alTableBody').innerHTML = alumni.map(s => {
+            const info = infos.find(i => i.studentId === s.studentId);
+            return `
+            <tr>
+                <td><strong>${s.studentId}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.courseName}</td>
+                <td>${s.session}</td>
+                <td>${info && info.company ? info.company + (info.designation ? ' — ' + info.designation : '') : '<span style="color:#6B7A99;">Not updated</span>'}</td>
+                <td><button class="as-mini-btn" title="Update Info" onclick="alOpenForm('${s.studentId}')"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No alumni yet — mark a student as "Graduated" in Student Records first</td></tr>';
+    }
+
+    function alOpenForm(studentId) {
+        const s = getStudents().find(x => x.studentId === studentId);
+        if (!s) return;
+        alSelectedId = studentId;
+
+        document.getElementById('alListWrap').style.display = 'none';
+        document.getElementById('alFormWrap').style.display = 'block';
+        document.getElementById('alFormSub').textContent = s.studentId + ' — ' + s.name;
+
+        const info = getAlumniInfo().find(i => i.studentId === studentId) || {};
+        document.getElementById('alCompany').value = info.company || '';
+        document.getElementById('alDesignation').value = info.designation || '';
+        document.getElementById('alEmail').value = info.email || '';
+        document.getElementById('alLinkedin').value = info.linkedin || '';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function alShowList() {
+        document.getElementById('alFormWrap').style.display = 'none';
+        document.getElementById('alListWrap').style.display = 'block';
+        alRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function alShowToast(msg, type) {
+        const toast = document.getElementById('alToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function alSave() {
+        const infos = getAlumniInfo().filter(i => i.studentId !== alSelectedId);
+        infos.push({
+            studentId: alSelectedId,
+            company: document.getElementById('alCompany').value,
+            designation: document.getElementById('alDesignation').value,
+            email: document.getElementById('alEmail').value,
+            linkedin: document.getElementById('alLinkedin').value
+        });
+        saveAlumniInfo(infos);
+
+        alShowToast('Alumni info updated!', 'success');
+        alShowList();
+    }
+
+    alRender();</script>
+
+

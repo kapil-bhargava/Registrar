@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewBag.Title = "AcademicReports";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<div class="as-wrap">
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-chart-line"></i> Academic Reports</h2>
+                <p>SGPA trends, pass/fail ratio &amp; attendance — pulled live from Academic Progress records.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="acrTotal">0</span>
+                    <span class="as-stat-label">Total Records</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-star"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="acrAvgSgpa">0.0</span>
+                    <span class="as-stat-label">Average SGPA</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="acrPassRate">0%</span>
+                    <span class="as-stat-label">Pass Rate</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="acrAvgAttendance">0%</span>
+                    <span class="as-stat-label">Average Attendance</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-grid" style="display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-line"></i> Average SGPA by Semester</div>
+                <div style="position:relative; height:230px;"><canvas id="acrSgpaChart"></canvas></div>
+            </div>
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-pie"></i> Result Distribution</div>
+                <div style="position:relative; height:230px;"><canvas id="acrResultChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="as-section-title"><i class="fas fa-table"></i> All Progress Records</div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Student ID</th><th>Name</th><th>Semester</th><th>SGPA</th><th>Attendance</th><th>Result</th></tr></thead>
+                <tbody id="acrTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>function getProgress() { return JSON.parse(localStorage.getItem('erp_academicProgress') || '[]'); }
+
+    // Seed a couple of sample progress records so the report has something to show
+    if (localStorage.getItem('erp_progressSeedVersion') !== 'v1') {
+        localStorage.setItem('erp_progressSeedVersion', 'v1');
+        const existing = getProgress();
+        localStorage.setItem('erp_academicProgress', JSON.stringify(existing.concat([
+            { studentId: 'STU-20260001', name: 'Rohit Sharma', semester: '1', sgpa: '8.4', attendance: '91', result: 'Pass' },
+            { studentId: 'STU-20260002', name: 'Priya Verma', semester: '1', sgpa: '7.2', attendance: '84', result: 'Pass' },
+            { studentId: 'STU-20260003', name: 'Aman Kumar', semester: '1', sgpa: '5.6', attendance: '68', result: 'Fail' },
+            { studentId: 'STU-20260004', name: 'Neha Singh', semester: '2', sgpa: '8.9', attendance: '95', result: 'Pass' }
+        ])));
+    }
+
+    let acrSgpaChart, acrResultChart;
+
+    function acrRender() {
+        const records = getProgress();
+        document.getElementById('acrTotal').textContent = records.length;
+
+        const avgSgpa = records.length ? (records.reduce((sum, r) => sum + parseFloat(r.sgpa), 0) / records.length).toFixed(1) : '0.0';
+        document.getElementById('acrAvgSgpa').textContent = avgSgpa;
+
+        const passCount = records.filter(r => r.result === 'Pass').length;
+        document.getElementById('acrPassRate').textContent = records.length ? Math.round((passCount / records.length) * 100) + '%' : '0%';
+
+        const avgAttendance = records.length ? Math.round(records.reduce((sum, r) => sum + parseFloat(r.attendance), 0) / records.length) : 0;
+        document.getElementById('acrAvgAttendance').textContent = avgAttendance + '%';
+
+        // SGPA by semester (line)
+        const bySem = {};
+        records.forEach(r => {
+            if (!bySem[r.semester]) bySem[r.semester] = [];
+            bySem[r.semester].push(parseFloat(r.sgpa));
+        });
+        const semLabels = Object.keys(bySem).sort();
+        const semAverages = semLabels.map(s => (bySem[s].reduce((a, b) => a + b, 0) / bySem[s].length).toFixed(2));
+
+        if (acrSgpaChart) acrSgpaChart.destroy();
+        acrSgpaChart = new Chart(document.getElementById('acrSgpaChart'), {
+            type: 'line',
+            data: {
+                labels: semLabels.map(s => 'Semester ' + s),
+                datasets: [{ label: 'Avg SGPA', data: semAverages, borderColor: '#1E5EFF', backgroundColor: 'rgba(30,94,255,.08)', borderWidth: 2.5, tension: .4, fill: true, pointBackgroundColor: '#1E5EFF', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 4 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 10, grid: { color: '#EEF1F7' } }, x: { grid: { display: false } } } }
+        });
+
+        // Result distribution (doughnut)
+        const resultCounts = { Pass: 0, Fail: 0, Pending: 0 };
+        records.forEach(r => resultCounts[r.result] = (resultCounts[r.result] || 0) + 1);
+
+        if (acrResultChart) acrResultChart.destroy();
+        acrResultChart = new Chart(document.getElementById('acrResultChart'), {
+            type: 'doughnut',
+            data: { labels: Object.keys(resultCounts), datasets: [{ data: Object.values(resultCounts), backgroundColor: ['#1AAE7C','#F04452','#F5A524'], borderWidth: 2, borderColor: '#fff', cutout: '65%' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, boxHeight: 9, usePointStyle: true, pointStyle: 'circle', font: { size: 10.5 } } } } }
+        });
+
+        document.getElementById('acrTableBody').innerHTML = records.map(r => `
+            <tr>
+                <td><strong>${r.studentId}</strong></td>
+                <td>${r.name}</td>
+                <td>Semester ${r.semester}</td>
+                <td>${r.sgpa}</td>
+                <td>${r.attendance}%</td>
+                <td>${r.result === 'Pass'
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Pass</span>'
+                    : r.result === 'Fail'
+                    ? '<span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Fail</span>'
+                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No progress records yet</td></tr>';
+    }
+
+    acrRender();</script>
+
+

@@ -1,0 +1,181 @@
+﻿
+@{
+    ViewBag.Title = "IdentityGeneration";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="igListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-id-badge"></i> Identity Generation</h2>
+                <p>Generate Enrollment Number &amp; ID Card for each student — details auto-fetch from Student Records.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-id-badge"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="igGenerated">0</span>
+                    <span class="as-stat-label">ID Cards Generated</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="igPending">0</span>
+                    <span class="as-stat-label">Pending</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Enrollment No.</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="igTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= ID CARD GENERATE / PREVIEW ================= -->
+    <div class="as-card as-wizard-card" id="igDetailWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="igShowList()"><i class="fas fa-arrow-left"></i> Back to Identity Generation</button>
+        </div>
+        <div class="as-body">
+            <div class="as-page active">
+                <div class="as-head">
+                    <div class="as-icon"><i class="fas fa-id-badge"></i></div>
+                    <div>
+                        <h2>Generate ID Card</h2>
+                        <p id="igDetailSub">—</p>
+                    </div>
+                </div>
+
+                <!-- Mock ID card preview -->
+                <div style="max-width:320px; margin:0 auto 20px; border-radius:14px; overflow:hidden; box-shadow:0 6px 20px rgba(16,35,80,.15); border:1px solid #E6E9F0;">
+                    <div style="background:linear-gradient(135deg,#0F2A54,#1E5EFF); color:#fff; padding:14px 16px; text-align:center;">
+                        <div style="font-weight:800; font-size:14px;">MERIDIAN UNIVERSITY</div>
+                        <div style="font-size:10.5px; opacity:.8;">Student Identity Card</div>
+                    </div>
+                    <div style="padding:16px; text-align:center; background:#fff;">
+                        <div style="width:72px; height:72px; border-radius:50%; background:#EAF0FF; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#1E5EFF;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div id="igCardName" style="font-weight:800; font-size:15px;">—</div>
+                        <div id="igCardCourse" style="font-size:12px; color:#6B7A99; margin-bottom:8px;">—</div>
+                        <div style="font-size:11px; text-align:left; padding-top:8px; border-top:1px dashed #E6E9F0;">
+                            <div>Enrollment No: <strong id="igCardEnroll">—</strong></div>
+                            <div>Student ID: <strong id="igCardStudentId">—</strong></div>
+                            <div>Session: <strong id="igCardSession">—</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="as-bar">
+                    <button class="as-btn as-btn-ghost" onclick="igShowList()">Cancel</button>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="igGenerate()"><i class="fas fa-id-badge"></i> Generate ID Card</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="igToast"><i class="fas fa-check-circle"></i><span id="igToastMessage">Success!</span></div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+    function getIdentities() { return JSON.parse(localStorage.getItem('erp_identities') || '[]'); }
+    function saveIdentities(arr) { localStorage.setItem('erp_identities', JSON.stringify(arr)); }
+
+    let igSelectedId = null;
+
+    function igRender() {
+        const students = getStudents().filter(s => s.status === 'Active');
+        const identities = getIdentities();
+        document.getElementById('igGenerated').textContent = identities.length;
+        document.getElementById('igPending').textContent = students.length - identities.length;
+
+        document.getElementById('igTableBody').innerHTML = students.map(s => {
+            const id = identities.find(x => x.studentId === s.studentId);
+            return `
+            <tr>
+                <td><strong>${s.studentId}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.courseName}</td>
+                <td>${id ? id.enrollmentNo : '—'}</td>
+                <td>${id
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Generated</span>'
+                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
+                <td><button class="as-mini-btn" title="${id ? 'View' : 'Generate'}" onclick="igOpenDetail('${s.studentId}')"><i class="fas fa-id-badge"></i></button></td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
+    }
+
+    function igOpenDetail(studentId) {
+        const s = getStudents().find(x => x.studentId === studentId);
+        if (!s) return;
+        igSelectedId = studentId;
+
+        document.getElementById('igListWrap').style.display = 'none';
+        document.getElementById('igDetailWrap').style.display = 'block';
+        document.getElementById('igDetailSub').textContent = s.studentId + ' — ' + s.name;
+
+        document.getElementById('igCardName').textContent = s.name;
+        document.getElementById('igCardCourse').textContent = s.courseName;
+        document.getElementById('igCardStudentId').textContent = s.studentId;
+        document.getElementById('igCardSession').textContent = s.session;
+
+        const existing = getIdentities().find(x => x.studentId === studentId);
+        document.getElementById('igCardEnroll').textContent = existing ? existing.enrollmentNo : 'Not generated yet';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function igShowList() {
+        document.getElementById('igDetailWrap').style.display = 'none';
+        document.getElementById('igListWrap').style.display = 'block';
+        igRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function igShowToast(msg, type) {
+        const toast = document.getElementById('igToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function igGenerate() {
+        const identities = getIdentities();
+        if (identities.find(x => x.studentId === igSelectedId)) {
+            igShowToast('ID Card already generated for this student', 'error');
+            return;
+        }
+        const enrollmentNo = 'ENR-2026-' + String(identities.length + 1).padStart(4, '0');
+        identities.push({ studentId: igSelectedId, enrollmentNo, issuedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) });
+        saveIdentities(identities);
+
+        document.getElementById('igCardEnroll').textContent = enrollmentNo;
+        igShowToast('ID Card generated! Enrollment No: ' + enrollmentNo, 'success');
+    }
+
+    igRender();</script>
+
+

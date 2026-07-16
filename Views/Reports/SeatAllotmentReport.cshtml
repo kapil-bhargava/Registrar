@@ -1,0 +1,147 @@
+﻿
+@{
+    ViewBag.Title = "SeatAllotmentReport";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<div class="as-wrap">
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-chair"></i> Seat Allotment Report</h2>
+                <p>Seats filled vs total, pulled from Admission Setup (total seats) &amp; Student Records (admitted students).</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chair"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srTotalSeats">0</span>
+                    <span class="as-stat-label">Total Seats (Open Courses)</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srFilled">0</span>
+                    <span class="as-stat-label">Seats Filled</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-door-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srVacant">0</span>
+                    <span class="as-stat-label">Seats Vacant</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-percent"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="srFillRate">0%</span>
+                    <span class="as-stat-label">Fill Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-bar"></i> Course-wise Seat Fill</div>
+                <div style="position:relative; height:230px;"><canvas id="srCourseChart"></canvas></div>
+            </div>
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-pie"></i> Category-wise Admitted Students</div>
+                <div style="position:relative; height:230px;"><canvas id="srCategoryChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="as-section-title"><i class="fas fa-table"></i> Course-wise Seat Status</div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Course</th><th>Session</th><th>Total Seats</th><th>Filled</th><th>Vacant</th><th>Fill %</th></tr></thead>
+                <tbody id="srTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>function getSetups() { return JSON.parse(localStorage.getItem('erp_admissionSetups') || '[]'); }
+    function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+
+    let srCourseChart, srCategoryChart;
+
+    function srRender() {
+        const setups = getSetups();
+        const students = getStudents().filter(s => s.status !== 'Graduated');
+
+        let totalSeats = 0, totalFilled = 0;
+        const rows = setups.map(s => {
+            const filled = students.filter(st => st.courseName === s.courseName && st.session === s.session).length;
+            totalSeats += s.seats;
+            totalFilled += filled;
+            return { course: s.courseName, session: s.session, seats: s.seats, filled: filled, vacant: s.seats - filled };
+        });
+
+        document.getElementById('srTotalSeats').textContent = totalSeats;
+        document.getElementById('srFilled').textContent = totalFilled;
+        document.getElementById('srVacant').textContent = totalSeats - totalFilled;
+        document.getElementById('srFillRate').textContent = totalSeats ? Math.round((totalFilled / totalSeats) * 100) + '%' : '0%';
+
+        // Course-wise stacked bar
+        if (srCourseChart) srCourseChart.destroy();
+        srCourseChart = new Chart(document.getElementById('srCourseChart'), {
+            type: 'bar',
+            data: {
+                labels: rows.map(r => r.course),
+                datasets: [
+                    { label: 'Filled', data: rows.map(r => r.filled), backgroundColor: '#1E5EFF', borderRadius: 5 },
+                    { label: 'Vacant', data: rows.map(r => r.vacant), backgroundColor: '#E6E9F0', borderRadius: 5 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } } },
+                scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: '#EEF1F7' } } }
+            }
+        });
+
+        // Category-wise pie (admitted students only)
+        const byCategory = {};
+        students.forEach(s => byCategory[s.category] = (byCategory[s.category] || 0) + 1);
+
+        if (srCategoryChart) srCategoryChart.destroy();
+        srCategoryChart = new Chart(document.getElementById('srCategoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(byCategory),
+                datasets: [{ data: Object.values(byCategory), backgroundColor: ['#1E5EFF','#3D8BFF','#7C5CFC','#F5A524','#1AAE7C'], borderWidth: 2, borderColor: '#fff', cutout: '65%' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, boxHeight: 9, usePointStyle: true, pointStyle: 'circle', font: { size: 10.5 } } } } }
+        });
+
+        document.getElementById('srTableBody').innerHTML = rows.map(r => `
+            <tr>
+                <td><strong>${r.course}</strong></td>
+                <td>${r.session}</td>
+                <td>${r.seats}</td>
+                <td>${r.filled}</td>
+                <td>${r.vacant}</td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="flex:1; height:6px; background:#EEF1F7; border-radius:4px; overflow:hidden;">
+                            <div style="height:100%; background:#1E5EFF; width:${r.seats ? Math.round((r.filled/r.seats)*100) : 0}%;"></div>
+                        </div>
+                        <span style="font-size:11px; font-weight:700;">${r.seats ? Math.round((r.filled/r.seats)*100) : 0}%</span>
+                    </div>
+                </td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No admission setups found</td></tr>';
+    }
+
+    srRender();</script>
+
+

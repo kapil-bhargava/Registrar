@@ -233,32 +233,37 @@
             </div>
             <ul class="submenu @(activeMenu == "StudentMaster" ? "open" : "")" id="subStudentMaster">
                 <li>
-                    <a asp-controller="Student" asp-action="Records">
+                    <a href="@Url.Action("StudentRecords", "StudentMaster")">
                         <i class="fas fa-id-card"></i> Student Records
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Student" asp-action="Mapping">
+                    <a href="@Url.Action("StudentMapping", "StudentMaster")">
                         <i class="fas fa-link"></i> Student Mapping
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Student" asp-action="Identity">
+                    <a href="@Url.Action("IdentityGeneration", "StudentMaster")">
                         <i class="fas fa-fingerprint"></i> Identity Generation
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Student" asp-action="Progress">
+                    <a href="@Url.Action("AcademicProgress", "StudentMaster")">
                         <i class="fas fa-chart-line"></i> Academic Progress
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Student" asp-action="Certificate">
+                    <a href="@Url.Action("CertificateManagement", "StudentMaster")">
                         <i class="fas fa-scroll"></i> Certificate Management
                     </a>
                 </li>
+
                 <li>
-                    <a asp-controller="Student" asp-action="Alumni">
+                    <a href="@Url.Action("Alumni", "StudentMaster")">
                         <i class="fas fa-users"></i> Alumni
                     </a>
                 </li>

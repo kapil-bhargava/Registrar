@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "StudentMasterReport";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<div class="as-wrap">
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-users"></i> Student Master Report</h2>
+                <p>Overall student demographics — pulled live from Student Records.</p>
+            </div>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smrTotal">0</span>
+                    <span class="as-stat-label">Total Students</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smrActive">0</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smrGraduated">0</span>
+                    <span class="as-stat-label">Graduated</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-ban"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="smrSuspended">0</span>
+                    <span class="as-stat-label">Suspended</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-bar"></i> Course-wise Student Count</div>
+                <div style="position:relative; height:230px;"><canvas id="smrCourseChart"></canvas></div>
+            </div>
+            <div>
+                <div class="as-section-title"><i class="fas fa-chart-pie"></i> Category-wise Distribution</div>
+                <div style="position:relative; height:230px;"><canvas id="smrCategoryChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="as-section-title"><i class="fas fa-table"></i> Session-wise Breakdown</div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead><tr><th>Session</th><th>Total Students</th><th>Active</th><th>Graduated</th><th>Suspended</th></tr></thead>
+                <tbody id="smrTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
+
+    let smrCourseChart, smrCategoryChart;
+
+    function smrRender() {
+        const students = getStudents();
+        document.getElementById('smrTotal').textContent = students.length;
+        document.getElementById('smrActive').textContent = students.filter(s => s.status === 'Active').length;
+        document.getElementById('smrGraduated').textContent = students.filter(s => s.status === 'Graduated').length;
+        document.getElementById('smrSuspended').textContent = students.filter(s => s.status === 'Suspended').length;
+
+        // Course-wise bar
+        const byCourse = {};
+        students.forEach(s => byCourse[s.courseName] = (byCourse[s.courseName] || 0) + 1);
+
+        if (smrCourseChart) smrCourseChart.destroy();
+        smrCourseChart = new Chart(document.getElementById('smrCourseChart'), {
+            type: 'bar',
+            data: { labels: Object.keys(byCourse), datasets: [{ data: Object.values(byCourse), backgroundColor: '#1E5EFF', borderRadius: 6, maxBarThickness: 40 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EEF1F7' } } } }
+        });
+
+        // Category-wise pie
+        const byCategory = {};
+        students.forEach(s => byCategory[s.category] = (byCategory[s.category] || 0) + 1);
+
+        if (smrCategoryChart) smrCategoryChart.destroy();
+        smrCategoryChart = new Chart(document.getElementById('smrCategoryChart'), {
+            type: 'pie',
+            data: { labels: Object.keys(byCategory), datasets: [{ data: Object.values(byCategory), backgroundColor: ['#1E5EFF','#3D8BFF','#7C5CFC','#F5A524','#1AAE7C'], borderWidth: 2, borderColor: '#fff' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, boxHeight: 9, usePointStyle: true, pointStyle: 'circle', font: { size: 10.5 } } } } }
+        });
+
+        // Session-wise table
+        const bySession = {};
+        students.forEach(s => {
+            if (!bySession[s.session]) bySession[s.session] = { total: 0, active: 0, graduated: 0, suspended: 0 };
+            bySession[s.session].total++;
+            if (s.status === 'Active') bySession[s.session].active++;
+            if (s.status === 'Graduated') bySession[s.session].graduated++;
+            if (s.status === 'Suspended') bySession[s.session].suspended++;
+        });
+
+        document.getElementById('smrTableBody').innerHTML = Object.keys(bySession).map(session => {
+            const d = bySession[session];
+            return `<tr><td><strong>${session}</strong></td><td>${d.total}</td><td>${d.active}</td><td>${d.graduated}</td><td>${d.suspended}</td></tr>`;
+        }).join('') || '<tr><td colspan="5" style="text-align:center; color:#6B7A99;">No students found</td></tr>';
+    }
+
+    smrRender();</script>
+
+
