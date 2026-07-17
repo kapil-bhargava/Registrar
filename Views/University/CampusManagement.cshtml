@@ -74,6 +74,8 @@
                 <option value="Inactive">Inactive</option>
             </select>
         </div>
+
+        <!-- ===== TABLE (scroll wrapper) ===== -->
         <div class="cm-table-scroll">
             <table class="cm-table cm-list-table">
                 <thead>
@@ -145,7 +147,10 @@
                 No campuses match your search.
             </div>
         </div>
+        <!-- END .cm-table-scroll -->
 
+    </div>
+    <!-- END #cmListWrap -->
     <!-- ================= ADD / EDIT CAMPUS FORM ================= -->
     @using (Html.BeginForm("CampusManagement", "University", FormMethod.Post, new { id = "campusForm" }))
     {
@@ -242,10 +247,14 @@
                     </button>
                 </div>
             </div>
+            <!-- END .cm-body -->
+
         </div>
+        <!-- END #cmFormWrap -->
     }
 
 </div>
+<!-- END .cm-wrap -->
 
 <div class="cm-toast" id="cmToast"></div>
 
