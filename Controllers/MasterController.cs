@@ -52,12 +52,21 @@ namespace Regis.Controllers
 
         public ActionResult UniversityType()
         {
-            // Call Service Method
             List<UniversityTypeModel> universityTypeList =
                 universityTypeService.GetAllUniversityTypes();
 
-            // Send data to View
             return View(universityTypeList);
+        }
+
+      
+
+        public ActionResult DeleteUniversityType(int id)
+        {
+            bool result = universityTypeService.DeleteUniversityType(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "University Type Deleted Successfully." : "Unable to Delete University Type.";
+
+            return RedirectToAction("UniversityType");
         }
 
         // ============================================================
@@ -71,22 +80,24 @@ namespace Regis.Controllers
         [HttpPost]
         public ActionResult UniversityType(UniversityTypeModel model)
         {
-            // Check whether the form data is valid
             if (ModelState.IsValid)
             {
-                bool result = universityTypeService.InsertUniversityType(model);
+                bool result;
 
-                if (result)
+                if (model.UniversityTypeId > 0)
                 {
-                    TempData["Success"] = "University Type Saved Successfully.";
+                    result = universityTypeService.UpdateUniversityType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "University Type Updated Successfully." : "Unable to Update University Type.";
                 }
                 else
                 {
-                    TempData["Error"] = "Unable to Save University Type.";
+                    result = universityTypeService.InsertUniversityType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "University Type Saved Successfully." : "Unable to Save University Type.";
                 }
             }
 
-            // Reload the page with updated data
             return RedirectToAction("UniversityType");
         }
 

@@ -1,3 +1,10 @@
+USE [UniversityERP]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UniversityType]    Script Date: 17-07-2026 14:38:28 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 /*
 =============================================================
 Procedure Name : sp_UniversityType
@@ -5,42 +12,48 @@ Purpose        : Perform CRUD operations on UniversityType
 Created By     : Kapil
 =============================================================
 */
-
-CREATE OR ALTER PROCEDURE sp_UniversityType
+ALTER   PROCEDURE [dbo].[sp_UniversityType]
 (
     @Flag VARCHAR(20),
-
     @UniversityTypeId INT = NULL,
     @UniversityTypeCode VARCHAR(20) = NULL,
     @UniversityTypeName VARCHAR(100) = NULL,
     @Description VARCHAR(250) = NULL,
     @DisplayOrder INT = NULL,
-	@IsActive INT = NULL,
-	@CreatedDate DATETIME = NULL
+    @IsActive BIT = NULL,
+    @CreatedDate DATETIME = NULL
 )
 AS
 BEGIN
     SET NOCOUNT ON;
-
     ----------------------------------------------------------
     -- GET ALL
     ----------------------------------------------------------
     IF @Flag = 'GETALL'
     BEGIN
         SELECT
-        UniversityTypeId,
-        UniversityTypeCode,
-        UniversityTypeName,
-        Description,
-        DisplayOrder,
-        IsActive,
-        CreatedDate
-    FROM UniversityType
-    ORDER BY DisplayOrder;
+            UniversityTypeId,
+            UniversityTypeCode,
+            UniversityTypeName,
+            Description,
+            DisplayOrder,
+            IsActive,
+            CreatedDate
+        FROM UniversityType
+        ORDER BY DisplayOrder;
     END
-
     ----------------------------------------------------------
-    -- GET BY ID
+    -- GET ACTIVE (for dropdowns)
+    ----------------------------------------------------------
+    ELSE IF @Flag = 'GETACTIVE'
+    BEGIN
+        SELECT UniversityTypeId, UniversityTypeCode, UniversityTypeName
+        FROM UniversityType
+        WHERE IsActive = 1
+        ORDER BY DisplayOrder;
+    END
+    ----------------------------------------------------------
+    -- GET BY ID (Edit ke liye — ab IsActive aur CreatedDate bhi milega)
     ----------------------------------------------------------
     ELSE IF @Flag = 'GETBYID'
     BEGIN
@@ -48,12 +61,13 @@ BEGIN
             UniversityTypeId,
             UniversityTypeCode,
             UniversityTypeName,
-            Description,	
-            DisplayOrder
+            Description,
+            DisplayOrder,
+            IsActive,
+            CreatedDate
         FROM UniversityType
         WHERE UniversityTypeId = @UniversityTypeId;
     END
-
     ----------------------------------------------------------
     -- INSERT
     ----------------------------------------------------------
@@ -65,8 +79,8 @@ BEGIN
             UniversityTypeName,
             [Description],
             DisplayOrder,
-			IsActive,
-			CreatedDate
+            IsActive,
+            CreatedDate
         )
         VALUES
         (
@@ -74,13 +88,12 @@ BEGIN
             @UniversityTypeName,
             @Description,
             @DisplayOrder,
-			@IsActive,
-			 GETDATE()
+            @IsActive,
+            GETDATE()
         );
     END
-
     ----------------------------------------------------------
-    -- UPDATE
+    -- UPDATE (ab IsActive bhi update hoga)
     ----------------------------------------------------------
     ELSE IF @Flag = 'UPDATE'
     BEGIN
@@ -89,10 +102,10 @@ BEGIN
             UniversityTypeCode = @UniversityTypeCode,
             UniversityTypeName = @UniversityTypeName,
             Description = @Description,
-            DisplayOrder = @DisplayOrder
+            DisplayOrder = @DisplayOrder,
+            IsActive = @IsActive
         WHERE UniversityTypeId = @UniversityTypeId;
     END
-
     ----------------------------------------------------------
     -- DELETE
     ----------------------------------------------------------
@@ -102,7 +115,3 @@ BEGIN
         WHERE UniversityTypeId = @UniversityTypeId;
     END
 END
-GO
-
-
-

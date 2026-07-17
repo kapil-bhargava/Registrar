@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Reflection;
 
 namespace Regis.Services
 {
@@ -34,25 +33,15 @@ namespace Regis.Services
 
                 while (dr.Read())
                 {
-                    var id = dr["UniversityTypeId"];
-                    var code = dr["UniversityTypeCode"];
-                    var name = dr["UniversityTypeName"];
-                    var active = dr["IsActive"];
-                    var created = dr["CreatedDate"];
-                    var description = dr["Description"];
-                    var order = dr["DisplayOrder"];
-
-            
-                        
                     list.Add(new UniversityTypeModel
                     {
-                        UniversityTypeId = Convert.ToInt32(id),
-                        UniversityTypeCode = code.ToString(),
-                        UniversityTypeName = name.ToString(),
-                        IsActive = Convert.ToBoolean(active),
-                        CreatedDate = Convert.ToDateTime(created),
-                        Description = description.ToString(),
-                        DisplayOrder = Convert.ToInt32(order)
+                        UniversityTypeId = Convert.ToInt32(dr["UniversityTypeId"]),
+                        UniversityTypeCode = dr["UniversityTypeCode"] != DBNull.Value ? dr["UniversityTypeCode"].ToString() : "",
+                        UniversityTypeName = dr["UniversityTypeName"] != DBNull.Value ? dr["UniversityTypeName"].ToString() : "",
+                        IsActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]),
+                        CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null,
+                        Description = dr["Description"] != DBNull.Value ? dr["Description"].ToString() : "",
+                        DisplayOrder = dr["DisplayOrder"] != DBNull.Value ? Convert.ToInt32(dr["DisplayOrder"]) : (int?)null
                     });
                 }
             }
@@ -83,10 +72,12 @@ namespace Regis.Services
                 if (dr.Read())
                 {
                     model.UniversityTypeId = Convert.ToInt32(dr["UniversityTypeId"]);
-                    model.UniversityTypeCode = dr["UniversityTypeCode"].ToString();
-                    model.UniversityTypeName = dr["UniversityTypeName"].ToString();
-                    model.Description = dr["Description"].ToString();
-                    model.DisplayOrder = Convert.ToInt32(dr["DisplayOrder"]);
+                    model.UniversityTypeCode = dr["UniversityTypeCode"] != DBNull.Value ? dr["UniversityTypeCode"].ToString() : "";
+                    model.UniversityTypeName = dr["UniversityTypeName"] != DBNull.Value ? dr["UniversityTypeName"].ToString() : "";
+                    model.Description = dr["Description"] != DBNull.Value ? dr["Description"].ToString() : "";
+                    model.DisplayOrder = dr["DisplayOrder"] != DBNull.Value ? Convert.ToInt32(dr["DisplayOrder"]) : (int?)null;
+                    model.IsActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]);
+                    model.CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null;
                 }
             }
 
@@ -107,12 +98,9 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@Flag", "INSERT");
                 cmd.Parameters.AddWithValue("@UniversityTypeCode", model.UniversityTypeCode);
                 cmd.Parameters.AddWithValue("@UniversityTypeName", model.UniversityTypeName);
-                cmd.Parameters.AddWithValue("@Description", model.Description);
-                cmd.Parameters.AddWithValue("@DisplayOrder", model.DisplayOrder);
-                
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DisplayOrder", (object)model.DisplayOrder ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
-                //cmd.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
-                //object value = cmd.Parameters.GetDateParameter("@CreatedDate", DateTime.Now);
 
                 con.Open();
 
@@ -135,8 +123,9 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@UniversityTypeId", model.UniversityTypeId);
                 cmd.Parameters.AddWithValue("@UniversityTypeCode", model.UniversityTypeCode);
                 cmd.Parameters.AddWithValue("@UniversityTypeName", model.UniversityTypeName);
-                cmd.Parameters.AddWithValue("@Description", model.Description);
-                cmd.Parameters.AddWithValue("@DisplayOrder", model.DisplayOrder);
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DisplayOrder", (object)model.DisplayOrder ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);   // ✅ yeh line missing thi — ab add ki
 
                 con.Open();
 
@@ -163,6 +152,11 @@ namespace Regis.Services
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+
+        //=========================================================
+        // Get Active University Types (dropdown ke liye)
+        //=========================================================
+
         public List<UniversityTypeModel> GetActiveUniversityTypes()
         {
             List<UniversityTypeModel> list = new List<UniversityTypeModel>();
