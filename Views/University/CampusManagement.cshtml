@@ -18,80 +18,148 @@
                 <h2>Campus Management</h2>
                 <p>Manage all campuses under the university.</p>
             </div>
-            <button class="cm-btn cm-btn-primary" onclick="showForm()">+ Add New Campus</button>
+            <button class="cm-btn cm-btn-primary" onclick="showForm()">
+                <i class="fas fa-plus"></i> Add New Campus
+            </button>
         </div>
 
-        <table class="cm-table cm-list-table">
-            <thead>
-                <tr>
-                    <th>Campus Name</th>
-                    <th>Campus Code</th>
-                    <th>Contact</th>
-                    <th>Dean</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="campusTableBody">
-                @foreach (var item in Model)
+        <!-- ===== STAT CARDS ===== -->
+        <div class="cm-stats">
+            <div class="cm-stat-box">
+                <div class="cm-stat-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="cm-stat-num">@Model.Count</div>
+                    <div class="cm-stat-label">Total Campuses</div>
+                </div>
+            </div>
+            <div class="cm-stat-box">
+                <div class="cm-stat-icon cm-stat-active"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <div class="cm-stat-num">@Model.Count(x => x.IsActive)</div>
+                    <div class="cm-stat-label">Active</div>
+                </div>
+            </div>
+            <div class="cm-stat-box">
+                <div class="cm-stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div>
+                    <div class="cm-stat-num">@Model.Select(x => x.CampusTypeName).Distinct().Count()</div>
+                    <div class="cm-stat-label">Campus Types</div>
+                </div>
+            </div>
+            <div class="cm-stat-box">
+                <div class="cm-stat-icon"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="cm-stat-num">@Model.Sum(x => x.Capacity ?? 0)</div>
+                    <div class="cm-stat-label">Total Capacity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SEARCH + FILTER ===== -->
+        <div class="cm-toolbar">
+            <div class="cm-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="cmSearchInput" placeholder="Search by campus name, code, or dean..." onkeyup="filterTable()">
+            </div>
+            <select id="cmFilterType" class="cm-filter" onchange="filterTable()">
+                <option value="">All Types</option>
+                @foreach (var t in Model.Select(x => x.CampusTypeName).Distinct())
                 {
-                    <tr>
-                        <td class="cm-name">@item.CampusName</td>
-                        <td>@item.CampusCode</td>
-                        <td>@item.ContactNumber</td>
-                        <td>@item.Dean</td>
-                        <td>@item.CampusTypeName</td>
-                        <td>
-                            @if (item.IsActive)
-                            {
-                                <span class="cm-pill cm-pill-active">Active</span>
-                            }
-                            else
-                            {
-                                <span class="cm-pill cm-pill-inactive">Inactive</span>
-                            }
-                        </td>
-                        <td>
-                            <button type="button"
-                                    class="cm-mini-btn"
-                                    onclick="showForm(this)"
-                                    data-id="@item.CampusId"
-                                    data-name="@item.CampusName"
-                                    data-code="@item.CampusCode"
-                                    data-typeid="@item.CampusTypeId"
-                                    data-capacity="@item.Capacity"
-                                    data-address="@item.Address"
-                                    data-contact="@item.ContactNumber"
-                                    data-email="@item.Email"
-                                    data-dean="@item.Dean"
-                                    data-active="@item.IsActive.ToString().ToLower()">
-                                Edit
-                            </button>
-                            <a class="cm-mini-btn"
-                               href="@Url.Action("DeleteCampus", "University", new { id = item.CampusId })"
-                               onclick="return confirm('Are you sure you want to delete this campus?');">
-                                Delete
-                            </a>
-                        </td>
-                    </tr>
+                    <option value="@t">@t</option>
                 }
-            </tbody>
-        </table>
-    </div>
+            </select>
+            <select id="cmFilterStatus" class="cm-filter" onchange="filterTable()">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+        <div class="cm-table-scroll">
+            <table class="cm-table cm-list-table">
+                <thead>
+                    <tr>
+                        <th>Campus Name</th>
+                        <th>Campus Code</th>
+                        <th>Type</th>
+                        <th>Capacity</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Dean</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="campusTableBody">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="cm-name">@item.CampusName</td>
+                            <td>@item.CampusCode</td>
+                            <td>@item.CampusTypeName</td>
+                            <td>@(item.Capacity.HasValue ? item.Capacity.ToString() : "-")</td>
+                            <td class="cm-truncate" title="@item.Address">@item.Address</td>
+                            <td>@item.ContactNumber</td>
+                            <td>@item.Email</td>
+                            <td>@item.Dean</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="cm-pill cm-pill-active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="cm-pill cm-pill-inactive">Inactive</span>
+                                }
+                            </td>
+                            <td class="cm-actions-cell">
+                                <button type="button"
+                                        class="cm-icon-btn"
+                                        title="Edit"
+                                        onclick="showForm(this)"
+                                        data-id="@item.CampusId"
+                                        data-name="@item.CampusName"
+                                        data-code="@item.CampusCode"
+                                        data-typeid="@item.CampusTypeId"
+                                        data-capacity="@item.Capacity"
+                                        data-address="@item.Address"
+                                        data-contact="@item.ContactNumber"
+                                        data-email="@item.Email"
+                                        data-dean="@item.Dean"
+                                        data-active="@item.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <a class="cm-icon-btn cm-icon-danger"
+                                   title="Delete"
+                                   href="@Url.Action("DeleteCampus", "University", new { id = item.CampusId })"
+                                   onclick="return confirm('Are you sure you want to delete this campus?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div id="cmNoResults" style="display:none;">
+                No campuses match your search.
+            </div>
+        </div>
 
     <!-- ================= ADD / EDIT CAMPUS FORM ================= -->
-    @using (Html.BeginForm("CampusManagement", "University", FormMethod.Post))
+    @using (Html.BeginForm("CampusManagement", "University", FormMethod.Post, new { id = "campusForm" }))
     {
         <div class="cm-card" id="cmFormWrap" style="display:none;">
 
             <div class="cm-back-row">
-                <button type="button" class="cm-back-link" onclick="showList()">← Back to Campus List</button>
+                <button type="button" class="cm-back-link" onclick="showList()">
+                    <i class="fas fa-arrow-left"></i> Back to Campus List
+                </button>
             </div>
 
             <div class="cm-body">
                 <div class="cm-head">
-                    <div class="cm-icon">🏫</div>
+                    <div class="cm-icon"><i class="fas fa-school"></i></div>
                     <div>
                         <h2 id="cmFormTitle">Add Campus</h2>
                         <p>Enter campus details, contact information and type.</p>
@@ -104,20 +172,26 @@
                 <div class="cm-grid">
                     <div class="cm-field">
                         <label>Campus Name <span class="req">*</span></label>
-                        <input type="text" id="campusName" name="CampusName" placeholder="e.g. Main Campus">
+                        <input type="text" id="campusName" name="CampusName" placeholder="e.g. Main Campus" required>
+                        <i class="fas fa-building cm-field-icon"></i>
+                        <span class="cm-error" id="err-campusName"></span>
                     </div>
                     <div class="cm-field">
                         <label>Campus Code <span class="req">*</span></label>
-                        <input type="text" id="campusCode" name="CampusCode" placeholder="e.g. CMP-004">
+                        <input type="text" id="campusCode" name="CampusCode" placeholder="e.g. CMP-004" required>
+                        <i class="fas fa-hashtag cm-field-icon"></i>
+                        <span class="cm-error" id="err-campusCode"></span>
                     </div>
                     <div class="cm-field">
                         <label>Campus Type</label>
                         @Html.DropDownList("CampusTypeId", (SelectList)ViewBag.CampusTypeList, "Select type", new { @class = "form-control", id = "campusType" })
+                        <i class="fas fa-layer-group cm-field-icon"></i>
                         <span class="as-hint">Managed from Campus Master — updates here automatically.</span>
                     </div>
                     <div class="cm-field">
                         <label>Capacity <span style="color:var(--cm-muted); font-weight:400;">(students)</span></label>
                         <input type="number" id="campusCapacity" name="Capacity" placeholder="e.g. 2500" min="0">
+                        <i class="fas fa-users cm-field-icon"></i>
                     </div>
                     <div class="cm-field">
                         <label>Status</label>
@@ -133,7 +207,9 @@
                 <div class="cm-grid">
                     <div class="cm-field cm-full">
                         <label>Address <span class="req">*</span></label>
-                        <textarea id="campusAddress" name="Address" placeholder="Full campus address"></textarea>
+                        <textarea id="campusAddress" name="Address" placeholder="Full campus address" required></textarea>
+                        <i class="fas fa-map-marker-alt cm-field-icon cm-icon-top"></i>
+                        <span class="cm-error" id="err-campusAddress"></span>
                     </div>
                 </div>
 
@@ -141,15 +217,20 @@
                 <div class="cm-grid">
                     <div class="cm-field">
                         <label>Contact Number <span class="req">*</span></label>
-                        <input type="tel" id="campusContact" name="ContactNumber" placeholder="e.g. 0522-1234567">
+                        <input type="tel" id="campusContact" name="ContactNumber" placeholder="e.g. 0522-1234567" required pattern="[0-9+\-\s]{7,15}">
+                        <i class="fas fa-phone cm-field-icon"></i>
+                        <span class="cm-error" id="err-campusContact"></span>
                     </div>
                     <div class="cm-field">
                         <label>Email <span class="req">*</span></label>
-                        <input type="email" id="campusEmail" name="Email" placeholder="campus@university.edu">
+                        <input type="email" id="campusEmail" name="Email" placeholder="campus@university.edu" required>
+                        <i class="fas fa-envelope cm-field-icon"></i>
+                        <span class="cm-error" id="err-campusEmail"></span>
                     </div>
                     <div class="cm-field">
                         <label>Dean</label>
                         <input type="text" id="campusDean" name="Dean" placeholder="e.g. Dr. R. Sharma">
+                        <i class="fas fa-user-tie cm-field-icon"></i>
                     </div>
                 </div>
 
@@ -176,12 +257,13 @@
         else { t.textContent = 'Inactive'; t.className = 'cm-status-text cm-inactive'; }
     });
 
+    // ===== Show / Hide Form =====
     function showForm(btn) {
         document.getElementById('cmListWrap').style.display = 'none';
         document.getElementById('cmFormWrap').style.display = 'block';
+        clearErrors();
 
         if (btn) {
-            // EDIT MODE — fill form from data attributes
             document.getElementById('cmFormTitle').textContent = 'Edit Campus';
             document.getElementById('cmSubmitText').textContent = 'Update Campus';
 
@@ -221,5 +303,84 @@
         document.getElementById('campusIsActive').value = 'true';
         document.getElementById('cmStatusText').textContent = 'Active';
         document.getElementById('cmStatusText').className = 'cm-status-text cm-active';
+        clearErrors();
+    }
+
+    function clearErrors() {
+        document.querySelectorAll('.cm-error').forEach(el => el.textContent = '');
+        document.querySelectorAll('.cm-field input, .cm-field textarea').forEach(el => el.classList.remove('cm-input-error'));
+    }
+
+    // ===== Client-side validation on submit (blank save rokne ke liye) =====
+    document.getElementById('campusForm').addEventListener('submit', function (e) {
+        clearErrors();
+        let valid = true;
+
+        const rules = [
+            { id: 'campusName', msg: 'Campus Name is required' },
+            { id: 'campusCode', msg: 'Campus Code is required' },
+            { id: 'campusAddress', msg: 'Address is required' },
+            { id: 'campusContact', msg: 'Contact Number is required' },
+            { id: 'campusEmail', msg: 'Email is required' }
+        ];
+
+        rules.forEach(r => {
+            const el = document.getElementById(r.id);
+            if (!el.value || !el.value.trim()) {
+                document.getElementById('err-' + r.id).textContent = r.msg;
+                el.classList.add('cm-input-error');
+                valid = false;
+            }
+        });
+
+        const emailEl = document.getElementById('campusEmail');
+        if (emailEl.value && !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(emailEl.value)) {
+            document.getElementById('err-campusEmail').textContent = 'Enter a valid email';
+            emailEl.classList.add('cm-input-error');
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            const firstError = document.querySelector('.cm-input-error');
+            if (firstError) firstError.focus();
+        }
+    });
+
+    // ===== Search + Filter =====
+    function filterTable() {
+        const search = document.getElementById('cmSearchInput').value.toLowerCase();
+        const type = document.getElementById('cmFilterType').value;
+        const status = document.getElementById('cmFilterStatus').value;
+        const rows = document.querySelectorAll('#campusTableBody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const name = row.children[0].textContent.toLowerCase();
+            const code = row.children[1].textContent.toLowerCase();
+            const rowType = row.children[2].textContent.trim();
+            const dean = row.children[7].textContent.toLowerCase();
+            const rowStatus = row.children[8].textContent.trim();
+
+            const matchesSearch = name.includes(search) || code.includes(search) || dean.includes(search);
+            const matchesType = !type || rowType === type;
+            const matchesStatus = !status || rowStatus === status;
+
+            const show = matchesSearch && matchesType && matchesStatus;
+            row.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+
+        document.getElementById('cmNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // Agar server-side validation fail hui ho to form dobara khol do
+    @if (ViewBag.ReopenForm == true)
+    {
+        <text>
+        document.addEventListener('DOMContentLoaded', function () {
+            showForm();
+        });
+        </text>
     }
 </script>

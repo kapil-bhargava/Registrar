@@ -121,8 +121,15 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DBHelper.cs" />
+    <Compile Include="Models\CampusCategoryModel.cs" />
+    <Compile Include="Models\CampusModel.cs" />
+    <Compile Include="Models\CategoryModel.cs" />
+    <Compile Include="Models\UniversityProfileModel.cs" />
     <Compile Include="Models\UniversityTypeModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CampusCategoryService.cs" />
+    <Compile Include="Services\CategoryService.cs" />
+    <Compile Include="Services\UniversityProfileService.cs" />
     <Compile Include="Services\UniversityTypeService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -211,7 +218,6 @@
     <Content Include="Views\SeatManagement\CategorywiseSeats.cshtml" />
     <Content Include="Views\SeatManagement\SeatAllotment.cshtml" />
     <Content Include="Views\SeatManagement\SeatMatrix.cshtml" />
-
     <Content Include="Views\Dashboard\Dashboard.cshtml" />
     <Content Include="Views\Admission\AdmissionSetup.cshtml" />
     <Content Include="Views\Admission\EligibilityCheck.cshtml" />
@@ -231,23 +237,18 @@
     <Content Include="Views\Reports\SeatAllotmentReport.cshtml" />
     <Content Include="Views\Reports\StudentMasterReport.cshtml" />
     <Content Include="Views\Reports\AcademicReports.cshtml" />
-
     <Content Include="Views\Master\BloodGroupMaster.cshtml" />
     <Content Include="Views\Master\DocumentTypeMaster.cshtml" />
     <Content Include="Views\Master\MaritalStatusMaster.cshtml" />
     <Content Include="Views\Master\ReligionMaster.cshtml" />
     <Content Include="Views\Master\UniversityType.cshtml" />
-
+    <Content Include="Views\Master\CampusCategoryMaster.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\api\" />
     <Folder Include="Database\" />
-
-    <Folder Include="Models\" />
     <Folder Include="Views\Default\" />
-
-
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

@@ -163,5 +163,31 @@ namespace Regis.Services
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+        public List<UniversityTypeModel> GetActiveUniversityTypes()
+        {
+            List<UniversityTypeModel> list = new List<UniversityTypeModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_UniversityType", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new UniversityTypeModel
+                    {
+                        UniversityTypeId = Convert.ToInt32(dr["UniversityTypeId"]),
+                        UniversityTypeCode = dr["UniversityTypeCode"].ToString(),
+                        UniversityTypeName = dr["UniversityTypeName"].ToString()
+                    });
+                }
+            }
+
+            return list;
+        }
     }
 }
