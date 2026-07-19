@@ -1,0 +1,215 @@
+﻿@model List<Regis.Models.ProgramMasterModel>
+
+@{
+    ViewBag.Title = "ProgramMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="prgListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-layer-group"></i> Program Master</h2>
+                <p>Manage all academic programs — UG, PG, Diploma &amp; Certificate.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="prgShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Program
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Programs</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(p => p.IsActive)</span>
+                    <span class="as-stat-label">Active Programs</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Program Name</th>
+                        <th>Program Type</th>
+                        <th>Typical Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="prgTableBody">
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td><strong>@p.ProgramName</strong></td>
+                            <td><span class="as-type-badge">@p.ProgramType</span></td>
+                            <td>@p.TypicalDuration</td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="prgShowForm(this)"
+                                        data-id="@p.ProgramId" data-code="@p.ProgramCode" data-name="@p.ProgramName"
+                                        data-type="@p.ProgramType" data-duration="@p.TypicalDuration"
+                                        data-active="@p.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteProgramMaster", "Master", new { id = p.ProgramId })"
+                                   onclick="return confirm('Delete this program?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT PROGRAM FORM ================= -->
+    @using (Html.BeginForm("ProgramMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="prgFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="prgShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Programs List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <h2 id="prgFormTitle">Add Program</h2>
+                            <p>Define a new academic program category.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+
+                    <input type="hidden" id="programId" name="ProgramId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Program Name <span class="req">*</span></label>
+                            <input type="text" id="programName" name="ProgramName" placeholder="e.g. Undergraduate (UG)">
+                        </div>
+                        <div class="as-field">
+                            <label>Program Code <span class="req">*</span></label>
+                            <input type="text" id="programCode" name="ProgramCode" placeholder="e.g. UG">
+                        </div>
+                        <div class="as-field">
+                            <label>Program Type <span class="req">*</span></label>
+                            <select id="programTypeSelect" name="ProgramType" onchange="prgUpdateDuration()">
+                                <option value="">-- Select Program Type --</option>
+                                <option value="UG">Undergraduate (UG)</option>
+                                <option value="PG">Postgraduate (PG)</option>
+                                <option value="Diploma">Diploma</option>
+                                <option value="Certificate">Certificate</option>
+                            </select>
+                        </div>
+                        <div class="as-field">
+                            <label>Typical Duration</label>
+                            <input type="text" id="programDuration" name="TypicalDuration" placeholder="Auto-filled based on Program Type">
+                            <span class="as-hint">UG: 3–4 Yrs · PG: 2 Yrs · Diploma: 1–3 Yrs · Certificate: 3–12 Months</span>
+                        </div>
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="programStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="prgShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="prgSubmitText">Save Program</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="prgToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="prgToastMessage">Success!</span>
+</div>
+
+<script>function prgShowForm(btn) {
+        document.getElementById('prgListWrap').style.display = 'none';
+        document.getElementById('prgFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('prgFormTitle').textContent = 'Edit Program';
+            document.getElementById('prgSubmitText').textContent = 'Update Program';
+
+            document.getElementById('programId').value = btn.dataset.id;
+            document.getElementById('programCode').value = btn.dataset.code;
+            document.getElementById('programName').value = btn.dataset.name;
+            document.getElementById('programTypeSelect').value = btn.dataset.type || '';
+            document.getElementById('programDuration').value = btn.dataset.duration || '';
+            document.getElementById('programStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('prgFormTitle').textContent = 'Add Program';
+            document.getElementById('prgSubmitText').textContent = 'Save Program';
+            document.getElementById('programId').value = 0;
+            document.getElementById('programCode').value = '';
+            document.getElementById('programName').value = '';
+            document.getElementById('programTypeSelect').value = '';
+            document.getElementById('programDuration').value = '';
+            document.getElementById('programStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prgShowList() {
+        document.getElementById('prgFormWrap').style.display = 'none';
+        document.getElementById('prgListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prgUpdateDuration() {
+        const type = document.getElementById('programTypeSelect').value;
+        const map = {
+            'UG': '3–4 Years',
+            'PG': '2 Years',
+            'Diploma': '1–3 Years',
+            'Certificate': '3–12 Months'
+        };
+        document.getElementById('programDuration').value = map[type] || '';
+    }</script>

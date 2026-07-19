@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using Regis.Models;
 using Regis.Services;
+using Regis.Views.Master;
 
 namespace Regis.Controllers
 {
@@ -18,6 +20,7 @@ namespace Regis.Controllers
         private readonly CategoryService categoryService = new CategoryService();
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
         private readonly SessionTypeService sessionTypeService = new SessionTypeService();
+        private readonly MasterService MasterService = new MasterService();
         // ============================================================
         // Dashboard / Master Home Page
         // URL : /Master/Index
@@ -238,6 +241,290 @@ namespace Regis.Controllers
         public ActionResult DocumentTypeMaster()
         {
             return View();
+        }
+
+
+
+        // ============================================================
+        // Program Type Master
+        // URL : /Master/ProgramTypeMaster
+        //
+        // Feeds the "Program Type" dropdown on Program Management
+        // (AcademicSetupController.ProgramManagement). Same GETALL /
+        // INSERT / UPDATE / DELETE flag pattern as every other master.
+        // ============================================================
+
+        // ============================================================
+        // FACULTY MASTER
+        // URL : /Master/FacultyMaster
+        // ============================================================
+
+        public ActionResult FacultyMaster()
+        {
+            List<FacultyMasterModel> list = MasterService.GetAllFacultyMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult FacultyMaster(FacultyMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.FacultyId > 0)
+                {
+                    result = MasterService.UpdateFacultyMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Faculty Master Updated Successfully." : "Unable to Update Faculty Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertFacultyMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Faculty Master Saved Successfully." : "Unable to Save Faculty Master.";
+                }
+            }
+            return RedirectToAction("FacultyMaster");
+        }
+
+        public ActionResult DeleteFacultyMaster(int id)
+        {
+            bool result = MasterService.DeleteFacultyMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Faculty Master Deleted Successfully." : "Unable to Delete Faculty Master.";
+            return RedirectToAction("FacultyMaster");
+        }
+
+        // ============================================================
+        // DEPARTMENT MASTER
+        // URL : /Master/DepartmentMaster
+        // ============================================================
+
+        public ActionResult DepartmentMaster()
+        {
+            List<DepartmentMasterModel> list = MasterService.GetAllDepartmentMaster();
+            ViewBag.Faculties = MasterService.GetActiveFacultyMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult DepartmentMaster(DepartmentMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.DepartmentId > 0)
+                {
+                    result = MasterService.UpdateDepartmentMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Department Master Updated Successfully." : "Unable to Update Department Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertDepartmentMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Department Master Saved Successfully." : "Unable to Save Department Master.";
+                }
+            }
+            return RedirectToAction("DepartmentMaster");
+        }
+
+        public ActionResult DeleteDepartmentMaster(int id)
+        {
+            bool result = MasterService.DeleteDepartmentMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Department Master Deleted Successfully." : "Unable to Delete Department Master.";
+            return RedirectToAction("DepartmentMaster");
+        }
+
+        // Cascading dropdown: Faculty selected -> only that Faculty's Departments
+        public JsonResult GetDepartmentMasterByFaculty(int facultyId)
+        {
+            var list = MasterService.GetDepartmentMasterByFaculty(facultyId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // ============================================================
+        // PROGRAM MASTER
+        // URL : /Master/ProgramMaster
+        // ============================================================
+
+        public ActionResult ProgramMaster()
+        {
+            List<ProgramMasterModel> list = MasterService.GetAllProgramMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult ProgramMaster(ProgramMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.ProgramId > 0)
+                {
+                    result = MasterService.UpdateProgramMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Program Master Updated Successfully." : "Unable to Update Program Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertProgramMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Program Master Saved Successfully." : "Unable to Save Program Master.";
+                }
+            }
+            return RedirectToAction("ProgramMaster");
+        }
+
+        public ActionResult DeleteProgramMaster(int id)
+        {
+            bool result = MasterService.DeleteProgramMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Program Master Deleted Successfully." : "Unable to Delete Program Master.";
+            return RedirectToAction("ProgramMaster");
+        }
+
+        // ============================================================
+        // COURSE MASTER
+        // URL : /Master/CourseMaster
+        // ============================================================
+
+        public ActionResult CourseMaster()
+        {
+            List<CourseMasterModel> list = MasterService.GetAllCourseMaster();
+            ViewBag.Programs = MasterService.GetActiveProgramMaster();
+            ViewBag.Departments = MasterService.GetActiveDepartmentMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult CourseMaster(CourseMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.CourseId > 0)
+                {
+                    result = MasterService.UpdateCourseMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Course Master Updated Successfully." : "Unable to Update Course Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertCourseMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Course Master Saved Successfully." : "Unable to Save Course Master.";
+                }
+            }
+            return RedirectToAction("CourseMaster");
+        }
+
+        public ActionResult DeleteCourseMaster(int id)
+        {
+            bool result = MasterService.DeleteCourseMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Course Master Deleted Successfully." : "Unable to Delete Course Master.";
+            return RedirectToAction("CourseMaster");
+        }
+
+        // Cascading dropdown: Department selected -> only that Department's Courses
+        public JsonResult GetCourseMasterByDepartment(int departmentId)
+        {
+            var list = MasterService.GetCourseMasterByDepartment(departmentId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // ============================================================
+        // SEMESTER MASTER
+        // URL : /Master/SemesterMaster
+        // ============================================================
+
+        public ActionResult SemesterMaster()
+        {
+            List<SemesterMasterModel> list = MasterService.GetAllSemesterMaster();
+            ViewBag.Courses = MasterService.GetActiveCourseMaster();
+            ViewBag.Sessions = MasterService.GetActiveAcademicSessionsForDropdown();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult SemesterMaster(SemesterMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.SemesterId > 0)
+                {
+                    result = MasterService.UpdateSemesterMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Semester Master Updated Successfully." : "Unable to Update Semester Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertSemesterMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Semester Master Saved Successfully." : "Unable to Save Semester Master.";
+                }
+            }
+            return RedirectToAction("SemesterMaster");
+        }
+
+        public ActionResult DeleteSemesterMaster(int id)
+        {
+            bool result = MasterService.DeleteSemesterMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Semester Master Deleted Successfully." : "Unable to Delete Semester Master.";
+            return RedirectToAction("SemesterMaster");
+        }
+
+        // Cascading dropdown: Course selected -> only that Course's Semesters
+        public JsonResult GetSemesterMasterByCourse(int courseId)
+        {
+            var list = MasterService.GetSemesterMasterByCourse(courseId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // ============================================================
+        // SUBJECT MASTER
+        // URL : /Master/SubjectMaster
+        // ============================================================
+
+        public ActionResult SubjectMaster()
+        {
+            List<SubjectMasterModel> list = MasterService.GetAllSubjectMaster();
+            ViewBag.Courses = MasterService.GetActiveCourseMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult SubjectMaster(SubjectMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.SubjectId > 0)
+                {
+                    result = MasterService.UpdateSubjectMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Subject Master Updated Successfully." : "Unable to Update Subject Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertSubjectMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Subject Master Saved Successfully." : "Unable to Save Subject Master.";
+                }
+            }
+            return RedirectToAction("SubjectMaster");
+        }
+
+        public ActionResult DeleteSubjectMaster(int id)
+        {
+            bool result = MasterService.DeleteSubjectMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Subject Master Deleted Successfully." : "Unable to Delete Subject Master.";
+            return RedirectToAction("SubjectMaster");
         }
 
         // ============================================================

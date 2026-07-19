@@ -1,0 +1,201 @@
+﻿@model List<Regis.Models.ProgramTypeModel>
+@{
+    ViewBag.Title = "ProgramTypeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="as-warning-box" style="background:#E4F7EF; border-color:#1AAE7C;">
+            <i class="fas fa-check-circle"></i>
+            <div>@TempData["Success"]</div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="as-warning-box as-warning-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>@TempData["Error"]</div>
+        </div>
+    }
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="ptListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-layer-group"></i> Program Type Master</h2>
+                <p>Manage program types (UG, PG, Diploma, Certificate...) used by Program Management.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="ptShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Program Type
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Program Types</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(x => x.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Program Type Name</th>
+                        <th>Typical Duration</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int sn = 1; }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@sn</td>
+                            <td><strong>@item.ProgramTypeCode</strong></td>
+                            <td>@item.ProgramTypeName</td>
+                            <td>@item.TypicalDuration</td>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(item.CreatedDate?.ToString("dd-MMM-yyyy"))</td>
+                            <td>
+                                <button class="as-mini-btn" title="Edit"
+                                        onclick="ptEdit(@item.ProgramTypeId, '@Html.Raw(item.ProgramTypeCode)', '@Html.Raw(item.ProgramTypeName)', '@Html.Raw(item.TypicalDuration)', @(item.DisplayOrder ?? 0), @(item.IsActive ? "true" : "false"))">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete" href="@Url.Action("DeleteProgramTypeMaster", "Master", new { id = item.ProgramTypeId })"
+                                   onclick="return confirm('Delete this program type?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        sn++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM (real MVC form POST) ================= -->
+    <div class="as-card as-wizard-card" id="ptFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" type="button" onclick="ptShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Program Type List
+            </button>
+        </div>
+
+        @using (Html.BeginForm("ProgramTypeMaster", "Master", FormMethod.Post))
+        {
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <h2 id="ptFormTitle">Add Program Type</h2>
+                            <p>Define a new program type used by Program Management.</p>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="ProgramTypeId" name="ProgramTypeId" value="0" />
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Program Type Details</div>
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Code <span class="req">*</span></label>
+                            <input type="text" id="ProgramTypeCode" name="ProgramTypeCode" placeholder="e.g. UG, PG, DIP, CERT">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Program Type Name <span class="req">*</span></label>
+                            <input type="text" id="ProgramTypeName" name="ProgramTypeName" placeholder="e.g. Undergraduate">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Typical Duration</label>
+                            <input type="text" id="TypicalDuration" name="TypicalDuration" placeholder="e.g. 3-4 Years">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Display Order</label>
+                            <input type="number" id="DisplayOrder" name="DisplayOrder" min="1" placeholder="e.g. 1">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="IsActive" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button class="as-btn as-btn-ghost" type="button" onclick="ptShowList()">Cancel</button>
+                        <span></span>
+                        <button class="as-btn as-btn-primary" type="submit">
+                            <i class="fas fa-save"></i> Save Program Type
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>function ptShowForm() {
+        document.getElementById('ptListWrap').style.display = 'none';
+        document.getElementById('ptFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function ptShowList() {
+        document.getElementById('ptFormWrap').style.display = 'none';
+        document.getElementById('ptListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function ptEdit(id, code, name, duration, displayOrder, isActive) {
+        document.getElementById('ProgramTypeId').value = id;
+        document.getElementById('ProgramTypeCode').value = code;
+        document.getElementById('ProgramTypeName').value = name;
+        document.getElementById('TypicalDuration').value = duration;
+        document.getElementById('DisplayOrder').value = displayOrder;
+        document.getElementById('IsActive').value = isActive;
+        document.getElementById('ptFormTitle').textContent = 'Edit Program Type';
+        ptShowForm();
+    }</script>

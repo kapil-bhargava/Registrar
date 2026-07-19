@@ -1,0 +1,208 @@
+﻿@model List<Regis.Models.DepartmentMasterModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "DepartmentMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var faculties = ViewBag.Faculties as List<FacultyMasterModel> ?? new List<FacultyMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="depListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-building"></i> Department Master</h2>
+                <p>Manage all departments and map them to a Faculty.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="depShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Department
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Departments</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(d => d.IsActive)</span>
+                    <span class="as-stat-label">Active Departments</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Department Code</th>
+                        <th>Department Name</th>
+                        <th>Faculty</th>
+                        <th>Campus</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="depTableBody">
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td><strong>@d.DepartmentCode</strong></td>
+                            <td>@d.DepartmentName</td>
+                            <td>@d.FacultyName</td>
+                            <td>@d.CampusName</td>
+                            <td>
+                                @if (d.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="depShowForm(this)"
+                                        data-id="@d.DepartmentId" data-code="@d.DepartmentCode" data-name="@d.DepartmentName"
+                                        data-facultyid="@d.FacultyId" data-campus="@d.CampusName"
+                                        data-active="@d.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteDepartmentMaster", "Master", new { id = d.DepartmentId })"
+                                   onclick="return confirm('Delete this department?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT DEPARTMENT FORM ================= -->
+    @using (Html.BeginForm("DepartmentMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="depFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="depShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Departments List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-building"></i></div>
+                        <div>
+                            <h2 id="depFormTitle">Add Department</h2>
+                            <p>Define a new department under a Faculty.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+
+                    <input type="hidden" id="departmentId" name="DepartmentId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Department Code <span class="req">*</span></label>
+                            <input type="text" id="departmentCode" name="DepartmentCode" placeholder="e.g. CSE">
+                        </div>
+                        <div class="as-field">
+                            <label>Department Name <span class="req">*</span></label>
+                            <input type="text" id="departmentName" name="DepartmentName" placeholder="e.g. Computer Science & Engineering">
+                        </div>
+                        <div class="as-field">
+                            <label>Faculty <span class="req">*</span></label>
+                            <select id="facultyId" name="FacultyId">
+                                <option value="">-- Select Faculty --</option>
+                                @foreach (var f in faculties)
+                                {
+                                    <option value="@f.FacultyId">@f.FacultyName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Faculty Master</span>
+                        </div>
+                        <div class="as-field">
+                            <label>Campus Name</label>
+                            <input type="text" id="campusName" name="CampusName" placeholder="e.g. Main Campus">
+                        </div>
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="departmentStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="depShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="depSubmitText">Save Department</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="depToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="depToastMessage">Success!</span>
+</div>
+
+<script>function depShowForm(btn) {
+        document.getElementById('depListWrap').style.display = 'none';
+        document.getElementById('depFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('depFormTitle').textContent = 'Edit Department';
+            document.getElementById('depSubmitText').textContent = 'Update Department';
+
+            document.getElementById('departmentId').value = btn.dataset.id;
+            document.getElementById('departmentCode').value = btn.dataset.code;
+            document.getElementById('departmentName').value = btn.dataset.name;
+            document.getElementById('facultyId').value = btn.dataset.facultyid || '';
+            document.getElementById('campusName').value = btn.dataset.campus || '';
+            document.getElementById('departmentStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('depFormTitle').textContent = 'Add Department';
+            document.getElementById('depSubmitText').textContent = 'Save Department';
+            document.getElementById('departmentId').value = 0;
+            document.getElementById('departmentCode').value = '';
+            document.getElementById('departmentName').value = '';
+            document.getElementById('facultyId').value = '';
+            document.getElementById('campusName').value = '';
+            document.getElementById('departmentStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function depShowList() {
+        document.getElementById('depFormWrap').style.display = 'none';
+        document.getElementById('depListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }</script>

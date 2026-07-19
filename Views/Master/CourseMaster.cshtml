@@ -1,0 +1,282 @@
+﻿@model List<Regis.Models.CourseMasterModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "CourseMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var programs = ViewBag.Programs as List<ProgramMasterModel> ?? new List<ProgramMasterModel>();
+    var departments = ViewBag.Departments as List<DepartmentMasterModel> ?? new List<DepartmentMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="crsListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-book"></i> Course Master</h2>
+                <p>Manage all courses offered under the university.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="crsShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Course
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-book"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(c => c.Status == "Active")</span>
+                    <span class="as-stat-label">Active Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(c => c.ProgramName == "UG")</span>
+                    <span class="as-stat-label">UG Courses</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(c => c.ProgramName == "PG")</span>
+                    <span class="as-stat-label">PG Courses</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Course Code</th>
+                        <th>Program</th>
+                        <th>Duration</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="crsTableBody">
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td><strong>@c.CourseName</strong></td>
+                            <td>@c.CourseCode</td>
+                            <td><span class="as-type-badge">@c.ProgramName</span></td>
+                            <td>@(c.DurationYears.HasValue ? c.DurationYears + " Years" : "-")</td>
+                            <td>@c.DepartmentName</td>
+                            <td>
+                                @if (c.Status == "Active")
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else if (c.Status == "Upcoming")
+                                {
+                                    <span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Upcoming</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="crsShowForm(this)"
+                                        data-id="@c.CourseId" data-code="@c.CourseCode" data-name="@c.CourseName"
+                                        data-programid="@c.ProgramId" data-departmentid="@c.DepartmentId"
+                                        data-duration="@c.DurationYears" data-semesters="@c.TotalSemesters"
+                                        data-credits="@c.TotalCredits" data-intake="@c.IntakeCapacity"
+                                        data-status="@c.Status">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteCourseMaster", "Master", new { id = c.CourseId })"
+                                   onclick="return confirm('Delete this course?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+            <span><span class="as-legend-dot draft"></span> Upcoming</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT COURSE FORM ================= -->
+    @using (Html.BeginForm("CourseMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="crsFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="crsShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Courses List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-book-medical"></i></div>
+                        <div>
+                            <h2 id="crsFormTitle">Add Course</h2>
+                            <p>Define a new course with all necessary academic details.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+
+                    <input type="hidden" id="courseId" name="CourseId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Course Name <span class="req">*</span></label>
+                            <input type="text" id="courseName" name="CourseName" placeholder="e.g. Bachelor of Technology - Computer Science">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Course Code <span class="req">*</span></label>
+                            <input type="text" id="courseCode" name="CourseCode" placeholder="e.g. BTECH-CS">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Program <span class="req">*</span></label>
+                            <select id="programId" name="ProgramId">
+                                <option value="">-- Select Program --</option>
+                                @foreach (var p in programs)
+                                {
+                                    <option value="@p.ProgramId">@p.ProgramName (@p.ProgramType)</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Program Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Duration (Years) <span class="req">*</span></label>
+                            <select id="durationYears" name="DurationYears">
+                                <option value="1">1 Year</option>
+                                <option value="2">2 Years</option>
+                                <option value="3">3 Years</option>
+                                <option value="4" selected>4 Years</option>
+                                <option value="5">5 Years</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Total Semesters <span class="req">*</span></label>
+                            <input type="number" id="totalSemesters" name="TotalSemesters" value="8" min="1" max="12">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Total Credits <span class="req">*</span></label>
+                            <input type="number" id="totalCredits" name="TotalCredits" value="160" min="1">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Academic Department <span class="req">*</span></label>
+                            <select id="departmentId" name="DepartmentId">
+                                <option value="">-- Select Department --</option>
+                                @foreach (var d in departments)
+                                {
+                                    <option value="@d.DepartmentId">@d.DepartmentName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Department Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Intake Capacity (session-wise) <span class="req">*</span></label>
+                            <input type="number" id="intakeCapacity" name="IntakeCapacity" placeholder="e.g. 120" min="1">
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-toggle-on"></i> Status</div>
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Course Status</label>
+                            <select id="courseStatus" name="Status">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Upcoming">Upcoming</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="crsShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="crsSubmitText">Save Course</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="crsToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="crsToastMessage">Success!</span>
+</div>
+
+<script>function crsShowForm(btn) {
+        document.getElementById('crsListWrap').style.display = 'none';
+        document.getElementById('crsFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('crsFormTitle').textContent = 'Edit Course';
+            document.getElementById('crsSubmitText').textContent = 'Update Course';
+
+            document.getElementById('courseId').value = btn.dataset.id;
+            document.getElementById('courseCode').value = btn.dataset.code;
+            document.getElementById('courseName').value = btn.dataset.name;
+            document.getElementById('programId').value = btn.dataset.programid || '';
+            document.getElementById('departmentId').value = btn.dataset.departmentid || '';
+            document.getElementById('durationYears').value = btn.dataset.duration || '4';
+            document.getElementById('totalSemesters').value = btn.dataset.semesters || '';
+            document.getElementById('totalCredits').value = btn.dataset.credits || '';
+            document.getElementById('intakeCapacity').value = btn.dataset.intake || '';
+            document.getElementById('courseStatus').value = btn.dataset.status || 'Active';
+        } else {
+            document.getElementById('crsFormTitle').textContent = 'Add Course';
+            document.getElementById('crsSubmitText').textContent = 'Save Course';
+            document.getElementById('courseId').value = 0;
+            document.getElementById('courseCode').value = '';
+            document.getElementById('courseName').value = '';
+            document.getElementById('programId').value = '';
+            document.getElementById('departmentId').value = '';
+            document.getElementById('durationYears').value = '4';
+            document.getElementById('totalSemesters').value = '8';
+            document.getElementById('totalCredits').value = '160';
+            document.getElementById('intakeCapacity').value = '';
+            document.getElementById('courseStatus').value = 'Active';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function crsShowList() {
+        document.getElementById('crsFormWrap').style.display = 'none';
+        document.getElementById('crsListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }</script>
+

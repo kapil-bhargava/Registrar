@@ -398,14 +398,45 @@
                         <i class="fas fa-university"></i> Campus
                     </a>
                 </li>
-
-
                 <li>
-                    <a asp-controller="Master" asp-action="ProgramType">
-                        <i class="fas fa-layer-group"></i> Program Type
+                    <a href="@Url.Action("FacultyMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i>  Faculty Master
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("DepartmentMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Departmen tMaster
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("ProgramMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Program Master
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("CourseMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Course Master
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("SemesterMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i>  Semester Master
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("SubjectMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Subject Master
                     </a>
                 </li>
 
+
+                
                 <li>
                     <a asp-controller="Master" asp-action="AdmissionMode">
                         <i class="fas fa-user-plus"></i> Admission Mode

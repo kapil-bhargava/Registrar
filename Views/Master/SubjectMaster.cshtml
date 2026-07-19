@@ -1,0 +1,279 @@
+﻿@model List<Regis.Models.SubjectMasterModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "SubjectMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="subListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-book-open"></i> Subject Master</h2>
+                <p>Manage all subjects — theory, practical &amp; mixed — across courses and semesters.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="subShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Subject
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(s => s.Status == "Active")</span>
+                    <span class="as-stat-label">Active Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(s => s.SubjectType == "Theory")</span>
+                    <span class="as-stat-label">Theory Subjects</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-flask"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(s => s.SubjectType == "Practical")</span>
+                    <span class="as-stat-label">Practical Subjects</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Subject Code</th>
+                        <th>Type</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Credits</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subTableBody">
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td><strong>@s.SubjectName</strong></td>
+                            <td>@s.SubjectCode</td>
+                            <td><span class="as-type-badge">@s.SubjectType</span></td>
+                            <td>@s.CourseName</td>
+                            <td>@s.SemesterName</td>
+                            <td>@s.Credits</td>
+                            <td>
+                                @if (s.Status == "Active")
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else if (s.Status == "Draft")
+                                {
+                                    <span class="as-pill as-pill-draft"><i class="fas fa-pencil"></i> Draft</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="subShowForm(this)"
+                                        data-id="@s.SubjectId" data-code="@s.SubjectCode" data-name="@s.SubjectName"
+                                        data-type="@s.SubjectType" data-courseid="@s.CourseId" data-semesterid="@s.SemesterId"
+                                        data-credits="@s.Credits" data-status="@s.Status">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteSubjectMaster", "Master", new { id = s.SubjectId })"
+                                   onclick="return confirm('Delete this subject?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot draft"></span> Draft</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT SUBJECT FORM ================= -->
+    @using (Html.BeginForm("SubjectMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="subFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="subShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Subjects List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-book-medical"></i></div>
+                        <div>
+                            <h2 id="subFormTitle">Add Subject</h2>
+                            <p>Define a new subject and map it to a course &amp; semester.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Details</div>
+
+                    <input type="hidden" id="subjectId" name="SubjectId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Subject Name <span class="req">*</span></label>
+                            <input type="text" id="subjectName" name="SubjectName" placeholder="e.g. Data Structures">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Subject Code <span class="req">*</span></label>
+                            <input type="text" id="subjectCode" name="SubjectCode" placeholder="e.g. CS201">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Subject Type <span class="req">*</span></label>
+                            <select id="subjectType" name="SubjectType">
+                                <option value="">-- Select Subject Type --</option>
+                                <option value="Theory">Theory</option>
+                                <option value="Practical">Practical</option>
+                                <option value="Mixed">Mixed (Theory + Practical)</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Course <span class="req">*</span></label>
+                            <select id="subjectCourse" name="CourseId" onchange="subLoadSemesters()">
+                                <option value="">-- Select Course --</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">@c.CourseName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Course Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Semester <span class="req">*</span></label>
+                            <select id="subjectSemester" name="SemesterId">
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                            <span class="as-hint">Managed from Semester Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Credits <span class="req">*</span></label>
+                            <input type="number" id="subjectCredits" name="Credits" placeholder="e.g. 4" min="1" max="10">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="subjectStatus" name="Status">
+                                <option value="Active">Active</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="subShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="subSubmitText">Save Subject</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="subToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="subToastMessage">Success!</span>
+</div>
+
+<script>// Cascading dropdown: Course -> Semesters (AJAX -> MasterController)
+    function subLoadSemesters(preselectId) {
+        const courseId = document.getElementById('subjectCourse').value;
+        const semSelect = document.getElementById('subjectSemester');
+        semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+
+        if (!courseId) return;
+
+        fetch('/Master/GetSemesterMasterByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(list => {
+                list.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.SemesterId;
+                    opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
+                    if (preselectId && String(s.SemesterId) === String(preselectId)) opt.selected = true;
+                    semSelect.appendChild(opt);
+                });
+            });
+    }
+
+    function subShowForm(btn) {
+        document.getElementById('subListWrap').style.display = 'none';
+        document.getElementById('subFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('subFormTitle').textContent = 'Edit Subject';
+            document.getElementById('subSubmitText').textContent = 'Update Subject';
+
+            document.getElementById('subjectId').value = btn.dataset.id;
+            document.getElementById('subjectCode').value = btn.dataset.code;
+            document.getElementById('subjectName').value = btn.dataset.name;
+            document.getElementById('subjectType').value = btn.dataset.type || '';
+            document.getElementById('subjectCourse').value = btn.dataset.courseid || '';
+            document.getElementById('subjectCredits').value = btn.dataset.credits || '';
+            document.getElementById('subjectStatus').value = btn.dataset.status || 'Active';
+            subLoadSemesters(btn.dataset.semesterid);
+        } else {
+            document.getElementById('subFormTitle').textContent = 'Add Subject';
+            document.getElementById('subSubmitText').textContent = 'Save Subject';
+            document.getElementById('subjectId').value = 0;
+            document.getElementById('subjectCode').value = '';
+            document.getElementById('subjectName').value = '';
+            document.getElementById('subjectType').value = '';
+            document.getElementById('subjectCourse').value = '';
+            document.getElementById('subjectSemester').innerHTML = '<option value="">-- Select Course First --</option>';
+            document.getElementById('subjectCredits').value = '';
+            document.getElementById('subjectStatus').value = 'Active';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function subShowList() {
+        document.getElementById('subFormWrap').style.display = 'none';
+        document.getElementById('subListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }</script>

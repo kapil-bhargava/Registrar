@@ -1,0 +1,190 @@
+﻿@model List<Regis.Models.FacultyMasterModel>
+
+@{
+    ViewBag.Title = "FacultyMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="facListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Master</h2>
+                <p>Manage all faculty divisions (Faculty of Engineering, Science...).</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="facShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Faculty
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Faculties</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(f => f.IsActive)</span>
+                    <span class="as-stat-label">Active Faculties</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Faculty Code</th>
+                        <th>Faculty Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="facTableBody">
+                    @foreach (var f in Model)
+                    {
+                        <tr>
+                            <td><strong>@f.FacultyCode</strong></td>
+                            <td>@f.FacultyName</td>
+                            <td>@f.Description</td>
+                            <td>
+                                @if (f.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="facShowForm(this)"
+                                        data-id="@f.FacultyId" data-code="@f.FacultyCode" data-name="@f.FacultyName"
+                                        data-desc="@f.Description" data-active="@f.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteFacultyMaster", "Master", new { id = f.FacultyId })"
+                                   onclick="return confirm('Delete this faculty?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FACULTY FORM ================= -->
+    @using (Html.BeginForm("FacultyMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="facFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="facShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Faculty List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-university"></i></div>
+                        <div>
+                            <h2 id="facFormTitle">Add Faculty</h2>
+                            <p>Define a new faculty division.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+
+                    <input type="hidden" id="facultyId" name="FacultyId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Faculty Code <span class="req">*</span></label>
+                            <input type="text" id="facultyCode" name="FacultyCode" placeholder="e.g. FOE">
+                        </div>
+                        <div class="as-field">
+                            <label>Faculty Name <span class="req">*</span></label>
+                            <input type="text" id="facultyName" name="FacultyName" placeholder="e.g. Faculty of Engineering">
+                        </div>
+                        <div class="as-field as-full">
+                            <label>Description</label>
+                            <textarea id="facultyDescription" name="Description" placeholder="Brief description..."></textarea>
+                        </div>
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="facultyStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="facShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="facSubmitText">Save Faculty</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="facToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="facToastMessage">Success!</span>
+</div>
+
+<script>function facShowForm(btn) {
+        document.getElementById('facListWrap').style.display = 'none';
+        document.getElementById('facFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('facFormTitle').textContent = 'Edit Faculty';
+            document.getElementById('facSubmitText').textContent = 'Update Faculty';
+
+            document.getElementById('facultyId').value = btn.dataset.id;
+            document.getElementById('facultyCode').value = btn.dataset.code;
+            document.getElementById('facultyName').value = btn.dataset.name;
+            document.getElementById('facultyDescription').value = btn.dataset.desc || '';
+            document.getElementById('facultyStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('facFormTitle').textContent = 'Add Faculty';
+            document.getElementById('facSubmitText').textContent = 'Save Faculty';
+            document.getElementById('facultyId').value = 0;
+            document.getElementById('facultyCode').value = '';
+            document.getElementById('facultyName').value = '';
+            document.getElementById('facultyDescription').value = '';
+            document.getElementById('facultyStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function facShowList() {
+        document.getElementById('facFormWrap').style.display = 'none';
+        document.getElementById('facListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }</script>
