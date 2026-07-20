@@ -1,8 +1,8 @@
-﻿@{
+﻿v@using System.Web.Helpers
+@{
     ViewBag.Title = "HOD Management";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
-    ViewBag.ActiveMenu = "Academic";
-    ViewData["ActiveSubMenu"] = "Department";
+    var overview = ViewBag.DepartmentHODOverview;
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +20,6 @@
                 <p>Assign, change and track Heads of Department across all departments.</p>
             </div>
             <div class="hod-header-actions">
-                <button class="hod-btn hod-btn-outline" onclick="showForm('assign')">
-                    <i class="fas fa-file-import"></i> Import
-                </button>
                 <button class="hod-btn hod-btn-primary" onclick="showForm('assign')">
                     <i class="fas fa-plus-circle"></i> Assign New HOD
                 </button>
@@ -34,29 +31,22 @@
             <div class="hod-stat-card">
                 <div class="hod-stat-icon"><i class="fas fa-building"></i></div>
                 <div class="hod-stat-info">
-                    <span class="hod-stat-number" id="totalDepts">12</span>
+                    <span class="hod-stat-number" id="totalDepts">0</span>
                     <span class="hod-stat-label">Total Departments</span>
                 </div>
             </div>
             <div class="hod-stat-card">
                 <div class="hod-stat-icon"><i class="fas fa-user-check"></i></div>
                 <div class="hod-stat-info">
-                    <span class="hod-stat-number" id="hodAssigned">10</span>
+                    <span class="hod-stat-number" id="hodAssigned">0</span>
                     <span class="hod-stat-label">HOD Assigned</span>
                 </div>
             </div>
             <div class="hod-stat-card">
                 <div class="hod-stat-icon"><i class="fas fa-user-slash"></i></div>
                 <div class="hod-stat-info">
-                    <span class="hod-stat-number" id="hodVacant">2</span>
+                    <span class="hod-stat-number" id="hodVacant">0</span>
                     <span class="hod-stat-label">Vacant Positions</span>
-                </div>
-            </div>
-            <div class="hod-stat-card">
-                <div class="hod-stat-icon"><i class="fas fa-clock"></i></div>
-                <div class="hod-stat-info">
-                    <span class="hod-stat-number" id="hodPending">0</span>
-                    <span class="hod-stat-label">Pending Changes</span>
                 </div>
             </div>
         </div>
@@ -68,19 +58,10 @@
                 <input type="text" placeholder="Search by department, HOD name, or faculty..." id="hodSearch">
             </div>
             <div class="hod-filter-group">
-                <select id="filterFaculty">
-                    <option value="">All Faculties</option>
-                    <option>Faculty of Engineering</option>
-                    <option>Faculty of Science</option>
-                    <option>Faculty of Commerce</option>
-                    <option>Faculty of Arts</option>
-                    <option>Faculty of Medicine</option>
-                </select>
                 <select id="filterStatus">
                     <option value="">All Status</option>
                     <option value="Active">Active</option>
                     <option value="Vacant">Vacant</option>
-                    <option value="Pending">Pending</option>
                 </select>
             </div>
         </div>
@@ -107,7 +88,6 @@
         <div class="hod-legend">
             <span><span class="hod-legend-dot active"></span> Active</span>
             <span><span class="hod-legend-dot vacant"></span> Vacant</span>
-            <span><span class="hod-legend-dot pending"></span> Pending</span>
         </div>
     </div>
 
@@ -147,16 +127,8 @@
                 <label>Department <span class="req">*</span></label>
                 <select id="deptSelect" onchange="onDeptChange()">
                     <option value="">-- Select Department --</option>
-                    <option value="Computer Science|Faculty of Engineering">Computer Science & Engineering</option>
-                    <option value="Physics|Faculty of Science">Physics</option>
-                    <option value="Mathematics|Faculty of Science">Mathematics</option>
-                    <option value="Accounting|Faculty of Commerce">Accounting & Finance</option>
-                    <option value="Biotechnology|Faculty of Science">Biotechnology</option>
-                    <option value="Medicine|Faculty of Medicine">Medicine</option>
-                    <option value="Fine Arts|Faculty of Arts">Fine Arts</option>
-                    <option value="Law|Faculty of Law">Law</option>
-                    <option value="Education|Faculty of Education">Education</option>
                 </select>
+                <span class="hod-hint">Managed from Department Management</span>
             </div>
             <div class="hod-field">
                 <label>Faculty</label>
@@ -225,14 +197,6 @@
                     <span class="hod-status-label hod-active" id="statusLabel">Active</span>
                 </div>
             </div>
-            <div class="hod-field">
-                <label>Priority</label>
-                <select id="priority">
-                    <option value="Normal">Normal</option>
-                    <option value="High">High Priority</option>
-                    <option value="Urgent">Urgent</option>
-                </select>
-            </div>
         </div>
 
         <div class="hod-section-title">
@@ -293,150 +257,8 @@
 </div>
 
 <script>
-    // ===== DATA STORE =====
-    const departments = [
-        {
-            dept: "Computer Science",
-            faculty: "Faculty of Engineering",
-            hod: "Dr. Ramesh Kumar",
-            empId: "EMP-1042",
-            email: "ramesh.kumar@university.edu",
-            phone: "+1 234 567 890",
-            qualification: "Ph.D. (Computer Science)",
-            designation: "Professor",
-            date: "2024-07-01",
-            tenureEnd: "2027-06-30",
-            status: "Active",
-            history: [
-                { name: "Dr. Anita Sharma", from: "2020-07-01", to: "2024-06-30", reason: "Term completion", status: "Completed" },
-                { name: "Dr. Vinod Mehta", from: "2016-07-01", to: "2020-06-30", reason: "Retirement", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Physics",
-            faculty: "Faculty of Science",
-            hod: "Dr. Sunita Verma",
-            empId: "EMP-0871",
-            email: "sunita.verma@university.edu",
-            phone: "+1 234 567 891",
-            qualification: "Ph.D. (Physics)",
-            designation: "Professor",
-            date: "2023-01-15",
-            tenureEnd: "2026-01-14",
-            status: "Active",
-            history: [
-                { name: "Dr. Alok Nigam", from: "2018-01-15", to: "2023-01-14", reason: "Transfer to another campus", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Mathematics",
-            faculty: "Faculty of Science",
-            hod: "Dr. Sarah Wilson",
-            empId: "EMP-0956",
-            email: "sarah.wilson@university.edu",
-            phone: "+1 234 567 892",
-            qualification: "Ph.D. (Mathematics)",
-            designation: "Associate Professor",
-            date: "2024-09-01",
-            tenureEnd: "2027-08-31",
-            status: "Active",
-            history: [
-                { name: "Dr. Rajesh Gupta", from: "2019-09-01", to: "2024-08-31", reason: "Promotion to Dean", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Accounting",
-            faculty: "Faculty of Commerce",
-            hod: "-",
-            empId: "-",
-            email: "-",
-            phone: "-",
-            qualification: "-",
-            designation: "-",
-            date: "-",
-            tenureEnd: "-",
-            status: "Vacant",
-            history: [
-                { name: "Dr. Preeti Singh", from: "2019-04-01", to: "2025-03-31", reason: "Resignation", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Biotechnology",
-            faculty: "Faculty of Science",
-            hod: "Dr. Emily Chen",
-            empId: "EMP-1123",
-            email: "emily.chen@university.edu",
-            phone: "+1 234 567 893",
-            qualification: "Ph.D. (Biotechnology)",
-            designation: "Professor",
-            date: "2024-01-15",
-            tenureEnd: "2027-01-14",
-            status: "Active",
-            history: [
-                { name: "Dr. Mark Taylor", from: "2020-01-15", to: "2024-01-14", reason: "Term completion", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Medicine",
-            faculty: "Faculty of Medicine",
-            hod: "Dr. Robert Brown",
-            empId: "EMP-1345",
-            email: "robert.brown@university.edu",
-            phone: "+1 234 567 894",
-            qualification: "M.D. (Internal Medicine)",
-            designation: "Professor",
-            date: "2022-06-01",
-            tenureEnd: "2025-05-31",
-            status: "Active",
-            history: []
-        },
-        {
-            dept: "Fine Arts",
-            faculty: "Faculty of Arts",
-            hod: "-",
-            empId: "-",
-            email: "-",
-            phone: "-",
-            qualification: "-",
-            designation: "-",
-            date: "-",
-            tenureEnd: "-",
-            status: "Vacant",
-            history: [
-                { name: "Prof. Lisa Taylor", from: "2018-08-01", to: "2024-07-31", reason: "Retirement", status: "Completed" }
-            ]
-        },
-        {
-            dept: "Law",
-            faculty: "Faculty of Law",
-            hod: "Prof. Michael Johnson",
-            empId: "EMP-1567",
-            email: "michael.johnson@university.edu",
-            phone: "+1 234 567 895",
-            qualification: "LL.D.",
-            designation: "Professor",
-            date: "2023-08-15",
-            tenureEnd: "2026-08-14",
-            status: "Active",
-            history: []
-        },
-        {
-            dept: "Education",
-            faculty: "Faculty of Education",
-            hod: "Dr. Laura Martinez",
-            empId: "EMP-1789",
-            email: "laura.martinez@university.edu",
-            phone: "+1 234 567 896",
-            qualification: "Ed.D.",
-            designation: "Associate Professor",
-            date: "2024-10-01",
-            tenureEnd: "2027-09-30",
-            status: "Pending",
-            history: [
-                { name: "Dr. William Davis", from: "2019-10-01", to: "2024-09-30", reason: "Promotion", status: "Completed" }
-            ]
-        }
-    ];
+    // ===== DATA STORE — seeded from real DB via controller, same shape the original JS expected =====
+    const departments = @Html.Raw(Json.Encode(overview));
 
     // ===== UTILITY FUNCTIONS =====
     function getInitials(name) {
@@ -450,22 +272,12 @@
     }
 
     function getStatusClass(status) {
-        const map = {
-            'Active': 'hod-pill-active',
-            'Vacant': 'hod-pill-vacant',
-            'Pending': 'hod-pill-pending',
-            'Completed': 'hod-pill-completed'
-        };
+        const map = { 'Active': 'hod-pill-active', 'Vacant': 'hod-pill-vacant', 'Completed': 'hod-pill-completed' };
         return map[status] || 'hod-pill-vacant';
     }
 
     function getStatusDot(status) {
-        const map = {
-            'Active': '🟢',
-            'Vacant': '🔴',
-            'Pending': '🟡',
-            'Completed': '🔵'
-        };
+        const map = { 'Active': '🟢', 'Vacant': '🔴', 'Completed': '🔵' };
         return map[status] || '⚪';
     }
 
@@ -480,30 +292,27 @@
         const body = document.getElementById("hodTableBody");
         body.innerHTML = departments.map(d => `
             <tr>
-                <td><span class="hod-dept-name"><i class="fas fa-building"></i> ${d.dept}</span></td>
+                <td><span class="hod-dept-name"><i class="fas fa-building"></i> ${d.Dept}</span></td>
                 <td>
-                    ${d.hod === "-"
+                    ${d.Hod === "-"
                 ? '<span class="hod-unassigned"><i class="fas fa-user-slash"></i> Not Assigned</span>'
-                : `<span class="hod-hod-name">${d.hod}</span>`
+                : `<span class="hod-hod-name">${d.Hod}</span>`
             }
                 </td>
-                <td>${d.empId === "-" ? '<span class="hod-muted">-</span>' : d.empId}</td>
-                <td><span class="hod-faculty-badge">${d.faculty}</span></td>
-                <td>${d.date === "-" ? '<span class="hod-muted">-</span>' : formatDate(d.date)}</td>
-                <td><span class="hod-pill ${getStatusClass(d.status)}">${getStatusDot(d.status)} ${d.status}</span></td>
+                <td>${d.EmpId === "-" ? '<span class="hod-muted">-</span>' : d.EmpId}</td>
+                <td><span class="hod-faculty-badge">${d.Faculty}</span></td>
+                <td>${d.Date === "-" ? '<span class="hod-muted">-</span>' : formatDate(d.Date)}</td>
+                <td><span class="hod-pill ${getStatusClass(d.Status)}">${getStatusDot(d.Status)} ${d.Status}</span></td>
                 <td class="hod-actions">
-                    ${d.hod === "-"
-                ? `<button class="hod-btn hod-btn-sm hod-btn-primary" onclick="showForm('assign','${d.dept}')">
+                    ${d.Hod === "-"
+                ? `<button class="hod-btn hod-btn-sm hod-btn-primary" onclick="showForm('assign','${d.DeptId}')">
                             <i class="fas fa-user-plus"></i> Assign
                            </button>`
-                : `<button class="hod-mini-btn hod-mini-view" onclick="showForm('view','${d.dept}')" title="View Details">
+                : `<button class="hod-mini-btn hod-mini-view" onclick="showForm('view','${d.DeptId}')" title="View Details">
                             <i class="fas fa-eye"></i>
                            </button>
-                           <button class="hod-mini-btn hod-mini-edit" onclick="showForm('change','${d.dept}')" title="Change HOD">
+                           <button class="hod-mini-btn hod-mini-edit" onclick="showForm('change','${d.DeptId}')" title="Change HOD">
                             <i class="fas fa-user-edit"></i>
-                           </button>
-                           <button class="hod-mini-btn hod-mini-history" onclick="showForm('history','${d.dept}')" title="View History">
-                            <i class="fas fa-history"></i>
                            </button>`
             }
                 </td>
@@ -512,17 +321,20 @@
         updateStats();
     }
 
-    // ===== UPDATE STATS =====
     function updateStats() {
         const total = departments.length;
-        const assigned = departments.filter(d => d.hod !== "-").length;
-        const vacant = departments.filter(d => d.hod === "-").length;
-        const pending = departments.filter(d => d.status === "Pending").length;
+        const assigned = departments.filter(d => d.Hod !== "-").length;
+        const vacant = departments.filter(d => d.Hod === "-").length;
 
         document.getElementById('totalDepts').textContent = total;
         document.getElementById('hodAssigned').textContent = assigned;
         document.getElementById('hodVacant').textContent = vacant;
-        document.getElementById('hodPending').textContent = pending;
+    }
+
+    function populateDeptSelect() {
+        const sel = document.getElementById("deptSelect");
+        sel.innerHTML = '<option value="">-- Select Department --</option>' +
+            departments.map(d => `<option value="${d.DeptId}">${d.Dept}</option>`).join("");
     }
 
     // ===== SHOW/HIDE =====
@@ -532,11 +344,10 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showForm(mode, deptName) {
+    function showForm(mode, deptId) {
         document.getElementById("hodListView").style.display = 'none';
         document.getElementById("hodFormView").style.display = 'block';
 
-        // Reset form
         document.getElementById("hodName").value = "";
         document.getElementById("empId").value = "";
         document.getElementById("designation").value = "";
@@ -546,222 +357,141 @@
         document.getElementById("effDate").value = "";
         document.getElementById("tenureEnd").value = "";
         document.getElementById("reason").value = "";
-        document.getElementById("priority").value = "Normal";
         document.getElementById("statusToggle").checked = true;
         updateStatusLabel();
         document.getElementById("currentHodBlock").style.display = 'none';
 
-        // Set title based on mode
         const modeMap = {
             'assign': { title: 'Assign HOD', subtitle: 'Select a department and assign a new Head of Department.' },
             'change': { title: 'Change HOD', subtitle: 'Replace the current HOD with a new appointment.' },
-            'view': { title: 'HOD Details', subtitle: 'View detailed information about the current HOD.' },
-            'history': { title: 'HOD History', subtitle: 'Complete history of HOD assignments for this department.' }
+            'view': { title: 'HOD Details', subtitle: 'View detailed information about the current HOD.' }
         };
-
         const selected = modeMap[mode] || modeMap['assign'];
         document.getElementById("hodFormTitle").textContent = selected.title;
         document.getElementById("hodFormSubtitle").textContent = selected.subtitle;
 
-        // Disable fields for view mode
         const isView = mode === 'view';
         document.querySelectorAll('#hodFormView input, #hodFormView select, #hodFormView textarea').forEach(el => {
             el.disabled = isView;
         });
+        document.querySelector('#hodFormView .hod-btn-primary').style.display = isView ? 'none' : 'inline-flex';
 
-        if (deptName) {
-            const d = departments.find(x => x.dept === deptName);
-            if (d) {
-                document.getElementById("deptSelect").value = `${d.dept}|${d.faculty}`;
-                document.getElementById("deptSelect").disabled = isView || mode === 'view' || mode === 'history';
-                onDeptChange();
-
-                // For view/history mode, pre-fill all fields
-                if (mode === 'view' || mode === 'history') {
-                    if (d.hod !== "-") {
-                        document.getElementById("hodName").value = d.hod;
-                        document.getElementById("empId").value = d.empId;
-                        document.getElementById("designation").value = d.designation || '';
-                        document.getElementById("hodEmail").value = d.email;
-                        document.getElementById("hodPhone").value = d.phone || '';
-                        document.getElementById("hodQualification").value = d.qualification || '';
-                        document.getElementById("effDate").value = d.date;
-                        document.getElementById("tenureEnd").value = d.tenureEnd || '';
-                        document.getElementById("statusToggle").checked = d.status === 'Active';
-                        updateStatusLabel();
-                        document.getElementById("currentHodBlock").style.display = 'block';
-                    }
-
-                    // Hide form fields for history mode, show only history
-                    if (mode === 'history') {
-                        document.querySelectorAll('#hodFormView .hod-grid, #hodFormView .hod-section-title:not(.hod-history-section .hod-section-title)').forEach(el => {
-                            if (!el.closest('.hod-history-section')) {
-                                el.style.display = 'none';
-                            }
-                        });
-                        document.getElementById('historySection').style.display = 'block';
-                    } else {
-                        document.querySelectorAll('#hodFormView .hod-grid, #hodFormView .hod-section-title').forEach(el => {
-                            el.style.display = '';
-                        });
-                        document.getElementById('historySection').style.display = 'block';
-                    }
-                } else {
-                    document.querySelectorAll('#hodFormView .hod-grid, #hodFormView .hod-section-title').forEach(el => {
-                        el.style.display = '';
-                    });
-                    document.getElementById('historySection').style.display = 'block';
-                    document.getElementById("deptSelect").disabled = false;
-                }
-            }
+        if (deptId) {
+            document.getElementById("deptSelect").value = deptId;
+            document.getElementById("deptSelect").disabled = isView;
+            onDeptChange(mode);
         } else {
             document.getElementById("deptSelect").value = "";
             document.getElementById("facultyField").value = "";
-            document.getElementById("historyBody").innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">
-                        <i class="fas fa-info-circle"></i> Select a department to view HOD history
-                    </td>
-                </tr>
-            `;
             document.getElementById("deptSelect").disabled = false;
+            document.getElementById("historyBody").innerHTML = `
+                <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">
+                    <i class="fas fa-info-circle"></i> Select a department to view HOD history
+                </td></tr>`;
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ===== DEPARTMENT CHANGE =====
-    function onDeptChange() {
+    function onDeptChange(mode) {
         const val = document.getElementById("deptSelect").value;
         if (!val) {
             document.getElementById("facultyField").value = "";
             document.getElementById("currentHodBlock").style.display = 'none';
-            document.getElementById("historyBody").innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">
-                        <i class="fas fa-info-circle"></i> Select a department to view HOD history
-                    </td>
-                </tr>
-            `;
             return;
         }
 
-        const [deptName, faculty] = val.split("|");
-        document.getElementById("facultyField").value = faculty;
-        const d = departments.find(x => x.dept === deptName);
+        const d = departments.find(x => String(x.DeptId) === String(val));
+        if (!d) return;
 
-        // Show current HOD
-        if (d.hod !== "-") {
+        document.getElementById("facultyField").value = d.Faculty;
+
+        if (d.Hod !== "-") {
             document.getElementById("currentHodBlock").style.display = 'flex';
-            document.getElementById("curAvt").textContent = getInitials(d.hod);
-            document.getElementById("curName").textContent = d.hod;
-            document.getElementById("curMeta").textContent = `Since ${formatDate(d.date)} · ${d.email}`;
-            document.getElementById("curStatus").textContent = d.status;
-            document.getElementById("curStatus").className = `hod-pill ${getStatusClass(d.status)}`;
+            document.getElementById("curAvt").textContent = getInitials(d.Hod);
+            document.getElementById("curName").textContent = d.Hod;
+            document.getElementById("curMeta").textContent = `Since ${formatDate(d.Date)} · ${d.Email}`;
+            document.getElementById("curStatus").textContent = d.Status;
+            document.getElementById("curStatus").className = `hod-pill ${getStatusClass(d.Status)}`;
+
+            if (mode === 'view' || mode === 'change') {
+                document.getElementById("hodName").value = d.Hod;
+                document.getElementById("empId").value = d.EmpId;
+                document.getElementById("designation").value = d.Designation || '';
+                document.getElementById("hodEmail").value = d.Email;
+                document.getElementById("hodPhone").value = d.Phone || '';
+                document.getElementById("hodQualification").value = d.Qualification || '';
+                document.getElementById("effDate").value = d.Date;
+                document.getElementById("tenureEnd").value = d.TenureEnd || '';
+                document.getElementById("statusToggle").checked = d.Status === 'Active';
+                updateStatusLabel();
+            }
         } else {
             document.getElementById("currentHodBlock").style.display = 'none';
         }
 
-        // Show history
-        const hist = d.history || [];
+        // History
+        const hist = d.History || [];
         document.getElementById("historyBody").innerHTML = hist.length ? hist.map(h => `
             <tr>
-                <td><strong>${h.name}</strong></td>
-                <td>${formatDate(h.from)}</td>
-                <td>${formatDate(h.to)}</td>
-                <td>${h.reason}</td>
-                <td><span class="hod-pill ${getStatusClass(h.status)}">${getStatusDot(h.status)} ${h.status}</span></td>
+                <td><strong>${h.Name}</strong></td>
+                <td>${formatDate(h.From)}</td>
+                <td>${formatDate(h.To)}</td>
+                <td>${h.Reason}</td>
+                <td><span class="hod-pill ${getStatusClass(h.Status)}">${getStatusDot(h.Status)} ${h.Status}</span></td>
             </tr>
         `).join("") : `
-            <tr>
-                <td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">
-                    <i class="fas fa-info-circle"></i> No previous HOD history for this department
-                </td>
-            </tr>
-        `;
-
-        // Auto-fill form with existing data for edit
-        if (d.hod !== "-" && document.getElementById("hodName").value === "") {
-            document.getElementById("hodName").value = d.hod;
-            document.getElementById("empId").value = d.empId;
-            document.getElementById("designation").value = d.designation || '';
-            document.getElementById("hodEmail").value = d.email;
-            document.getElementById("hodPhone").value = d.phone || '';
-            document.getElementById("hodQualification").value = d.qualification || '';
-            document.getElementById("effDate").value = d.date;
-            document.getElementById("tenureEnd").value = d.tenureEnd || '';
-            document.getElementById("statusToggle").checked = d.status === 'Active';
-            updateStatusLabel();
-        }
+            <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">
+                <i class="fas fa-info-circle"></i> No previous HOD history for this department
+            </td></tr>`;
     }
 
     // ===== STATUS TOGGLE =====
     function updateStatusLabel() {
         const checked = document.getElementById("statusToggle").checked;
         const label = document.getElementById("statusLabel");
-        if (checked) {
-            label.textContent = "Active";
-            label.className = "hod-status-label hod-active";
-        } else {
-            label.textContent = "Inactive";
-            label.className = "hod-status-label hod-inactive";
-        }
+        label.textContent = checked ? "Active" : "Inactive";
+        label.className = "hod-status-label " + (checked ? "hod-active" : "hod-inactive");
     }
 
-    // ===== SAVE HOD =====
+    // ===== SAVE HOD (AJAX -> Controller) =====
     function saveHod() {
-        const deptVal = document.getElementById("deptSelect").value;
+        const deptId = document.getElementById("deptSelect").value;
         const name = document.getElementById("hodName").value.trim();
         const eff = document.getElementById("effDate").value;
         const email = document.getElementById("hodEmail").value.trim();
         const empId = document.getElementById("empId").value.trim();
 
-        if (!deptVal) {
-            showToast('Please select a department', 'error');
-            return;
-        }
-        if (!name) {
-            showToast('Please enter HOD name', 'error');
-            return;
-        }
-        if (!eff) {
-            showToast('Please select effective date', 'error');
-            return;
-        }
-        if (!email) {
-            showToast('Please enter HOD email', 'error');
-            return;
-        }
+        if (!deptId) { showToast('Please select a department', 'error'); return; }
+        if (!name) { showToast('Please enter HOD name', 'error'); return; }
+        if (!eff) { showToast('Please select effective date', 'error'); return; }
+        if (!email) { showToast('Please enter HOD email', 'error'); return; }
 
-        const [deptName, faculty] = deptVal.split("|");
-        const d = departments.find(x => x.dept === deptName);
-        const isActive = document.getElementById("statusToggle").checked;
+        const payload = {
+            DepartmentId: parseInt(deptId),
+            HODName: name,
+            EmployeeId: empId,
+            Designation: document.getElementById("designation").value,
+            Qualification: document.getElementById("hodQualification").value,
+            Email: email,
+            Phone: document.getElementById("hodPhone").value,
+            EffectiveDate: eff,
+            TenureEndDate: document.getElementById("tenureEnd").value || null,
+            ReasonForChange: document.getElementById("reason").value
+        };
 
-        // Add to history if replacing
-        if (d.hod !== "-") {
-            d.history.unshift({
-                name: d.hod,
-                from: d.date,
-                to: eff,
-                reason: document.getElementById("reason").value || "Reassigned",
-                status: "Completed"
-            });
-        }
-
-        // Update HOD details
-        d.hod = name;
-        d.empId = empId;
-        d.email = email;
-        d.phone = document.getElementById("hodPhone").value || "-";
-        d.qualification = document.getElementById("hodQualification").value || "-";
-        d.designation = document.getElementById("designation").value || "-";
-        d.date = eff;
-        d.tenureEnd = document.getElementById("tenureEnd").value || "";
-        d.status = isActive ? "Active" : "Inactive";
-
-        renderList();
-        showToast('HOD assigned successfully!', 'success');
-        showList();
+        fetch('/AcademicSetup/AssignHOD', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) setTimeout(() => location.reload(), 800);
+            })
+            .catch(() => showToast('Server error while saving HOD', 'error'));
     }
 
     // ===== TOAST =====
@@ -769,48 +499,30 @@
         const toast = document.getElementById('hodToast');
         const messageEl = document.getElementById('hodToastMessage');
         const icon = toast.querySelector('i');
-
         messageEl.textContent = msg;
         icon.className = type === 'success' ? 'fas fa-check-circle' :
-            type === 'error' ? 'fas fa-exclamation-circle' :
-                'fas fa-info-circle';
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
         toast.className = 'hod-toast show ' + (type || '');
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     // ===== SEARCH & FILTER =====
     document.getElementById('hodSearch')?.addEventListener('input', function (e) {
         const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#hodTableBody tr');
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        document.querySelectorAll('#hodTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
         });
     });
 
-    document.getElementById('filterFaculty')?.addEventListener('change', applyFilters);
-    document.getElementById('filterStatus')?.addEventListener('change', applyFilters);
-
-    function applyFilters() {
-        const facultyFilter = document.getElementById('filterFaculty').value;
-        const statusFilter = document.getElementById('filterStatus').value;
-
-        const rows = document.querySelectorAll('#hodTableBody tr');
-        rows.forEach(row => {
-            const faculty = row.children[3]?.textContent.trim() || '';
+    document.getElementById('filterStatus')?.addEventListener('change', function () {
+        const statusFilter = this.value;
+        document.querySelectorAll('#hodTableBody tr').forEach(row => {
             const status = row.children[5]?.textContent.trim() || '';
-
-            let show = true;
-            if (facultyFilter && !faculty.includes(facultyFilter)) show = false;
-            if (statusFilter && !status.includes(statusFilter)) show = false;
-
-            row.style.display = show ? '' : 'none';
+            row.style.display = (!statusFilter || status.includes(statusFilter)) ? '' : 'none';
         });
-    }
+    });
 
     // ===== INIT =====
+    populateDeptSelect();
     renderList();
 </script>

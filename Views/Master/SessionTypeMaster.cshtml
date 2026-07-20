@@ -1,0 +1,210 @@
+﻿@model List<Regis.Models.SessionTypeModel>
+@{
+    ViewBag.Title = "SessionTypeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="as-warning-box" style="background:#E4F7EF; border-color:#1AAE7C;">
+            <i class="fas fa-check-circle"></i>
+            <div>@TempData["Success"]</div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="as-warning-box as-warning-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>@TempData["Error"]</div>
+        </div>
+    }
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="stListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-calendar-day"></i> Session Type Master</h2>
+                <p>Manage session types (Annual, Semester, Trimester...) used by Academic Session.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="stShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Session Type
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Session Types</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(x => x.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Code</th>
+                        <th>Session Type Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int sn = 1; }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@sn</td>
+                            <td><strong>@item.SessionTypeCode</strong></td>
+                            <td>@item.SessionTypeName</td>
+                            <td>@item.Description</td>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(item.CreatedDate?.ToString("dd-MMM-yyyy"))</td>
+                            <td>
+                                <button class="as-mini-btn" title="Edit"
+                                        onclick="stEdit(@item.SessionTypeId, '@Html.Raw(item.SessionTypeCode)', '@Html.Raw(item.SessionTypeName)', '@Html.Raw(item.Description)', @(item.DisplayOrder ?? 0), @(item.IsActive ? "true" : "false"))">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete" href="@Url.Action("DeleteSessionType", "Master", new { id = item.SessionTypeId })"
+                                   onclick="return confirm('Delete this session type?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        sn++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM (real MVC form POST) ================= -->
+    <div class="as-card as-wizard-card" id="stFormWrap" style="display:none;">
+        <div class="as-back-row">
+            <button class="as-back-link" type="button" onclick="stShowList()">
+                <i class="fas fa-arrow-left"></i> Back to Session Type List
+            </button>
+        </div>
+
+        @using (Html.BeginForm("SessionTypeMaster", "Master", FormMethod.Post))
+        {
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-calendar-day"></i></div>
+                        <div>
+                            <h2 id="stFormTitle">Add Session Type</h2>
+                            <p>Define a new session type used by Academic Session.</p>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="SessionTypeId" name="SessionTypeId" value="0" />
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Session Type Details</div>
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Code <span class="req">*</span></label>
+                            <input type="text" id="SessionTypeCode" name="SessionTypeCode" placeholder="e.g. ANNUAL, SEM, TRI">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Session Type Name <span class="req">*</span></label>
+                            <input type="text" id="SessionTypeName" name="SessionTypeName" placeholder="e.g. Annual, Semester, Trimester">
+                        </div>
+
+                        <div class="as-field as-full">
+                            <label>Description</label>
+                            <input type="text" id="Description" name="Description" placeholder="e.g. Annual pattern - B.A., B.Sc., B.Com">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Display Order</label>
+                            <input type="number" id="DisplayOrder" name="DisplayOrder" min="1" placeholder="e.g. 1">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="IsActive" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button class="as-btn as-btn-ghost" type="button" onclick="stShowList()">Cancel</button>
+                        <span></span>
+                        <button class="as-btn as-btn-primary" type="submit">
+                            <i class="fas fa-save"></i> Save Session Type
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    // If the last POST failed validation or produced an error, keep the form open;
+    // otherwise default to showing the list.
+    function stShowForm() {
+        document.getElementById('stListWrap').style.display = 'none';
+        document.getElementById('stFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function stShowList() {
+        document.getElementById('stFormWrap').style.display = 'none';
+        document.getElementById('stListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Populate the real form fields (which post to the Controller) for editing.
+    function stEdit(id, code, name, description, displayOrder, isActive) {
+        document.getElementById('SessionTypeId').value = id;
+        document.getElementById('SessionTypeCode').value = code;
+        document.getElementById('SessionTypeName').value = name;
+        document.getElementById('Description').value = description;
+        document.getElementById('DisplayOrder').value = displayOrder;
+        document.getElementById('IsActive').value = isActive;
+        document.getElementById('stFormTitle').textContent = 'Edit Session Type';
+        stShowForm();
+    }</script>
+
+

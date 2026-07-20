@@ -1,0 +1,287 @@
+﻿@using Regis.Models
+@{
+    ViewBag.Title = "Faculty Management";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    ViewBag.ActiveMenu = "Academic";
+    ViewData["ActiveSubMenu"] = "Faculty";
+
+    var faculties = ViewBag.Faculties as List<FacultyModel> ?? new List<FacultyModel>();
+    var departments = ViewBag.Departments as List<DepartmentModel> ?? new List<DepartmentModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/facultyManagement.css" rel="stylesheet" />
+
+<div class="fm-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="fm-card" id="fmListWrap">
+        <!-- Header -->
+        <div class="fm-list-head">
+            <div>
+                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Management</h2>
+                <p>Manage all faculty divisions and their departments.</p>
+            </div>
+            <div class="fm-header-actions">
+                <button class="fm-btn fm-btn-primary" onclick="showWizard('faculty')">
+                    <i class="fas fa-plus-circle"></i> Add Faculty
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="fm-quick-stats">
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number">@faculties.Count</span>
+                    <span class="fm-stat-label">Total Faculties</span>
+                </div>
+            </div>
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number">@departments.Count</span>
+                    <span class="fm-stat-label">Departments</span>
+                </div>
+            </div>
+            <div class="fm-stat-card">
+                <div class="fm-stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="fm-stat-info">
+                    <span class="fm-stat-number">@faculties.Count(f => f.IsActive)</span>
+                    <span class="fm-stat-label">Active Faculties</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="fm-tabs">
+            <button class="fm-tab active" data-tab="faculty" onclick="switchTab('faculty')">
+                <i class="fas fa-users"></i> Faculty
+            </button>
+            <button class="fm-tab" data-tab="departments" onclick="switchTab('departments')">
+                <i class="fas fa-building"></i> Departments
+            </button>
+        </div>
+
+        <!-- ===== FACULTY LIST ===== -->
+        <div class="fm-tab-content active" id="tabFaculty">
+            <div class="fm-table-toolbar">
+                <div class="fm-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search faculty by name or code..." id="facultySearch">
+                </div>
+            </div>
+
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Faculty Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facultyTableBody">
+                        @foreach (var f in faculties)
+                        {
+                            <tr>
+                                <td><strong>@f.FacultyCode</strong></td>
+                                <td>@f.FacultyName</td>
+                                <td>@f.Description</td>
+                                <td>
+                                    @if (f.IsActive)
+                                    {
+                                        <span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fm-pill fm-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button type="button" class="fm-mini-btn" title="Edit" onclick="editFaculty(this)"
+                                            data-id="@f.FacultyId" data-code="@f.FacultyCode" data-name="@f.FacultyName"
+                                            data-desc="@f.Description" data-active="@f.IsActive.ToString().ToLower()">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a class="fm-mini-btn" title="Delete"
+                                       href="@Url.Action("DeleteFaculty", "AcademicSetup", new { id = f.FacultyId })"
+                                       onclick="return confirm('Delete this faculty?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== DEPARTMENTS LIST (read-only here; managed fully on Department page) ===== -->
+        <div class="fm-tab-content" id="tabDepartments">
+            <div class="fm-table-wrapper">
+                <table class="fm-table">
+                    <thead>
+                        <tr>
+                            <th>Department Code</th>
+                            <th>Department Name</th>
+                            <th>Faculty</th>
+                            <th>Campus</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in departments)
+                        {
+                            <tr>
+                                <td><strong>@d.DepartmentCode</strong></td>
+                                <td>@d.DepartmentName</td>
+                                <td>@d.FacultyName</td>
+                                <td>@d.CampusName</td>
+                                <td>
+                                    @if (d.IsActive)
+                                    {
+                                        <span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fm-pill fm-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a class="fm-mini-btn" title="Manage in Department Management" href="@Url.Action("DepartmentManagement", "AcademicSetup")">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:0.8rem; font-size:0.8rem; color:#94a3b8;">
+                <i class="fas fa-info-circle"></i> Full department Add/Edit is managed on the
+                <a href="@Url.Action("DepartmentManagement", "AcademicSetup")">Department Management</a> page.
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="fm-legend">
+            <span><span class="fm-legend-dot active"></span> Active</span>
+            <span><span class="fm-legend-dot inactive"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= WIZARD (Add/Edit Faculty) ================= -->
+    @using (Html.BeginForm("FacultyManagement", "AcademicSetup", FormMethod.Post))
+    {
+        <div class="fm-card fm-wizard-card" id="fmWizardWrap" style="display:none;">
+
+            <div class="fm-back-row">
+                <button type="button" class="fm-back-link" onclick="showList()">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </button>
+            </div>
+
+            <div class="fm-wizard-content" id="wizardFaculty">
+
+                <input type="hidden" id="facultyId" name="FacultyId" value="0" />
+
+                <div class="fm-section-title">
+                    <i class="fas fa-university"></i> Faculty Details
+                </div>
+                <div class="fm-grid">
+                    <div class="fm-field">
+                        <label>Faculty Code <span class="req">*</span></label>
+                        <input type="text" id="facultyCode" name="FacultyCode" placeholder="e.g. FOE">
+                    </div>
+                    <div class="fm-field">
+                        <label>Faculty Name <span class="req">*</span></label>
+                        <input type="text" id="facultyName" name="FacultyName" placeholder="e.g. Faculty of Engineering">
+                    </div>
+                    <div class="fm-field fm-full">
+                        <label>Description</label>
+                        <textarea id="facultyDescription" name="Description" placeholder="Brief description of this faculty division..."></textarea>
+                    </div>
+                    <div class="fm-field">
+                        <label>Status</label>
+                        <select id="facultyStatus" name="IsActive">
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fm-bar">
+                    <span></span>
+                    <div class="fm-step-count" id="fmFormTitle">Add Faculty</div>
+                    <button type="submit" class="fm-btn fm-btn-primary">
+                        <i class="fas fa-save"></i> <span id="fmSubmitText">Save Faculty</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<!-- Toast Notification -->
+<div class="fm-toast" id="fmToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="fmToastMessage">Success!</span>
+</div>
+
+<script>function showWizard() {
+        document.getElementById('fmListWrap').style.display = 'none';
+        document.getElementById('fmWizardWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showList() {
+        document.getElementById('fmWizardWrap').style.display = 'none';
+        document.getElementById('fmListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function editFaculty(btn) {
+        showWizard();
+        document.getElementById('fmFormTitle').textContent = 'Edit Faculty';
+        document.getElementById('fmSubmitText').textContent = 'Update Faculty';
+
+        document.getElementById('facultyId').value = btn.dataset.id;
+        document.getElementById('facultyCode').value = btn.dataset.code;
+        document.getElementById('facultyName').value = btn.dataset.name;
+        document.getElementById('facultyDescription').value = btn.dataset.desc || '';
+        document.getElementById('facultyStatus').value = btn.dataset.active;
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.fm-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.fm-tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('.fm-tab[data-tab="' + tab + '"]').classList.add('active');
+        document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    }
+
+    // Reset form when opening as "Add"
+    document.querySelector('.fm-btn-primary[onclick="showWizard(\'faculty\')"]')?.addEventListener('click', function () {
+        document.getElementById('fmFormTitle').textContent = 'Add Faculty';
+        document.getElementById('fmSubmitText').textContent = 'Save Faculty';
+        document.getElementById('facultyId').value = 0;
+        document.getElementById('facultyCode').value = '';
+        document.getElementById('facultyName').value = '';
+        document.getElementById('facultyDescription').value = '';
+        document.getElementById('facultyStatus').value = 'true';
+    });
+
+    // Search functionality
+    document.getElementById('facultySearch')?.addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('#facultyTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    });</script>

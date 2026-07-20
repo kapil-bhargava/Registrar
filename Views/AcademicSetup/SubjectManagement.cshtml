@@ -1,9 +1,11 @@
-﻿
+﻿@model List<Regis.Models.SubjectModel>
+@using Regis.Models
+
 @{
     ViewBag.Title = "SubjectManagement";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = ViewBag.Courses as List<CourseModel> ?? new List<CourseModel>();
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,28 +30,28 @@
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-book-open"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="subTotalSubjects">6</span>
+                    <span class="as-stat-number">@Model.Count</span>
                     <span class="as-stat-label">Total Subjects</span>
                 </div>
             </div>
             <div class="as-stat-card active">
                 <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="subActiveSubjects">5</span>
+                    <span class="as-stat-number">@Model.Count(s => s.Status == "Active")</span>
                     <span class="as-stat-label">Active Subjects</span>
                 </div>
             </div>
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="subTheorySubjects">3</span>
+                    <span class="as-stat-number">@Model.Count(s => s.SubjectType == "Theory")</span>
                     <span class="as-stat-label">Theory Subjects</span>
                 </div>
             </div>
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-flask"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="subPracticalSubjects">2</span>
+                    <span class="as-stat-number">@Model.Count(s => s.SubjectType == "Practical")</span>
                     <span class="as-stat-label">Practical Subjects</span>
                 </div>
             </div>
@@ -71,58 +73,44 @@
                     </tr>
                 </thead>
                 <tbody id="subTableBody">
-                    <tr>
-                        <td><strong>Data Structures</strong></td>
-                        <td>CS201</td>
-                        <td><span class="as-type-badge">Theory</span></td>
-                        <td>B.Tech - CS</td>
-                        <td>Semester 3</td>
-                        <td>4</td>
-                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
-                        <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Electronics Lab</strong></td>
-                        <td>EC202L</td>
-                        <td><span class="as-type-badge">Practical</span></td>
-                        <td>B.Tech - CS</td>
-                        <td>Semester 3</td>
-                        <td>2</td>
-                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
-                        <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Database Management Systems</strong></td>
-                        <td>CS301</td>
-                        <td><span class="as-type-badge">Mixed</span></td>
-                        <td>B.Tech - CS</td>
-                        <td>Semester 5</td>
-                        <td>5</td>
-                        <td><span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span></td>
-                        <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Marketing Management</strong></td>
-                        <td>MBA104</td>
-                        <td><span class="as-type-badge">Theory</span></td>
-                        <td>MBA</td>
-                        <td>Semester 1</td>
-                        <td>3</td>
-                        <td><span class="as-pill as-pill-draft"><i class="fas fa-pencil"></i> Draft</span></td>
-                        <td>
-                            <button class="as-mini-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="as-mini-btn" title="Edit" onclick="subShowForm(this)"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td><strong>@s.SubjectName</strong></td>
+                            <td>@s.SubjectCode</td>
+                            <td><span class="as-type-badge">@s.SubjectType</span></td>
+                            <td>@s.CourseName</td>
+                            <td>@s.SemesterName</td>
+                            <td>@s.Credits</td>
+                            <td>
+                                @if (s.Status == "Active")
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else if (s.Status == "Draft")
+                                {
+                                    <span class="as-pill as-pill-draft"><i class="fas fa-pencil"></i> Draft</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="subShowForm(this)"
+                                        data-id="@s.SubjectId" data-code="@s.SubjectCode" data-name="@s.SubjectName"
+                                        data-type="@s.SubjectType" data-courseid="@s.CourseId" data-semesterid="@s.SemesterId"
+                                        data-credits="@s.Credits" data-status="@s.Status">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteSubject", "AcademicSetup", new { id = s.SubjectId })"
+                                   onclick="return confirm('Delete this subject?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -135,123 +123,98 @@
     </div>
 
     <!-- ================= ADD / EDIT SUBJECT FORM ================= -->
-    <div class="as-card as-wizard-card" id="subFormWrap" style="display:none;">
+    @using (Html.BeginForm("SubjectManagement", "AcademicSetup", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="subFormWrap" style="display:none;">
 
-        <div class="as-back-row">
-            <button class="as-back-link" onclick="subShowList()">
-                <i class="fas fa-arrow-left"></i> Back to Subjects List
-            </button>
-        </div>
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="subShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Subjects List
+                </button>
+            </div>
 
-        <div class="as-body">
-            <div class="as-page active">
-                <div class="as-head">
-                    <div class="as-icon"><i class="fas fa-book-medical"></i></div>
-                    <div>
-                        <h2 id="subFormTitle">Add Subject</h2>
-                        <p>Define a new subject and map it to a course &amp; semester.</p>
-                    </div>
-                </div>
-
-                <div class="as-section-title">
-                    <i class="fas fa-info-circle"></i> Basic Details
-                </div>
-                <div class="as-grid">
-                    <div class="as-field as-full">
-                        <label>Subject Name <span class="req">*</span></label>
-                        <input type="text" id="subjectName" placeholder="e.g. Data Structures">
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-book-medical"></i></div>
+                        <div>
+                            <h2 id="subFormTitle">Add Subject</h2>
+                            <p>Define a new subject and map it to a course &amp; semester.</p>
+                        </div>
                     </div>
 
-                    <div class="as-field">
-                        <label>Subject Code <span class="req">*</span></label>
-                        <input type="text" id="subjectCode" placeholder="e.g. CS201">
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Basic Details
                     </div>
 
-                    <div class="as-field">
-                        <label>Subject Type <span class="req">*</span></label>
-                        <select id="subjectType">
-                            <option value="">-- Select Subject Type --</option>
-                            <option value="Theory">Theory</option>
-                            <option value="Practical">Practical (e.g. Electronics Lab)</option>
-                            <option value="Mixed">Mixed (Theory + Practical)</option>
-                        </select>
+                    <input type="hidden" id="subjectId" name="SubjectId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Subject Name <span class="req">*</span></label>
+                            <input type="text" id="subjectName" name="SubjectName" placeholder="e.g. Data Structures">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Subject Code <span class="req">*</span></label>
+                            <input type="text" id="subjectCode" name="SubjectCode" placeholder="e.g. CS201">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Subject Type <span class="req">*</span></label>
+                            <select id="subjectType" name="SubjectType">
+                                <option value="">-- Select Subject Type --</option>
+                                <option value="Theory">Theory</option>
+                                <option value="Practical">Practical</option>
+                                <option value="Mixed">Mixed (Theory + Practical)</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Course <span class="req">*</span></label>
+                            <select id="subjectCourse" name="CourseId" onchange="subLoadSemesters()">
+                                <option value="">-- Select Course --</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">@c.CourseName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Course Management</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Semester <span class="req">*</span></label>
+                            <select id="subjectSemester" name="SemesterId">
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Credits <span class="req">*</span></label>
+                            <input type="number" id="subjectCredits" name="Credits" placeholder="e.g. 4" min="1" max="10">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="subjectStatus" name="Status">
+                                <option value="Active">Active</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="as-field">
-                        <label>Course <span class="req">*</span></label>
-                        <select id="subjectCourse">
-                            <option value="">-- Select Course --</option>
-                            <option value="BTECH-CS">B.Tech - Computer Science</option>
-                            <option value="MBA">MBA</option>
-                            <option value="BCA">BCA</option>
-                        </select>
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="subShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="subSubmitText">Save Subject</span>
+                        </button>
                     </div>
-
-                    <div class="as-field">
-                        <label>Semester <span class="req">*</span></label>
-                        <select id="subjectSemester">
-                            <option value="">-- Select Semester --</option>
-                            <option value="1">Semester 1</option>
-                            <option value="2">Semester 2</option>
-                            <option value="3">Semester 3</option>
-                            <option value="4">Semester 4</option>
-                            <option value="5">Semester 5</option>
-                            <option value="6">Semester 6</option>
-                            <option value="7">Semester 7</option>
-                            <option value="8">Semester 8</option>
-                        </select>
-                    </div>
-
-                    <div class="as-field">
-                        <label>Academic Department <span class="req">*</span></label>
-                        <select id="subjectDepartment">
-                            <option value="">-- Select Department --</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Management">Management</option>
-                        </select>
-                    </div>
-
-                    <div class="as-field">
-                        <label>Credits <span class="req">*</span></label>
-                        <input type="number" id="subjectCredits" placeholder="e.g. 4" min="1" max="10">
-                    </div>
-
-                    <div class="as-field">
-                        <label>Faculty</label>
-                        <select id="subjectFaculty">
-                            <option value="">-- Select Faculty --</option>
-                            <option value="Faculty of Engineering">Faculty of Engineering</option>
-                            <option value="Faculty of Science">Faculty of Science</option>
-                            <option value="Faculty of Commerce">Faculty of Commerce</option>
-                        </select>
-                    </div>
-
-                    <div class="as-field">
-                        <label>Status</label>
-                        <select id="subjectStatus">
-                            <option value="Active">Active</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-
-                    <div class="as-field as-full">
-                        <label>Description</label>
-                        <textarea id="subjectDescription" rows="3" placeholder="Brief description about this subject..."></textarea>
-                    </div>
-                </div>
-
-                <div class="as-bar">
-                    <button class="as-btn as-btn-ghost" onclick="subShowList()">Cancel</button>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="subSaveSubject()">
-                        <i class="fas fa-save"></i> Save Subject
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    }
 
 </div>
 
@@ -261,10 +224,56 @@
     <span id="subToastMessage">Success!</span>
 </div>
 
-<script>function subShowForm(btn) {
+<script>
+    // Cascading dropdown: Course -> Semesters (AJAX -> Controller)
+    function subLoadSemesters(preselectId) {
+        const courseId = document.getElementById('subjectCourse').value;
+        const semSelect = document.getElementById('subjectSemester');
+        semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+
+        if (!courseId) return;
+
+        fetch('/AcademicSetup/GetSemestersByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(list => {
+                list.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.SemesterId;
+                    opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
+                    if (preselectId && String(s.SemesterId) === String(preselectId)) opt.selected = true;
+                    semSelect.appendChild(opt);
+                });
+            });
+    }
+
+    function subShowForm(btn) {
         document.getElementById('subListWrap').style.display = 'none';
         document.getElementById('subFormWrap').style.display = 'block';
-        document.getElementById('subFormTitle').textContent = btn ? 'Edit Subject' : 'Add Subject';
+
+        if (btn) {
+            document.getElementById('subFormTitle').textContent = 'Edit Subject';
+            document.getElementById('subSubmitText').textContent = 'Update Subject';
+
+            document.getElementById('subjectId').value = btn.dataset.id;
+            document.getElementById('subjectCode').value = btn.dataset.code;
+            document.getElementById('subjectName').value = btn.dataset.name;
+            document.getElementById('subjectType').value = btn.dataset.type || '';
+            document.getElementById('subjectCourse').value = btn.dataset.courseid || '';
+            document.getElementById('subjectCredits').value = btn.dataset.credits || '';
+            document.getElementById('subjectStatus').value = btn.dataset.status || 'Active';
+            subLoadSemesters(btn.dataset.semesterid);
+        } else {
+            document.getElementById('subFormTitle').textContent = 'Add Subject';
+            document.getElementById('subSubmitText').textContent = 'Save Subject';
+            document.getElementById('subjectId').value = 0;
+            document.getElementById('subjectCode').value = '';
+            document.getElementById('subjectName').value = '';
+            document.getElementById('subjectType').value = '';
+            document.getElementById('subjectCourse').value = '';
+            document.getElementById('subjectSemester').innerHTML = '<option value="">-- Select Course First --</option>';
+            document.getElementById('subjectCredits').value = '';
+            document.getElementById('subjectStatus').value = 'Active';
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -273,30 +282,4 @@
         document.getElementById('subListWrap').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    function subShowToast(msg, type) {
-        const toast = document.getElementById('subToast');
-        const messageEl = document.getElementById('subToastMessage');
-        const icon = toast.querySelector('i');
-        messageEl.textContent = msg;
-        icon.className = type === 'success' ? 'fas fa-check-circle' :
-            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
-        toast.className = 'as-toast show ' + (type || '');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    function subSaveSubject() {
-        const name = document.getElementById('subjectName').value.trim();
-        if (!name) { subShowToast('Subject Name is required', 'error'); return; }
-
-        const code = document.getElementById('subjectCode').value.trim();
-        if (!code) { subShowToast('Subject Code is required', 'error'); return; }
-
-        const type = document.getElementById('subjectType').value;
-        if (!type) { subShowToast('Please select a Subject Type', 'error'); return; }
-
-        subShowToast('Subject "' + name + '" saved successfully!', 'success');
-        subShowList();
-    }</script>
-
-
+</script>

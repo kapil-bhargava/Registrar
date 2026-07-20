@@ -17,7 +17,7 @@ namespace Regis.Controllers
         private readonly UniversityTypeService universityTypeService = new UniversityTypeService();
         private readonly CategoryService categoryService = new CategoryService();
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
-
+        private readonly SessionTypeService sessionTypeService = new SessionTypeService();
         // ============================================================
         // Dashboard / Master Home Page
         // URL : /Master/Index
@@ -281,6 +281,63 @@ namespace Regis.Controllers
 
             return RedirectToAction("CampusCategoryMaster");
         }
+        // ============================================================
+        // Session Type Master
+        // URL : /Master/SessionTypeMaster
+        //
+        // This master feeds the "Session Type" dropdown on the
+        // Academic Session page (AcademicController.AcademicSession).
+        // Same GETALL/INSERT/UPDATE/DELETE flag pattern as every
+        // other master above.
+        // ============================================================
+
+        public ActionResult SessionTypeMaster()
+        {
+            List<SessionTypeModel> list = sessionTypeService.GetAllSessionTypes();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult SessionTypeMaster(SessionTypeModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.SessionTypeId > 0)
+                {
+                    result = sessionTypeService.UpdateSessionType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Session Type Updated Successfully." : "Unable to Update Session Type.";
+                }
+                else
+                {
+                    result = sessionTypeService.InsertSessionType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Session Type Saved Successfully." : "Unable to Save Session Type.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
+            return RedirectToAction("SessionTypeMaster");
+        }
+
+        public ActionResult DeleteSessionType(int id)
+        {
+            bool result = sessionTypeService.DeleteSessionType(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Session Type Deleted Successfully." : "Unable to Delete Session Type.";
+
+            return RedirectToAction("SessionTypeMaster");
+        }
+    
         public ActionResult SystemSettings()
         {
             return View();
