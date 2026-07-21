@@ -5,13 +5,22 @@
     ViewBag.Title = "SemesterMaster";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
     var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
-    var sessions = ViewBag.Sessions as List<AcademicSessionModel> ?? new List<AcademicSessionModel>();
 }
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
-
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fee; color:#900; padding:10px; margin:10px 0; border:1px solid #900;">
+        @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div style="background:#efe; color:#060; padding:10px; margin:10px 0; border:1px solid #060;">
+        @TempData["Success"]
+    </div>
+}
 <div class="as-wrap">
 
     <!-- ================= LIST PAGE ================= -->
@@ -49,7 +58,6 @@
                     <tr>
                         <th>Semester</th>
                         <th>Course</th>
-                        <th>Academic Session</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Credit Limit</th>
@@ -63,7 +71,6 @@
                         <tr>
                             <td><strong>@(s.SemesterName ?? ("Semester " + s.SemesterNumber))</strong></td>
                             <td>@s.CourseName</td>
-                            <td>@s.SessionName</td>
                             <td>@(s.StartDate?.ToString("dd/MM/yyyy"))</td>
                             <td>@(s.EndDate?.ToString("dd/MM/yyyy"))</td>
                             <td>@s.CreditLimit</td>
@@ -84,7 +91,7 @@
                             <td>
                                 <button type="button" class="as-mini-btn" title="Edit" onclick="semShowForm(this)"
                                         data-id="@s.SemesterId" data-number="@s.SemesterNumber" data-name="@s.SemesterName"
-                                        data-courseid="@s.CourseId" data-sessionid="@s.AcademicSessionId"
+                                        data-courseid="@s.CourseId"
                                         data-start="@(s.StartDate?.ToString("yyyy-MM-dd"))" data-end="@(s.EndDate?.ToString("yyyy-MM-dd"))"
                                         data-credit="@s.CreditLimit" data-status="@s.Status">
                                     <i class="fas fa-edit"></i>
@@ -109,7 +116,7 @@
     </div>
 
     <!-- ================= ADD / EDIT SEMESTER FORM ================= -->
-    @using (Html.BeginForm("SemesterMaster", "Master", FormMethod.Post))
+    @using (Html.BeginForm("SemesterMaster", "Master", FormMethod.Post, new { id = "semesterForm" }))
     {
         <div class="as-card as-wizard-card" id="semFormWrap" style="display:none;">
 
@@ -136,29 +143,17 @@
                     <div class="as-grid">
                         <div class="as-field">
                             <label>Semester Number <span class="req">*</span></label>
-                            <input type="number" id="semesterNumber" name="SemesterNumber" min="1" max="12" placeholder="e.g. 3">
+                            <input type="number" id="semesterNumber" name="SemesterNumber" min="1" max="12" placeholder="e.g. 3" required>
                         </div>
 
                         <div class="as-field">
                             <label>Semester Name <span class="req">*</span></label>
-                            <input type="text" id="semesterName" name="SemesterName" placeholder="e.g. Semester 3">
-                        </div>
-
-                        <div class="as-field">
-                            <label>Academic Session <span class="req">*</span></label>
-                            <select id="semesterSession" name="AcademicSessionId">
-                                <option value="">-- Select Session --</option>
-                                @foreach (var se in sessions)
-                                {
-                                    <option value="@se.AcademicSessionId">@se.SessionName</option>
-                                }
-                            </select>
-                            <span class="as-hint">Managed from Academic Session</span>
+                            <input type="text" id="semesterName" name="SemesterName" placeholder="e.g. Semester 3" required>
                         </div>
 
                         <div class="as-field">
                             <label>Course <span class="req">*</span></label>
-                            <select id="semesterCourse" name="CourseId">
+                            <select id="semesterCourse" name="CourseId" required>
                                 <option value="">-- Select Course --</option>
                                 @foreach (var c in courses)
                                 {
@@ -170,12 +165,12 @@
 
                         <div class="as-field">
                             <label>Start Date <span class="req">*</span></label>
-                            <input type="date" id="semesterStartDate" name="StartDate">
+                            <input type="date" id="semesterStartDate" name="StartDate" required>
                         </div>
 
                         <div class="as-field">
                             <label>End Date <span class="req">*</span></label>
-                            <input type="date" id="semesterEndDate" name="EndDate">
+                            <input type="date" id="semesterEndDate" name="EndDate" required>
                         </div>
 
                         <div class="as-field">
@@ -212,7 +207,8 @@
     <span id="semToastMessage">Success!</span>
 </div>
 
-<script>function semShowForm(btn) {
+<script>
+    function semShowForm(btn) {
         document.getElementById('semListWrap').style.display = 'none';
         document.getElementById('semFormWrap').style.display = 'block';
 
@@ -223,7 +219,6 @@
             document.getElementById('semesterId').value = btn.dataset.id;
             document.getElementById('semesterNumber').value = btn.dataset.number;
             document.getElementById('semesterName').value = btn.dataset.name || '';
-            document.getElementById('semesterSession').value = btn.dataset.sessionid || '';
             document.getElementById('semesterCourse').value = btn.dataset.courseid || '';
             document.getElementById('semesterStartDate').value = btn.dataset.start || '';
             document.getElementById('semesterEndDate').value = btn.dataset.end || '';
@@ -235,7 +230,6 @@
             document.getElementById('semesterId').value = 0;
             document.getElementById('semesterNumber').value = '';
             document.getElementById('semesterName').value = '';
-            document.getElementById('semesterSession').value = '';
             document.getElementById('semesterCourse').value = '';
             document.getElementById('semesterStartDate').value = '';
             document.getElementById('semesterEndDate').value = '';
@@ -249,4 +243,5 @@
         document.getElementById('semFormWrap').style.display = 'none';
         document.getElementById('semListWrap').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }</script>
+    }
+</script>

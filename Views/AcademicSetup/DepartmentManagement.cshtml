@@ -5,6 +5,7 @@
     ViewBag.Title = "Department Management";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
     var faculties = ViewBag.Faculties as List<FacultyModel> ?? new List<FacultyModel>();
+    var deptMasterList = ViewBag.DepartmentMasterList as List<DepartmentMasterModel> ?? new List<DepartmentMasterModel>();
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,39 +142,64 @@
                     <div class="dm-icon"><i class="fas fa-building"></i></div>
                     <div>
                         <h2 id="dmFormTitle">Add Department</h2>
-                        <p>Enter department details and faculty association.</p>
+                        <p>Pick a department from Department Master and map it to a Faculty.</p>
                     </div>
                 </div>
 
                 <input type="hidden" id="departmentId" name="DepartmentId" value="0" />
+                <!-- These two carry the values picked from the dropdown below to the Controller -->
+                <input type="hidden" id="deptName" name="DepartmentName" value="" />
+                <input type="hidden" id="deptCode" name="DepartmentCode" value="" />
 
                 <!-- Basic Information -->
                 <div class="dm-section-lbl">
                     <i class="fas fa-info-circle"></i> Basic Information
                 </div>
                 <div class="dm-grid">
+                    <!-- Department Name + Code now come from Department Master, via ONE dropdown -->
                     <div class="dm-field dm-full">
-                        <label>Department Name <span class="req">*</span></label>
-                        <input type="text" id="deptName" name="DepartmentName" placeholder="e.g. Computer Science & Engineering">
+                        <label>Department (from Department Master) <span class="req">*</span></label>
+                        <select id="deptMasterSelect" onchange="onDeptMasterChange()">
+                            <option value="">-- Select Department --</option>
+                            @foreach (var dm in deptMasterList)
+                            {
+                                <option value="@dm.DepartmentId"
+                                        data-name="@dm.DepartmentName"
+                                        data-code="@dm.DepartmentCode"
+                                        data-facultyid="@dm.FacultyId"
+                                        data-campus="@dm.CampusName">
+                                    @dm.DepartmentName (@dm.DepartmentCode)
+                                </option>
+                            }
+                        </select>
+                        <span class="dm-hint">Managed from Department Master — add new departments there first</span>
                     </div>
                     <div class="dm-field">
-                        <label>Department Code <span class="req">*</span></label>
-                        <input type="text" id="deptCode" name="DepartmentCode" placeholder="e.g. CSE" maxlength="10">
+                        <label>Department Code</label>
+                        <input type="text" id="deptCodeDisplay" placeholder="Auto-filled" readonly disabled>
                     </div>
                     <div class="dm-field">
                         <label>Faculty <span class="req">*</span></label>
-                        <select id="deptFaculty" name="FacultyId">
+                        @*<select id="deptFaculty" name="FacultyId">
+            <option value="">-- Select Faculty --</option>
+            @foreach (var f in faculties)
+            {
+                <option value="@f.FacultyId">@f.FacultyName</option>
+            }
+        </select>*@
+                        <select id="deptFaculty" name="FacultyId" onchange="onFacultyChange()">
                             <option value="">-- Select Faculty --</option>
                             @foreach (var f in faculties)
                             {
-                                <option value="@f.FacultyId">@f.FacultyName</option>
+                                <option value="@f.FacultyId" data-campusid="@f.CampusId">@f.FacultyName</option>
                             }
                         </select>
-                        <span class="dm-hint">Managed from Faculty Master</span>
+                        <span class="dm-hint">Auto-filled from Department Master, editable if needed</span>
                     </div>
                     <div class="dm-field">
                         <label>Campus</label>
-                        <input type="text" id="deptCampus" name="CampusName" placeholder="e.g. Main Campus">
+                        @Html.DropDownList("CampusId", (SelectList)ViewBag.CampusList, "Select Campus", new { id = "deptCampus" })
+                        <span class="dm-hint">Auto-filled from Faculty's default campus, editable if needed</span>
                     </div>
                     <div class="dm-field">
                         <label>Status</label>
@@ -194,7 +220,7 @@
                         <i class="fas fa-times"></i> Cancel
                     </button>
                     <span></span>
-                    <button type="submit" class="dm-btn dm-btn-primary">
+                    <button type="submit" class="dm-btn dm-btn-primary" onclick="return validateBeforeSubmit()">
                         <i class="fas fa-save"></i> <span id="dmSubmitText">Save Department</span>
                     </button>
                 </div>
@@ -211,6 +237,47 @@
 </div>
 
 <script>
+    // ----- When a Department Master entry is picked, auto-fill Name/Code/Faculty/Campus -----
+    function onDeptMasterChange() {
+        const select = document.getElementById('deptMasterSelect');
+        const opt = select.options[select.selectedIndex];
+
+        const name = opt.getAttribute('data-name') || '';
+        const code = opt.getAttribute('data-code') || '';
+        const facultyId = opt.getAttribute('data-facultyid') || '';
+        const campus = opt.getAttribute('data-campus') || '';
+
+        document.getElementById('deptName').value = name;
+        document.getElementById('deptCode').value = code;
+        document.getElementById('deptCodeDisplay').value = code;
+        document.getElementById('deptFaculty').value = facultyId;
+        document.getElementById('deptCampus').value = campus;
+    }
+
+    function validateBeforeSubmit() {
+        if (!document.getElementById('deptMasterSelect').value) {
+            showToast('Please select a Department from Department Master', 'error');
+            return false;
+        }
+        if (!document.getElementById('deptFaculty').value) {
+            showToast('Please select a Faculty', 'error');
+            return false;
+        }
+        return true;
+    }
+
+    // ----- Toast -----
+    function showToast(msg, type) {
+        const toast = document.getElementById('dmToast');
+        const messageEl = document.getElementById('dmToastMessage');
+        const icon = toast.querySelector('i');
+        messageEl.textContent = msg;
+        icon.className = type === 'success' ? 'fas fa-check-circle' :
+            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        toast.className = 'dm-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
     // ----- Status Toggle -----
     document.getElementById('deptStatus').addEventListener('change', function () {
         const t = document.getElementById('dmStatusText');
@@ -244,10 +311,20 @@
             document.getElementById('dmSubmitText').textContent = 'Update Department';
 
             document.getElementById('departmentId').value = btn.dataset.id;
-            document.getElementById('deptCode').value = btn.dataset.code;
             document.getElementById('deptName').value = btn.dataset.name;
+            document.getElementById('deptCode').value = btn.dataset.code;
+            document.getElementById('deptCodeDisplay').value = btn.dataset.code;
             document.getElementById('deptFaculty').value = btn.dataset.facultyid || '';
             document.getElementById('deptCampus').value = btn.dataset.campus || '';
+
+            // Try to pre-select the matching option in the Department Master dropdown
+            const select = document.getElementById('deptMasterSelect');
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].getAttribute('data-code') === btn.dataset.code) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
 
             const active = btn.dataset.active === 'true';
             document.getElementById('deptStatus').checked = active;
@@ -258,8 +335,10 @@
             document.getElementById('dmFormTitle').textContent = 'Add Department';
             document.getElementById('dmSubmitText').textContent = 'Save Department';
             document.getElementById('departmentId').value = 0;
-            document.getElementById('deptCode').value = '';
+            document.getElementById('deptMasterSelect').value = '';
             document.getElementById('deptName').value = '';
+            document.getElementById('deptCode').value = '';
+            document.getElementById('deptCodeDisplay').value = '';
             document.getElementById('deptFaculty').value = '';
             document.getElementById('deptCampus').value = '';
             document.getElementById('deptStatus').checked = true;

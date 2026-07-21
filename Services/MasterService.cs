@@ -528,8 +528,7 @@ namespace Regis.Services
                         SemesterId = Convert.ToInt32(dr["SemesterId"]),
                         CourseId = Convert.ToInt32(dr["CourseId"]),
                         CourseName = dr["CourseName"].ToString(),
-                        AcademicSessionId = Convert.ToInt32(dr["AcademicSessionId"]),
-                        SessionName = dr["SessionName"].ToString(),
+                        SessionName = dr["AcademicSessionName"] as string,
                         SemesterNumber = Convert.ToInt32(dr["SemesterNumber"]),
                         SemesterName = dr["SemesterName"] as string,
                         StartDate = dr["StartDate"] != DBNull.Value ? Convert.ToDateTime(dr["StartDate"]) : (DateTime?)null,
@@ -542,7 +541,23 @@ namespace Regis.Services
             }
             return list;
         }
-
+        public List<string> GetDistinctAcademicSessionNames()
+        {
+            var list = new List<string>();
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SemesterMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETDISTINCTSESSIONS");
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    list.Add(dr["AcademicSessionName"].ToString());
+                }
+            }
+            return list;
+        }
         // Cascading dropdown: semesters under one Course — used by Subject
         public List<SemesterMasterModel> GetSemesterMasterByCourse(int courseId)
         {
@@ -576,7 +591,7 @@ namespace Regis.Services
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "INSERT");
                 cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
-                cmd.Parameters.AddWithValue("@AcademicSessionId", model.AcademicSessionId);
+                cmd.Parameters.AddWithValue("@AcademicSessionName", (object)model.AcademicSessionName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@SemesterNumber", model.SemesterNumber);
                 cmd.Parameters.AddWithValue("@SemesterName", (object)model.SemesterName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@StartDate", (object)model.StartDate ?? DBNull.Value);
@@ -598,7 +613,7 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@Flag", "UPDATE");
                 cmd.Parameters.AddWithValue("@SemesterId", model.SemesterId);
                 cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
-                cmd.Parameters.AddWithValue("@AcademicSessionId", model.AcademicSessionId);
+                cmd.Parameters.AddWithValue("@AcademicSessionName", (object)model.AcademicSessionName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@SemesterNumber", model.SemesterNumber);
                 cmd.Parameters.AddWithValue("@SemesterName", (object)model.SemesterName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@StartDate", (object)model.StartDate ?? DBNull.Value);
@@ -610,7 +625,6 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
-
         public bool DeleteSemesterMaster(int id)
         {
             using (SqlConnection con = db.GetConnection())

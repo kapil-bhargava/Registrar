@@ -25,16 +25,16 @@ a {
     transition: color 0.15s ease;
 }
 
-/*    a:hover {
+    a:hover {
         color: #3a5bd9;
-    }*/
+    }
 
 /* ----- 2. MAIN LAYOUT ----- */
-/*body {
+body {
     display: flex;
     min-height: 100vh;
     overflow-x: hidden;
-}*/
+}
 
 .main-wrapper {
     flex: 1;
@@ -43,14 +43,10 @@ a {
     min-height: 100vh;
     margin-left: 280px;
     transition: margin-left 0.25s ease;
-    padding:20px;
+    /* No padding here — navbar must stay flush (edge-to-edge).
+       Only .page-content gets inner spacing below. */
 }
 
-@media (max-width:700px){
-    .main-wrapper{
-        padding:5px;
-    }
-}
 .sidebar-collapsed .main-wrapper {
     margin-left: 70px;
 }
@@ -63,7 +59,7 @@ a {
 }
 
     .page-content .container-fluid {
-/*        max-width: 1400px;*/
+        max-width: 1400px;
         margin: 0 auto;
         width: 100%;
     }
@@ -132,6 +128,12 @@ a {
             .page-content .page-header h1 {
                 font-size: 1.3rem;
             }
+}
+
+@media (max-width: 700px) {
+    .page-content {
+        padding: 0.6rem;
+    }
 }
 
 @media (max-width: 480px) {

@@ -1,11 +1,11 @@
 ﻿/* ============================================================
    HOD MANAGEMENT - Complete Styles
-   Registrar ERP · Professional Light Theme
+   Registrar ERP · Recolored: Blue #0A4E95 / Yellow #FFB702
    ============================================================ */
 
 /* ----- BASE ----- */
 .hod-wrap {
-/*    max-width: 1400px;*/
+    /*    max-width: 1400px;*/
     margin: 0 auto;
     padding: 0.5rem 0;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -47,7 +47,7 @@
     }
 
         .hod-list-head h2 i {
-            color: #4f6ef7;
+            color: #0A4E95;
         }
 
     .hod-list-head p {
@@ -82,7 +82,7 @@
 }
 
     .hod-stat-card:hover {
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
         background: #f5f7fb;
     }
 
@@ -94,7 +94,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f6ef7;
+        color: #0A4E95;
         font-size: 1rem;
         flex-shrink: 0;
     }
@@ -140,8 +140,8 @@
 }
 
     .hod-search-box:focus-within {
-        border-color: #4f6ef7;
-        box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+        border-color: #0A4E95;
+        box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
     }
 
     .hod-search-box i {
@@ -178,7 +178,7 @@
     }
 
         .hod-filter-group select:focus {
-            border-color: #4f6ef7;
+            border-color: #0A4E95;
         }
 
 /* ----- TABLE ----- */
@@ -226,7 +226,7 @@
 }
 
     .hod-dept-name i {
-        color: #4f6ef7;
+        color: #0A4E95;
         margin-right: 0.4rem;
     }
 
@@ -279,13 +279,13 @@
 }
 
 .hod-pill-pending {
-    background: #fef3c7;
+    background: #fff4d6;
     color: #92400e;
 }
 
 .hod-pill-completed {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #e6eefb;
+    color: #0A4E95;
 }
 
 /* ----- BUTTONS ----- */
@@ -305,15 +305,15 @@
 }
 
 .hod-btn-primary {
-    background: #4f6ef7;
+    background: #0A4E95;
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 110, 247, 0.2);
+    box-shadow: 0 4px 12px rgba(10, 78, 149, 0.2);
 }
 
     .hod-btn-primary:hover {
-        background: #3a5bd9;
+        background: #083c73;
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(79, 110, 247, 0.3);
+        box-shadow: 0 6px 20px rgba(10, 78, 149, 0.3);
     }
 
 .hod-btn-outline {
@@ -324,7 +324,7 @@
 
     .hod-btn-outline:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
 .hod-btn-ghost {
@@ -335,7 +335,7 @@
 
     .hod-btn-ghost:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
 .hod-btn-sm {
@@ -364,21 +364,21 @@
     }
 
 .hod-mini-view {
-    color: #4f6ef7;
+    color: #0A4E95;
 }
 
     .hod-mini-view:hover {
-        background: #eef3ff;
-        color: #3a5bd9;
+        background: #e6eefb;
+        color: #083c73;
     }
 
 .hod-mini-edit {
-    color: #f59e0b;
+    color: #FFB702;
 }
 
     .hod-mini-edit:hover {
-        background: #fef3c7;
-        color: #d97706;
+        background: #fff4d6;
+        color: #e6a500;
     }
 
 .hod-mini-history {
@@ -431,7 +431,7 @@
     }
 
     .hod-legend-dot.pending {
-        background: #f59e0b;
+        background: #FFB702;
     }
 
 /* ----- BACK LINK ----- */
@@ -478,13 +478,13 @@
     .hod-form-head .hod-form-icon {
         width: 44px;
         height: 44px;
-        background: #eef3ff;
+        background: #e6eefb;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.3rem;
-        color: #4f6ef7;
+        color: #0A4E95;
         flex-shrink: 0;
     }
 
@@ -515,7 +515,7 @@
 }
 
     .hod-section-title i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- FORM GRID ----- */
@@ -568,8 +568,8 @@
         .hod-field input:focus,
         .hod-field select:focus,
         .hod-field textarea:focus {
-            border-color: #4f6ef7;
-            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+            border-color: #0A4E95;
+            box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
         }
 
         .hod-field input:disabled {
@@ -603,7 +603,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: #4f6ef7;
+        background: #0A4E95;
         color: white;
         display: flex;
         align-items: center;
@@ -677,7 +677,7 @@
         }
 
     .hod-switch input:checked + .hod-slider {
-        background: #4f6ef7;
+        background: #0A4E95;
     }
 
         .hod-switch input:checked + .hod-slider::before {
@@ -788,7 +788,7 @@
     }
 
     .hod-toast.info i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- RESPONSIVE ----- */

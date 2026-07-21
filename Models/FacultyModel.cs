@@ -9,6 +9,8 @@ namespace Regis.Models
         public string FacultyName { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
+        public int? CampusId { get; set; }      // NEW
+        public string CampusName { get; set; }  // NEW (display ke liye)
         public DateTime? CreatedDate { get; set; }
     }
 

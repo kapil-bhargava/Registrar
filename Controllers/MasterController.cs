@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Services.Description;
@@ -397,7 +398,6 @@ namespace Regis.Controllers
             ViewBag.Departments = MasterService.GetActiveDepartmentMaster();
             return View(list);
         }
-
         [HttpPost]
         public ActionResult CourseMaster(CourseMasterModel model)
         {
@@ -417,6 +417,14 @@ namespace Regis.Controllers
                         result ? "Course Master Saved Successfully." : "Unable to Save Course Master.";
                 }
             }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
             return RedirectToAction("CourseMaster");
         }
 
@@ -444,7 +452,7 @@ namespace Regis.Controllers
         {
             List<SemesterMasterModel> list = MasterService.GetAllSemesterMaster();
             ViewBag.Courses = MasterService.GetActiveCourseMaster();
-            ViewBag.Sessions = MasterService.GetActiveAcademicSessionsForDropdown();
+            ViewBag.SessionSuggestions = MasterService.GetDistinctAcademicSessionNames();  // NEW
             return View(list);
         }
 
@@ -457,15 +465,18 @@ namespace Regis.Controllers
                 if (model.SemesterId > 0)
                 {
                     result = MasterService.UpdateSemesterMaster(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Semester Master Updated Successfully." : "Unable to Update Semester Master.";
+                    TempData[result ? "Success" : "Error"] = result ? "Semester Master Updated Successfully." : "Unable to Update Semester Master.";
                 }
                 else
                 {
                     result = MasterService.InsertSemesterMaster(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Semester Master Saved Successfully." : "Unable to Save Semester Master.";
+                    TempData[result ? "Success" : "Error"] = result ? "Semester Master Saved Successfully." : "Unable to Save Semester Master.";
                 }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation Failed: " + errors;
             }
             return RedirectToAction("SemesterMaster");
         }

@@ -1,6 +1,6 @@
 ﻿/* ============================================================
    SIDEBAR.CSS - Sidebar Component Styles
-   Light Theme · Fixed Navigation
+   Yellow & White Theme · Fixed Navigation
    ============================================================ */
 
 /* ----- SIDEBAR CONTAINER ----- */
@@ -10,7 +10,7 @@
     left: 0;
     bottom: 0;
     width: 280px;
-    background: #ffffff;
+    background: #F6F6F6;
     border-right: 1px solid #e9edf2;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02);
     z-index: 1050;
@@ -42,21 +42,24 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        padding: 0 0.6rem 1.2rem;
+        height: 60px;
+        padding: 0 1.4rem;
         border-bottom: 1px solid #eef2f6;
-        margin-bottom: 1rem;
+        margin: -1.2rem -0.8rem 1rem;
+        background: #FFB702;
         font-weight: 700;
         font-size: 1.3rem;
         color: #0b1b33;
         flex-shrink: 0;
+        box-sizing: border-box;
     }
 
         .sidebar .logo i {
-            color: #4f6ef7;
-            font-size: 1.6rem;
-            background: #eef3ff;
-            padding: 0.3rem;
-            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.3rem;
+            background: rgba(255, 255, 255, 0.35);
+            padding: 0.3rem 0.4rem;
+            border-radius: 10px;
         }
 
     /* ----- SIDEBAR MENU ----- */
@@ -103,27 +106,27 @@
             }
 
             .sidebar .menu-tree .parent:hover {
-                background: #f1f4f9;
+                background: #ffffff;
                 color: #0b1b33;
             }
 
                 .sidebar .menu-tree .parent:hover i:first-child {
-                    color: #4f6ef7;
+                    color: #FFB702;
                 }
 
             .sidebar .menu-tree .parent.active {
-                background: #eef3ff;
+                background: #ffffff;
                 color: #0b1b33;
-                box-shadow: inset 3px 0 0 #4f6ef7;
+                box-shadow: inset 3px 0 0 #FFB702;
             }
 
                 .sidebar .menu-tree .parent.active i:first-child {
-                    color: #4f6ef7;
+                    color: #FFB702;
                 }
 
         /* Badge dot */
         .sidebar .menu-tree .badge-dot {
-            background: #22c55e;
+            background: #FFB702;
             width: 6px;
             height: 6px;
             border-radius: 10px;
@@ -169,28 +172,37 @@
                 }
 
                 .sidebar .menu-tree .submenu li a:hover {
-                    background: #f1f4f9;
+                    background: #ffffff;
                     color: #0b1b33;
                 }
 
                     .sidebar .menu-tree .submenu li a:hover i {
-                        color: #4f6ef7;
+                        color: #FFB702;
                     }
 
                 .sidebar .menu-tree .submenu li a.active-link {
                     color: #0b1b33;
-                    background: #f1f4f9;
+                    background: #ffffff;
                     font-weight: 500;
                 }
 
                     .sidebar .menu-tree .submenu li a.active-link i {
-                        color: #4f6ef7;
+                        color: #FFB702;
                     }
+
+    /* ----- MENU DIVIDER (below menu list, above footer) ----- */
+    .sidebar .menu-divider {
+        height: 1px;
+        background: #dfe3ea;
+        border: none;
+        margin: 0.6rem 0.2rem 0.8rem;
+        flex-shrink: 0;
+    }
 
     /* ----- SIDEBAR FOOTER ----- */
     .sidebar .sidebar-footer {
-        border-top: 1px solid #eef2f6;
-        padding-top: 1rem;
+        border-top: none;
+        padding-top: 0;
         margin-top: 0.5rem;
         font-size: 0.7rem;
         color: #94a3b8;

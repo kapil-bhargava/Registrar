@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -19,5 +20,8 @@ namespace Regis.Models
         public int? CreditLimit { get; set; }
         public string Status { get; set; }
         public DateTime? CreatedDate { get; set; }
+        [NotMapped] // agar EF hai; warna sirf normal property
+        public string AcademicSessionName { get; set; }   // form se aayega, DB column nahi hai
+       
     }
 }

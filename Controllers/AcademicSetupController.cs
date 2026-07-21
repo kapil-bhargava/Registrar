@@ -15,6 +15,7 @@ namespace Regis.Controllers
         // AcademicSession. No other Service class is needed here.
         // ============================================================
         private readonly AcademicSetupService service = new AcademicSetupService();
+        private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
 
         // GET: AcademicSetup
         public ActionResult Index()
@@ -91,9 +92,6 @@ namespace Regis.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
-
-        //facuilty managemnet====================
-        //=======================================
         // ============================================================
         // FACULTY MANAGEMENT
         // URL : /AcademicSetup/FacultyManagement
@@ -144,7 +142,11 @@ namespace Regis.Controllers
         public ActionResult DepartmentManagement()
         {
             List<DepartmentModel> departmentList = service.GetAllDepartments();
+            ViewBag.CampusList = new SelectList(campusCategoryService.GetAllCampuses(), "CampusId", "CampusName");
             ViewBag.Faculties = service.GetActiveFaculties();
+            // Department Name / Code now come from Department Master (dropdown), not free text
+
+            ViewBag.DepartmentMasterList = new MasterService().GetActiveDepartmentMaster();
             return View(departmentList);
         }
 

@@ -1,11 +1,11 @@
 ﻿/* ============================================================
    FACULTY MANAGEMENT - Complete Styles
-   Registrar ERP · Professional Light Theme
+   Registrar ERP · Recolored: Blue #0A4E95 / Yellow #FFB702
    ============================================================ */
 
 /* ----- BASE ----- */
 .fm-wrap {
-/*    max-width: 1400px;*/
+    /*    max-width: 1400px;*/
     margin: 0 auto;
     padding: 0.5rem 0;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -47,7 +47,7 @@
     }
 
         .fm-list-head h2 i {
-            color: #4f6ef7;
+            color: #0A4E95;
         }
 
     .fm-list-head p {
@@ -82,7 +82,7 @@
 }
 
     .fm-stat-card:hover {
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
         background: #f5f7fb;
     }
 
@@ -94,7 +94,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f6ef7;
+        color: #0A4E95;
         font-size: 1rem;
         flex-shrink: 0;
     }
@@ -148,8 +148,8 @@
     }
 
     .fm-tab.active {
-        color: #4f6ef7;
-        border-bottom-color: #4f6ef7;
+        color: #0A4E95;
+        border-bottom-color: #FFB702;
     }
 
     .fm-tab i {
@@ -200,8 +200,8 @@
 }
 
     .fm-search-box:focus-within {
-        border-color: #4f6ef7;
-        box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+        border-color: #0A4E95;
+        box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
     }
 
     .fm-search-box i {
@@ -237,7 +237,7 @@
     }
 
         .fm-filter-group select:focus {
-            border-color: #4f6ef7;
+            border-color: #0A4E95;
         }
 
 /* ----- BUTTONS ----- */
@@ -257,15 +257,15 @@
 }
 
 .fm-btn-primary {
-    background: #4f6ef7;
+    background: #0A4E95;
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 110, 247, 0.2);
+    box-shadow: 0 4px 12px rgba(10, 78, 149, 0.2);
 }
 
     .fm-btn-primary:hover {
-        background: #3a5bd9;
+        background: #083c73;
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(79, 110, 247, 0.3);
+        box-shadow: 0 6px 20px rgba(10, 78, 149, 0.3);
     }
 
 .fm-btn-outline {
@@ -276,7 +276,7 @@
 
     .fm-btn-outline:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
 .fm-btn-ghost {
@@ -287,13 +287,13 @@
 
     .fm-btn-ghost:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
     .fm-btn-ghost.active {
-        background: #eef3ff;
-        border-color: #4f6ef7;
-        color: #4f6ef7;
+        background: #e6eefb;
+        border-color: #0A4E95;
+        color: #0A4E95;
     }
 
 .fm-btn-sm {
@@ -327,7 +327,7 @@
     }
 
     .fm-mini-btn.active {
-        background: #4f6ef7;
+        background: #0A4E95;
         color: white;
     }
 
@@ -386,7 +386,7 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #4f6ef7;
+    background: #0A4E95;
     color: white;
     display: flex;
     align-items: center;
@@ -417,7 +417,7 @@
 }
 
 .fm-pill-leave {
-    background: #fef3c7;
+    background: #fff4d6;
     color: #92400e;
 }
 
@@ -437,8 +437,8 @@
 }
 
 .fm-dept-badge {
-    background: #eef3ff;
-    color: #4f6ef7;
+    background: #e6eefb;
+    color: #0A4E95;
     padding: 0.15rem 0.6rem;
     border-radius: 40px;
     font-size: 0.7rem;
@@ -475,7 +475,7 @@
     }
 
         .fm-pagination-btns .fm-mini-btn.active {
-            background: #4f6ef7;
+            background: #0A4E95;
             color: white;
         }
 
@@ -538,7 +538,7 @@
 }
 
     .fm-section-title i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- FORM GRID ----- */
@@ -591,8 +591,8 @@
         .fm-field input:focus,
         .fm-field select:focus,
         .fm-field textarea:focus {
-            border-color: #4f6ef7;
-            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+            border-color: #0A4E95;
+            box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
         }
 
         .fm-field input:disabled {
@@ -694,7 +694,7 @@
     }
 
     .fm-legend-dot.leave {
-        background: #f59e0b;
+        background: #FFB702;
     }
 
     .fm-legend-dot.inactive {
@@ -736,7 +736,6 @@
         bottom: 30px;
     }
 
-<<<<<<< HEAD
     .fm-toast i {
         font-size: 1.1rem;
     }
@@ -750,7 +749,7 @@
     }
 
     .fm-toast.info i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- RESPONSIVE ----- */
@@ -1010,5 +1009,3 @@
         break-inside: avoid;
     }
 }
-=======
->>>>>>> 129d24a2c55d3b8f4ad3b5543f57632b62191f91

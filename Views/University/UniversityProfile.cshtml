@@ -10,19 +10,23 @@
 
 <div class="up-wrap">
 
-    <!-- HEADER BAR -->
-    <div class="up-toolbar">
-        <div class="up-toolbar-left">
+    <!-- HEADER -->
+    <div class="up-header">
+        <div class="up-header-left">
             @if (!string.IsNullOrEmpty(Model.LogoMainPath))
             {
-                <img src="@Url.Content(Model.LogoMainPath)" class="up-toolbar-logo" alt="Logo" />
+                <img src="@Url.Content(Model.LogoMainPath)" class="up-header-logo" alt="Logo" />
+            }
+            else
+            {
+                <div class="up-header-logo-fallback"><i class="fas fa-university"></i></div>
             }
             <div>
                 <h1>@Model.UniversityName</h1>
-                <span class="up-toolbar-sub">@Model.ShortName · @Model.UniversityCode</span>
+                <span class="up-header-sub">@Model.ShortName &middot; @Model.UniversityCode &middot; @ViewBag.UniversityTypeName</span>
             </div>
         </div>
-        <div class="up-toolbar-right">
+        <div class="up-header-right">
             <span class="up-badge @(Model.IsActive ? "up-badge-active" : "up-badge-inactive")">
                 <i class="fas fa-circle"></i> @(Model.IsActive ? "Active" : "Inactive")
             </span>
@@ -32,162 +36,209 @@
         </div>
     </div>
 
-    <!-- TABS -->
-    <div class="up-tabs">
-        <button class="up-tab active" data-tab="basic"><i class="fas fa-building"></i> Basic</button>
-        <button class="up-tab" data-tab="details"><i class="fas fa-info-circle"></i> Details</button>
-        <button class="up-tab" data-tab="address"><i class="fas fa-map-pin"></i> Address</button>
-        <button class="up-tab" data-tab="contact"><i class="fas fa-phone"></i> Contact</button>
-        <button class="up-tab" data-tab="logos"><i class="fas fa-image"></i> Logos</button>
-    </div>
+    <!-- MAIN CONTENT -->
+    <div class="up-content">
 
-    <!-- TAB: BASIC -->
-    <div class="up-tab-content active" id="tab-basic">
-        <div class="up-grid-4">
-            <div><label>University Name</label><p>@Model.UniversityName</p></div>
-            <div><label>Short Name</label><p>@Model.ShortName</p></div>
-            <div><label>University Code</label><p>@Model.UniversityCode</p></div>
-            <div><label>Type</label><p>@ViewBag.UniversityTypeName</p></div>
-            <div><label>Established</label><p>@Model.EstablishedYear</p></div>
-            <div><label>Accreditation</label><p>@Model.Accreditation</p></div>
-            <div><label>Website</label><p>@Model.Website</p></div>
-            <div><label>Email</label><p>@Model.Email</p></div>
-            <div><label>Phone</label><p>@Model.Phone</p></div>
-            <div><label>GST/Tax</label><p>@Model.TaxNumber</p></div>
-            <div><label>Affiliated To</label><p>@Model.AffiliatedUniversity</p></div>
-            <div><label>Reg. Number</label><p>@Model.RegistrationNumber</p></div>
-        </div>
-    </div>
+        <!-- LEFT COLUMN -->
+        <div class="up-col-main">
 
-    <!-- TAB: DETAILS -->
-    <div class="up-tab-content" id="tab-details">
-        <div class="up-grid-2">
-            <div class="up-full"><label>Motto</label><p class="up-quote">@Model.Motto</p></div>
-            <div class="up-full"><label>Vision</label><p class="up-text">@Model.Vision</p></div>
-            <div class="up-full"><label>Mission</label><p class="up-text">@Model.Mission</p></div>
-            <div class="up-full"><label>Description</label><p class="up-text">@Model.Description</p></div>
-            <div class="up-full"><label>About University</label><p class="up-text">@Model.AboutUniversity</p></div>
-        </div>
-
-        <div class="up-divider"></div>
-
-        <div class="up-grid-4">
-            <div><label>UGC Approval</label><p>@Model.UGCApprovalNumber</p></div>
-            <div><label>AICTE Approval</label><p>@Model.AICTEApproval</p></div>
-            <div><label>NAAC Grade</label><p>@Model.NAACGrade</p></div>
-            <div><label>NIRF Rank</label><p>@Model.NIRFRank</p></div>
-            <div><label>ISO Certification</label><p>@Model.ISOCertification</p></div>
-            <div><label>Office Number</label><p>@Model.OfficeNumber</p></div>
-            <div><label>Fax Number</label><p>@Model.FaxNumber</p></div>
-            <div><label>Details Email</label><p>@Model.DetailsEmail</p></div>
-        </div>
-
-        <div class="up-divider"></div>
-
-        <div class="up-social">
-            @if (!string.IsNullOrEmpty(Model.Facebook))
-            {<a href="@Model.Facebook" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>}
-            @if (!string.IsNullOrEmpty(Model.LinkedIn))
-            {<a href="@Model.LinkedIn" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>}
-            @if (!string.IsNullOrEmpty(Model.Instagram))
-            {<a href="@Model.Instagram" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>}
-            @if (!string.IsNullOrEmpty(Model.Twitter))
-            {<a href="@Model.Twitter" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>}
-            @if (string.IsNullOrEmpty(Model.Facebook) && string.IsNullOrEmpty(Model.LinkedIn) &&
-                string.IsNullOrEmpty(Model.Instagram) && string.IsNullOrEmpty(Model.Twitter))
-            {
-                <span class="up-muted">No social media links</span>
-            }
-        </div>
-    </div>
-
-    <!-- TAB: ADDRESS -->
-    <div class="up-tab-content" id="tab-address">
-        <div class="up-grid-3">
-            <div><label>Country</label><p>@Model.Country</p></div>
-            <div><label>State</label><p>@Model.State</p></div>
-            <div><label>District</label><p>@Model.District</p></div>
-            <div><label>City</label><p>@Model.City</p></div>
-            <div><label>Area/Locality</label><p>@Model.Area</p></div>
-            <div><label>Street</label><p>@Model.Street</p></div>
-            <div><label>Building No.</label><p>@Model.BuildingNumber</p></div>
-            <div><label>Postal Code</label><p>@Model.PostalCode</p></div>
-            <div><label>Latitude</label><p>@Model.Latitude</p></div>
-            <div><label>Longitude</label><p>@Model.Longitude</p></div>
-        </div>
-
-        @if (!string.IsNullOrEmpty(Model.Latitude) && !string.IsNullOrEmpty(Model.Longitude))
-        {
-            <div class="up-map">
-                <iframe src="https://www.google.com/maps?q=@Model.Latitude,@Model.Longitude&z=15&output=embed"
-                        width="100%" height="180" style="border:0; border-radius:8px;" allowfullscreen loading="lazy"></iframe>
-            </div>
-        }
-    </div>
-
-    <!-- TAB: CONTACT -->
-    <div class="up-tab-content" id="tab-contact">
-        <div class="up-grid-3">
-            <div><label>Office</label><p>@Model.ContOffice</p></div>
-            <div><label>Mobile</label><p>@Model.ContMobile</p></div>
-            <div><label>Alternate</label><p>@Model.ContAlternate</p></div>
-            <div><label>Admission Helpline</label><p>@Model.ContAdmissionHelpline</p></div>
-            <div><label>Registrar Office</label><p>@Model.ContRegistrarOffice</p></div>
-            <div><label>Email</label><p>@Model.ContEmail</p></div>
-            <div><label>Support Email</label><p>@Model.ContSupportEmail</p></div>
-            <div><label>Website</label><p>@Model.ContWebsite</p></div>
-        </div>
-    </div>
-
-    <!-- TAB: LOGOS -->
-    <div class="up-tab-content" id="tab-logos">
-        <div class="up-logos">
-            <div class="up-logo-item">
-                <div class="up-logo-box">
-                    @if (!string.IsNullOrEmpty(Model.LogoMainPath))
-                    {<img src="@Url.Content(Model.LogoMainPath)" alt="Main" />}
-                    else
-                    {<i class="fas fa-image"></i>}
+            <!-- BASIC INFO -->
+            <div class="up-card">
+                <div class="up-card-head">
+                    <i class="fas fa-building"></i>
+                    <span class="up-card-title">Basic information</span>
                 </div>
-                <span>Main</span>
-            </div>
-            <div class="up-logo-item">
-                <div class="up-logo-box">
-                    @if (!string.IsNullOrEmpty(Model.LogoDarkPath))
-                    {<img src="@Url.Content(Model.LogoDarkPath)" alt="Dark" />}
-                    else
-                    {<i class="fas fa-image"></i>}
+                <div class="up-grid-4">
+                    <div class="up-field"><label>University name</label><p>@Model.UniversityName</p></div>
+                    <div class="up-field"><label>Short name</label><p>@Model.ShortName</p></div>
+                    <div class="up-field"><label>University code</label><p>@Model.UniversityCode</p></div>
+                    <div class="up-field"><label>Type</label><p>@ViewBag.UniversityTypeName</p></div>
+                    <div class="up-field"><label>Established</label><p>@Model.EstablishedYear</p></div>
+                    <div class="up-field"><label>Accreditation</label><p>@Model.Accreditation</p></div>
+                    <div class="up-field"><label>Website</label><p class="up-link">@Model.Website</p></div>
+                    <div class="up-field"><label>Email</label><p class="up-link">@Model.Email</p></div>
+                    <div class="up-field"><label>Phone</label><p>@Model.Phone</p></div>
+                    <div class="up-field"><label>GST / Tax</label><p>@Model.TaxNumber</p></div>
+                    <div class="up-field"><label>Affiliated to</label><p>@Model.AffiliatedUniversity</p></div>
+                    <div class="up-field"><label>Reg. number</label><p>@Model.RegistrationNumber</p></div>
                 </div>
-                <span>Dark</span>
             </div>
-            <div class="up-logo-item">
-                <div class="up-logo-box">
-                    @if (!string.IsNullOrEmpty(Model.LogoLightPath))
-                    {<img src="@Url.Content(Model.LogoLightPath)" alt="Light" />}
-                    else
-                    {<i class="fas fa-image"></i>}
+
+            <!-- ABOUT -->
+            <div class="up-card">
+                <div class="up-card-head">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="up-card-title">About the university</span>
                 </div>
-                <span>Light</span>
+
+                @if (!string.IsNullOrEmpty(Model.Motto))
+                {
+                    <p class="up-quote">@Model.Motto</p>
+                    <div class="up-card-divider"></div>
+                }
+
+                <div class="up-grid-2">
+                    @if (!string.IsNullOrEmpty(Model.Vision))
+                    {
+                        <div class="up-field up-full"><label>Vision</label><p class="up-text">@Model.Vision</p></div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Mission))
+                    {
+                        <div class="up-field up-full"><label>Mission</label><p class="up-text">@Model.Mission</p></div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="up-field up-full"><label>Description</label><p class="up-text">@Model.Description</p></div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.AboutUniversity))
+                    {
+                        <div class="up-field up-full"><label>About</label><p class="up-text">@Model.AboutUniversity</p></div>
+                    }
+                </div>
+
+                <div class="up-card-divider"></div>
+
+                <div class="up-accred-strip">
+                    <div class="up-accred-chip"><label>UGC approval</label><p>@Model.UGCApprovalNumber</p></div>
+                    <div class="up-accred-chip"><label>AICTE approval</label><p>@Model.AICTEApproval</p></div>
+                    <div class="up-accred-chip"><label>NAAC grade</label><p>@Model.NAACGrade</p></div>
+                    <div class="up-accred-chip"><label>NIRF rank</label><p>@Model.NIRFRank</p></div>
+                    <div class="up-accred-chip"><label>ISO certification</label><p>@Model.ISOCertification</p></div>
+                </div>
+
+                <div class="up-card-divider"></div>
+
+                <div class="up-grid-3">
+                    <div class="up-field"><label>Office number</label><p>@Model.OfficeNumber</p></div>
+                    <div class="up-field"><label>Fax number</label><p>@Model.FaxNumber</p></div>
+                    <div class="up-field"><label>Details email</label><p class="up-link">@Model.DetailsEmail</p></div>
+                </div>
+
+                <div class="up-card-divider"></div>
+
+                <div class="up-social">
+                    @if (!string.IsNullOrEmpty(Model.Facebook))
+                    {<a href="@Model.Facebook" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>}
+                    @if (!string.IsNullOrEmpty(Model.LinkedIn))
+                    {<a href="@Model.LinkedIn" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>}
+                    @if (!string.IsNullOrEmpty(Model.Instagram))
+                    {<a href="@Model.Instagram" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>}
+                    @if (!string.IsNullOrEmpty(Model.Twitter))
+                    {<a href="@Model.Twitter" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>}
+                    @if (string.IsNullOrEmpty(Model.Facebook) && string.IsNullOrEmpty(Model.LinkedIn) &&
+                        string.IsNullOrEmpty(Model.Instagram) && string.IsNullOrEmpty(Model.Twitter))
+                    {
+                        <span class="up-muted">No social media links added</span>
+                    }
+                </div>
             </div>
-            <div class="up-logo-item">
-                <div class="up-logo-box">
-                    @if (!string.IsNullOrEmpty(Model.LogoSidebarPath))
-                    {<img src="@Url.Content(Model.LogoSidebarPath)" alt="Sidebar" />}
-                    else
-                    {<i class="fas fa-image"></i>}
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="up-col-side">
+
+            <!-- ADDRESS (accent card) -->
+            <div class="up-card up-card-accent">
+                <div class="up-card-head">
+                    <i class="fas fa-map-pin"></i>
+                    <span class="up-card-title">Address</span>
                 </div>
-                <span>Sidebar</span>
+                <p class="up-address-line">@Model.BuildingNumber @Model.Street</p>
+
+                <div class="up-address-tags">
+                    @if (!string.IsNullOrEmpty(Model.Area))
+                    {<span class="up-address-tag">@Model.Area</span>}
+                    @if (!string.IsNullOrEmpty(Model.City))
+                    {<span class="up-address-tag">@Model.City</span>}
+                    @if (!string.IsNullOrEmpty(Model.State))
+                    {<span class="up-address-tag">@Model.State</span>}
+                    @if (!string.IsNullOrEmpty(Model.PostalCode))
+                    {<span class="up-address-tag">@Model.PostalCode</span>}
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Latitude) && !string.IsNullOrEmpty(Model.Longitude))
+                {
+                    <div class="up-map">
+                        <iframe src="https://www.google.com/maps?q=@Model.Latitude,@Model.Longitude&z=15&output=embed"
+                                width="100%" height="130" style="border:0;" allowfullscreen loading="lazy"></iframe>
+                    </div>
+                }
             </div>
-            <div class="up-logo-item">
-                <div class="up-logo-box up-logo-fav">
-                    @if (!string.IsNullOrEmpty(Model.FaviconPath))
-                    {<img src="@Url.Content(Model.FaviconPath)" alt="Favicon" />}
-                    else
-                    {<i class="fas fa-image"></i>}
+
+            <!-- CONTACT -->
+            <div class="up-card">
+                <div class="up-card-head">
+                    <i class="fas fa-phone"></i>
+                    <span class="up-card-title">Contact</span>
                 </div>
-                <span>Favicon</span>
+                <div class="up-contact-row"><i class="fas fa-phone-alt"></i><span class="up-contact-label">Office</span><span class="up-contact-value">@Model.ContOffice</span></div>
+                <div class="up-contact-row"><i class="fas fa-mobile-alt"></i><span class="up-contact-label">Mobile</span><span class="up-contact-value">@Model.ContMobile</span></div>
+                <div class="up-contact-row"><i class="fas fa-phone"></i><span class="up-contact-label">Alternate</span><span class="up-contact-value">@Model.ContAlternate</span></div>
+                <div class="up-contact-row"><i class="fas fa-headset"></i><span class="up-contact-label">Admission helpline</span><span class="up-contact-value">@Model.ContAdmissionHelpline</span></div>
+                <div class="up-contact-row"><i class="fas fa-building"></i><span class="up-contact-label">Registrar office</span><span class="up-contact-value">@Model.ContRegistrarOffice</span></div>
+                <div class="up-contact-row"><i class="fas fa-envelope"></i><span class="up-contact-label">Email</span><span class="up-contact-value up-link">@Model.ContEmail</span></div>
+                <div class="up-contact-row"><i class="fas fa-life-ring"></i><span class="up-contact-label">Support email</span><span class="up-contact-value up-link">@Model.ContSupportEmail</span></div>
+                <div class="up-contact-row"><i class="fas fa-globe"></i><span class="up-contact-label">Website</span><span class="up-contact-value up-link">@Model.ContWebsite</span></div>
+            </div>
+
+        </div>
+
+        <!-- LOGOS - FULL WIDTH -->
+        <div class="up-card up-logos-card">
+            <div class="up-card-head">
+                <i class="fas fa-image"></i>
+                <span class="up-card-title">Logos and branding</span>
+            </div>
+            <div class="up-logos">
+                <div class="up-logo-item">
+                    <div class="up-logo-box">
+                        @if (!string.IsNullOrEmpty(Model.LogoMainPath))
+                        {<img src="@Url.Content(Model.LogoMainPath)" alt="Main logo" />}
+                        else
+                        {<i class="fas fa-image"></i>}
+                    </div>
+                    <span>Main</span>
+                </div>
+                <div class="up-logo-item">
+                    <div class="up-logo-box">
+                        @if (!string.IsNullOrEmpty(Model.LogoDarkPath))
+                        {<img src="@Url.Content(Model.LogoDarkPath)" alt="Dark logo" />}
+                        else
+                        {<i class="fas fa-image"></i>}
+                    </div>
+                    <span>Dark</span>
+                </div>
+                <div class="up-logo-item">
+                    <div class="up-logo-box">
+                        @if (!string.IsNullOrEmpty(Model.LogoLightPath))
+                        {<img src="@Url.Content(Model.LogoLightPath)" alt="Light logo" />}
+                        else
+                        {<i class="fas fa-image"></i>}
+                    </div>
+                    <span>Light</span>
+                </div>
+                <div class="up-logo-item">
+                    <div class="up-logo-box">
+                        @if (!string.IsNullOrEmpty(Model.LogoSidebarPath))
+                        {<img src="@Url.Content(Model.LogoSidebarPath)" alt="Sidebar logo" />}
+                        else
+                        {<i class="fas fa-image"></i>}
+                    </div>
+                    <span>Sidebar</span>
+                </div>
+                <div class="up-logo-item">
+                    <div class="up-logo-box up-logo-fav">
+                        @if (!string.IsNullOrEmpty(Model.FaviconPath))
+                        {<img src="@Url.Content(Model.FaviconPath)" alt="Favicon" />}
+                        else
+                        {<i class="fas fa-image"></i>}
+                    </div>
+                    <span>Favicon</span>
+                </div>
             </div>
         </div>
+
     </div>
 
     <!-- FOOTER -->
@@ -196,22 +247,3 @@
     </div>
 
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var tabs = document.querySelectorAll('.up-tab');
-        var contents = document.querySelectorAll('.up-tab-content');
-
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                tabs.forEach(function (t) { t.classList.remove('active'); });
-                this.classList.add('active');
-
-                contents.forEach(function (c) { c.classList.remove('active'); });
-
-                var target = document.getElementById('tab-' + this.getAttribute('data-tab'));
-                if (target) target.classList.add('active');
-            });
-        });
-    });
-</script>

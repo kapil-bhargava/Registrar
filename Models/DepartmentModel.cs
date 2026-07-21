@@ -15,6 +15,7 @@ namespace Regis.Models
         public string FacultyName { get; set; }          // display only (joined)
 
         public string CampusName { get; set; }
+
         public bool IsActive { get; set; }
         public DateTime? CreatedDate { get; set; }
     }

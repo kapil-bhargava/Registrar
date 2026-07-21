@@ -1,22 +1,23 @@
 ﻿/* ============================================================
    NAVBAR.CSS - Navbar Component Styles
-   Minimal · Light Theme
+   Blue Theme · Registrar ERP
    ============================================================ */
 
 /* ----- NAVBAR CONTAINER ----- */
 .navbar-top {
-    background: #ffffff;
-    border-bottom: 1px solid #e9edf2;
+    background: #0A4E95;
+    border-bottom: 1px solid #093f79;
     padding: 0.5rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
     height: 60px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 0;
     z-index: 1;
+  
 }
 
 /* ----- LEFT SIDE ----- */
@@ -32,7 +33,7 @@
         background: transparent;
         border: none;
         font-size: 1.2rem;
-        color: #1e293b;
+        color: #ffffff;
         cursor: pointer;
         padding: 0.3rem 0.5rem;
         border-radius: 8px;
@@ -40,14 +41,16 @@
     }
 
         .navbar-left .hamburger:hover {
-            background: #f1f4f9;
+            background: rgba(255, 255, 255, 0.12);
         }
 
     /* Page Title */
     .navbar-left .page-title {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1rem;
-        color: #0b1b33;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
     }
 
 /* ----- RIGHT SIDE ----- */
@@ -62,7 +65,7 @@
     .navbar-actions .action-btn {
         background: transparent;
         border: none;
-        color: #64748b;
+        color: #ffffff;
         font-size: 1rem;
         cursor: pointer;
         padding: 0.4rem 0.6rem;
@@ -72,8 +75,8 @@
     }
 
         .navbar-actions .action-btn:hover {
-            background: #f1f4f9;
-            color: #0b1b33;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
         }
 
     /* Notification Badge */
@@ -100,27 +103,27 @@
         cursor: pointer;
         padding: 0.2rem 0.6rem 0.2rem 0.4rem;
         border-radius: 40px;
-        border: 1px solid #e9edf2;
+        border: 1px solid rgba(255, 255, 255, 0.25);
         transition: 0.12s;
-        background: white;
+        background: rgba(255, 255, 255, 0.06);
         margin-left: 0.3rem;
     }
 
         .navbar-actions .user-profile:hover {
-            border-color: #cbd5e1;
-            background: #f8fafc;
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.12);
         }
 
         .navbar-actions .user-profile .user-avatar {
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: #4f6ef7;
-            color: white;
+            background: #FFB702;
+            color: #0A4E95;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.75rem;
             flex-shrink: 0;
         }
@@ -132,19 +135,19 @@
         }
 
         .navbar-actions .user-profile .user-name {
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.8rem;
-            color: #1e293b;
+            color: #ffffff;
         }
 
         .navbar-actions .user-profile .user-role {
             font-size: 0.65rem;
-            color: #94a3b8;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .navbar-actions .user-profile .user-dropdown-arrow {
             font-size: 0.6rem;
-            color: #94a3b8;
+            color: #ffffff;
             transition: transform 0.2s ease;
             margin-left: 0.1rem;
         }
@@ -163,7 +166,7 @@
         border-radius: 16px;
         padding: 0.4rem 0;
         min-width: 200px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
         opacity: 0;
         visibility: hidden;
         transform: translateY(-8px) scale(0.98);
@@ -201,7 +204,7 @@
             }
 
                 .navbar-actions .user-dropdown a:hover i {
-                    color: #4f6ef7;
+                    color: #0A4E95;
                 }
 
         .navbar-actions .user-dropdown hr {

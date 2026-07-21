@@ -1,11 +1,11 @@
 ﻿/* ============================================================
    DEPARTMENT MANAGEMENT - Complete Styles
-   Registrar ERP · Professional Light Theme
+   Registrar ERP · Recolored: Blue #0A4E95 / Yellow #FFB702
    ============================================================ */
 
 /* ----- BASE ----- */
 .dm-wrap {
-/*    max-width: 1400px;*/
+    /*    max-width: 1400px;*/
     margin: 0 auto;
     padding: 0.5rem 0;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -47,7 +47,7 @@
     }
 
         .dm-list-head h2 i {
-            color: #4f6ef7;
+            color: #0A4E95;
         }
 
     .dm-list-head p {
@@ -82,7 +82,7 @@
 }
 
     .dm-stat-card:hover {
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
         background: #f5f7fb;
     }
 
@@ -94,7 +94,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f6ef7;
+        color: #0A4E95;
         font-size: 1rem;
         flex-shrink: 0;
     }
@@ -140,8 +140,8 @@
 }
 
     .dm-search-box:focus-within {
-        border-color: #4f6ef7;
-        box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+        border-color: #0A4E95;
+        box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
     }
 
     .dm-search-box i {
@@ -178,7 +178,7 @@
     }
 
         .dm-filter-group select:focus {
-            border-color: #4f6ef7;
+            border-color: #0A4E95;
         }
 
 /* ----- BUTTONS ----- */
@@ -198,15 +198,15 @@
 }
 
 .dm-btn-primary {
-    background: #4f6ef7;
+    background: #0A4E95;
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 110, 247, 0.2);
+    box-shadow: 0 4px 12px rgba(10, 78, 149, 0.2);
 }
 
     .dm-btn-primary:hover {
-        background: #3a5bd9;
+        background: #083c73;
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(79, 110, 247, 0.3);
+        box-shadow: 0 6px 20px rgba(10, 78, 149, 0.3);
     }
 
 .dm-btn-outline {
@@ -217,7 +217,7 @@
 
     .dm-btn-outline:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
 .dm-btn-ghost {
@@ -228,7 +228,7 @@
 
     .dm-btn-ghost:hover {
         background: #f1f4f9;
-        border-color: #cbd5e1;
+        border-color: #0A4E95;
     }
 
 .dm-btn-danger {
@@ -263,7 +263,7 @@
     }
 
     .dm-mini-btn.active {
-        background: #4f6ef7;
+        background: #0A4E95;
         color: white;
     }
 
@@ -272,12 +272,12 @@
     }
 
 .dm-mini-view {
-    color: #4f6ef7;
+    color: #0A4E95;
 }
 
     .dm-mini-view:hover {
-        background: #eef3ff;
-        color: #3a5bd9;
+        background: #e6eefb;
+        color: #083c73;
     }
 
 .dm-mini-delete {
@@ -334,7 +334,7 @@
     }
 
         .dm-table .dm-name i {
-            color: #4f6ef7;
+            color: #0A4E95;
             margin-right: 0.4rem;
         }
 
@@ -364,13 +364,13 @@
 }
 
 .dm-pill-pending {
-    background: #fef3c7;
+    background: #fff4d6;
     color: #92400e;
 }
 
 .dm-code-badge {
-    background: #eef3ff;
-    color: #4f6ef7;
+    background: #e6eefb;
+    color: #0A4E95;
     padding: 0.15rem 0.6rem;
     border-radius: 40px;
     font-size: 0.7rem;
@@ -407,7 +407,7 @@
     }
 
         .dm-pagination-btns .dm-mini-btn.active {
-            background: #4f6ef7;
+            background: #0A4E95;
             color: white;
         }
 
@@ -445,7 +445,7 @@
     }
 
     .dm-legend-dot.pending {
-        background: #f59e0b;
+        background: #FFB702;
     }
 
 /* ----- BACK LINK ----- */
@@ -509,13 +509,13 @@
     .dm-head .dm-icon {
         width: 44px;
         height: 44px;
-        background: #eef3ff;
+        background: #e6eefb;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.3rem;
-        color: #4f6ef7;
+        color: #0A4E95;
         flex-shrink: 0;
     }
 
@@ -546,7 +546,7 @@
 }
 
     .dm-section-lbl i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- FORM GRID ----- */
@@ -594,8 +594,8 @@
         .dm-field input:focus,
         .dm-field select:focus,
         .dm-field textarea:focus {
-            border-color: #4f6ef7;
-            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.06);
+            border-color: #0A4E95;
+            box-shadow: 0 0 0 4px rgba(10, 78, 149, 0.06);
         }
 
     .dm-field textarea {
@@ -656,7 +656,7 @@
         }
 
     .dm-switch input:checked + .dm-slider {
-        background: #4f6ef7;
+        background: #0A4E95;
     }
 
         .dm-switch input:checked + .dm-slider::before {
@@ -820,7 +820,7 @@
     }
 
     .dm-toast.info i {
-        color: #4f6ef7;
+        color: #0A4E95;
     }
 
 /* ----- RESPONSIVE ----- */
