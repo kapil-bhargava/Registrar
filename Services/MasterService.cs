@@ -756,5 +756,101 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
+        //deisnation master ervice
+        public List<DesignationModel> GetAllDesignations()
+        {
+            var list = new List<DesignationModel>();
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Designation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    list.Add(new DesignationModel
+                    {
+                        DesignationId = Convert.ToInt32(dr["DesignationId"]),
+                        DesignationName = dr["DesignationName"].ToString(),
+                        DesignationCode = dr["DesignationCode"].ToString(),
+                        Level = dr["Level"].ToString(),
+                        IsActive = Convert.ToBoolean(dr["IsActive"]),
+                        CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                    });
+                }
+            }
+            return list;
+        }
+
+        // Used everywhere a Designation dropdown is needed (HOD, Faculty, etc.)
+        public List<DesignationModel> GetActiveDesignations()
+        {
+            var list = new List<DesignationModel>();
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Designation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    list.Add(new DesignationModel
+                    {
+                        DesignationId = Convert.ToInt32(dr["DesignationId"]),
+                        DesignationName = dr["DesignationName"].ToString(),
+                        DesignationCode = dr["DesignationCode"].ToString()
+                    });
+                }
+            }
+            return list;
+        }
+
+        public bool InsertDesignation(DesignationModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Designation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@DesignationName", model.DesignationName);
+                cmd.Parameters.AddWithValue("@DesignationCode", model.DesignationCode);
+                cmd.Parameters.AddWithValue("@Level", (object)model.Level ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool UpdateDesignation(DesignationModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Designation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@DesignationId", model.DesignationId);
+                cmd.Parameters.AddWithValue("@DesignationName", model.DesignationName);
+                cmd.Parameters.AddWithValue("@DesignationCode", model.DesignationCode);
+                cmd.Parameters.AddWithValue("@Level", (object)model.Level ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool DeleteDesignation(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_Designation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@DesignationId", id);
+                con.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
     }
 }

@@ -366,19 +366,34 @@ namespace Regis.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool result;
-                if (model.SubjectId > 0)
+                try
                 {
-                    result = service.UpdateSubject(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Subject Updated Successfully." : "Unable to Update Subject.";
+                    bool result;
+                    if (model.SubjectId > 0)
+                    {
+                        result = service.UpdateSubject(model);
+                        TempData[result ? "Success" : "Error"] =
+                            result ? "Subject Updated Successfully." : "Unable to Update Subject.";
+                    }
+                    else
+                    {
+                        result = service.InsertSubject(model);
+                        TempData[result ? "Success" : "Error"] =
+                            result ? "Subject Saved Successfully." : "Unable to Save Subject.";
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    result = service.InsertSubject(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Subject Saved Successfully." : "Unable to Save Subject.";
+                    // Ab actual DB/SP error dikhega, chup-chaap fail nahi hoga
+                    TempData["Error"] = "Error saving subject: " + ex.Message;
                 }
+            }
+            else
+            {
+                // Yeh missing tha — ab pata chalega konsa field invalid hai
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                               .Select(e => e.ErrorMessage);
+                TempData["Error"] = "Validation failed: " + string.Join(" | ", errors);
             }
             return RedirectToAction("SubjectManagement");
         }

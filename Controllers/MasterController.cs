@@ -205,9 +205,39 @@ namespace Regis.Controllers
 
         public ActionResult DesignationMaster()
         {
-            return View();
+            List<DesignationModel> list = MasterService.GetAllDesignations();
+            return View(list);
         }
 
+        [HttpPost]
+        public ActionResult DesignationMaster(DesignationModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.DesignationId > 0)
+                {
+                    result = MasterService.UpdateDesignation(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Designation Updated Successfully." : "Unable to Update Designation.";
+                }
+                else
+                {
+                    result = MasterService.InsertDesignation(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Designation Saved Successfully." : "Unable to Save Designation.";
+                }
+            }
+            return RedirectToAction("DesignationMaster");
+        }
+
+        public ActionResult DeleteDesignation(int id)
+        {
+            bool result = MasterService.DeleteDesignation(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Designation Deleted Successfully." : "Unable to Delete Designation.";
+            return RedirectToAction("DesignationMaster");
+        }
         // ============================================================
         // Religion Master
         // ============================================================
@@ -222,6 +252,14 @@ namespace Regis.Controllers
         // ============================================================
 
         public ActionResult BloodGroupMaster()
+        {
+            return View();
+        }
+        // ============================================================
+        // branchmaster Master
+        // ============================================================
+
+        public ActionResult BranchMaster()
         {
             return View();
         }

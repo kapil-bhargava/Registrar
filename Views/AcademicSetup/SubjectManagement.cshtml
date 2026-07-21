@@ -10,7 +10,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
-
+@if (TempData["Success"] != null)
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('subToastMessage').textContent = '@TempData["Success"]';
+            document.getElementById('subToast').classList.add('show');
+        });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('subToastMessage').textContent = '@TempData["Error"]';
+            document.getElementById('subToast').classList.add('show', 'error');
+        });
+    </script>
+}
 <div class="as-wrap">
 
     <!-- ================= LIST PAGE ================= -->
@@ -236,13 +253,29 @@
         fetch('/AcademicSetup/GetSemestersByCourse?courseId=' + courseId)
             .then(res => res.json())
             .then(list => {
-                list.forEach(s => {
+                const items = Array.isArray(list) ? list : (list ? [list] : []);
+
+                items.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s.SemesterId;
                     opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
                     if (preselectId && String(s.SemesterId) === String(preselectId)) opt.selected = true;
                     semSelect.appendChild(opt);
                 });
+
+                // Agar sirf ek hi semester mila aur koi preselect nahi hai (Add mode),
+                // usko auto-select kar do taaki user bhool na jaaye
+                if (!preselectId && items.length === 1) {
+                    semSelect.value = items[0].SemesterId;
+                }
+
+                if (items.length === 0) {
+                    semSelect.innerHTML = '<option value="">-- No semesters found for this course --</option>';
+                }
+            })
+            .catch(err => {
+                console.error('Failed to load semesters:', err);
+                semSelect.innerHTML = '<option value="">-- Error loading semesters --</option>';
             });
     }
 
