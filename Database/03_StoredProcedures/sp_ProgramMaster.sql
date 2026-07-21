@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_ProgramMaster
+CREATE OR ALTER PROCEDURE sp_ProgramMaster
     @Flag               NVARCHAR(20),
     @ProgramId          INT             = NULL,
     @ProgramCode        NVARCHAR(30)    = NULL,

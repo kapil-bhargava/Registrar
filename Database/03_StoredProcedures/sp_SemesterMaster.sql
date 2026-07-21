@@ -4,7 +4,7 @@
    nahi aayega)
    ================================================================ */
 
-ALTER PROCEDURE sp_SemesterMaster
+CREATE OR ALTER PROCEDURE sp_SemesterMaster
     @Flag               NVARCHAR(20),
     @SemesterId         INT             = NULL,
     @CourseId           INT             = NULL,

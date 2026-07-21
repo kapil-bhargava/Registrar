@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_FacultyMaster
+CREATE OR ALTER PROCEDURE sp_FacultyMaster
     @Flag           NVARCHAR(20),
     @FacultyId      INT             = NULL,
     @FacultyCode    NVARCHAR(30)    = NULL,

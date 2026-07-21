@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_DepartmentMaster
+CREATE OR ALTER PROCEDURE sp_DepartmentMaster
     @Flag               NVARCHAR(20),
     @DepartmentId       INT             = NULL,
     @DepartmentCode     NVARCHAR(30)    = NULL,
