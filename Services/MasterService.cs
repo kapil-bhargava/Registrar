@@ -1277,7 +1277,7 @@ namespace Regis.Services
 
                 return cmd.ExecuteNonQuery() > 0;
             }
-        }
+        }//
         public bool DeleteBranchMaster(int id)
         {
             using (SqlConnection con = db.GetConnection())

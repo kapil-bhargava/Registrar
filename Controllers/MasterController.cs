@@ -754,7 +754,7 @@ namespace Regis.Controllers
         // Academic Session page (AcademicController.AcademicSession).
         // Same GETALL/INSERT/UPDATE/DELETE flag pattern as every
         // other master above.
-        // ============================================================
+        // =============================================================
 
         public ActionResult SessionTypeMaster()
         {

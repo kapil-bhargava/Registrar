@@ -19,7 +19,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- GET ALL
+    --- GET ALL
     IF @Flag = 'GETALL'
     BEGIN
         SELECT

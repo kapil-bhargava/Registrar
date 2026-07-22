@@ -181,7 +181,7 @@ namespace Regis.Services
 
                 con.Open();
 
-                // SP has SET NOCOUNT ON -> successful UPDATE returns -1, not the row count.
+                // /SP has SET NOCOUNT ON -> successful UPDATE returns -1, not the row count.
                 // != 0 treats both -1 (NOCOUNT case) and any positive count as success.
                 return cmd.ExecuteNonQuery() != 0;
             }

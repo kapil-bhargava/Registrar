@@ -183,7 +183,7 @@ namespace Regis.Controllers
             List<DepartmentModel> departmentList = service.GetAllDepartments();
             ViewBag.CampusList = new SelectList(campusCategoryService.GetAllCampuses(), "CampusId", "CampusName");
             //ViewBag.Faculties = service.GetActiveFaculties();
-            // Department Name / Code now come from Department Master (dropdown), not free text
+            /// Department Name / Code now come from Department Master (dropdown), not free text
             ViewBag.Faculties = new MasterService().GetActiveFacultyMaster();
             ViewBag.DepartmentMasterList = new MasterService().GetActiveDepartmentMaster();
             return View(departmentList);

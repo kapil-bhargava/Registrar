@@ -32,3 +32,5 @@ CREATE TABLE FacultyAssignment
         FOREIGN KEY (DesignationId)
         REFERENCES Designation(DesignationId)
 );
+
+--

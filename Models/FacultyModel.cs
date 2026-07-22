@@ -26,7 +26,7 @@ namespace Regis.Models
         public int DesignationId { get; set; }
         public string DesignationName { get; set; }
 
-        // Active / Inactive
+        // Active / Inactive/
         public string Status { get; set; }
 
         public DateTime? CreatedDate { get; set; }
