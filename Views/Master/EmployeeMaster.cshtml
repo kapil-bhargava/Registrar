@@ -1,0 +1,329 @@
+﻿@model List<Regis.Models.EmployeeModel>
+
+@{
+    ViewBag.Title = "EmployeeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="empListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-address-card"></i> Employee Master</h2>
+                <p>Manage basic records for all staff and faculty employees.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="empShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Employee
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Employees</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(e => e.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SEARCH BOX (Emp Code / Email) ===== -->
+        <div class="as-search-row" style="margin-bottom:16px;">
+            <input type="text" id="empSearchBox" class="as-search-input"
+                   placeholder="Search by Employee Code or Email..."
+                   onkeyup="empSearchTable()"
+                   style="width:100%; max-width:340px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Emp Code</th>
+                        <th>Full Name</th>
+                        <th>Father Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Date of Birth</th>
+                        <th>Date of Joining</th>
+                        <th>Address</th>
+                        <th>Qualification</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="empTableBody">
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+                            <td><strong>@e.EmployeeCode</strong></td>
+                            <td>@e.FullName</td>
+                            <td>@e.FatherName</td>
+                            <td>@e.Email</td>
+                            <td>@e.Phone</td>
+                            <td>@e.Gender</td>
+                            <td>@(e.DateOfBirth?.ToString("dd-MM-yyyy"))</td>
+                            <td>@(e.DateOfJoining?.ToString("dd-MM-yyyy"))</td>
+                            <td>@e.Address</td>
+                            <td>@e.Qualification</td>
+                            <td>@e.Experience</td>
+                            <td>
+                                @if (e.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="empShowForm(this)"
+                                        data-id="@e.EmployeeId" data-code="@e.EmployeeCode" data-name="@e.FullName"
+                                        data-fathername="@e.FatherName"
+                                        data-email="@e.Email" data-phone="@e.Phone" data-gender="@e.Gender"
+                                        data-dob="@(e.DateOfBirth?.ToString("yyyy-MM-dd"))"
+                                        data-doj="@(e.DateOfJoining?.ToString("yyyy-MM-dd"))"
+                                        data-address="@e.Address"
+                                        data-qualification="@e.Qualification"
+                                        data-experience="@e.Experience"
+                                        data-active="@e.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteEmployee", "Master", new { id = e.EmployeeId })"
+                                   onclick="return confirm('Delete this employee?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p id="empNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching employees found.</p>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT EMPLOYEE FORM ================= -->
+    @using (Html.BeginForm("EmployeeMaster", "Master", FormMethod.Post, new { id = "empForm", onsubmit = "return empValidateForm()" }))
+    {
+        <div class="as-card as-wizard-card" id="empFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="empShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Employee List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-address-card"></i></div>
+                        <div>
+                            <h2 id="empFormTitle">Add Employee</h2>
+                            <p>Enter the employee's basic details.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Employee Details
+                    </div>
+
+                    <input type="hidden" id="employeeId" name="EmployeeId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Employee Code <span class="req">*</span></label>
+                            <input type="text" id="employeeCode" name="EmployeeCode" placeholder="e.g. EMP-1042">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Full Name <span class="req">*</span></label>
+                            <input type="text" id="fullName" name="FullName" placeholder="e.g. Dr. Ramesh Kumar">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Father Name</label>
+                            <input type="text" id="fatherName" name="FatherName" placeholder="Enter father's name">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Email <span class="req">*</span></label>
+                            <input type="email" id="employeeEmail" name="Email" placeholder="ramesh.kumar@university.edu">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Phone</label>
+                            <input type="tel" id="employeePhone" name="Phone" placeholder="10 digit number"
+                                   maxlength="10" inputmode="numeric"
+                                   onkeypress="return /[0-9]/.test(event.key)"
+                                   oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Gender</label>
+                            <select id="gender" name="Gender">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="DateOfBirth">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Date of Joining</label>
+                            <input type="date" id="dateOfJoining" name="DateOfJoining">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Qualification</label>
+                            <input type="text" id="qualification" name="Qualification" placeholder="e.g. M.Tech, MBA, Ph.D.">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Experience</label>
+                            <input type="text" id="experience" name="Experience" placeholder="e.g. 5 Years">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="employeeStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field as-full">
+                            <label>Address</label>
+                            <textarea id="address" name="Address" rows="3" placeholder="Full address..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="empShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="empSubmitText">Save Employee</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script>
+    function empShowForm(btn) {
+        document.getElementById('empListWrap').style.display = 'none';
+        document.getElementById('empFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('empFormTitle').textContent = 'Edit Employee';
+            document.getElementById('empSubmitText').textContent = 'Update Employee';
+
+            document.getElementById('employeeId').value = btn.dataset.id;
+            document.getElementById('employeeCode').value = btn.dataset.code;
+            document.getElementById('fullName').value = btn.dataset.name;
+            document.getElementById('fatherName').value = btn.dataset.fathername || '';
+            document.getElementById('employeeEmail').value = btn.dataset.email || '';
+            document.getElementById('employeePhone').value = btn.dataset.phone || '';
+            document.getElementById('gender').value = btn.dataset.gender || '';
+            document.getElementById('dateOfBirth').value = btn.dataset.dob || '';
+            document.getElementById('dateOfJoining').value = btn.dataset.doj || '';
+            document.getElementById('address').value = btn.dataset.address || '';
+            document.getElementById('qualification').value = btn.dataset.qualification || '';
+            document.getElementById('experience').value = btn.dataset.experience || '';
+            document.getElementById('employeeStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('empFormTitle').textContent = 'Add Employee';
+            document.getElementById('empSubmitText').textContent = 'Save Employee';
+            document.getElementById('employeeId').value = 0;
+            document.getElementById('employeeCode').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('fatherName').value = '';
+            document.getElementById('employeeEmail').value = '';
+            document.getElementById('employeePhone').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('dateOfBirth').value = '';
+            document.getElementById('dateOfJoining').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('qualification').value = '';
+            document.getElementById('experience').value = '';
+            document.getElementById('employeeStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function empShowList() {
+        document.getElementById('empFormWrap').style.display = 'none';
+        document.getElementById('empListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ===== SEARCH by Emp Code / Email =====
+    function empSearchTable() {
+        var filter = document.getElementById('empSearchBox').value.toLowerCase().trim();
+        var rows = document.querySelectorAll('#empTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var code = row.cells[0].textContent.toLowerCase();
+            var email = row.cells[3].textContent.toLowerCase();
+
+            if (code.indexOf(filter) > -1 || email.indexOf(filter) > -1) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('empNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // ===== FORM VALIDATION (required fields + phone 10 digit) =====
+    function empValidateForm() {
+        var code = document.getElementById('employeeCode').value.trim();
+        var name = document.getElementById('fullName').value.trim();
+        var email = document.getElementById('employeeEmail').value.trim();
+        var phone = document.getElementById('employeePhone').value.trim();
+
+        if (!code || !name || !email) {
+            alert('Enter the employee code ,name and email.');
+            return false;
+        }
+
+        if (phone.length > 0 && phone.length !== 10) {
+            alert('Enter the 10 digit nymber.');
+            return false;
+        }
+
+        return true;
+    }
+</script>

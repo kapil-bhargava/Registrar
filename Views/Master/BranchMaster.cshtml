@@ -1,0 +1,635 @@
+﻿@model List<Regis.Models.BranchMasterModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "BranchMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+
+    var departments = ViewBag.Departments as List<DepartmentMasterModel>
+        ?? new List<DepartmentMasterModel>();
+
+    var programs = ViewBag.Programs as List<ProgramMasterModel>
+        ?? new List<ProgramMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+
+    <div class="as-card" id="brListWrap">
+
+        <div class="as-list-head">
+
+            <div>
+                <h2>
+                    <i class="fas fa-code-branch"></i>
+                    Branch Master
+                </h2>
+
+                <p>
+                    Manage academic branches and map them to departments and programs.
+                </p>
+            </div>
+
+            <button class="as-btn as-btn-primary"
+                    onclick="brShowForm()">
+
+                <i class="fas fa-plus-circle"></i>
+                Add New Branch
+
+            </button>
+
+        </div>
+
+
+        <!-- QUICK STATS -->
+
+        <div class="as-quick-stats">
+
+            <div class="as-stat-card">
+
+                <div class="as-stat-icon">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+
+                <div class="as-stat-info">
+
+                    <span class="as-stat-number">
+                        @Model.Count
+                    </span>
+
+                    <span class="as-stat-label">
+                        Total Branches
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="as-stat-card active">
+
+                <div class="as-stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <div class="as-stat-info">
+
+                    <span class="as-stat-number">
+                        @Model.Count(b => b.IsActive)
+                    </span>
+
+                    <span class="as-stat-label">
+                        Active Branches
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===== SEARCH BOX (Branch Code / Branch Name) ===== -->
+        <div class="as-search-row" style="margin-bottom:16px;">
+            <input type="text" id="brSearchBox" class="as-search-input"
+                   placeholder="Search by Branch Code or Branch Name..."
+                   onkeyup="brSearchTable()"
+                   style="width:100%; max-width:340px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="as-table-wrapper">
+
+            <table class="as-table as-list-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Branch Code</th>
+                        <th>Branch Name</th>
+                        <th>Department</th>
+                        <th>Program</th>
+                        <th>Campus</th>
+                        <th>Intake Capacity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="brTableBody">
+
+                    @foreach (var b in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    @b.BranchCode
+                                </strong>
+                            </td>
+
+                            <td>
+                                @b.BranchName
+                            </td>
+
+                            <td>
+                                @b.DepartmentName
+                            </td>
+
+                            <td>
+                                <span class="as-type-badge">
+                                    @b.ProgramName
+                                </span>
+                            </td>
+
+                            <td>
+                                @b.CampusName
+                            </td>
+
+                            <td>
+                                @b.IntakeCapacity
+                            </td>
+
+                            <td>
+
+                                @if (b.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-circle"></i>
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived">
+                                        <i class="fas fa-circle"></i>
+                                        Inactive
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <button type="button"
+                                        class="as-mini-btn"
+                                        title="Edit"
+                                        onclick="brShowForm(this)"
+                                        data-id="@b.BranchId"
+                                        data-code="@b.BranchCode"
+                                        data-name="@b.BranchName"
+                                        data-departmentid="@b.DepartmentId"
+                                        data-programid="@b.ProgramId"
+                                        data-campus="@b.CampusName"
+                                        data-intake="@b.IntakeCapacity"
+                                        data-active="@b.IsActive.ToString().ToLower()">
+
+                                    <i class="fas fa-edit"></i>
+
+                                </button>
+
+
+                                <a class="as-mini-btn"
+                                   title="Delete"
+                                   href="@Url.Action("DeleteBranchMaster", "Master", new { id = b.BranchId })"
+                                   onclick="return confirm('Delete this branch?');">
+
+                                    <i class="fas fa-trash-alt"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+            <p id="brNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching branches found.</p>
+
+        </div>
+
+
+        <div class="as-legend">
+
+            <span>
+                <span class="as-legend-dot active"></span>
+                Active
+            </span>
+
+            <span>
+                <span class="as-legend-dot archived"></span>
+                Inactive
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ADD / EDIT FORM ================= -->
+
+    @using (Html.BeginForm("BranchMaster", "Master", FormMethod.Post, new { id = "brForm", onsubmit = "return brValidateForm()" }))
+    {
+
+        <div class="as-card as-wizard-card"
+             id="brFormWrap"
+             style="display:none;">
+
+            <div class="as-back-row">
+
+                <button type="button"
+                        class="as-back-link"
+                        onclick="brShowList()">
+
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Branches List
+
+                </button>
+
+            </div>
+
+
+            <div class="as-body">
+
+                <div class="as-page active">
+
+                    <div class="as-head">
+
+                        <div class="as-icon">
+
+                            <i class="fas fa-code-branch"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 id="brFormTitle">
+                                Add Branch
+                            </h2>
+
+                            <p>
+                                Define a new academic branch under a department and program.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="as-section-title">
+
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+
+                    </div>
+
+
+                    <input type="hidden"
+                           id="branchId"
+                           name="BranchId"
+                           value="0" />
+
+
+                    <div class="as-grid">
+
+
+                        <!-- BRANCH CODE -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Branch Code
+                                <span class="req">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="branchCode"
+                                   name="BranchCode"
+                                   placeholder="e.g. CSE-AI">
+
+                        </div>
+
+
+                        <!-- BRANCH NAME -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Branch Name
+                                <span class="req">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="branchName"
+                                   name="BranchName"
+                                   placeholder="e.g. Computer Science & Engineering - AI">
+
+                        </div>
+
+
+                        <!-- DEPARTMENT -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Department
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="departmentId"
+                                    name="DepartmentId">
+
+                                <option value="">
+                                    -- Select Department --
+                                </option>
+
+                                @foreach (var d in departments)
+                                {
+                                    <option value="@d.DepartmentId">
+                                        @d.DepartmentName
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span class="as-hint">
+                                Managed from Department Master
+                            </span>
+
+                        </div>
+
+
+                        <!-- PROGRAM -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Program
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="programId"
+                                    name="ProgramId">
+
+                                <option value="">
+                                    -- Select Program --
+                                </option>
+
+                                @foreach (var p in programs)
+                                {
+                                    <option value="@p.ProgramId">
+                                        @p.ProgramName
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span class="as-hint">
+                                Managed from Program Master
+                            </span>
+
+                        </div>
+
+
+                        <!-- CAMPUS -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Campus Name
+                            </label>
+
+                            <input type="text"
+                                   id="campusName"
+                                   name="CampusName"
+                                   placeholder="e.g. Main Campus">
+
+                        </div>
+
+
+                        <!-- INTAKE -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Intake Capacity
+                            </label>
+
+                            <input type="number"
+                                   id="intakeCapacity"
+                                   name="IntakeCapacity"
+                                   placeholder="e.g. 120"
+                                   min="0">
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Status
+                            </label>
+
+                            <select id="branchStatus"
+                                    name="IsActive">
+
+                                <option value="true">
+                                    Active
+                                </option>
+
+                                <option value="false">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="as-bar">
+
+                        <button type="button"
+                                class="as-btn as-btn-ghost"
+                                onclick="brShowList()">
+
+                            Cancel
+
+                        </button>
+
+                        <span></span>
+
+                        <button type="submit"
+                                class="as-btn as-btn-primary">
+
+                            <i class="fas fa-save"></i>
+
+                            <span id="brSubmitText">
+                                Save Branch
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    function brShowForm(btn) {
+
+        document.getElementById('brListWrap').style.display = 'none';
+
+        document.getElementById('brFormWrap').style.display = 'block';
+
+
+        if (btn) {
+
+            document.getElementById('brFormTitle').textContent =
+                'Edit Branch';
+
+            document.getElementById('brSubmitText').textContent =
+                'Update Branch';
+
+
+            document.getElementById('branchId').value =
+                btn.dataset.id;
+
+            document.getElementById('branchCode').value =
+                btn.dataset.code;
+
+            document.getElementById('branchName').value =
+                btn.dataset.name;
+
+            document.getElementById('departmentId').value =
+                btn.dataset.departmentid || '';
+
+            document.getElementById('programId').value =
+                btn.dataset.programid || '';
+
+            document.getElementById('campusName').value =
+                btn.dataset.campus || '';
+
+            document.getElementById('intakeCapacity').value =
+                btn.dataset.intake || '';
+
+            document.getElementById('branchStatus').value =
+                btn.dataset.active;
+
+        }
+        else {
+
+            document.getElementById('brFormTitle').textContent =
+                'Add Branch';
+
+            document.getElementById('brSubmitText').textContent =
+                'Save Branch';
+
+
+            document.getElementById('branchId').value = 0;
+
+            document.getElementById('branchCode').value = '';
+
+            document.getElementById('branchName').value = '';
+
+            document.getElementById('departmentId').value = '';
+
+            document.getElementById('programId').value = '';
+
+            document.getElementById('campusName').value = '';
+
+            document.getElementById('intakeCapacity').value = '';
+
+            document.getElementById('branchStatus').value = 'true';
+
+        }
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+    function brShowList() {
+
+        document.getElementById('brFormWrap').style.display =
+            'none';
+
+        document.getElementById('brListWrap').style.display =
+            'block';
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+    // ===== SEARCH by Branch Code / Branch Name =====
+    function brSearchTable() {
+        var filter = document.getElementById('brSearchBox').value.toLowerCase().trim();
+        var rows = document.querySelectorAll('#brTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var code = row.cells[0].textContent.toLowerCase();
+            var name = row.cells[1].textContent.toLowerCase();
+
+            if (code.indexOf(filter) > -1 || name.indexOf(filter) > -1) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('brNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+
+    // ===== FORM VALIDATION (required fields) =====
+    function brValidateForm() {
+        var code = document.getElementById('branchCode').value.trim();
+        var name = document.getElementById('branchName').value.trim();
+        var departmentId = document.getElementById('departmentId').value.trim();
+        var programId = document.getElementById('programId').value.trim();
+
+        if (!code || !name || !departmentId || !programId) {
+            alert('Branch Code, Branch Name, Department aur Program zaroori hai. Empty form save nahi hoga.');
+            return false;
+        }
+
+        return true;
+    }
+
+</script>

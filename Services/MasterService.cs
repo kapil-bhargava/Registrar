@@ -852,5 +852,404 @@ namespace Regis.Services
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+
+
+        //========================================================
+        // Employeemaster
+        //========================================================
+
+        public List<EmployeeModel> GetAllEmployees()
+        {
+            var list = new List<EmployeeModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_EmployeeMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+
+                con.Open();
+
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new EmployeeModel
+                    {
+                        EmployeeId = Convert.ToInt32(dr["EmployeeId"]),
+                        EmployeeCode = dr["EmployeeCode"].ToString(),
+                        FullName = dr["FullName"].ToString(),
+                        FatherName = dr["FatherName"].ToString(),
+                        Email = dr["Email"].ToString(),
+                        Phone = dr["Phone"].ToString(),
+                        Gender = dr["Gender"].ToString(),
+
+                        DateOfBirth = dr["DateOfBirth"] != DBNull.Value
+                            ? Convert.ToDateTime(dr["DateOfBirth"])
+                            : (DateTime?)null,
+
+                        DateOfJoining = dr["DateOfJoining"] != DBNull.Value
+                            ? Convert.ToDateTime(dr["DateOfJoining"])
+                            : (DateTime?)null,
+
+                        Address = dr["Address"].ToString(),
+                        Qualification = dr["Qualification"].ToString(),
+                        Experience = dr["Experience"].ToString(),
+                        IsActive = Convert.ToBoolean(dr["IsActive"]),
+
+                        CreatedDate = dr["CreatedDate"] != DBNull.Value
+                            ? Convert.ToDateTime(dr["CreatedDate"])
+                            : (DateTime?)null
+                    });
+                }
+            }
+
+            return list;
+        }
+
+
+        // Used everywhere an Employee dropdown is needed
+        public List<EmployeeModel> GetActiveEmployees()
+        {
+            var list = new List<EmployeeModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_EmployeeMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+
+                con.Open();
+
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new EmployeeModel
+                    {
+                        EmployeeId = Convert.ToInt32(dr["EmployeeId"]),
+                        EmployeeCode = dr["EmployeeCode"].ToString(),
+                        FullName = dr["FullName"].ToString()
+                    });
+                }
+            }
+
+            return list;
+        }
+
+
+        public bool InsertEmployee(EmployeeModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_EmployeeMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@EmployeeCode", model.EmployeeCode);
+                cmd.Parameters.AddWithValue("@FullName", model.FullName);
+                cmd.Parameters.AddWithValue("@FatherName", (object)model.FatherName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Email", (object)model.Email ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Phone", (object)model.Phone ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Gender", (object)model.Gender ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfBirth", (object)model.DateOfBirth ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfJoining", (object)model.DateOfJoining ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Address", (object)model.Address ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Qualification", (object)model.Qualification ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Experience", (object)model.Experience ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+
+        public bool UpdateEmployee(EmployeeModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_EmployeeMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@EmployeeId", model.EmployeeId);
+                cmd.Parameters.AddWithValue("@EmployeeCode", model.EmployeeCode);
+                cmd.Parameters.AddWithValue("@FullName", model.FullName);
+                cmd.Parameters.AddWithValue("@FatherName", (object)model.FatherName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Email", (object)model.Email ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Phone", (object)model.Phone ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Gender", (object)model.Gender ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfBirth", (object)model.DateOfBirth ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfJoining", (object)model.DateOfJoining ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Address", (object)model.Address ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Qualification", (object)model.Qualification ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Experience", (object)model.Experience ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+
+        public bool DeleteEmployee(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_EmployeeMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@EmployeeId", id);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        //==========================================================
+        //           Subject Category master
+        //==========================================================
+        public List<SubjectCategoryModel> GetAllSubjectCategories()
+        {
+            var list = new List<SubjectCategoryModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SubjectCategoryMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+
+                con.Open();
+
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new SubjectCategoryModel
+                    {
+                        CategoryId = Convert.ToInt32(dr["CategoryId"]),
+                        CategoryName = dr["CategoryName"].ToString(),
+                        CategoryType = dr["CategoryType"].ToString(),
+                        CreditApplicable = Convert.ToBoolean(dr["CreditApplicable"]),
+                        MarksApplicable = Convert.ToBoolean(dr["MarksApplicable"]),
+                        PassingMarksRequired = Convert.ToBoolean(dr["PassingMarksRequired"]),
+                        IsActive = Convert.ToBoolean(dr["IsActive"]),
+                        DisplayOrder = dr["DisplayOrder"] != DBNull.Value
+                            ? Convert.ToInt32(dr["DisplayOrder"])
+                            : (int?)null,
+                        CreatedDate = dr["CreatedDate"] != DBNull.Value
+                            ? Convert.ToDateTime(dr["CreatedDate"])
+                            : (DateTime?)null
+                    });
+                }
+            }
+
+            return list;
+        }
+        public List<SubjectCategoryModel> GetActiveSubjectCategories()
+        {
+            var list = new List<SubjectCategoryModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SubjectCategoryMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+
+                con.Open();
+
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new SubjectCategoryModel
+                    {
+                        CategoryId = Convert.ToInt32(dr["CategoryId"]),
+                        CategoryName = dr["CategoryName"].ToString(),
+                        CategoryType = dr["CategoryType"].ToString()
+                    });
+                }
+            }
+
+            return list;
+        }
+        public bool InsertSubjectCategory(SubjectCategoryModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SubjectCategoryMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@CategoryName", model.CategoryName);
+                cmd.Parameters.AddWithValue("@CategoryType", model.CategoryType);
+                cmd.Parameters.AddWithValue("@CreditApplicable", model.CreditApplicable);
+                cmd.Parameters.AddWithValue("@MarksApplicable", model.MarksApplicable);
+                cmd.Parameters.AddWithValue("@PassingMarksRequired", model.PassingMarksRequired);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@DisplayOrder",
+                    (object)model.DisplayOrder ?? DBNull.Value);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        public bool UpdateSubjectCategory(SubjectCategoryModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SubjectCategoryMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@CategoryId", model.CategoryId);
+                cmd.Parameters.AddWithValue("@CategoryName", model.CategoryName);
+                cmd.Parameters.AddWithValue("@CategoryType", model.CategoryType);
+                cmd.Parameters.AddWithValue("@CreditApplicable", model.CreditApplicable);
+                cmd.Parameters.AddWithValue("@MarksApplicable", model.MarksApplicable);
+                cmd.Parameters.AddWithValue("@PassingMarksRequired", model.PassingMarksRequired);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@DisplayOrder",
+                    (object)model.DisplayOrder ?? DBNull.Value);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        public bool DeleteSubjectCategory(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_SubjectCategoryMaster", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@CategoryId", id);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        //=================================================================
+        //             Branch master
+        //================================================================
+        public List<BranchMasterModel> GetAllBranchMaster()
+        {
+            List<BranchMasterModel> list = new List<BranchMasterModel>();
+
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new BranchMasterModel
+                        {
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchCode = dr["BranchCode"].ToString(),
+                            BranchName = dr["BranchName"].ToString(),
+                            DepartmentId = Convert.ToInt32(dr["DepartmentId"]),
+                            DepartmentName = dr["DepartmentName"].ToString(),
+                            ProgramId = Convert.ToInt32(dr["ProgramId"]),
+                            ProgramName = dr["ProgramName"].ToString(),
+                            CampusName = dr["CampusName"] == DBNull.Value
+                                ? ""
+                                : dr["CampusName"].ToString(),
+                            IntakeCapacity = dr["IntakeCapacity"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(dr["IntakeCapacity"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] == DBNull.Value
+                                ? (DateTime?)null
+                                : Convert.ToDateTime(dr["CreatedDate"])
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+        public bool InsertBranchMaster(BranchMasterModel model)
+        {
+
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@BranchCode", model.BranchCode);
+                cmd.Parameters.AddWithValue("@BranchName", model.BranchName);
+                cmd.Parameters.AddWithValue("@DepartmentId", model.DepartmentId);
+                cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CampusName",
+                    (object)model.CampusName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IntakeCapacity",
+                    model.IntakeCapacity);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        public bool UpdateBranchMaster(BranchMasterModel model)
+        {
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@BranchId", model.BranchId);
+                cmd.Parameters.AddWithValue("@BranchCode", model.BranchCode);
+                cmd.Parameters.AddWithValue("@BranchName", model.BranchName);
+                cmd.Parameters.AddWithValue("@DepartmentId", model.DepartmentId);
+                cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CampusName",
+                    (object)model.CampusName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IntakeCapacity",
+                    model.IntakeCapacity);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+        public bool DeleteBranchMaster(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@BranchId", id);
+
+                con.Open();
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
     }
 }

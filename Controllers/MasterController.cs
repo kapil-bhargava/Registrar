@@ -239,29 +239,158 @@ namespace Regis.Controllers
             return RedirectToAction("DesignationMaster");
         }
         // ============================================================
-        // Religion Master
+        // EmployeeMaster
         // ============================================================
 
-        public ActionResult ReligionMaster()
+
+        public ActionResult EmployeeMaster()
         {
-            return View();
+            List<EmployeeModel> list = MasterService.GetAllEmployees();
+            return View(list);
         }
 
-        // ============================================================
-        // Blood Group Master
-        // ============================================================
-
-        public ActionResult BloodGroupMaster()
+        [HttpPost]
+        public ActionResult EmployeeMaster(EmployeeModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.EmployeeId > 0)
+                {
+                    result = MasterService.UpdateEmployee(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Employee Updated Successfully." : "Unable to Update Employee.";
+                }
+                else
+                {
+                    result = MasterService.InsertEmployee(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Employee Saved Successfully." : "Unable to Save Employee.";
+                }
+            }
+            return RedirectToAction("EmployeeMaster");
+        }
+
+        public ActionResult DeleteEmployee(int id)
+        {
+            bool result = MasterService.DeleteEmployee(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Employee Deleted Successfully." : "Unable to Delete Employee.";
+            return RedirectToAction("EmployeeMaster");
         }
         // ============================================================
-        // branchmaster Master
+        // SubjectCategoryMaster
+        // ============================================================
+
+        public ActionResult SubjectCategoryMaster()
+        {
+            List<SubjectCategoryModel> list =
+                MasterService.GetAllSubjectCategories();
+
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult SubjectCategoryMaster(SubjectCategoryModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.CategoryId > 0)
+                {
+                    result = MasterService.UpdateSubjectCategory(model);
+
+                    TempData[result ? "Success" : "Error"] =
+                        result
+                        ? "Subject Category Updated Successfully."
+                        : "Unable to Update Subject Category.";
+                }
+                else
+                {
+                    result = MasterService.InsertSubjectCategory(model);
+
+                    TempData[result ? "Success" : "Error"] =
+                        result
+                        ? "Subject Category Saved Successfully."
+                        : "Unable to Save Subject Category.";
+                }
+            }
+
+            return RedirectToAction("SubjectCategoryMaster");
+        }
+
+        public ActionResult DeleteSubjectCategory(int id)
+        {
+            bool result = MasterService.DeleteSubjectCategory(id);
+
+            TempData[result ? "Success" : "Error"] =
+                result
+                ? "Subject Category Deleted Successfully."
+                : "Unable to Delete Subject Category.";
+
+            return RedirectToAction("SubjectCategoryMaster");
+        }
+        // ============================================================
+        // BRANCH MASTER
+        // URL : /Master/BranchMaster
         // ============================================================
 
         public ActionResult BranchMaster()
         {
-            return View();
+            List<BranchMasterModel> list =
+                MasterService.GetAllBranchMaster();
+
+            ViewBag.Departments =
+                MasterService.GetActiveDepartmentMaster();
+
+            ViewBag.Programs =
+                MasterService.GetActiveProgramMaster();
+
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult BranchMaster(BranchMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.BranchId > 0)
+                {
+                    result = MasterService.UpdateBranchMaster(model);
+
+                    TempData[result ? "Success" : "Error"] =
+                        result
+                        ? "Branch Master Updated Successfully."
+                        : "Unable to Update Branch Master.";
+                }
+                else
+                {
+                    result = MasterService.InsertBranchMaster(model);
+
+                    TempData[result ? "Success" : "Error"] =
+                        result
+                        ? "Branch Master Saved Successfully."
+                        : "Unable to Save Branch Master.";
+                }
+            }
+
+            return RedirectToAction("BranchMaster");
+        }
+
+        public ActionResult DeleteBranchMaster(int id)
+        {
+            bool result =
+                MasterService.DeleteBranchMaster(id);
+
+            TempData[result ? "Success" : "Error"] =
+                result
+                ? "Branch Master Deleted Successfully."
+                : "Unable to Delete Branch Master.";
+
+            return RedirectToAction("BranchMaster");
         }
 
         // ============================================================

@@ -1,0 +1,829 @@
+﻿@model List<Regis.Models.SubjectCategoryModel>
+
+@{
+    ViewBag.Title = "SubjectCategoryMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="categoryListWrap">
+
+        <div class="as-list-head">
+            <div>
+                <h2>
+                    <i class="fas fa-layer-group"></i>
+                    Subject Category Master
+                </h2>
+                <p>Manage subject categories and their academic rules.</p>
+            </div>
+
+            <button class="as-btn as-btn-primary" onclick="categoryShowForm()">
+                <i class="fas fa-plus-circle"></i>
+                Add New Category
+            </button>
+        </div>
+
+
+        <!-- ================= QUICK STATS ================= -->
+        <div class="as-quick-stats">
+
+            <div class="as-stat-card">
+                <div class="as-stat-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+
+                <div class="as-stat-info">
+                    <span class="as-stat-number">
+                        @Model.Count
+                    </span>
+
+                    <span class="as-stat-label">
+                        Total Categories
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="as-stat-card active">
+                <div class="as-stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <div class="as-stat-info">
+                    <span class="as-stat-number">
+                        @Model.Count(e => e.IsActive)
+                    </span>
+
+                    <span class="as-stat-label">
+                        Active
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ================= SEARCH BOX ================= -->
+        <div class="as-search-row" style="margin-bottom:16px;">
+
+            <input type="text"
+                   id="categorySearchBox"
+                   class="as-search-input"
+                   placeholder="Search by Category Name or Category Type..."
+                   onkeyup="categorySearchTable()"
+                   style="width:100%;
+                          max-width:380px;
+                          padding:10px 14px;
+                          border:1px solid #d9dee3;
+                          border-radius:8px;
+                          font-family:'Inter',sans-serif;
+                          font-size:14px;">
+
+        </div>
+
+
+        <!-- ================= CATEGORY TABLE ================= -->
+        <div class="as-table-wrapper">
+
+            <table class="as-table as-list-table">
+
+                <thead>
+                    <tr>
+
+                        <th>Category Name</th>
+
+                        <th>Category Type</th>
+
+                        <th>Credit Applicable</th>
+
+                        <th>Marks Applicable</th>
+
+                        <th>Passing Marks</th>
+
+                        <th>Display Order</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+                </thead>
+
+
+                <tbody id="categoryTableBody">
+
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+
+                            <!-- Category Name -->
+                            <td>
+                                <strong>
+                                    @e.CategoryName
+                                </strong>
+                            </td>
+
+
+                            <!-- Category Type -->
+                            <td>
+                                @e.CategoryType
+                            </td>
+
+
+                            <!-- Credit Applicable -->
+                            <td>
+                                @if (e.CreditApplicable)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-check"></i>
+                                        Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-times"></i>
+                                        No
+                                    </span>
+                                }
+                            </td>
+
+
+                            <!-- Marks Applicable -->
+                            <td>
+                                @if (e.MarksApplicable)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-check"></i>
+                                        Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-times"></i>
+                                        No
+                                    </span>
+                                }
+                            </td>
+
+
+                            <!-- Passing Marks -->
+                            <td>
+                                @if (e.PassingMarksRequired)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-check"></i>
+                                        Required
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-times"></i>
+                                        Not Required
+                                    </span>
+                                }
+                            </td>
+
+
+                            <!-- Display Order -->
+                            <td>
+                                @e.DisplayOrder
+                            </td>
+
+
+                            <!-- Status -->
+                            <td>
+                                @if (e.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active">
+                                        <i class="fas fa-circle"></i>
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive">
+                                        <i class="fas fa-circle"></i>
+                                        Inactive
+                                    </span>
+                                }
+                            </td>
+
+
+                            <!-- Actions -->
+                            <td>
+
+                                <button type="button"
+                                        class="as-mini-btn"
+                                        title="Edit"
+                                        onclick="categoryShowForm(this)"
+                                        data-id="@e.CategoryId"
+                                        data-name="@e.CategoryName"
+                                        data-type="@e.CategoryType"
+                                        data-credit="@e.CreditApplicable.ToString().ToLower()"
+                                        data-marks="@e.MarksApplicable.ToString().ToLower()"
+                                        data-passing="@e.PassingMarksRequired.ToString().ToLower()"
+                                        data-order="@e.DisplayOrder"
+                                        data-active="@e.IsActive.ToString().ToLower()">
+
+                                    <i class="fas fa-edit"></i>
+
+                                </button>
+
+
+                                <a class="as-mini-btn"
+                                   title="Delete"
+                                   href="@Url.Action("DeleteSubjectCategory", "Master", new { id = e.CategoryId })"
+                                   onclick="return confirm('Delete this subject category?');">
+
+                                    <i class="fas fa-trash-alt"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+
+            <!-- No Search Result -->
+            <p id="categoryNoResults"
+               style="display:none;
+                      text-align:center;
+                      padding:16px;
+                      color:#8a8f98;">
+
+                No matching subject categories found.
+
+            </p>
+
+        </div>
+
+
+        <!-- ================= LEGEND ================= -->
+        <div class="as-legend">
+
+            <span>
+                <span class="as-legend-dot active"></span>
+                Active
+            </span>
+
+            <span>
+                <span class="as-legend-dot archived"></span>
+                Inactive
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- ADD / EDIT SUBJECT CATEGORY FORM -->
+    <!-- ================================================= -->
+
+    @using (Html.BeginForm(
+        "SubjectCategoryMaster",
+        "Master",
+        FormMethod.Post,
+        new
+        {
+            id = "categoryForm",
+            onsubmit = "return categoryValidateForm()"
+        }))
+    {
+
+        <div class="as-card as-wizard-card"
+             id="categoryFormWrap"
+             style="display:none;">
+
+
+            <!-- ================= BACK BUTTON ================= -->
+
+            <div class="as-back-row">
+
+                <button type="button"
+                        class="as-back-link"
+                        onclick="categoryShowList()">
+
+                    <i class="fas fa-arrow-left"></i>
+
+                    Back to Subject Category List
+
+                </button>
+
+            </div>
+
+
+
+            <div class="as-body">
+
+                <div class="as-page active">
+
+
+                    <!-- ================= FORM HEADER ================= -->
+
+                    <div class="as-head">
+
+                        <div class="as-icon">
+
+                            <i class="fas fa-layer-group"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 id="categoryFormTitle">
+                                Add Subject Category
+                            </h2>
+
+                            <p>
+                                Enter subject category details and academic rules.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================= SECTION TITLE ================= -->
+
+                    <div class="as-section-title">
+
+                        <i class="fas fa-info-circle"></i>
+
+                        Subject Category Details
+
+                    </div>
+
+
+
+                    <!-- ================= HIDDEN ID ================= -->
+
+                    <input type="hidden"
+                           id="categoryId"
+                           name="CategoryId"
+                           value="0" />
+
+
+
+                    <!-- ================= FORM GRID ================= -->
+
+                    <div class="as-grid">
+
+
+                        <!-- Category Name -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Category Name
+                                <span class="req">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="categoryName"
+                                   name="CategoryName"
+                                   placeholder="e.g. Theory"
+                                   maxlength="100">
+
+                        </div>
+
+
+
+                        <!-- Category Type -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Category Type
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="categoryType"
+                                    name="CategoryType">
+
+                                <option value="">
+                                    -- Select Category Type --
+                                </option>
+
+                                <option value="Core">
+                                    Core
+                                </option>
+
+                                <option value="Elective">
+                                    Elective
+                                </option>
+
+                                <option value="Skill">
+                                    Skill
+                                </option>
+
+                                <option value="Project">
+                                    Project
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- Credit Applicable -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Credit Applicable
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="creditApplicable"
+                                    name="CreditApplicable">
+
+                                <option value="true">
+                                    Yes
+                                </option>
+
+                                <option value="false">
+                                    No
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- Marks Applicable -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Marks Applicable
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="marksApplicable"
+                                    name="MarksApplicable">
+
+                                <option value="true">
+                                    Yes
+                                </option>
+
+                                <option value="false">
+                                    No
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- Passing Marks Required -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Passing Marks Required
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="passingMarksRequired"
+                                    name="PassingMarksRequired">
+
+                                <option value="true">
+                                    Yes
+                                </option>
+
+                                <option value="false">
+                                    No
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- Display Order -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Display Order
+                            </label>
+
+                            <input type="number"
+                                   id="displayOrder"
+                                   name="DisplayOrder"
+                                   placeholder="e.g. 1"
+                                   min="1">
+
+                        </div>
+
+
+
+                        <!-- Status -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Status
+                            </label>
+
+                            <select id="categoryStatus"
+                                    name="IsActive">
+
+                                <option value="true">
+                                    Active
+                                </option>
+
+                                <option value="false">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- ================= FORM BUTTONS ================= -->
+
+                    <div class="as-bar">
+
+                        <button type="button"
+                                class="as-btn as-btn-ghost"
+                                onclick="categoryShowList()">
+
+                            Cancel
+
+                        </button>
+
+
+                        <span></span>
+
+
+                        <button type="submit"
+                                class="as-btn as-btn-primary">
+
+                            <i class="fas fa-save"></i>
+
+                            <span id="categorySubmitText">
+                                Save Category
+                            </span>
+
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+
+
+<script>
+
+    // ==============================================
+    // SHOW ADD / EDIT FORM
+    // ==============================================
+
+    function categoryShowForm(btn) {
+
+        document.getElementById('categoryListWrap').style.display = 'none';
+
+        document.getElementById('categoryFormWrap').style.display = 'block';
+
+
+        // ================= EDIT =================
+
+        if (btn) {
+
+            document.getElementById('categoryFormTitle').textContent =
+                'Edit Subject Category';
+
+            document.getElementById('categorySubmitText').textContent =
+                'Update Category';
+
+
+            document.getElementById('categoryId').value =
+                btn.dataset.id;
+
+
+            document.getElementById('categoryName').value =
+                btn.dataset.name || '';
+
+
+            document.getElementById('categoryType').value =
+                btn.dataset.type || '';
+
+
+            document.getElementById('creditApplicable').value =
+                btn.dataset.credit || 'true';
+
+
+            document.getElementById('marksApplicable').value =
+                btn.dataset.marks || 'true';
+
+
+            document.getElementById('passingMarksRequired').value =
+                btn.dataset.passing || 'true';
+
+
+            document.getElementById('displayOrder').value =
+                btn.dataset.order || '';
+
+
+            document.getElementById('categoryStatus').value =
+                btn.dataset.active || 'true';
+
+        }
+
+
+        // ================= ADD =================
+
+        else {
+
+            document.getElementById('categoryFormTitle').textContent =
+                'Add Subject Category';
+
+            document.getElementById('categorySubmitText').textContent =
+                'Save Category';
+
+
+            document.getElementById('categoryId').value = 0;
+
+
+            document.getElementById('categoryName').value = '';
+
+            document.getElementById('categoryType').value = '';
+
+            document.getElementById('creditApplicable').value = 'true';
+
+            document.getElementById('marksApplicable').value = 'true';
+
+            document.getElementById('passingMarksRequired').value = 'true';
+
+            document.getElementById('displayOrder').value = '';
+
+            document.getElementById('categoryStatus').value = 'true';
+
+        }
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+
+    // ==============================================
+    // SHOW LIST
+    // ==============================================
+
+    function categoryShowList() {
+
+        document.getElementById('categoryFormWrap').style.display = 'none';
+
+        document.getElementById('categoryListWrap').style.display = 'block';
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+
+    // ==============================================
+    // SEARCH CATEGORY
+    // ==============================================
+
+    function categorySearchTable() {
+
+        var filter =
+            document.getElementById('categorySearchBox')
+                .value
+                .toLowerCase()
+                .trim();
+
+
+        var rows =
+            document.querySelectorAll(
+                '#categoryTableBody tr'
+            );
+
+
+        var visibleCount = 0;
+
+
+        rows.forEach(function (row) {
+
+            var categoryName =
+                row.cells[0]
+                    .textContent
+                    .toLowerCase();
+
+
+            var categoryType =
+                row.cells[1]
+                    .textContent
+                    .toLowerCase();
+
+
+            if (
+                categoryName.indexOf(filter) > -1 ||
+                categoryType.indexOf(filter) > -1
+            ) {
+
+                row.style.display = '';
+
+                visibleCount++;
+
+            }
+
+            else {
+
+                row.style.display = 'none';
+
+            }
+
+        });
+
+
+        document.getElementById(
+            'categoryNoResults'
+        ).style.display =
+            visibleCount === 0
+                ? 'block'
+                : 'none';
+
+    }
+
+
+
+    // ==============================================
+    // FORM VALIDATION
+    // ==============================================
+
+    function categoryValidateForm() {
+
+        var categoryName =
+            document.getElementById('categoryName')
+                .value
+                .trim();
+
+
+        var categoryType =
+            document.getElementById('categoryType')
+                .value;
+
+
+        if (!categoryName || !categoryType) {
+
+            alert(
+                'Enter the category name and select the category type.'
+            );
+
+            return false;
+
+        }
+
+
+        return true;
+
+    }
+
+</script>
