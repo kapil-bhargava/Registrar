@@ -1,287 +1,351 @@
-﻿@using Regis.Models
+﻿@model List<Regis.Models.FacultyModel>
+
 @{
     ViewBag.Title = "Faculty Management";
-    Layout = "~/Views/Shared/_mainLayout.cshtml";
-    ViewBag.ActiveMenu = "Academic";
-    ViewData["ActiveSubMenu"] = "Faculty";
-
-    var faculties = ViewBag.Faculties as List<FacultyModel> ?? new List<FacultyModel>();
-    var departments = ViewBag.Departments as List<DepartmentModel> ?? new List<DepartmentModel>();
 }
+<link href="~/Content/CSS/Facultymanagement.css" rel="stylesheet" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="~/Content/CSS/facultyManagement.css" rel="stylesheet" />
 
 <div class="fm-wrap">
 
-    <!-- ================= LIST PAGE ================= -->
-    <div class="fm-card" id="fmListWrap">
-        <!-- Header -->
-        <div class="fm-list-head">
+    @if (TempData["Success"] != null)
+    {
+        <div class="fm-toast show success" style="position:static; transform:none; margin-bottom:1rem; display:flex;">
+            <i class="fa fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="fm-toast show error" style="position:static; transform:none; margin-bottom:1rem; display:flex;">
+            <i class="fa fa-times-circle"></i> @TempData["Error"]
+        </div>
+    }
+
+    <!-- ===== HEADER ===== -->
+    <div class="fm-card" id="facultyHeader">
+        <div class="fm-list-head" style="margin-bottom:0;">
             <div>
-                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Management</h2>
-                <p>Manage all faculty divisions and their departments.</p>
+                <h2><i class="fa fa-chalkboard-teacher"></i> Faculty Management</h2>
+                <p>Manage faculty assignments across departments and branches</p>
             </div>
             <div class="fm-header-actions">
-                <button class="fm-btn fm-btn-primary" onclick="showWizard('faculty')">
-                    <i class="fas fa-plus-circle"></i> Add Faculty
+                <button type="button" id="btnShowAddForm" class="fm-btn fm-btn-primary">
+                    <i class="fa fa-plus"></i> Add Faculty
                 </button>
             </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="fm-quick-stats">
-            <div class="fm-stat-card">
-                <div class="fm-stat-icon"><i class="fas fa-users"></i></div>
-                <div class="fm-stat-info">
-                    <span class="fm-stat-number">@faculties.Count</span>
-                    <span class="fm-stat-label">Total Faculties</span>
-                </div>
-            </div>
-            <div class="fm-stat-card">
-                <div class="fm-stat-icon"><i class="fas fa-building"></i></div>
-                <div class="fm-stat-info">
-                    <span class="fm-stat-number">@departments.Count</span>
-                    <span class="fm-stat-label">Departments</span>
-                </div>
-            </div>
-            <div class="fm-stat-card">
-                <div class="fm-stat-icon"><i class="fas fa-user-tie"></i></div>
-                <div class="fm-stat-info">
-                    <span class="fm-stat-number">@faculties.Count(f => f.IsActive)</span>
-                    <span class="fm-stat-label">Active Faculties</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="fm-tabs">
-            <button class="fm-tab active" data-tab="faculty" onclick="switchTab('faculty')">
-                <i class="fas fa-users"></i> Faculty
-            </button>
-            <button class="fm-tab" data-tab="departments" onclick="switchTab('departments')">
-                <i class="fas fa-building"></i> Departments
-            </button>
-        </div>
-
-        <!-- ===== FACULTY LIST ===== -->
-        <div class="fm-tab-content active" id="tabFaculty">
-            <div class="fm-table-toolbar">
-                <div class="fm-search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search faculty by name or code..." id="facultySearch">
-                </div>
-            </div>
-
-            <div class="fm-table-wrapper">
-                <table class="fm-table">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Faculty Name</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="facultyTableBody">
-                        @foreach (var f in faculties)
-                        {
-                            <tr>
-                                <td><strong>@f.FacultyCode</strong></td>
-                                <td>@f.FacultyName</td>
-                                <td>@f.Description</td>
-                                <td>
-                                    @if (f.IsActive)
-                                    {
-                                        <span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fm-pill fm-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
-                                    }
-                                </td>
-                                <td>
-                                    <button type="button" class="fm-mini-btn" title="Edit" onclick="editFaculty(this)"
-                                            data-id="@f.FacultyId" data-code="@f.FacultyCode" data-name="@f.FacultyName"
-                                            data-desc="@f.Description" data-active="@f.IsActive.ToString().ToLower()">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <a class="fm-mini-btn" title="Delete"
-                                       href="@Url.Action("DeleteFaculty", "AcademicSetup", new { id = f.FacultyId })"
-                                       onclick="return confirm('Delete this faculty?');">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ===== DEPARTMENTS LIST (read-only here; managed fully on Department page) ===== -->
-        <div class="fm-tab-content" id="tabDepartments">
-            <div class="fm-table-wrapper">
-                <table class="fm-table">
-                    <thead>
-                        <tr>
-                            <th>Department Code</th>
-                            <th>Department Name</th>
-                            <th>Faculty</th>
-                            <th>Campus</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var d in departments)
-                        {
-                            <tr>
-                                <td><strong>@d.DepartmentCode</strong></td>
-                                <td>@d.DepartmentName</td>
-                                <td>@d.FacultyName</td>
-                                <td>@d.CampusName</td>
-                                <td>
-                                    @if (d.IsActive)
-                                    {
-                                        <span class="fm-pill fm-pill-active"><i class="fas fa-circle"></i> Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fm-pill fm-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
-                                    }
-                                </td>
-                                <td>
-                                    <a class="fm-mini-btn" title="Manage in Department Management" href="@Url.Action("DepartmentManagement", "AcademicSetup")">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div style="margin-top:0.8rem; font-size:0.8rem; color:#94a3b8;">
-                <i class="fas fa-info-circle"></i> Full department Add/Edit is managed on the
-                <a href="@Url.Action("DepartmentManagement", "AcademicSetup")">Department Management</a> page.
-            </div>
-        </div>
-
-        <!-- Legend -->
-        <div class="fm-legend">
-            <span><span class="fm-legend-dot active"></span> Active</span>
-            <span><span class="fm-legend-dot inactive"></span> Inactive</span>
         </div>
     </div>
 
-    <!-- ================= WIZARD (Add/Edit Faculty) ================= -->
-    @using (Html.BeginForm("FacultyManagement", "AcademicSetup", FormMethod.Post))
-    {
-        <div class="fm-card fm-wizard-card" id="fmWizardWrap" style="display:none;">
+    <!-- ===== FORM CARD (hidden by default) ===== -->
+    <div class="fm-card" id="facultyFormCard" style="display:none;">
 
-            <div class="fm-back-row">
-                <button type="button" class="fm-back-link" onclick="showList()">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </button>
+        <div class="fm-section-title">
+            <i class="fa fa-user-plus"></i>
+            <span id="formCardTitle">Add Faculty</span>
+        </div>
+
+        <form method="post"
+              id="facultyForm"
+              action="@Url.Action("FacultyManagement", "AcademicSetup")">
+
+            <input type="hidden" id="FacultyId" name="FacultyId" value="0" />
+
+            <div class="fm-grid">
+
+                <!-- Faculty Name -->
+                <div class="fm-field">
+                    <label>Faculty Name <span class="req">*</span></label>
+                    <select name="EmployeeId" id="EmployeeId" class="form-control" required>
+                        <option value="">-- Select Faculty --</option>
+                        @foreach (var item in ViewBag.Employees)
+                        {
+                            <option value="@item.EmployeeId">@item.FullName</option>
+                        }
+                    </select>
+                    <span class="fm-error" id="err_EmployeeId"></span>
+                </div>
+
+                <!-- Department -->
+                <div class="fm-field">
+                    <label>Department <span class="req">*</span></label>
+                    <select name="DepartmentId" id="DepartmentId" class="form-control" required>
+                        <option value="">-- Select Department --</option>
+                        @foreach (var item in ViewBag.Departments)
+                        {
+                            <option value="@item.DepartmentId">@item.DepartmentName</option>
+                        }
+                    </select>
+                    <span class="fm-error" id="err_DepartmentId"></span>
+                </div>
+
+                <!-- Branch -->
+                <div class="fm-field">
+                    <label>Branch <span class="req">*</span></label>
+                    <select name="BranchId" id="BranchId" class="form-control" required>
+                        <option value="">-- Select Branch --</option>
+                        @foreach (var item in ViewBag.Branches)
+                        {
+                            <option value="@item.BranchId">@item.BranchName</option>
+                        }
+                    </select>
+                    <span class="fm-error" id="err_BranchId"></span>
+                </div>
+
+                <!-- Semester -->
+                <div class="fm-field">
+                    <label>Semester <span class="req">*</span></label>
+                    <select name="SemesterId" id="SemesterId" class="form-control" required>
+                        <option value="">-- Select Semester --</option>
+                        @foreach (var item in ViewBag.Semesters)
+                        {
+                            <option value="@item.SemesterId">@item.SemesterName</option>
+                        }
+                    </select>
+                    <span class="fm-error" id="err_SemesterId"></span>
+                </div>
+
+                <!-- Designation -->
+                <div class="fm-field">
+                    <label>Designation <span class="req">*</span></label>
+                    <select name="DesignationId" id="DesignationId" class="form-control" required>
+                        <option value="">-- Select Designation --</option>
+                        @foreach (var item in ViewBag.Designations)
+                        {
+                            <option value="@item.DesignationId">@item.DesignationName</option>
+                        }
+                    </select>
+                    <span class="fm-error" id="err_DesignationId"></span>
+                </div>
+
+                <!-- Status -->
+                <div class="fm-field">
+                    <label>Status <span class="req">*</span></label>
+                    <select name="Status" id="Status" class="form-control" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
             </div>
 
-            <div class="fm-wizard-content" id="wizardFaculty">
-
-                <input type="hidden" id="facultyId" name="FacultyId" value="0" />
-
-                <div class="fm-section-title">
-                    <i class="fas fa-university"></i> Faculty Details
-                </div>
-                <div class="fm-grid">
-                    <div class="fm-field">
-                        <label>Faculty Code <span class="req">*</span></label>
-                        <input type="text" id="facultyCode" name="FacultyCode" placeholder="e.g. FOE">
-                    </div>
-                    <div class="fm-field">
-                        <label>Faculty Name <span class="req">*</span></label>
-                        <input type="text" id="facultyName" name="FacultyName" placeholder="e.g. Faculty of Engineering">
-                    </div>
-                    <div class="fm-field fm-full">
-                        <label>Description</label>
-                        <textarea id="facultyDescription" name="Description" placeholder="Brief description of this faculty division..."></textarea>
-                    </div>
-                    <div class="fm-field">
-                        <label>Status</label>
-                        <select id="facultyStatus" name="IsActive">
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="fm-bar">
-                    <span></span>
-                    <div class="fm-step-count" id="fmFormTitle">Add Faculty</div>
-                    <button type="submit" class="fm-btn fm-btn-primary">
-                        <i class="fas fa-save"></i> <span id="fmSubmitText">Save Faculty</span>
+            <div class="fm-bar">
+                <span class="fm-step-count">Fields marked <span class="req">*</span> are required</span>
+                <div style="display:flex; gap:0.6rem;">
+                    <button type="button" id="btnCancelForm" class="fm-btn fm-btn-outline">
+                        Cancel
+                    </button>
+                    <button type="submit" class="fm-btn fm-btn-primary" id="btnSubmitForm">
+                        <i class="fa fa-save"></i> Save
                     </button>
                 </div>
             </div>
 
+        </form>
+
+    </div>
+
+    <!-- ===== LIST CARD (visible by default) ===== -->
+    <div class="fm-card" id="facultyListCard">
+
+        <div class="fm-section-title"><i class="fa fa-list"></i> Faculty List</div>
+
+        <div class="fm-table-toolbar">
+            <div class="fm-search-box">
+                <i class="fa fa-search"></i>
+                <input type="text" id="fmSearchInput" placeholder="Search by faculty, department, branch..." />
+            </div>
         </div>
-    }
+
+        <div class="fm-table-wrapper">
+            <table class="fm-table" id="fmTable">
+                <thead>
+                    <tr>
+                        <th>Faculty Name</th>
+                        <th>Department</th>
+                        <th>Branch</th>
+                        <th>Semester</th>
+                        <th>Designation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr data-facultyid="@item.FacultyId"
+                            data-employeeid="@item.EmployeeId"
+                            data-departmentid="@item.DepartmentId"
+                            data-branchid="@item.BranchId"
+                            data-semesterid="@item.SemesterId"
+                            data-designationid="@item.DesignationId"
+                            data-status="@item.Status">
+                            <td>
+                                <div class="fm-user-name">
+                                    <div class="fm-avatar">
+                                        @(item.FacultyName != null && item.FacultyName.Length > 0 ? item.FacultyName.Substring(0, 1).ToUpper() : "F")
+                                    </div>
+                                    @item.FacultyName
+                                </div>
+                            </td>
+                            <td><span class="fm-dept-badge">@item.DepartmentName</span></td>
+                            <td>@item.BranchName</td>
+                            <td>@item.SemesterName</td>
+                            <td>@item.DesignationName</td>
+                            <td>
+                                @if (item.Status == "Active")
+                                {
+                                    <span class="fm-pill fm-pill-active"><i class="fa fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="fm-pill fm-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:0.4rem;">
+                                    <button type="button"
+                                            class="fm-btn fm-btn-outline fm-btn-sm btnEditFaculty">
+                                        <i class="fa fa-pen"></i> Edit
+                                    </button>
+                                    <a href="@Url.Action("DeleteFacultyMaster", "AcademicSetup", new { id = item.FacultyId })"
+                                       class="fm-btn fm-btn-danger fm-btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete this faculty?');">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <p id="fmNoResult" style="display:none; text-align:center; color:#94a3b8; padding:1rem;">
+            No matching faculty found.
+        </p>
+
+    </div>
 
 </div>
 
-<!-- Toast Notification -->
-<div class="fm-toast" id="fmToast">
-    <i class="fas fa-check-circle"></i>
-    <span id="fmToastMessage">Success!</span>
-</div>
+<style>
+    .fm-error {
+        color: #dc2626;
+        font-size: 0.75rem;
+        display: none;
+    }
+</style>
 
-<script>function showWizard() {
-        document.getElementById('fmListWrap').style.display = 'none';
-        document.getElementById('fmWizardWrap').style.display = 'block';
+<script>
+    var formCard = document.getElementById('facultyFormCard');
+    var listCard = document.getElementById('facultyListCard');
+    var headerCard = document.getElementById('facultyHeader');
+    var formTitle = document.getElementById('formCardTitle');
+    var facultyForm = document.getElementById('facultyForm');
+
+    function resetForm() {
+        facultyForm.reset();
+        document.getElementById('FacultyId').value = 0;
+        ['EmployeeId', 'DepartmentId', 'BranchId', 'SemesterId', 'DesignationId'].forEach(function (id) {
+            document.getElementById(id).style.borderColor = '#e2e8f0';
+            document.getElementById('err_' + id).style.display = 'none';
+        });
+    }
+
+    // ===== Form khulte hi list + header hide, sirf form dikhega =====
+    function showForm(isEdit) {
+        formTitle.textContent = isEdit ? 'Edit Faculty' : 'Add Faculty';
+        listCard.style.display = 'none';
+        headerCard.style.display = 'none';
+        formCard.style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showList() {
-        document.getElementById('fmWizardWrap').style.display = 'none';
-        document.getElementById('fmListWrap').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ===== Form band hote hi list + header wapas dikhega =====
+    function hideForm() {
+        formCard.style.display = 'none';
+        listCard.style.display = 'block';
+        headerCard.style.display = 'flex';
+        resetForm();
     }
 
-    function editFaculty(btn) {
-        showWizard();
-        document.getElementById('fmFormTitle').textContent = 'Edit Faculty';
-        document.getElementById('fmSubmitText').textContent = 'Update Faculty';
-
-        document.getElementById('facultyId').value = btn.dataset.id;
-        document.getElementById('facultyCode').value = btn.dataset.code;
-        document.getElementById('facultyName').value = btn.dataset.name;
-        document.getElementById('facultyDescription').value = btn.dataset.desc || '';
-        document.getElementById('facultyStatus').value = btn.dataset.active;
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.fm-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.fm-tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelector('.fm-tab[data-tab="' + tab + '"]').classList.add('active');
-        document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-    }
-
-    // Reset form when opening as "Add"
-    document.querySelector('.fm-btn-primary[onclick="showWizard(\'faculty\')"]')?.addEventListener('click', function () {
-        document.getElementById('fmFormTitle').textContent = 'Add Faculty';
-        document.getElementById('fmSubmitText').textContent = 'Save Faculty';
-        document.getElementById('facultyId').value = 0;
-        document.getElementById('facultyCode').value = '';
-        document.getElementById('facultyName').value = '';
-        document.getElementById('facultyDescription').value = '';
-        document.getElementById('facultyStatus').value = 'true';
+    // ===== Add Faculty button =====
+    document.getElementById('btnShowAddForm').addEventListener('click', function () {
+        resetForm();
+        showForm(false);
     });
 
-    // Search functionality
-    document.getElementById('facultySearch')?.addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('#facultyTableBody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+    // ===== Cancel button =====
+    document.getElementById('btnCancelForm').addEventListener('click', function () {
+        hideForm();
+    });
+
+    // ===== Edit button (per row) — prefill form from row data =====
+    document.querySelectorAll('.btnEditFaculty').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var row = btn.closest('tr');
+
+            document.getElementById('FacultyId').value = row.getAttribute('data-facultyid');
+
+            var empSelect = document.getElementById('EmployeeId');
+            var empId = row.getAttribute('data-employeeid');
+            for (var i = 0; i < empSelect.options.length; i++) {
+                if (empSelect.options[i].value === empId) {
+                    empSelect.selectedIndex = i;
+                    break;
+                }
+            }
+
+            document.getElementById('DepartmentId').value = row.getAttribute('data-departmentid');
+            document.getElementById('BranchId').value = row.getAttribute('data-branchid');
+            document.getElementById('SemesterId').value = row.getAttribute('data-semesterid');
+            document.getElementById('DesignationId').value = row.getAttribute('data-designationid');
+            document.getElementById('Status').value = row.getAttribute('data-status');
+
+            showForm(true);
         });
-    });</script>
+    });
+
+    // ===== Simple client-side validation =====
+    facultyForm.addEventListener('submit', function (e) {
+
+        var fields = ['EmployeeId', 'DepartmentId', 'BranchId', 'SemesterId', 'DesignationId'];
+        var isValid = true;
+
+        fields.forEach(function (id) {
+            var field = document.getElementById(id);
+            var err = document.getElementById('err_' + id);
+
+            if (!field.value) {
+                field.style.borderColor = '#dc2626';
+                err.textContent = 'This field is required.';
+                err.style.display = 'block';
+                isValid = false;
+            } else {
+                field.style.borderColor = '#e2e8f0';
+                err.style.display = 'none';
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+
+    // ===== Search in list =====
+    document.getElementById('fmSearchInput').addEventListener('keyup', function () {
+        var value = this.value.toLowerCase();
+        var rows = document.querySelectorAll('#fmTable tbody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var text = row.innerText.toLowerCase();
+            var match = text.indexOf(value) > -1;
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+
+        document.getElementById('fmNoResult').style.display = visibleCount === 0 ? 'block' : 'none';
+    });
+</script>

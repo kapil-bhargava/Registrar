@@ -29,104 +29,187 @@ namespace Regis.Services
         // FACULTY  (Faculty of Engineering, Science...)
         // =========================================================
 
-        public List<FacultyModel> GetActiveFaculties()
+        // =========================================================
+        // FACULTY ASSIGNMENT MASTER
+        // =========================================================
+
+        public List<FacultyModel> GetAllFacultyAssignments()
         {
-            var list = new List<FacultyModel>();
+            List<FacultyModel> list =
+                new List<FacultyModel>();
+
             using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd =
+                new SqlCommand("sp_FacultyAssignment", con))
             {
-                SqlCommand cmd = new SqlCommand("sp_Faculty", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+                cmd.CommandType =
+                    CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue(
+                    "@Flag", "GETALL");
+
                 con.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
+
+                using (SqlDataReader dr =
+                    cmd.ExecuteReader())
                 {
-                    list.Add(new FacultyModel
+                    while (dr.Read())
                     {
-                        FacultyId = Convert.ToInt32(dr["FacultyId"]),
-                        FacultyCode = dr["FacultyCode"].ToString(),
-                        FacultyName = dr["FacultyName"].ToString()
-                    });
+                        list.Add(new FacultyModel
+                        {
+                            FacultyId =
+                                Convert.ToInt32(dr["FacultyId"]),
+
+                            EmployeeId =
+                                Convert.ToInt32(dr["EmployeeId"]),
+
+                            FacultyName =
+                                dr["FacultyName"].ToString(),
+
+                            DepartmentId =
+                                Convert.ToInt32(dr["DepartmentId"]),
+
+                            DepartmentName =
+                                dr["DepartmentName"].ToString(),
+
+                            BranchId =
+                                Convert.ToInt32(dr["BranchId"]),
+
+                            BranchName =
+                                dr["BranchName"].ToString(),
+
+                            SemesterId =
+                                Convert.ToInt32(dr["SemesterId"]),
+
+                            SemesterName =
+                                dr["SemesterName"].ToString(),
+
+                            DesignationId =
+                                Convert.ToInt32(dr["DesignationId"]),
+
+                            DesignationName =
+                                dr["DesignationName"].ToString(),
+
+                            Status =
+                                dr["Status"].ToString(),
+
+                            CreatedDate =
+                                dr["CreatedDate"] != DBNull.Value
+                                ? Convert.ToDateTime(
+                                    dr["CreatedDate"])
+                                : (DateTime?)null
+                        });
+                    }
                 }
             }
+
             return list;
         }
 
-        public List<FacultyModel> GetAllFaculties()
-        {
-            var list = new List<FacultyModel>();
-            using (SqlConnection con = db.GetConnection())
-            {
-                SqlCommand cmd = new SqlCommand("sp_Faculty", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "GETALL");
-                con.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
-                while (dr.Read())
-                {
-                    list.Add(new FacultyModel
-                    {
-                        FacultyId = Convert.ToInt32(dr["FacultyId"]),
-                        FacultyCode = dr["FacultyCode"].ToString(),
-                        FacultyName = dr["FacultyName"].ToString(),
-                        Description = dr["Description"] as string,
-                        IsActive = Convert.ToBoolean(dr["IsActive"]),
-                        CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
-                    });
-                }
-            }
-            return list;
-        }
 
-        public bool InsertFaculty(FacultyModel model)
+        public bool InsertFacultyAssignment(FacultyModel model)
         {
             using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd =
+                new SqlCommand("sp_FacultyAssignment", con))
             {
-                SqlCommand cmd = new SqlCommand("sp_Faculty", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "INSERT");
-                cmd.Parameters.AddWithValue("@FacultyCode", model.FacultyCode);
-                cmd.Parameters.AddWithValue("@FacultyName", model.FacultyName);
-                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.CommandType =
+                    CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue(
+                    "@Flag", "INSERT");
+
+                cmd.Parameters.AddWithValue(
+                    "@EmployeeId", model.EmployeeId);
+
+                cmd.Parameters.AddWithValue(
+                    "@DepartmentId", model.DepartmentId);
+
+                cmd.Parameters.AddWithValue(
+                    "@BranchId", model.BranchId);
+
+                cmd.Parameters.AddWithValue(
+                    "@SemesterId", model.SemesterId);
+
+                cmd.Parameters.AddWithValue(
+                    "@DesignationId", model.DesignationId);
+
+                cmd.Parameters.AddWithValue(
+                    "@Status", model.Status ?? "Active");
+
                 con.Open();
-                int rows = cmd.ExecuteNonQuery();
-                return rows != 0;
+
+                // SP has SET NOCOUNT ON -> successful INSERT returns -1, not the row count.
+                // != 0 treats both -1 (NOCOUNT case) and any positive count as success.
+                return cmd.ExecuteNonQuery() != 0;
             }
         }
 
-        public bool UpdateFaculty(FacultyModel model)
+
+        public bool UpdateFacultyAssignment(FacultyModel model)
         {
             using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd =
+                new SqlCommand("sp_FacultyAssignment", con))
             {
-                SqlCommand cmd = new SqlCommand("sp_Faculty", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
-                cmd.Parameters.AddWithValue("@FacultyId", model.FacultyId);
-                cmd.Parameters.AddWithValue("@FacultyCode", model.FacultyCode);
-                cmd.Parameters.AddWithValue("@FacultyName", model.FacultyName);
-                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.CommandType =
+                    CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue(
+                    "@Flag", "UPDATE");
+
+                cmd.Parameters.AddWithValue(
+                    "@FacultyId", model.FacultyId);
+
+                cmd.Parameters.AddWithValue(
+                    "@EmployeeId", model.EmployeeId);
+
+                cmd.Parameters.AddWithValue(
+                    "@DepartmentId", model.DepartmentId);
+
+                cmd.Parameters.AddWithValue(
+                    "@BranchId", model.BranchId);
+
+                cmd.Parameters.AddWithValue(
+                    "@SemesterId", model.SemesterId);
+
+                cmd.Parameters.AddWithValue(
+                    "@DesignationId", model.DesignationId);
+
+                cmd.Parameters.AddWithValue(
+                    "@Status", model.Status);
+
                 con.Open();
-                int rows = cmd.ExecuteNonQuery();
-                return rows != 0;
+
+                // SP has SET NOCOUNT ON -> successful UPDATE returns -1, not the row count.
+                // != 0 treats both -1 (NOCOUNT case) and any positive count as success.
+                return cmd.ExecuteNonQuery() != 0;
             }
         }
 
-        public bool DeleteFaculty(int id)
+
+        public bool DeleteFacultyAssignment(int id)
         {
             using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd =
+                new SqlCommand("sp_FacultyAssignment", con))
             {
-                SqlCommand cmd = new SqlCommand("sp_Faculty", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "DELETE");
-                cmd.Parameters.AddWithValue("@FacultyId", id);
+                cmd.CommandType =
+                    CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue(
+                    "@Flag", "DELETE");
+
+                cmd.Parameters.AddWithValue(
+                    "@FacultyId", id);
+
                 con.Open();
-                int rows = cmd.ExecuteNonQuery();
-                return rows != 0;
+
+                // SP has SET NOCOUNT ON -> successful DELETE returns -1, not the row count.
+                // != 0 treats both -1 (NOCOUNT case) and any positive count as success.
+                return cmd.ExecuteNonQuery() != 0;
             }
         }
-
         // =========================================================
         // DEPARTMENT
         // FacultyId -> FK to Faculty

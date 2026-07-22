@@ -1143,6 +1143,48 @@ namespace Regis.Services
         //=================================================================
         //             Branch master
         //================================================================
+        public List<BranchMasterModel> GetActiveBranchMaster()
+        {
+            List<BranchMasterModel> list =
+                new List<BranchMasterModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd =
+                new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType =
+                    CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue(
+                    "@Flag", "GETACTIVE");
+
+                con.Open();
+
+                using (SqlDataReader dr =
+                    cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new BranchMasterModel
+                        {
+                            BranchId =
+                                Convert.ToInt32(dr["BranchId"]),
+
+                            BranchCode =
+                                dr["BranchCode"].ToString(),
+
+                            BranchName =
+                                dr["BranchName"].ToString(),
+
+                            DepartmentId =
+                                Convert.ToInt32(dr["DepartmentId"])
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
         public List<BranchMasterModel> GetAllBranchMaster()
         {
             List<BranchMasterModel> list = new List<BranchMasterModel>();

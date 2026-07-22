@@ -16,6 +16,7 @@ namespace Regis.Controllers
         // ============================================================
         private readonly AcademicSetupService service = new AcademicSetupService();
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
+        private readonly MasterService MasterService = new MasterService();
 
         // GET: AcademicSetup
         public ActionResult Index()
@@ -99,10 +100,32 @@ namespace Regis.Controllers
 
         public ActionResult FacultyManagement()
         {
-            ViewBag.Faculties = service.GetAllFaculties();
-            ViewBag.Departments = service.GetAllDepartments();
-            return View();
+            List<FacultyModel> list =
+                service.GetAllFacultyAssignments();
+
+            // EmployeeMaster -> Faculty Name
+            ViewBag.Employees =
+               MasterService.GetActiveEmployees();
+
+            // DepartmentMaster -> Department
+            ViewBag.Departments =
+                 MasterService.GetActiveDepartmentMaster();
+
+            // BranchMaster -> Branch
+            ViewBag.Branches =
+                MasterService.GetActiveBranchMaster();
+
+            // SemesterMaster -> Semester
+            ViewBag.Semesters =
+                MasterService.GetAllSemesterMaster();
+
+            // DesignationMaster -> Designation
+            ViewBag.Designations =
+               MasterService.GetActiveDesignations();
+
+            return View(list);
         }
+
 
         [HttpPost]
         public ActionResult FacultyManagement(FacultyModel model)
@@ -110,27 +133,43 @@ namespace Regis.Controllers
             if (ModelState.IsValid)
             {
                 bool result;
+
                 if (model.FacultyId > 0)
                 {
-                    result = service.UpdateFaculty(model);
+                    result =
+                       service.UpdateFacultyAssignment(model);
+
                     TempData[result ? "Success" : "Error"] =
-                        result ? "Faculty Updated Successfully." : "Unable to Update Faculty.";
+                        result
+                        ? "Faculty Updated Successfully."
+                        : "Unable to Update Faculty.";
                 }
                 else
                 {
-                    result = service.InsertFaculty(model);
+                    result =
+                       service.InsertFacultyAssignment(model);
+
                     TempData[result ? "Success" : "Error"] =
-                        result ? "Faculty Saved Successfully." : "Unable to Save Faculty.";
+                        result
+                        ? "Faculty Saved Successfully."
+                        : "Unable to Save Faculty.";
                 }
             }
+
             return RedirectToAction("FacultyManagement");
         }
 
-        public ActionResult DeleteFaculty(int id)
+
+        public ActionResult DeleteFacultyMaster(int id)
         {
-            bool result = service.DeleteFaculty(id);
+            bool result =
+                service.DeleteFacultyAssignment(id);
+
             TempData[result ? "Success" : "Error"] =
-                result ? "Faculty Deleted Successfully." : "Unable to Delete Faculty.";
+                result
+                ? "Faculty Deleted Successfully."
+                : "Unable to Delete Faculty.";
+
             return RedirectToAction("FacultyManagement");
         }
 
@@ -143,9 +182,9 @@ namespace Regis.Controllers
         {
             List<DepartmentModel> departmentList = service.GetAllDepartments();
             ViewBag.CampusList = new SelectList(campusCategoryService.GetAllCampuses(), "CampusId", "CampusName");
-            ViewBag.Faculties = service.GetActiveFaculties();
+            //ViewBag.Faculties = service.GetActiveFaculties();
             // Department Name / Code now come from Department Master (dropdown), not free text
-
+            ViewBag.Faculties = new MasterService().GetActiveFacultyMaster();
             ViewBag.DepartmentMasterList = new MasterService().GetActiveDepartmentMaster();
             return View(departmentList);
         }

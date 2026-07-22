@@ -191,7 +191,7 @@
                             <option value="">-- Select Faculty --</option>
                             @foreach (var f in faculties)
                             {
-                                <option value="@f.FacultyId" data-campusid="@f.CampusId">@f.FacultyName</option>
+                               <option value="@f.FacultyId">@f.FacultyName</option>
                             }
                         </select>
                         <span class="dm-hint">Auto-filled from Department Master, editable if needed</span>
