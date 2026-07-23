@@ -1285,12 +1285,484 @@ namespace Regis.Services
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@Flag", "SOFTDELETE");
                 cmd.Parameters.AddWithValue("@BranchId", id);
 
                 con.Open();
 
-                return cmd.ExecuteNonQuery() > 0;
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+        //=================================================================
+        //             Duration Master
+        //================================================================
+
+        public List<DurationMasterModel> GetAllDurationMaster()
+        {
+            var list = new List<DurationMasterModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DurationMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new DurationMasterModel
+                        {
+                            DurationId = Convert.ToInt32(dr["DurationId"]),
+                            DurationName = dr["DurationName"].ToString(),
+                            DurationMonth = Convert.ToInt32(dr["DurationMonth"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value
+                                ? Convert.ToDateTime(dr["CreatedDate"])
+                                : (DateTime?)null
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        public DurationMasterModel GetDurationMasterById(int id)
+        {
+            DurationMasterModel model = null;
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DurationMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@DurationId", id);
+
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new DurationMasterModel
+                        {
+                            DurationId = Convert.ToInt32(dr["DurationId"]),
+                            DurationName = dr["DurationName"].ToString(),
+                            DurationMonth = Convert.ToInt32(dr["DurationMonth"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"])
+                        };
+                    }
+                }
+            }
+
+            return model;
+        }
+
+        public bool InsertDurationMaster(DurationMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DurationMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@DurationName", model.DurationName);
+                cmd.Parameters.AddWithValue("@DurationMonth", model.DurationMonth);
+                cmd.Parameters.AddWithValue("@CreatedBy", (object)model.CreatedBy ?? DBNull.Value);
+
+                con.Open();
+
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool UpdateDurationMaster(DurationMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DurationMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@DurationId", model.DurationId);
+                cmd.Parameters.AddWithValue("@DurationName", model.DurationName);
+                cmd.Parameters.AddWithValue("@DurationMonth", model.DurationMonth);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@ModifiedBy", (object)model.ModifiedBy ?? DBNull.Value);
+
+                con.Open();
+
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool DeleteDurationMaster(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DurationMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@DurationId", id);
+
+                con.Open();
+
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+        //=================================================================
+        //             Admission Mode Master
+        //=================================================================
+
+        public List<AdmissionModeMasterModel> GetAllAdmissionModes()
+        {
+            var list = new List<AdmissionModeMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdmissionModeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new AdmissionModeMasterModel
+                        {
+                            AdmissionModeId = Convert.ToInt32(dr["AdmissionModeId"]),
+                            AdmissionModeName = dr["AdmissionModeName"].ToString(),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Used everywhere an Admission Mode dropdown is needed
+        public List<AdmissionModeMasterModel> GetActiveAdmissionModes()
+        {
+            var list = new List<AdmissionModeMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdmissionModeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new AdmissionModeMasterModel
+                        {
+                            AdmissionModeId = Convert.ToInt32(dr["AdmissionModeId"]),
+                            AdmissionModeName = dr["AdmissionModeName"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool InsertAdmissionMode(AdmissionModeMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdmissionModeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@AdmissionModeName", model.AdmissionModeName);
+                cmd.Parameters.AddWithValue("@CreatedBy", (object)model.CreatedBy ?? DBNull.Value);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool UpdateAdmissionMode(AdmissionModeMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdmissionModeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@AdmissionModeId", model.AdmissionModeId);
+                cmd.Parameters.AddWithValue("@AdmissionModeName", model.AdmissionModeName);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@ModifiedBy", (object)model.ModifiedBy ?? DBNull.Value);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool DeleteAdmissionMode(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdmissionModeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@AdmissionModeId", id);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+        //=================================================================
+        //             Counselling Type Master
+        //=================================================================
+
+        public List<CounsellingTypeMasterModel> GetAllCounsellingTypes()
+        {
+            var list = new List<CounsellingTypeMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CounsellingTypeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CounsellingTypeMasterModel
+                        {
+                            CounsellingTypeId = Convert.ToInt32(dr["CounsellingTypeId"]),
+                            CounsellingTypeName = dr["CounsellingTypeName"].ToString(),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Used everywhere a Counselling Type dropdown is needed
+        public List<CounsellingTypeMasterModel> GetActiveCounsellingTypes()
+        {
+            var list = new List<CounsellingTypeMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CounsellingTypeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CounsellingTypeMasterModel
+                        {
+                            CounsellingTypeId = Convert.ToInt32(dr["CounsellingTypeId"]),
+                            CounsellingTypeName = dr["CounsellingTypeName"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool InsertCounsellingType(CounsellingTypeMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CounsellingTypeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@CounsellingTypeName", model.CounsellingTypeName);
+                cmd.Parameters.AddWithValue("@CreatedBy", (object)model.CreatedBy ?? DBNull.Value);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool UpdateCounsellingType(CounsellingTypeMasterModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CounsellingTypeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@CounsellingTypeId", model.CounsellingTypeId);
+                cmd.Parameters.AddWithValue("@CounsellingTypeName", model.CounsellingTypeName);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@ModifiedBy", (object)model.ModifiedBy ?? DBNull.Value);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool DeleteCounsellingType(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CounsellingTypeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@CounsellingTypeId", id);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        // DocumentEnclosureModel =======================================
+        //===============================================================
+        public List<DocumentEnclosureModel> GetAllDocumentEnclosures()
+        {
+            var list = new List<DocumentEnclosureModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new DocumentEnclosureModel
+                        {
+                            DocumentEnclosureId = Convert.ToInt32(dr["DocumentEnclosureId"]),
+                            DocumentName = dr["DocumentName"].ToString(),
+                            ShortName = dr["ShortName"].ToString(),
+                            IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
+                            IsOriginalRequired = Convert.ToBoolean(dr["IsOriginalRequired"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value
+                                ? Convert.ToDateTime(dr["CreatedDate"])
+                                : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Used wherever an active Document Enclosure dropdown/checklist is needed
+        // (e.g. Admission -> required documents checklist)
+        public List<DocumentEnclosureModel> GetActiveDocumentEnclosures()
+        {
+            var list = new List<DocumentEnclosureModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new DocumentEnclosureModel
+                        {
+                            DocumentEnclosureId = Convert.ToInt32(dr["DocumentEnclosureId"]),
+                            DocumentName = dr["DocumentName"].ToString(),
+                            ShortName = dr["ShortName"].ToString(),
+                            IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
+                            IsOriginalRequired = Convert.ToBoolean(dr["IsOriginalRequired"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public DocumentEnclosureModel GetDocumentEnclosureById(int id)
+        {
+            DocumentEnclosureModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@DocumentEnclosureId", id);
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new DocumentEnclosureModel
+                        {
+                            DocumentEnclosureId = Convert.ToInt32(dr["DocumentEnclosureId"]),
+                            DocumentName = dr["DocumentName"].ToString(),
+                            ShortName = dr["ShortName"].ToString(),
+                            IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
+                            IsOriginalRequired = Convert.ToBoolean(dr["IsOriginalRequired"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"])
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool InsertDocumentEnclosure(DocumentEnclosureModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@DocumentName", model.DocumentName);
+                cmd.Parameters.AddWithValue("@ShortName", model.ShortName);
+                cmd.Parameters.AddWithValue("@IsMandatory", model.IsMandatory);
+                cmd.Parameters.AddWithValue("@IsOriginalRequired", model.IsOriginalRequired);
+                cmd.Parameters.AddWithValue("@IsActive", true); // new records start Active
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool UpdateDocumentEnclosure(DocumentEnclosureModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@DocumentEnclosureId", model.DocumentEnclosureId);
+                cmd.Parameters.AddWithValue("@DocumentName", model.DocumentName);
+                cmd.Parameters.AddWithValue("@ShortName", model.ShortName);
+                cmd.Parameters.AddWithValue("@IsMandatory", model.IsMandatory);
+                cmd.Parameters.AddWithValue("@IsOriginalRequired", model.IsOriginalRequired);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        // NOTE: Deliberately no DeleteDocumentEnclosure() method.
+        // Only status can be flipped — records are never removed.
+        public bool ToggleDocumentEnclosureStatus(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_DocumentEnclosureMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "TOGGLESTATUS");
+                cmd.Parameters.AddWithValue("@DocumentEnclosureId", id);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
             }
         }
     }

@@ -17,6 +17,7 @@ namespace Regis.Controllers
         private readonly AcademicSetupService service = new AcademicSetupService();
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
         private readonly MasterService MasterService = new MasterService();
+        private readonly CategoryService categoryService = new CategoryService();
 
         // GET: AcademicSetup
         public ActionResult Index()
@@ -451,5 +452,72 @@ namespace Regis.Controllers
             var list = service.GetSemestersByCourse(courseId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        // ============================================================
+        // SUBJECT MANAGEMENT
+        // URL : /AcademicSetup/Required document
+        // ============================================================
+        // ============================================================
+        // REQUIRED DOCUMENT MASTER
+        // URL : /Master/RequiredDocumentMaster
+        // Maps AcademicSession + AdmissionMode + Program + Course + Category
+        // -> multiple Document Enclosures (checklist)
+        // ============================================================
+
+        public ActionResult RequiredDocumentMaster()
+        {
+            List<RequiredDocumentModel> list = service.GetAllRequiredDocuments();
+            ViewBag.Sessions = service.GetAllSessions();
+            //ViewBag.AdmissionModes = MasterService.GetActiveAdmissionModes();
+            ViewBag.AdmissionModes = MasterService.GetActiveAdmissionModes();
+            ViewBag.Programs = MasterService.GetActiveProgramMaster();
+            ViewBag.Courses = MasterService.GetActiveCourseMaster();
+            ViewBag.Categories = categoryService.GetAllCategories();
+            ViewBag.DocumentEnclosures = MasterService.GetActiveDocumentEnclosures();
+
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult RequiredDocumentMaster(RequiredDocumentModel model, string SelectedDocumentIds)
+        {
+            model.DocumentEnclosureIdsCsv = SelectedDocumentIds;
+
+            if (string.IsNullOrWhiteSpace(SelectedDocumentIds))
+            {
+                TempData["Error"] = "Please select at least one Required Document.";
+                return RedirectToAction("RequiredDocumentMaster");
+            }
+
+            bool result;
+            if (model.RequiredDocumentId > 0)
+            {
+                result = service.UpdateRequiredDocument(model);
+                TempData[result ? "Success" : "Error"] =
+                    result ? "Required Document mapping Updated Successfully." : "Unable to Update Required Document mapping.";
+            }
+            else
+            {
+                result = service.InsertRequiredDocument(model);
+                TempData[result ? "Success" : "Error"] =
+                    result ? "Required Document mapping Saved Successfully." : "Unable to Save Required Document mapping.";
+            }
+
+            return RedirectToAction("RequiredDocumentMaster");
+        }
+
+        public JsonResult GetRequiredDocumentById(int id)
+        {
+            var model = service.GetRequiredDocumentById(id);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteRequiredDocument(int id)
+        {
+            bool result = service.DeleteRequiredDocument(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Required Document mapping Deleted Successfully." : "Unable to Delete Required Document mapping.";
+            return RedirectToAction("RequiredDocumentMaster");
+        }
+
     }
 }

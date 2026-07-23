@@ -1,0 +1,282 @@
+﻿@model List<Regis.Models.DurationMasterModel>
+
+@{
+    ViewBag.Title = "DurationMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="durListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-hourglass-half"></i> Duration Master</h2>
+                <p>Manage course/program durations used across the system.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="durShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Duration
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Durations</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(d => d.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="as-table-toolbar" style="margin-bottom:1rem;">
+            <div class="as-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by duration name..." id="durSearch">
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Duration Name</th>
+                        <th>Duration (Months)</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="durTableBody">
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td><strong>@d.DurationName</strong></td>
+                            <td>@d.DurationMonth</td>
+                            <td>
+                                @if (d.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(d.CreatedDate?.ToString("dd-MM-yyyy"))</td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="durShowForm(this)"
+                                        data-id="@d.DurationId" data-name="@d.DurationName" data-month="@d.DurationMonth"
+                                        data-active="@d.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteDurationMaster", "Master", new { id = d.DurationId })"
+                                   onclick="return confirm('Delete this duration?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT DURATION FORM ================= -->
+    @using (Html.BeginForm("DurationMaster", "Master", FormMethod.Post, new { id = "durationForm", onsubmit = "return durValidate();" }))
+    {
+        <div class="as-card as-wizard-card" id="durFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="durShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Duration List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div>
+                            <h2 id="durFormTitle">Add Duration</h2>
+                            <p>Define a new duration used across Course/Program setup.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Duration Details
+                    </div>
+
+                    <input type="hidden" id="durationId" name="DurationId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Duration Name <span class="req">*</span></label>
+                            <input type="text" id="durationName" name="DurationName" placeholder="e.g. 4 Years, 6 Months, 1 Semester">
+                            <span class="as-error" id="durNameError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Duration (in Months) <span class="req">*</span></label>
+                            <input type="number" id="durationMonth" name="DurationMonth" placeholder="e.g. 48" min="1">
+                            <span class="as-hint">e.g. 4 Years = 48, 6 Months = 6, 1 Semester = 6</span>
+                            <span class="as-error" id="durMonthError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="durationStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="durShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="durSubmitText">Save Duration</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="durToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="durToastMessage">Success!</span>
+</div>
+
+<style>
+    .as-error {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        min-height: 1rem;
+    }
+
+    .as-search-box {
+        position: relative;
+        max-width: 360px;
+    }
+
+        .as-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .as-search-box input {
+            width: 100%;
+            padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #0b1b33;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+            .as-search-box input::placeholder {
+                color: #94a3b8;
+            }
+
+            .as-search-box input:focus {
+                border-color: #4f6ef7;
+                box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+            }
+</style>
+
+<script>
+    function durShowForm(btn) {
+        document.getElementById('durListWrap').style.display = 'none';
+        document.getElementById('durFormWrap').style.display = 'block';
+        durClearErrors();
+
+        if (btn) {
+            document.getElementById('durFormTitle').textContent = 'Edit Duration';
+            document.getElementById('durSubmitText').textContent = 'Update Duration';
+
+            document.getElementById('durationId').value = btn.dataset.id;
+            document.getElementById('durationName').value = btn.dataset.name;
+            document.getElementById('durationMonth').value = btn.dataset.month;
+            document.getElementById('durationStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('durFormTitle').textContent = 'Add Duration';
+            document.getElementById('durSubmitText').textContent = 'Save Duration';
+            document.getElementById('durationId').value = 0;
+            document.getElementById('durationName').value = '';
+            document.getElementById('durationMonth').value = '';
+            document.getElementById('durationStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function durShowList() {
+        document.getElementById('durFormWrap').style.display = 'none';
+        document.getElementById('durListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function durClearErrors() {
+        document.getElementById('durNameError').textContent = '';
+        document.getElementById('durMonthError').textContent = '';
+    }
+
+    // ----- Validation before submit -----
+    function durValidate() {
+        durClearErrors();
+        let valid = true;
+
+        const name = document.getElementById('durationName').value.trim();
+        if (!name) {
+            document.getElementById('durNameError').textContent = 'Duration Name is required';
+            valid = false;
+        }
+
+        const month = document.getElementById('durationMonth').value;
+        if (!month || parseInt(month, 10) <= 0) {
+            document.getElementById('durMonthError').textContent = 'Enter a valid duration in months (greater than 0)';
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    // ----- Search -----
+    document.getElementById('durSearch')?.addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#durTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+</script>

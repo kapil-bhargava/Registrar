@@ -1,0 +1,264 @@
+﻿@model List<Regis.Models.AdmissionModeMasterModel>
+
+@{
+    ViewBag.Title = "AdmissionModeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="admListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-door-open"></i> Admission Mode Master</h2>
+                <p>Manage admission modes used across the Admission module (Counselling, Management Seat, Direct Admission...).</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="admShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Admission Mode
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-door-open"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Admission Modes</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(a => a.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="as-table-toolbar" style="margin-bottom:1rem;">
+            <div class="as-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by admission mode name..." id="admSearch">
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>AdmissionModeId</th>
+                        <th>Admission Type</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admTableBody">
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td>@a.AdmissionModeId</td>
+                            <td><strong>@a.AdmissionModeName</strong></td>
+                            <td>
+                                @if (a.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(a.CreatedDate?.ToString("dd-MM-yyyy"))</td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="admShowForm(this)"
+                                        data-id="@a.AdmissionModeId" data-name="@a.AdmissionModeName"
+                                        data-active="@a.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteAdmissionMode", "Master", new { id = a.AdmissionModeId })"
+                                   onclick="return confirm('Delete this admission mode?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT ADMISSION MODE FORM ================= -->
+    @using (Html.BeginForm("AdmissionModeMaster", "Master", FormMethod.Post, new { id = "admissionModeForm", onsubmit = "return admValidate();" }))
+    {
+        <div class="as-card as-wizard-card" id="admFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="admShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Admission Mode List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-door-open"></i></div>
+                        <div>
+                            <h2 id="admFormTitle">Add Admission Mode</h2>
+                            <p>Define a new admission mode used in the Admission module.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Admission Mode Details
+                    </div>
+
+                    <input type="hidden" id="admissionModeId" name="AdmissionModeId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Admission Mode Name <span class="req">*</span></label>
+                            <input type="text" id="admissionModeName" name="AdmissionModeName" placeholder="e.g. Counselling, Management Seat, Direct Admission">
+                            <span class="as-error" id="admNameError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="admissionModeStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="admShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="admSubmitText">Save Admission Mode</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="admToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="admToastMessage">Success!</span>
+</div>
+
+<style>
+    .as-error {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        min-height: 1rem;
+    }
+
+    .as-search-box {
+        position: relative;
+        max-width: 360px;
+    }
+
+        .as-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .as-search-box input {
+            width: 100%;
+            padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #0b1b33;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+            .as-search-box input::placeholder {
+                color: #94a3b8;
+            }
+
+            .as-search-box input:focus {
+                border-color: #4f6ef7;
+                box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+            }
+</style>
+
+<script>function admShowForm(btn) {
+        document.getElementById('admListWrap').style.display = 'none';
+        document.getElementById('admFormWrap').style.display = 'block';
+        admClearErrors();
+
+        if (btn) {
+            document.getElementById('admFormTitle').textContent = 'Edit Admission Mode';
+            document.getElementById('admSubmitText').textContent = 'Update Admission Mode';
+
+            document.getElementById('admissionModeId').value = btn.dataset.id;
+            document.getElementById('admissionModeName').value = btn.dataset.name;
+            document.getElementById('admissionModeStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('admFormTitle').textContent = 'Add Admission Mode';
+            document.getElementById('admSubmitText').textContent = 'Save Admission Mode';
+            document.getElementById('admissionModeId').value = 0;
+            document.getElementById('admissionModeName').value = '';
+            document.getElementById('admissionModeStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function admShowList() {
+        document.getElementById('admFormWrap').style.display = 'none';
+        document.getElementById('admListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function admClearErrors() {
+        document.getElementById('admNameError').textContent = '';
+    }
+
+    // ----- Validation before submit -----
+    function admValidate() {
+        admClearErrors();
+        let valid = true;
+
+        const name = document.getElementById('admissionModeName').value.trim();
+        if (!name) {
+            document.getElementById('admNameError').textContent = 'Admission Mode Name is required';
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    // ----- Search -----
+    document.getElementById('admSearch')?.addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#admTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });</script>

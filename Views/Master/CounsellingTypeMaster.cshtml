@@ -1,0 +1,264 @@
+﻿@model List<Regis.Models.CounsellingTypeMasterModel>
+
+@{
+    ViewBag.Title = "CounsellingTypeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="cntListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-list-check"></i> Counselling Type Master</h2>
+                <p>Manage counselling types used across the Admission module (State, University, Central, Institute Level...).</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="cntShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Counselling Type
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-list-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Counselling Types</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(c => c.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="as-table-toolbar" style="margin-bottom:1rem;">
+            <div class="as-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by counselling type name..." id="cntSearch">
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Counselling Type ID</th>
+                        <th>Counselling Type Name</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cntTableBody">
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td>@c.CounsellingTypeId</td>
+                            <td><strong>@c.CounsellingTypeName</strong></td>
+                            <td>
+                                @if (c.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(c.CreatedDate?.ToString("dd-MM-yyyy"))</td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="cntShowForm(this)"
+                                        data-id="@c.CounsellingTypeId" data-name="@c.CounsellingTypeName"
+                                        data-active="@c.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteCounsellingType", "Master", new { id = c.CounsellingTypeId })"
+                                   onclick="return confirm('Delete this counselling type?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT COUNSELLING TYPE FORM ================= -->
+    @using (Html.BeginForm("CounsellingTypeMaster", "Master", FormMethod.Post, new { id = "counsellingTypeForm", onsubmit = "return cntValidate();" }))
+    {
+        <div class="as-card as-wizard-card" id="cntFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="cntShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Counselling Type List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-list-check"></i></div>
+                        <div>
+                            <h2 id="cntFormTitle">Add Counselling Type</h2>
+                            <p>Define a new counselling type used in the Admission module.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Counselling Type Details
+                    </div>
+
+                    <input type="hidden" id="counsellingTypeId" name="CounsellingTypeId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Counselling Type Name <span class="req">*</span></label>
+                            <input type="text" id="counsellingTypeName" name="CounsellingTypeName" placeholder="e.g. State Counselling, University Counselling, Central Counselling">
+                            <span class="as-error" id="cntNameError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="counsellingTypeStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="cntShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="cntSubmitText">Save Counselling Type</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="cntToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="cntToastMessage">Success!</span>
+</div>
+
+<style>
+    .as-error {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        min-height: 1rem;
+    }
+
+    .as-search-box {
+        position: relative;
+        max-width: 360px;
+    }
+
+        .as-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .as-search-box input {
+            width: 100%;
+            padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #0b1b33;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+            .as-search-box input::placeholder {
+                color: #94a3b8;
+            }
+
+            .as-search-box input:focus {
+                border-color: #4f6ef7;
+                box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+            }
+</style>
+
+<script>function cntShowForm(btn) {
+        document.getElementById('cntListWrap').style.display = 'none';
+        document.getElementById('cntFormWrap').style.display = 'block';
+        cntClearErrors();
+
+        if (btn) {
+            document.getElementById('cntFormTitle').textContent = 'Edit Counselling Type';
+            document.getElementById('cntSubmitText').textContent = 'Update Counselling Type';
+
+            document.getElementById('counsellingTypeId').value = btn.dataset.id;
+            document.getElementById('counsellingTypeName').value = btn.dataset.name;
+            document.getElementById('counsellingTypeStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('cntFormTitle').textContent = 'Add Counselling Type';
+            document.getElementById('cntSubmitText').textContent = 'Save Counselling Type';
+            document.getElementById('counsellingTypeId').value = 0;
+            document.getElementById('counsellingTypeName').value = '';
+            document.getElementById('counsellingTypeStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cntShowList() {
+        document.getElementById('cntFormWrap').style.display = 'none';
+        document.getElementById('cntListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cntClearErrors() {
+        document.getElementById('cntNameError').textContent = '';
+    }
+
+    // ----- Validation before submit -----
+    function cntValidate() {
+        cntClearErrors();
+        let valid = true;
+
+        const name = document.getElementById('counsellingTypeName').value.trim();
+        if (!name) {
+            document.getElementById('cntNameError').textContent = 'Counselling Type Name is required';
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    // ----- Search -----
+    document.getElementById('cntSearch')?.addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#cntTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });</script>

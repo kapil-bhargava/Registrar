@@ -1,0 +1,332 @@
+﻿@model List<Regis.Models.DocumentEnclosureModel>
+
+@{
+    ViewBag.Title = "DocumentEnclosureMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="deListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-file-circle-check"></i> Document Enclosure Master</h2>
+                <p>Manage documents required as enclosures across the Admission module (Aadhaar Card, Marksheets, Transfer Certificate...).</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="deShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Document Enclosure
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-file-circle-check"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Document Enclosures</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(d => d.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-asterisk"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(d => d.IsMandatory)</span>
+                    <span class="as-stat-label">Mandatory</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="as-table-toolbar" style="margin-bottom:1rem;">
+            <div class="as-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by document name or short name..." id="deSearch">
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Document Enclosure ID</th>
+                        <th>Document Name</th>
+                        <th>Short Name</th>
+                        <th>Mandatory</th>
+                        <th>Original Required</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="deTableBody">
+                    @foreach (var d in Model)
+                    {
+                        <tr>
+                            <td>@d.DocumentEnclosureId</td>
+                            <td><strong>@d.DocumentName</strong></td>
+                            <td>@d.ShortName</td>
+                            <td>
+                                @if (d.IsMandatory)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> No</span>
+                                }
+                            </td>
+                            <td>
+                                @if (d.IsOriginalRequired)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> No</span>
+                                }
+                            </td>
+                            <td>
+                                @if (d.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>@(d.CreatedDate?.ToString("dd-MM-yyyy"))</td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="deShowForm(this)"
+                                        data-id="@d.DocumentEnclosureId"
+                                        data-name="@d.DocumentName"
+                                        data-short="@d.ShortName"
+                                        data-mandatory="@d.IsMandatory.ToString().ToLower()"
+                                        data-original="@d.IsOriginalRequired.ToString().ToLower()"
+                                        data-active="@d.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <!-- No delete for this master — status is managed from the Edit form only -->
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT DOCUMENT ENCLOSURE FORM ================= -->
+    @using (Html.BeginForm("DocumentEnclosureMaster", "Master", FormMethod.Post, new { id = "documentEnclosureForm", onsubmit = "return deValidate();" }))
+    {
+        <div class="as-card as-wizard-card" id="deFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="deShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Document Enclosure List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-file-circle-check"></i></div>
+                        <div>
+                            <h2 id="deFormTitle">Add Document Enclosure</h2>
+                            <p>Define a document required as an enclosure in the Admission module.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title">
+                        <i class="fas fa-info-circle"></i> Document Enclosure Details
+                    </div>
+
+                    <input type="hidden" id="documentEnclosureId" name="DocumentEnclosureId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Document Name <span class="req">*</span></label>
+                            <input type="text" id="documentName" name="DocumentName" placeholder="e.g. Aadhaar Card, High School Marksheet, Transfer Certificate">
+                            <span class="as-error" id="deNameError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Short Name <span class="req">*</span></label>
+                            <input type="text" id="shortName" name="ShortName" placeholder="e.g. Aadhar, 10th, TC">
+                            <span class="as-error" id="deShortError"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Mandatory</label>
+                            <select id="isMandatory" name="IsMandatory">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Original Required</label>
+                            <select id="isOriginalRequired" name="IsOriginalRequired">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="documentEnclosureStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="deShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="deSubmitText">Save Document Enclosure</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="deToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="deToastMessage">Success!</span>
+</div>
+
+<style>
+    .as-error {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        min-height: 1rem;
+    }
+
+    .as-search-box {
+        position: relative;
+        max-width: 360px;
+    }
+
+        .as-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .as-search-box input {
+            width: 100%;
+            padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #0b1b33;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+            .as-search-box input::placeholder {
+                color: #94a3b8;
+            }
+
+            .as-search-box input:focus {
+                border-color: #4f6ef7;
+                box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+            }
+</style>
+
+<script>
+    function deShowForm(btn) {
+        document.getElementById('deListWrap').style.display = 'none';
+        document.getElementById('deFormWrap').style.display = 'block';
+        deClearErrors();
+
+        if (btn) {
+            document.getElementById('deFormTitle').textContent = 'Edit Document Enclosure';
+            document.getElementById('deSubmitText').textContent = 'Update Document Enclosure';
+
+            document.getElementById('documentEnclosureId').value = btn.dataset.id;
+            document.getElementById('documentName').value = btn.dataset.name;
+            document.getElementById('shortName').value = btn.dataset.short;
+            document.getElementById('isMandatory').value = btn.dataset.mandatory;
+            document.getElementById('isOriginalRequired').value = btn.dataset.original;
+            document.getElementById('documentEnclosureStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('deFormTitle').textContent = 'Add Document Enclosure';
+            document.getElementById('deSubmitText').textContent = 'Save Document Enclosure';
+            document.getElementById('documentEnclosureId').value = 0;
+            document.getElementById('documentName').value = '';
+            document.getElementById('shortName').value = '';
+            document.getElementById('isMandatory').value = 'false';
+            document.getElementById('isOriginalRequired').value = 'false';
+            document.getElementById('documentEnclosureStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deShowList() {
+        document.getElementById('deFormWrap').style.display = 'none';
+        document.getElementById('deListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deClearErrors() {
+        document.getElementById('deNameError').textContent = '';
+        document.getElementById('deShortError').textContent = '';
+    }
+
+    // ----- Validation before submit -----
+    function deValidate() {
+        deClearErrors();
+        let valid = true;
+
+        const name = document.getElementById('documentName').value.trim();
+        if (!name) {
+            document.getElementById('deNameError').textContent = 'Document Name is required';
+            valid = false;
+        }
+
+        const shortName = document.getElementById('shortName').value.trim();
+        if (!shortName) {
+            document.getElementById('deShortError').textContent = 'Short Name is required';
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    // ----- Search -----
+    document.getElementById('deSearch')?.addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#deTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+</script>

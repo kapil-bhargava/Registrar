@@ -1091,5 +1091,143 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
+        // =====================================================    required document
+        //============================================================================
+        //=================================================================
+        //             Required Document Master
+        //=================================================================
+
+        public List<RequiredDocumentModel> GetAllRequiredDocuments()
+        {
+            var list = new List<RequiredDocumentModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_RequiredDocumentMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new RequiredDocumentModel
+                        {
+                            RequiredDocumentId = Convert.ToInt32(dr["RequiredDocumentId"]),
+                            AcademicSessionId = Convert.ToInt32(dr["AcademicSessionId"]),
+                            SessionName = dr["SessionName"].ToString(),
+                            AdmissionModeId = Convert.ToInt32(dr["AdmissionModeId"]),
+                            AdmissionModeName = dr["AdmissionModeName"].ToString(),
+                            ProgramId = Convert.ToInt32(dr["ProgramId"]),
+                            ProgramName = dr["ProgramName"].ToString(),
+                            CourseId = Convert.ToInt32(dr["CourseId"]),
+                            CourseName = dr["CourseName"].ToString(),
+                            CategoryId = Convert.ToInt32(dr["CategoryId"]),
+                            CategoryName = dr["CategoryName"].ToString(),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null,
+                            DocumentEnclosureIdsCsv = dr["DocumentEnclosureIdsCsv"] as string ?? "",
+                            RequiredDocumentNames = dr["RequiredDocumentNames"] as string ?? ""
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public RequiredDocumentModel GetRequiredDocumentById(int id)
+        {
+            RequiredDocumentModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_RequiredDocumentMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@RequiredDocumentId", id);
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new RequiredDocumentModel
+                        {
+                            RequiredDocumentId = Convert.ToInt32(dr["RequiredDocumentId"]),
+                            AcademicSessionId = Convert.ToInt32(dr["AcademicSessionId"]),
+                            AdmissionModeId = Convert.ToInt32(dr["AdmissionModeId"]),
+                            ProgramId = Convert.ToInt32(dr["ProgramId"]),
+                            CourseId = Convert.ToInt32(dr["CourseId"]),
+                            CategoryId = Convert.ToInt32(dr["CategoryId"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"])
+                        };
+                    }
+
+                    // second result set -> selected document ids
+                    if (model != null && dr.NextResult())
+                    {
+                        var ids = new List<int>();
+                        while (dr.Read())
+                            ids.Add(Convert.ToInt32(dr["DocumentEnclosureId"]));
+                        model.DocumentEnclosureIds = ids;
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool InsertRequiredDocument(RequiredDocumentModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_RequiredDocumentMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@AcademicSessionId", model.AcademicSessionId);
+                cmd.Parameters.AddWithValue("@AdmissionModeId", model.AdmissionModeId);
+                cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
+                cmd.Parameters.AddWithValue("@CategoryId", model.CategoryId);
+                cmd.Parameters.AddWithValue("@IsActive", true);
+                cmd.Parameters.AddWithValue("@DocumentEnclosureIds", model.DocumentEnclosureIdsCsv);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool UpdateRequiredDocument(RequiredDocumentModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_RequiredDocumentMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@RequiredDocumentId", model.RequiredDocumentId);
+                cmd.Parameters.AddWithValue("@AcademicSessionId", model.AcademicSessionId);
+                cmd.Parameters.AddWithValue("@AdmissionModeId", model.AdmissionModeId);
+                cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
+                cmd.Parameters.AddWithValue("@CategoryId", model.CategoryId);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                cmd.Parameters.AddWithValue("@DocumentEnclosureIds", model.DocumentEnclosureIdsCsv);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        public bool DeleteRequiredDocument(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_RequiredDocumentMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@RequiredDocumentId", id);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Web.Mvc;
 using System.Web.Services.Description;
+using System.Xml.Linq;
 using Regis.Models;
 using Regis.Services;
 using Regis.Views.Master;
@@ -674,7 +676,6 @@ namespace Regis.Controllers
             ViewBag.Courses = MasterService.GetActiveCourseMaster();
             return View(list);
         }
-
         [HttpPost]
         public ActionResult SubjectMaster(SubjectMasterModel model)
         {
@@ -693,6 +694,13 @@ namespace Regis.Controllers
                     TempData[result ? "Success" : "Error"] =
                         result ? "Subject Master Saved Successfully." : "Unable to Save Subject Master.";
                 }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation Failed: " + errors;
             }
             return RedirectToAction("SubjectMaster");
         }
@@ -807,5 +815,189 @@ namespace Regis.Controllers
         {
             return View();
         }
+        // ============================================================
+        // DURATION MASTER
+        // URL : /Master/DurationMaster
+        // ============================================================
+
+        public ActionResult DurationMaster()
+        {
+            List<DurationMasterModel> list = MasterService.GetAllDurationMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult DurationMaster(DurationMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.DurationId > 0)
+                {
+                    result = MasterService.UpdateDurationMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Duration Updated Successfully." : "Unable to Update Duration.";
+                }
+                else
+                {
+                    result = MasterService.InsertDurationMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Duration Saved Successfully." : "Unable to Save Duration.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
+            return RedirectToAction("DurationMaster");
+        }
+
+        public ActionResult DeleteDurationMaster(int id)
+        {
+            bool result = MasterService.DeleteDurationMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Duration Deleted Successfully." : "Unable to Delete Duration.";
+
+            return RedirectToAction("DurationMaster");
+        }
+
+        // ============================================================
+        // DURATION MASTER
+        // URL : /Master/AdmissionModeMaster
+        // ============================================================
+        public ActionResult AdmissionModeMaster()
+        {
+            List<AdmissionModeMasterModel> list = MasterService.GetAllAdmissionModes();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult AdmissionModeMaster(AdmissionModeMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.AdmissionModeId > 0)
+                {
+                    result = MasterService.UpdateAdmissionMode(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Admission Mode Updated Successfully." : "Unable to Update Admission Mode.";
+                }
+                else
+                {
+                    result = MasterService.InsertAdmissionMode(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Admission Mode Saved Successfully." : "Unable to Save Admission Mode.";
+                }
+            }
+            return RedirectToAction("AdmissionModeMaster");
+        }
+
+        public ActionResult DeleteAdmissionMode(int id)
+        {
+            bool result = MasterService.DeleteAdmissionMode(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Admission Mode Deleted Successfully." : "Unable to Delete Admission Mode.";
+            return RedirectToAction("AdmissionModeMaster");
+        }
+        // ============================================================
+        // DURATION MASTER
+        // URL : /Master/CounsellingTypeMaster
+        // ============================================================
+        public ActionResult CounsellingTypeMaster()
+        {
+            List<CounsellingTypeMasterModel> list = MasterService.GetAllCounsellingTypes();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult CounsellingTypeMaster(CounsellingTypeMasterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.CounsellingTypeId > 0)
+                {
+                    result = MasterService.UpdateCounsellingType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Counselling Type Updated Successfully." : "Unable to Update Counselling Type.";
+                }
+                else
+                {
+                    result = MasterService.InsertCounsellingType(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Counselling Type Saved Successfully." : "Unable to Save Counselling Type.";
+                }
+            }
+            return RedirectToAction("CounsellingTypeMaster");
+        }
+
+        public ActionResult DeleteCounsellingType(int id)
+        {
+            bool result = MasterService.DeleteCounsellingType(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Counselling Type Deleted Successfully." : "Unable to Delete Counselling Type.";
+            return RedirectToAction("CounsellingTypeMaster");
+        }
+ 
+
+        // ============================================================
+        // DOCUMENT ENCLOSURE MASTER
+        // URL : /Master/DocumentEnclosureMaster
+        //
+        // Rules for this master:
+        //  - No hard delete. Records can only be Inserted, Edited,
+        //    or have their Status (Active/Inactive) toggled.
+        // ============================================================
+
+        public ActionResult DocumentEnclosureMaster()
+        {
+            List<DocumentEnclosureModel> list = MasterService.GetAllDocumentEnclosures();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult DocumentEnclosureMaster(DocumentEnclosureModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.DocumentEnclosureId > 0)
+                {
+                    result = MasterService.UpdateDocumentEnclosure(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Document Enclosure Updated Successfully." : "Unable to Update Document Enclosure.";
+                }
+                else
+                {
+                    result = MasterService.InsertDocumentEnclosure(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Document Enclosure Saved Successfully." : "Unable to Save Document Enclosure.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
+            return RedirectToAction("DocumentEnclosureMaster");
+        }
+
+        // Intentionally there is NO DeleteDocumentEnclosure / DeleteDocumentEnclosureMaster action.
+        // Status (Active/Inactive) is changed simply by editing the record and
+        // choosing "Inactive" from the Status dropdown in the form — same UPDATE
+        // flag is reused (see sp_DocumentEnclosureMaster), no separate route needed.
+
     }
 }

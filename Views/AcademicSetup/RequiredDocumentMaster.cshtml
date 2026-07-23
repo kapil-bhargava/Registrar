@@ -1,0 +1,443 @@
+﻿@model List<Regis.Models.RequiredDocumentModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "RequiredDocumentMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var sessions = ViewBag.Sessions as List<AcademicSessionModel> ?? new List<AcademicSessionModel>();
+    var admissionModes = ViewBag.AdmissionModes as List<AdmissionModeMasterModel> ?? new List<AdmissionModeMasterModel>();
+    var programs = ViewBag.Programs as List<ProgramMasterModel> ?? new List<ProgramMasterModel>();
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+    var categories = ViewBag.Categories as List<CategoryModel> ?? new List<CategoryModel>();
+    var documents = ViewBag.DocumentEnclosures as List<DocumentEnclosureModel> ?? new List<DocumentEnclosureModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="rdListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-clipboard-check"></i> Required Document Master</h2>
+                <p>Map required documents against Academic Session, Admission Type, Program, Course &amp; Student Category.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="rdShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Mapping
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Mappings</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(r => r.IsActive)</span>
+                    <span class="as-stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Academic Session</th>
+                        <th>Admission Type</th>
+                        <th>Program</th>
+                        <th>Course</th>
+                        <th>Student Category</th>
+                        <th>Required Documents</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rdTableBody">
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td><strong>@r.SessionName</strong></td>
+                            <td><span class="as-type-badge">@r.AdmissionModeName</span></td>
+                            <td>@r.ProgramName</td>
+                            <td>@r.CourseName</td>
+                            <td>@r.CategoryName</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(r.RequiredDocumentNames))
+                                {
+                                    foreach (var docName in r.RequiredDocumentNames.Split(','))
+                                    {
+                                        <span class="rd-doc-chip">@docName.Trim()</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="as-hint">No documents selected</span>
+                                }
+                            </td>
+                            <td>
+                                @if (r.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-inactive"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="rdEditForm(@r.RequiredDocumentId)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteRequiredDocument", "AcademicSetup", new { id = r.RequiredDocumentId })"
+                                   onclick="return confirm('Delete this mapping?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM ================= -->
+    @using (Html.BeginForm("RequiredDocumentMaster", "AcademicSetup", FormMethod.Post, new { id = "requiredDocumentForm", onsubmit = "return rdValidate();" }))
+    {
+        <div class="as-card as-wizard-card" id="rdFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="rdShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Required Document List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <div>
+                            <h2 id="rdFormTitle">Add Required Document Mapping</h2>
+                            <p>Select the combination and choose which documents are required for it.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Combination</div>
+
+                    <input type="hidden" id="requiredDocumentId" name="RequiredDocumentId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Academic Session <span class="req">*</span></label>
+                            <select id="academicSessionId" name="AcademicSessionId" required>
+                                <option value="">-- Select Session --</option>
+                                @foreach (var s in sessions)
+                                {
+                                    <option value="@s.AcademicSessionId">@s.SessionName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Admission Type <span class="req">*</span></label>
+                            <select id="admissionModeId" name="AdmissionModeId" required>
+                                <option value="">-- Select Admission Type --</option>
+                                @foreach (var a in admissionModes)
+                                {
+                                    <option value="@a.AdmissionModeId">@a.AdmissionModeName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Program <span class="req">*</span></label>
+                            <select id="programId" name="ProgramId" required>
+                                <option value="">-- Select Program --</option>
+                                @foreach (var p in programs)
+                                {
+                                    <option value="@p.ProgramId">@p.ProgramName (@p.ProgramType)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Course <span class="req">*</span></label>
+                            <select id="courseId" name="CourseId" required>
+                                <option value="">-- Select Course --</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">@c.CourseName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Student Category <span class="req">*</span></label>
+                            <select id="categoryId" name="CategoryId" required>
+                                <option value="">-- Select Category --</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="requiredDocumentStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-file-circle-check"></i> Required Documents</div>
+
+                    <!-- Multi-select dropdown: Document Enclosure Master se aata hai -->
+                    <div class="rd-multiselect" id="rdMultiSelect">
+                        <div class="rd-ms-box" id="rdMsToggle" onclick="rdToggleDropdown()">
+                            <span id="rdMsPlaceholder">-- Select Required Documents --</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="rd-ms-panel" id="rdMsPanel">
+                            @foreach (var d in documents)
+                            {
+                                <label class="rd-ms-option">
+                                    <input type="checkbox" class="rd-doc-checkbox" value="@d.DocumentEnclosureId" data-name="@d.DocumentName" onchange="rdSyncSelected()" />
+                                    <span>@d.DocumentName</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="rd-selected-list" id="rdSelectedList"></div>
+                    <span class="as-error" id="rdDocError"></span>
+
+                    <input type="hidden" id="selectedDocumentIds" name="SelectedDocumentIds" value="" />
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="rdShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="rdSubmitText">Save Mapping</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="rdToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="rdToastMessage">Success!</span>
+</div>
+
+<style>
+    .rd-doc-chip {
+        display: inline-block;
+        background: #eef2ff;
+        color: #4f6ef7;
+        border: 1px solid #dbe3fe;
+        border-radius: 20px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 2px 4px 2px 0;
+    }
+
+    .rd-multiselect {
+        position: relative;
+        max-width: 480px;
+        margin-bottom: 0.75rem;
+    }
+
+    .rd-ms-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.65rem 0.9rem;
+        cursor: pointer;
+        background: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: #0b1b33;
+    }
+
+    .rd-ms-panel {
+        display: none;
+        position: absolute;
+        z-index: 20;
+        top: 105%;
+        left: 0;
+        right: 0;
+        max-height: 240px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        padding: 0.4rem 0;
+    }
+
+        .rd-ms-panel.show {
+            display: block;
+        }
+
+    .rd-ms-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+        .rd-ms-option:hover {
+            background: #f8fafc;
+        }
+
+    .rd-selected-list {
+        min-height: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .rd-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #4f6ef7;
+        color: #fff;
+        border-radius: 20px;
+        padding: 0.3rem 0.6rem 0.3rem 0.8rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin: 3px 5px 3px 0;
+    }
+
+        .rd-tag i {
+            cursor: pointer;
+            font-size: 0.7rem;
+            opacity: 0.85;
+        }
+
+            .rd-tag i:hover {
+                opacity: 1;
+            }
+</style>
+
+<script>
+    function rdShowForm() {
+        document.getElementById('rdListWrap').style.display = 'none';
+        document.getElementById('rdFormWrap').style.display = 'block';
+        rdResetForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function rdShowList() {
+        document.getElementById('rdFormWrap').style.display = 'none';
+        document.getElementById('rdListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function rdResetForm() {
+        document.getElementById('rdFormTitle').textContent = 'Add Required Document Mapping';
+        document.getElementById('rdSubmitText').textContent = 'Save Mapping';
+        document.getElementById('requiredDocumentId').value = 0;
+        document.getElementById('academicSessionId').value = '';
+        document.getElementById('admissionModeId').value = '';
+        document.getElementById('programId').value = '';
+        document.getElementById('courseId').value = '';
+        document.getElementById('categoryId').value = '';
+        document.getElementById('requiredDocumentStatus').value = 'true';
+        document.querySelectorAll('.rd-doc-checkbox').forEach(cb => cb.checked = false);
+        rdSyncSelected();
+    }
+
+    function rdToggleDropdown() {
+        document.getElementById('rdMsPanel').classList.toggle('show');
+    }
+
+    document.addEventListener('click', function (e) {
+        const ms = document.getElementById('rdMultiSelect');
+        if (ms && !ms.contains(e.target)) {
+            document.getElementById('rdMsPanel').classList.remove('show');
+        }
+    });
+
+    function rdSyncSelected() {
+        const checked = Array.from(document.querySelectorAll('.rd-doc-checkbox:checked'));
+        const listEl = document.getElementById('rdSelectedList');
+        const placeholderEl = document.getElementById('rdMsPlaceholder');
+
+        listEl.innerHTML = '';
+        checked.forEach(cb => {
+            const tag = document.createElement('span');
+            tag.className = 'rd-tag';
+            tag.innerHTML = cb.dataset.name + ' <i class="fas fa-times" onclick="rdRemoveTag(\'' + cb.value + '\')"></i>';
+            listEl.appendChild(tag);
+        });
+
+        placeholderEl.textContent = checked.length
+            ? checked.length + ' document(s) selected'
+            : '-- Select Required Documents --';
+
+        document.getElementById('selectedDocumentIds').value = checked.map(cb => cb.value).join(',');
+        document.getElementById('rdDocError').textContent = '';
+    }
+
+    function rdRemoveTag(id) {
+        const cb = document.querySelector('.rd-doc-checkbox[value="' + id + '"]');
+        if (cb) cb.checked = false;
+        rdSyncSelected();
+    }
+
+    function rdEditForm(id) {
+        fetch('/AcademicSetup/GetRequiredDocumentById?id=' + id)
+            .then(res => res.json())
+            .then(m => {
+                rdShowForm();
+                document.getElementById('rdFormTitle').textContent = 'Edit Required Document Mapping';
+                document.getElementById('rdSubmitText').textContent = 'Update Mapping';
+
+                document.getElementById('requiredDocumentId').value = m.RequiredDocumentId;
+                document.getElementById('academicSessionId').value = m.AcademicSessionId;
+                document.getElementById('admissionModeId').value = m.AdmissionModeId;
+                document.getElementById('programId').value = m.ProgramId;
+                document.getElementById('courseId').value = m.CourseId;
+                document.getElementById('categoryId').value = m.CategoryId;
+                document.getElementById('requiredDocumentStatus').value = m.IsActive.toString().toLowerCase();
+
+                document.querySelectorAll('.rd-doc-checkbox').forEach(cb => {
+                    cb.checked = m.DocumentEnclosureIds.map(String).includes(cb.value);
+                });
+                rdSyncSelected();
+            });
+    }
+
+    function rdValidate() {
+        const csv = document.getElementById('selectedDocumentIds').value;
+        if (!csv) {
+            document.getElementById('rdDocError').textContent = 'Please select at least one required document.';
+            return false;
+        }
+        return true;
+    }
+</script>
