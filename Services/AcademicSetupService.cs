@@ -714,6 +714,11 @@ namespace Regis.Services
         // SessionTypeId -> FK to SessionType (Masters)
         // =========================================================
 
+        // =========================================================
+        // ACADEMIC SESSION
+        // SessionTypeId -> FK to SessionType (Masters)
+        // =========================================================
+
         public List<AcademicSessionModel> GetAllSessions()
         {
             var list = new List<AcademicSessionModel>();
@@ -738,6 +743,7 @@ namespace Regis.Services
                         AcademicYear = dr["AcademicYear"] as string,
                         Status = dr["Status"].ToString(),
                         MaxCredits = dr["MaxCredits"] != DBNull.Value ? Convert.ToInt32(dr["MaxCredits"]) : (int?)null,
+                        IsActive = Convert.ToBoolean(dr["IsActive"]),
                         CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
                     });
                 }
@@ -781,11 +787,14 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@EndDate", model.EndDate);
                 cmd.Parameters.AddWithValue("@AcademicYear", (object)model.AcademicYear ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@MaxCredits", (object)model.MaxCredits ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Status", (object)model.Status ?? "Draft");   // NAYA
                 con.Open();
                 object result = cmd.ExecuteScalar();
                 return result != null ? Convert.ToInt32(result) : 0;
             }
         }
+
+       
 
         public AcademicSessionModel GetSessionById(int id)
         {
@@ -810,7 +819,8 @@ namespace Regis.Services
                         EndDate = Convert.ToDateTime(dr["EndDate"]),
                         AcademicYear = dr["AcademicYear"] as string,
                         Status = dr["Status"].ToString(),
-                        MaxCredits = dr["MaxCredits"] != DBNull.Value ? Convert.ToInt32(dr["MaxCredits"]) : (int?)null
+                        MaxCredits = dr["MaxCredits"] != DBNull.Value ? Convert.ToInt32(dr["MaxCredits"]) : (int?)null,
+                        IsActive = Convert.ToBoolean(dr["IsActive"])
                     };
                 }
             }
@@ -832,10 +842,9 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@EndDate", model.EndDate);
                 cmd.Parameters.AddWithValue("@AcademicYear", (object)model.AcademicYear ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@MaxCredits", (object)model.MaxCredits ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Status", (object)model.Status ?? DBNull.Value);   // NAYA
                 con.Open();
                 int rows = cmd.ExecuteNonQuery();
-                // SP has SET NOCOUNT ON -> successful UPDATE returns -1, not the actual row count.
-                // != 0 treats both -1 (NOCOUNT case) and any positive count as success.
                 return rows != 0;
             }
         }
@@ -882,6 +891,19 @@ namespace Regis.Services
             }
         }
 
+        public bool ToggleSessionActive(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                SqlCommand cmd = new SqlCommand("sp_AcademicSession", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "TOGGLEACTIVE");
+                cmd.Parameters.AddWithValue("@AcademicSessionId", id);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
         // =========================================================
         // SEMESTER
         // CourseId -> FK to Course, AcademicSessionId -> FK to AcademicSession

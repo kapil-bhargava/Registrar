@@ -17,5 +17,6 @@ namespace Regis.Models
         public string Status { get; set; }               // Draft / Active / Locked / Archived
         public int? MaxCredits { get; set; }
         public DateTime? CreatedDate { get; set; }
+        public bool IsActive { get; set; }
     }
 }

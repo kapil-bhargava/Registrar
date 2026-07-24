@@ -94,6 +94,13 @@ namespace Regis.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+        [HttpPost]
+        public JsonResult ToggleSessionActive(int id)
+        {
+            bool result = service.ToggleSessionActive(id);
+            return Json(new { success = result, message = result ? "Session availability updated!" : "Unable to update." });
+        }
+
         // ============================================================
         // FACULTY MANAGEMENT
         // URL : /AcademicSetup/FacultyManagement
@@ -466,8 +473,8 @@ namespace Regis.Controllers
         public ActionResult RequiredDocumentMaster()
         {
             List<RequiredDocumentModel> list = service.GetAllRequiredDocuments();
-            ViewBag.Sessions = service.GetAllSessions();
-            //ViewBag.AdmissionModes = MasterService.GetActiveAdmissionModes();
+            //ViewBag.Sessions = service.GetAllSessions();
+            ViewBag.Sessions = service.GetAllSessions().Where(s => s.Status == "Active").ToList();
             ViewBag.AdmissionModes = MasterService.GetActiveAdmissionModes();
             ViewBag.Programs = MasterService.GetActiveProgramMaster();
             ViewBag.Courses = MasterService.GetActiveCourseMaster();

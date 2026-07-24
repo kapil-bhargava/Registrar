@@ -254,6 +254,17 @@
                         <input type="number" id="maxCredits" value="24" min="10" max="30">
                         <span class="as-hint">Maximum credits a student can take per session</span>
                     </div>
+
+                    <div class="as-field">
+                        <label>Status</label>
+                        <select id="sessionStatus">
+                            <option value="Draft">Draft</option>
+                            <option value="Active">Active</option>
+                            <option value="Locked">Locked</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+                        <span class="as-hint">Choosing "Active" will automatically lock any currently active session</span>
+                    </div>
                 </div>
 
                 <div class="as-bar">
@@ -467,7 +478,8 @@
             StartDate: start,
             EndDate: end,
             AcademicYear: document.getElementById('academicYear').value,
-            MaxCredits: parseInt(document.getElementById('maxCredits').value || 24)
+            MaxCredits: parseInt(document.getElementById('maxCredits').value || 24),
+            Status: document.getElementById('sessionStatus').value
         };
 
         const isEditing = !!activeWizardSessionId;
@@ -486,6 +498,14 @@
                 document.getElementById('sessionToActivateName').textContent = name;
 
                 showToast(data.message, 'success');
+
+                // Agar user ne khud "Active" ya "Locked" ya "Archived" choose kar liya,
+                // toh ab Activate/Close wizard steps se guzarne ki zaroorat nahi — seedha list par wapas jao.
+                if (payload.Status !== 'Draft') {
+                    setTimeout(() => location.reload(), 800);
+                    return;
+                }
+
                 goToStep(2);
                 updateStepper(2, 1);
             })
@@ -506,6 +526,7 @@
                 document.getElementById('endDate').value = s.EndDate ? s.EndDate.substring(0, 10) : '';
                 document.getElementById('academicYear').value = s.AcademicYear || '';
                 document.getElementById('maxCredits').value = s.MaxCredits || 24;
+                document.getElementById('sessionStatus').value = s.Status || 'Draft';
                 calculateDuration();
             });
     }
