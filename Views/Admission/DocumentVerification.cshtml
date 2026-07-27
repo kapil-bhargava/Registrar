@@ -1,119 +1,121 @@
-﻿
+﻿@using Regis.Models
 @{
     ViewBag.Title = "DocumentVerification";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var pendingDocs = ViewBag.PendingDocs as List<ApplicationModel> ?? new List<ApplicationModel>();
+    var checklist = ViewBag.Checklist as List<DocumentChecklistItemModel> ?? new List<DocumentChecklistItemModel>();
+    var app = ViewBag.App as ApplicationModel;
+    int? appId = ViewBag.AppId;
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
 
 <div class="as-wrap">
 
-    <!-- ================= LIST MODE (no appId in URL) ================= -->
-    <div class="as-card" id="dvListWrap">
-        <div class="as-list-head">
-            <div>
-                <h2><i class="fas fa-file-check"></i> Document Verification <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 5</span></h2>
-                <p>Applications pending document verification — auto-pulled from Application Management.</p>
+    @if (!appId.HasValue)
+    {
+        <!-- ================= LIST MODE ================= -->
+        <div class="as-card">
+            <div class="as-list-head">
+                <div>
+                    <h2><i class="fas fa-file-check"></i> Document Verification <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 5</span></h2>
+                    <p>Applications pending document verification — auto-pulled from Application Management.</p>
+                </div>
+            </div>
+            <div class="as-table-wrapper">
+                <table class="as-table as-list-table">
+                    <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        @if (pendingDocs.Count == 0)
+                        {
+                            <tr><td colspan="5" style="text-align:center; color:#6B7A99;">No applications pending verification</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var a in pendingDocs)
+                            {
+                                <tr>
+                                    <td>@a.ApplicationNo</td>
+                                    <td><strong>@a.FullName</strong></td>
+                                    <td>@a.CourseName</td>
+                                    <td><span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span></td>
+                                    <td><a class="as-btn as-btn-primary as-btn-sm" href="@Url.Action("DocumentVerification", "Admission", new { appId = a.ApplicationId })">Verify</a></td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="as-table-wrapper">
-            <table class="as-table as-list-table">
-                <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody id="dvListBody"></tbody>
-            </table>
-        </div>
-    </div>
+    }
+    else
+    {
+        <!-- ================= DETAIL MODE ================= -->
+        <div class="as-card as-wizard-card">
+            <div class="as-back-row">
+                <a class="as-back-link" href="@Url.Action("Application", "Admission")"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
+            </div>
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-file-check"></i></div>
+                        <div>
+                            <h2>Verify Documents</h2>
+                            <p>Application @(app != null ? app.ApplicationNo : "—")</p>
+                        </div>
+                    </div>
 
-    <!-- ================= DETAIL MODE (appId present) ================= -->
-    <div class="as-card as-wizard-card" id="dvDetailWrap" style="display:none;">
-        <div class="as-back-row">
-            <a class="as-back-link" href="ApplicationManagement.cshtml"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
-        </div>
-        <div class="as-body">
-            <div class="as-page active">
-                <div class="as-head">
-                    <div class="as-icon"><i class="fas fa-file-check"></i></div>
-                    <div>
-                        <h2>Verify Documents</h2>
-                        <p id="dvAppSubtitle">—</p>
+                    <div class="as-current-session">
+                        <div class="as-current-label">📄 Applicant</div>
+                        <div class="as-current-value">@(app != null ? app.FullName : "—")</div>
+                        <span class="as-pill as-pill-draft">@(app != null ? app.CourseName : "—")</span>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-list"></i> Required Documents <span class="as-hint" style="margin-left:6px;">(as per selected Course — Required Document Master)</span></div>
+                    <div class="as-check-group as-check-col">
+                        @if (checklist.Count == 0)
+                        {
+                            <p class="as-hint">No required documents mapped for this Course yet — add them in Required Document Master.</p>
+                        }
+                        else
+                        {
+                            foreach (var d in checklist)
+                            {
+                                <label class="as-checkbox">
+                                    <input type="checkbox" class="dv-doc-check" data-id="@d.DocumentEnclosureId" @(d.IsSubmitted ? "checked" : "")>
+                                    <span>
+                                        <strong>@d.DocumentName</strong>
+                                        @if (d.IsMandatory)
+                                        {
+                                            <span style="color:#F04452;">*Mandatory</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#6B7A99;">(Optional)</span>
+                                        }
+                                    </span>
+                                </label>
+                            }
+                        }
+                    </div>
+
+                    <div class="as-bar">
+                        <a class="as-btn as-btn-ghost" href="@Url.Action("Application", "Admission")">Cancel</a>
+                        <span></span>
+                        <button class="as-btn as-btn-primary" onclick="dvSaveVerification()"><i class="fas fa-check-circle"></i> Save Verification</button>
                     </div>
                 </div>
-
-                <div class="as-current-session">
-                    <div class="as-current-label">📄 Applicant</div>
-                    <div class="as-current-value" id="dvApplicantName">—</div>
-                    <span class="as-pill as-pill-draft" id="dvApplicantCourse">—</span>
-                </div>
-
-                <div class="as-section-title"><i class="fas fa-list"></i> Required Documents <span class="as-hint" style="margin-left:6px;">(from Document Type Master)</span></div>
-                <div class="as-check-group as-check-col" id="dvDocList"></div>
-
-                <div class="as-bar">
-                    <a class="as-btn as-btn-ghost" href="ApplicationManagement.cshtml">Cancel</a>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="dvSaveVerification()"><i class="fas fa-check-circle"></i> Save Verification</button>
-                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="as-toast" id="dvToast"><i class="fas fa-check-circle"></i><span id="dvToastMessage">Success!</span></div>
 
 <script>
-    function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
-    function saveApps(arr) { localStorage.setItem('erp_applications', JSON.stringify(arr)); }
-
-    // Seed 4 dummy applications (one per stage) so every Admission page has consistent demo data
-    if (localStorage.getItem('erp_seedVersion') !== 'v2') {
-        localStorage.setItem('erp_seedVersion', 'v2');
-        saveApps([
-            {
-                appId: 'APP-2026-001', name: 'Rohit Sharma', email: 'rohit@example.com', phone: '9876500001',
-                category: 'General', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '78', registeredOn: '12 Jul 2026', stage: 'Registered',
-                documents: {}, docVerified: false, counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-002', name: 'Priya Verma', email: 'priya@example.com', phone: '9876500002',
-                category: 'OBC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '71', registeredOn: '12 Jul 2026', stage: 'Docs Verified',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-003', name: 'Aman Kumar', email: 'aman@example.com', phone: '9876500003',
-                category: 'SC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '68', registeredOn: '13 Jul 2026', stage: 'Counselling Done',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: true, counsellingDate: '2026-07-20', seatNumber: 'SC-BTECH-CS-003', feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-004', name: 'Neha Singh', email: 'neha@example.com', phone: '9876500004',
-                category: 'General', courseId: 'BCA', courseName: 'BCA', session: '2025-26',
-                pct: '82', registeredOn: '14 Jul 2026', stage: 'Fee Paid',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: true, counsellingDate: '2026-07-21', seatNumber: 'GEN-BCA-004',
-                feePaid: true, receiptNo: 'RCPT-100456', feeAmount: 26000, studentId: null
-            }
-        ]);
-    }
-
-    // Document Type Master reference (mandatory flag matches earlier DocumentTypeMaster)
-    const docTypes = [
-        { code: 'AAD', name: 'Aadhaar Card', mandatory: true },
-        { code: 'PAN', name: 'PAN Card', mandatory: false },
-        { code: 'PHO', name: 'Passport Photo', mandatory: true },
-        { code: 'SIG', name: 'Signature', mandatory: true },
-        { code: 'TC', name: 'Transfer Certificate', mandatory: true }
-    ];
-
-    const params = new URLSearchParams(window.location.search);
-    const appId = params.get('appId');
-
     function dvShowToast(msg, type) {
         const toast = document.getElementById('dvToast');
         toast.querySelector('span').textContent = msg;
@@ -121,60 +123,23 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    if (appId) {
-        // DETAIL MODE
-        document.getElementById('dvListWrap').style.display = 'none';
-        document.getElementById('dvDetailWrap').style.display = 'block';
+    // ----- Save Verification (AJAX -> Controller -> sp_Application VERIFYDOCS) -----
+    function dvSaveVerification() {
+        const applicationId = @(appId ?? 0);
+        const checkboxes = document.querySelectorAll('.dv-doc-check');
+        const submittedIds = [];
+        checkboxes.forEach(cb => { if (cb.checked) submittedIds.push(cb.getAttribute('data-id')); });
 
-        const apps = getApps();
-        const app = apps.find(a => a.appId === appId);
-
-        if (app) {
-            document.getElementById('dvAppSubtitle').textContent = 'Application ' + app.appId;
-            document.getElementById('dvApplicantName').textContent = app.name;
-            document.getElementById('dvApplicantCourse').textContent = app.courseName;
-
-            const docList = document.getElementById('dvDocList');
-            docList.innerHTML = docTypes.map(d => `
-                <label class="as-checkbox">
-                    <input type="checkbox" data-code="${d.code}" ${app.documents[d.code] ? 'checked' : ''}>
-                    <span><strong>${d.name}</strong> ${d.mandatory ? '<span style="color:#F04452;">*Mandatory</span>' : '<span style="color:#6B7A99;">(Optional)</span>'}</span>
-                </label>`).join('');
-        }
-
-        window.dvSaveVerification = function () {
-            const apps = getApps();
-            const idx = apps.findIndex(a => a.appId === appId);
-            if (idx === -1) return;
-
-            const checkboxes = document.querySelectorAll('#dvDocList input[type=checkbox]');
-            const documents = {};
-            checkboxes.forEach(cb => documents[cb.getAttribute('data-code')] = cb.checked);
-
-            const allMandatoryChecked = docTypes.filter(d => d.mandatory).every(d => documents[d.code]);
-
-            apps[idx].documents = documents;
-            apps[idx].docVerified = allMandatoryChecked;
-            apps[idx].stage = allMandatoryChecked ? 'Docs Verified' : 'Registered';
-            saveApps(apps);
-
-            if (allMandatoryChecked) {
-                dvShowToast('All mandatory documents verified! Now visible in Counselling.', 'success');
-            } else {
-                dvShowToast('Saved — but mandatory documents still missing.', 'error');
-            }
-            setTimeout(() => window.location.href = 'ApplicationManagement.cshtml', 1200);
-        };
-    } else {
-        // LIST MODE — show applications pending verification
-        const apps = getApps().filter(a => !a.docVerified);
-        document.getElementById('dvListBody').innerHTML = apps.map(a => `
-            <tr>
-                <td>${a.appId}</td>
-                <td><strong>${a.name}</strong></td>
-                <td>${a.courseName}</td>
-                <td><span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span></td>
-                <td><a class="as-btn as-btn-primary as-btn-sm" href="DocumentVerification.cshtml?appId=${a.appId}">Verify</a></td>
-            </tr>`).join('') || '<tr><td colspan="5" style="text-align:center; color:#6B7A99;">No applications pending verification</td></tr>';
+        fetch('@Url.Action("SaveDocumentVerification", "Admission")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'applicationId=' + applicationId + '&submittedDocumentIdsCsv=' + encodeURIComponent(submittedIds.join(','))
+        })
+            .then(res => res.json())
+            .then(data => {
+                dvShowToast(data.message, data.allVerified ? 'success' : 'error');
+                setTimeout(() => window.location.href = '@Url.Action("Application", "Admission")', 1200);
+            })
+            .catch(() => dvShowToast('Server error while saving verification', 'error'));
     }
 </script>

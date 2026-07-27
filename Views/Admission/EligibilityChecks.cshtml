@@ -1,94 +1,27 @@
 ﻿@using Regis.Models
 @{
-    ViewBag.Title = "EligibilityCheck";
+    ViewBag.Title = "EligibilityChecks";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 
     var openSetups = ViewBag.OpenSetups as List<AdmissionSetupModel> ?? new List<AdmissionSetupModel>();
     var recentChecks = ViewBag.RecentChecks as List<EligibilityCheckModel> ?? new List<EligibilityCheckModel>();
 }
 
+
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
-<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
 
 <div class="as-wrap">
 
-    <!-- ================= LIST PAGE ================= -->
-    <div class="as-card" id="ecListWrap">
-        <div class="as-list-head">
-            <div>
-                <h2><i class="fas fa-user-check"></i> Eligibility Check <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 2</span></h2>
-                <p>Check applicant eligibility against courses that are <strong>Open</strong> in Admission Setup.</p>
-            </div>
-            <button class="as-btn as-btn-primary" onclick="ecShowForm()">
-                <i class="fas fa-plus-circle"></i> New Eligibility Check
-            </button>
-        </div>
-
-        <div class="as-quick-stats">
-            <div class="as-stat-card">
-                <div class="as-stat-icon"><i class="fas fa-list-check"></i></div>
-                <div class="as-stat-info">
-                    <span class="as-stat-number" id="ecTotalChecks">@recentChecks.Count</span>
-                    <span class="as-stat-label">Recent Checks</span>
-                </div>
-            </div>
-            <div class="as-stat-card active">
-                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="as-stat-info">
-                    <span class="as-stat-number" id="ecEligibleCount">@recentChecks.Count(c => c.IsEligible)</span>
-                    <span class="as-stat-label">Eligible</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent checks history -->
-        <div class="as-table-wrapper">
-            <table class="as-table as-list-table">
-                <thead><tr><th>Name</th><th>Course</th><th>% Obtained</th><th>Result</th></tr></thead>
-                <tbody id="ecHistoryBody">
-                    @if (recentChecks.Count == 0)
-                    {
-                        <tr><td colspan="4" style="text-align:center; color:#6B7A99;">No checks yet</td></tr>
-                    }
-                    else
-                    {
-                        foreach (var c in recentChecks)
-                        {
-                            <tr>
-                                <td>@c.ApplicantName</td>
-                                <td>@c.CourseName</td>
-                                <td>@c.PercentageObtained%</td>
-                                <td>
-                                    @if (c.IsEligible)
-                                    {
-                                        <span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Eligible</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Not Eligible</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ================= FORM PAGE ================= -->
-    <div class="as-card as-wizard-card" id="ecFormWrap" style="display:none;">
-        <div class="as-back-row">
-            <button class="as-back-link" onclick="ecShowList()"><i class="fas fa-arrow-left"></i> Back to Eligibility Check List</button>
-        </div>
+    <div class="as-card as-wizard-card">
         <div class="as-body">
             <div class="as-page active">
                 <div class="as-head">
                     <div class="as-icon"><i class="fas fa-user-check"></i></div>
                     <div>
-                        <h2>Check Eligibility</h2>
+                        <h2>Eligibility Check <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 2</span></h2>
                         <p>Course list below comes directly from <strong>Admission Setup</strong> (only "Open" courses appear).</p>
                     </div>
                 </div>
@@ -129,26 +62,59 @@
                     <span class="as-pill as-pill-active" id="ecMinPctPill">—</span>
                 </div>
 
+                <div class="as-bar">
+                    <span></span>
+                    <span></span>
+                    <button class="as-btn as-btn-primary" onclick="ecCheckEligibility()"><i class="fas fa-check-circle"></i> Check Eligibility</button>
+                </div>
+
                 <!-- Result box -->
                 <div id="ecResultBox" style="display:none; margin-top:16px;">
                     <div class="as-warning-box" id="ecResultInner">
                         <i class="fas fa-info-circle"></i>
                         <div id="ecResultText">—</div>
                     </div>
+                    <div class="as-bar" id="ecProceedBar" style="display:none;">
+                        <span></span><span></span>
+                        <button class="as-btn as-btn-primary" onclick="ecProceedToRegistration()">
+                            <i class="fas fa-arrow-right"></i> Proceed to Student Registration
+                        </button>
+                    </div>
                 </div>
 
-                <div class="as-bar" id="ecProceedBar" style="display:none;">
-                    <button class="as-btn as-btn-ghost" onclick="ecShowList()">Back to List</button>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="ecProceedToRegistration()">
-                        <i class="fas fa-arrow-right"></i> Proceed to Student Registration
-                    </button>
-                </div>
-
-                <div class="as-bar" id="ecCheckBar">
-                    <button class="as-btn as-btn-ghost" onclick="ecShowList()">Cancel</button>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="ecCheckEligibility()"><i class="fas fa-check-circle"></i> Check Eligibility</button>
+                <!-- Recent checks history -->
+                <div class="as-section-title" style="margin-top:24px;"><i class="fas fa-history"></i> Recent Checks</div>
+                <div class="as-table-wrapper">
+                    <table class="as-table as-list-table">
+                        <thead><tr><th>Name</th><th>Course</th><th>% Obtained</th><th>Result</th></tr></thead>
+                        <tbody id="ecHistoryBody">
+                            @if (recentChecks.Count == 0)
+                            {
+                                <tr><td colspan="4" style="text-align:center; color:#6B7A99;">No checks yet</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var c in recentChecks)
+                                {
+                                    <tr>
+                                        <td>@c.ApplicantName</td>
+                                        <td>@c.CourseName</td>
+                                        <td>@c.PercentageObtained%</td>
+                                        <td>
+                                            @if (c.IsEligible)
+                                            {
+                                                <span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Eligible</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Not Eligible</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -157,30 +123,7 @@
 
 <div class="as-toast" id="ecToast"><i class="fas fa-check-circle"></i><span id="ecToastMessage">Success!</span></div>
 
-<script>
-    let ecLastResult = null;
-
-    function ecShowForm() {
-        // reset form fields
-        document.getElementById('ecName').value = '';
-        document.getElementById('ecCourse').value = '';
-        document.getElementById('ecPct').value = '';
-        document.getElementById('ecCriteriaBox').style.display = 'none';
-        document.getElementById('ecResultBox').style.display = 'none';
-        document.getElementById('ecProceedBar').style.display = 'none';
-        document.getElementById('ecCheckBar').style.display = 'flex';
-        ecLastResult = null;
-
-        document.getElementById('ecListWrap').style.display = 'none';
-        document.getElementById('ecFormWrap').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function ecShowList() {
-        document.getElementById('ecFormWrap').style.display = 'none';
-        document.getElementById('ecListWrap').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+<script>let ecLastResult = null;
 
     function ecLoadCriteria() {
         const sel = document.getElementById('ecCourse');
@@ -229,7 +172,6 @@
                     inner.style.background = '#E4F7EF'; inner.style.borderColor = '#1AAE7C';
                     text.innerHTML = '<strong>✅ Eligible!</strong> ' + data.applicantName + ' meets the eligibility criteria for ' + data.courseName + ' (' + data.pctObtained + '% ≥ ' + data.minPct + '% required).';
                     document.getElementById('ecProceedBar').style.display = 'flex';
-                    document.getElementById('ecCheckBar').style.display = 'none';
                 } else {
                     inner.className = 'as-warning-box as-warning-danger';
                     inner.style.background = ''; inner.style.borderColor = '';
@@ -238,6 +180,7 @@
                 }
 
                 ecLastResult = data;
+                ecRefreshHistory();
             })
             .catch(() => ecShowToast('Server error while checking eligibility', 'error'));
     }
@@ -250,4 +193,20 @@
         });
         window.location.href = '/Admission/StudentRegistration?' + params.toString();
     }
-</script>
+
+    function ecRefreshHistory() {
+        fetch('/Admission/GetRecentEligibilityChecks')
+            .then(res => res.json())
+            .then(list => {
+                const body = document.getElementById('ecHistoryBody');
+                body.innerHTML = list.map(c => `
+                    <tr>
+                        <td>${c.ApplicantName}</td>
+                        <td>${c.CourseName}</td>
+                        <td>${c.PercentageObtained}%</td>
+                        <td>${c.IsEligible
+                        ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Eligible</span>'
+                        : '<span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Not Eligible</span>'}</td>
+                    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center; color:#6B7A99;">No checks yet</td></tr>';
+            });
+    }</script>

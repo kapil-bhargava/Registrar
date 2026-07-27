@@ -229,9 +229,9 @@
             </ul>
         </li>
 
-         <!-- ============================================================ -->
-         <!-- STUDENT MASTER -->
-         <!-- ============================================================ -->
+        <!-- ============================================================ -->
+        <!-- STUDENT MASTER -->
+        <!-- ============================================================ -->
         <li>
             <div class="parent @(activeMenu == "StudentMaster" ? "active" : "")" data-target="subStudentMaster">
                 <i class="fas fa-user-graduate"></i>
@@ -311,7 +311,27 @@
                 </li>
             </ul>
         </li>
+        <!-- ============================================================ -->
+        <!-- REGISTRAR (Main Menu) -->
+        <!-- ============================================================ -->
+        <li>
+            <div class="parent @(activeMenu == "Registrar" ? "active" : "")" data-target="subRegistrar">
+                <i class="fas fa-user-graduate"></i>
+                Registrar
+                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
 
+            <ul class="submenu @(activeMenu == "Registrar" ? "open" : "")" id="subRegistrar">
+
+                <li>
+                    <a href="@Url.Action("RegistrarStudentList", "Registrar")"
+                       class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
+                        <i class="fas fa-list"></i> Registrar Student List
+                    </a>
+                </li>
+
+            </ul>
+        </li>
         <!-- ============================================================ -->
         <!-- MASTERS -->
         <!-- ============================================================ -->
@@ -377,30 +397,30 @@
                         <i class="fas fa-coins"></i>DocumentEnclosure Master
                     </a>
                 </li>
-                    @*<li>
-                <a href="@Url.Action("CountryStateCityMaster", "Master")"
-                   asp-controller="Master" asp-action="Location">
-                    <i class="fas fa-building"></i> Country / State / City
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("FeeheadMaster", "Master")"
-                   asp-controller="Master" asp-action="FeeHeads">
-                    <i class="fas fa-coins"></i> Fee Heads
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("DiscountScholarshipMaster", "Master")"
-                   asp-controller="Master" asp-action="Discount">
-                    <i class="fas fa-percent"></i> Discount / Scholarship
-                </a>
-            </li>*@
-                    @*<li>
-                <a href="@Url.Action("BranchMaster", "Master")"
-                   asp-controller="Master" asp-action="Discount">
-                    <i class="fas fa-percent"></i> Discount / Scholarship
-                </a>
-            </li>*@
+                @*<li>
+                    <a href="@Url.Action("CountryStateCityMaster", "Master")"
+                       asp-controller="Master" asp-action="Location">
+                        <i class="fas fa-building"></i> Country / State / City
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("FeeheadMaster", "Master")"
+                       asp-controller="Master" asp-action="FeeHeads">
+                        <i class="fas fa-coins"></i> Fee Heads
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("DiscountScholarshipMaster", "Master")"
+                       asp-controller="Master" asp-action="Discount">
+                        <i class="fas fa-percent"></i> Discount / Scholarship
+                    </a>
+                </li>*@
+                @*<li>
+                    <a href="@Url.Action("BranchMaster", "Master")"
+                       asp-controller="Master" asp-action="Discount">
+                        <i class="fas fa-percent"></i> Discount / Scholarship
+                    </a>
+                </li>*@
 
                 <li>
                     <a href="@Url.Action("DesignationMaster", "Master")"

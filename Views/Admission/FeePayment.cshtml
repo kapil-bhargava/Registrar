@@ -1,136 +1,126 @@
-﻿
+﻿@using Regis.Models
 @{
     ViewBag.Title = "FeePayment";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var pending = ViewBag.PendingFee as List<ApplicationModel> ?? new List<ApplicationModel>();
+    var app = ViewBag.App as ApplicationModel;
+    int? appId = ViewBag.AppId;
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
 
 <div class="as-wrap">
 
-    <!-- ================= LIST MODE ================= -->
-    <div class="as-card" id="fpListWrap">
-        <div class="as-list-head">
-            <div>
-                <h2><i class="fas fa-sack-dollar"></i> Fee Payment <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 7</span></h2>
-                <p>Only applications with <strong>counselling completed &amp; seat allotted</strong> appear here.</p>
-            </div>
-        </div>
-        <div class="as-table-wrapper">
-            <table class="as-table as-list-table">
-                <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Seat No.</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody id="fpListBody"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ================= DETAIL MODE ================= -->
-    <div class="as-card as-wizard-card" id="fpDetailWrap" style="display:none;">
-        <div class="as-back-row">
-            <a class="as-back-link" href="ApplicationManagement.cshtml"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
-        </div>
-        <div class="as-body">
-            <div class="as-page active">
-                <div class="as-head">
-                    <div class="as-icon"><i class="fas fa-sack-dollar"></i></div>
-                    <div>
-                        <h2>Collect Admission Fee</h2>
-                        <p id="fpAppSubtitle">—</p>
-                    </div>
-                </div>
-
-                <div class="as-current-session">
-                    <div class="as-current-label">👤 Applicant</div>
-                    <div class="as-current-value" id="fpApplicantName">—</div>
-                    <span class="as-pill as-pill-closed" id="fpApplicantMeta">—</span>
-                </div>
-
-                <div class="as-section-title"><i class="fas fa-money-check-alt"></i> Fee Breakdown <span class="as-hint" style="margin-left:6px;">(from Fee Heads Master)</span></div>
-                <div class="as-table-wrapper">
-                    <table class="as-table">
-                        <thead><tr><th>Fee Head</th><th>Amount (₹)</th></tr></thead>
-                        <tbody>
-                            <tr><td>Admission Fee</td><td>₹5,000</td></tr>
-                            <tr><td>Tuition Fee (1st Installment)</td><td>₹20,000</td></tr>
-                            <tr><td>Library Fee</td><td>₹1,000</td></tr>
-                            <tr style="font-weight:700;"><td>Total Payable</td><td>₹26,000</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="as-section-title"><i class="fas fa-credit-card"></i> Payment Details</div>
-                <div class="as-grid">
-                    <div class="as-field">
-                        <label>Payment Mode <span class="req">*</span></label>
-                        <select id="fpMode">
-                            <option value="Online">Online</option>
-                            <option value="Cash">Cash</option>
-                            <option value="DD">Demand Draft</option>
-                        </select>
-                    </div>
-                    <div class="as-field">
-                        <label>Transaction / Receipt No.</label>
-                        <input type="text" id="fpReceiptNo" placeholder="Auto-generated on save" readonly disabled>
-                    </div>
-                </div>
-
-                <div class="as-bar">
-                    <a class="as-btn as-btn-ghost" href="ApplicationManagement.cshtml">Cancel</a>
-                    <span></span>
-                    <button class="as-btn as-btn-primary" onclick="fpSave()"><i class="fas fa-check-circle"></i> Confirm Payment</button>
+    @if (!appId.HasValue)
+    {
+        <!-- ================= LIST MODE ================= -->
+        <div class="as-card">
+            <div class="as-list-head">
+                <div>
+                    <h2><i class="fas fa-sack-dollar"></i> Fee Payment <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 7</span></h2>
+                    <p>Only applications with <strong>counselling completed &amp; seat allotted</strong> appear here.</p>
                 </div>
             </div>
+            <div class="as-table-wrapper">
+                <table class="as-table as-list-table">
+                    <thead><tr><th>Application No.</th><th>Name</th><th>Course</th><th>Seat No.</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        @if (pending.Count == 0)
+                        {
+                            <tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications ready for fee payment yet</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var a in pending)
+                            {
+                                <tr>
+                                    <td>@a.ApplicationNo</td>
+                                    <td><strong>@a.FullName</strong></td>
+                                    <td>@a.CourseName</td>
+                                    <td>@(a.SeatNumber ?? "—")</td>
+                                    <td><span class="as-pill as-pill-closed"><i class="fas fa-comments"></i> Counselling Done</span></td>
+                                    <td><a class="as-btn as-btn-primary as-btn-sm" href="@Url.Action("FeePayment", "Admission", new { appId = a.ApplicationId })">Collect Fee</a></td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <!-- ================= DETAIL MODE ================= -->
+        <div class="as-card as-wizard-card">
+            <div class="as-back-row">
+                <a class="as-back-link" href="@Url.Action("Application", "Admission")"><i class="fas fa-arrow-left"></i> Back to Application Management</a>
+            </div>
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-sack-dollar"></i></div>
+                        <div>
+                            <h2>Collect Admission Fee</h2>
+                            <p>Application @(app != null ? app.ApplicationNo : "—")</p>
+                        </div>
+                    </div>
+
+                    <div class="as-current-session">
+                        <div class="as-current-label">👤 Applicant</div>
+                        <div class="as-current-value">@(app != null ? app.FullName : "—")</div>
+                        <span class="as-pill as-pill-closed">@(app != null ? app.CourseName + " · Seat: " + app.SeatNumber : "—")</span>
+                    </div>
+
+                    <!-- TODO: replace hardcoded rows below with a real query against Fee Heads Master
+                         once that master is wired up; feeAmount posted to the server currently
+                         comes from the hidden #fpAmount field, which mirrors this total. -->
+                    <div class="as-section-title"><i class="fas fa-money-check-alt"></i> Fee Breakdown <span class="as-hint" style="margin-left:6px;">(from Fee Heads Master)</span></div>
+                    <div class="as-table-wrapper">
+                        <table class="as-table">
+                            <thead><tr><th>Fee Head</th><th>Amount (₹)</th></tr></thead>
+                            <tbody>
+                                <tr><td>Admission Fee</td><td>₹5,000</td></tr>
+                                <tr><td>Tuition Fee (1st Installment)</td><td>₹20,000</td></tr>
+                                <tr><td>Library Fee</td><td>₹1,000</td></tr>
+                                <tr style="font-weight:700;"><td>Total Payable</td><td>₹26,000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-credit-card"></i> Payment Details</div>
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Payment Mode <span class="req">*</span></label>
+                            <select id="fpMode">
+                                <option value="Online">Online</option>
+                                <option value="Cash">Cash</option>
+                                <option value="DD">Demand Draft</option>
+                            </select>
+                        </div>
+                        <div class="as-field">
+                            <label>Transaction / Receipt No.</label>
+                            <input type="text" id="fpReceiptNo" placeholder="Auto-generated on save" readonly disabled>
+                        </div>
+                    </div>
+                    <input type="hidden" id="fpAmount" value="26000">
+
+                    <div class="as-bar">
+                        <a class="as-btn as-btn-ghost" href="@Url.Action("Application", "Admission")">Cancel</a>
+                        <span></span>
+                        <button class="as-btn as-btn-primary" onclick="fpSave()"><i class="fas fa-check-circle"></i> Confirm Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 <div class="as-toast" id="fpToast"><i class="fas fa-check-circle"></i><span id="fpToastMessage">Success!</span></div>
 
 <script>
-    function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
-    function saveApps(arr) { localStorage.setItem('erp_applications', JSON.stringify(arr)); }
-
-    // Seed 4 dummy applications (one per stage) so every Admission page has consistent demo data
-    if (localStorage.getItem('erp_seedVersion') !== 'v2') {
-        localStorage.setItem('erp_seedVersion', 'v2');
-        saveApps([
-            {
-                appId: 'APP-2026-001', name: 'Rohit Sharma', email: 'rohit@example.com', phone: '9876500001',
-                category: 'General', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '78', registeredOn: '12 Jul 2026', stage: 'Registered',
-                documents: {}, docVerified: false, counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-002', name: 'Priya Verma', email: 'priya@example.com', phone: '9876500002',
-                category: 'OBC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '71', registeredOn: '12 Jul 2026', stage: 'Docs Verified',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: false, seatNumber: null, feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-003', name: 'Aman Kumar', email: 'aman@example.com', phone: '9876500003',
-                category: 'SC', courseId: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26',
-                pct: '68', registeredOn: '13 Jul 2026', stage: 'Counselling Done',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: true, counsellingDate: '2026-07-20', seatNumber: 'SC-BTECH-CS-003', feePaid: false, studentId: null
-            },
-            {
-                appId: 'APP-2026-004', name: 'Neha Singh', email: 'neha@example.com', phone: '9876500004',
-                category: 'General', courseId: 'BCA', courseName: 'BCA', session: '2025-26',
-                pct: '82', registeredOn: '14 Jul 2026', stage: 'Fee Paid',
-                documents: { AAD: true, PHO: true, SIG: true, TC: true }, docVerified: true,
-                counsellingDone: true, counsellingDate: '2026-07-21', seatNumber: 'GEN-BCA-004',
-                feePaid: true, receiptNo: 'RCPT-100456', feeAmount: 26000, studentId: null
-            }
-        ]);
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const appId = params.get('appId');
-
     function fpShowToast(msg, type) {
         const toast = document.getElementById('fpToast');
         toast.querySelector('span').textContent = msg;
@@ -138,46 +128,24 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    if (appId) {
-        document.getElementById('fpListWrap').style.display = 'none';
-        document.getElementById('fpDetailWrap').style.display = 'block';
+    // ----- Confirm Payment (AJAX -> Controller -> sp_Application COLLECTFEE) -----
+    function fpSave() {
+        const applicationId = @(appId ?? 0);
+        const feeMode = document.getElementById('fpMode').value;
+        const feeAmount = document.getElementById('fpAmount').value;
 
-        const apps = getApps();
-        const app = apps.find(a => a.appId === appId);
-
-        if (app) {
-            document.getElementById('fpAppSubtitle').textContent = 'Application ' + app.appId;
-            document.getElementById('fpApplicantName').textContent = app.name;
-            document.getElementById('fpApplicantMeta').textContent = app.courseName + ' · Seat: ' + app.seatNumber;
-        }
-
-        window.fpSave = function () {
-            const apps = getApps();
-            const idx = apps.findIndex(a => a.appId === appId);
-            if (idx === -1) return;
-
-            const receiptNo = 'RCPT-' + Date.now().toString().slice(-6);
-            document.getElementById('fpReceiptNo').value = receiptNo;
-
-            apps[idx].feePaid = true;
-            apps[idx].receiptNo = receiptNo;
-            apps[idx].feeAmount = 26000;
-            apps[idx].stage = 'Fee Paid';
-            saveApps(apps);
-
-            fpShowToast('Fee collected! Receipt ' + receiptNo + '. Now visible in Admission (Final).', 'success');
-            setTimeout(() => window.location.href = 'ApplicationManagement.cshtml', 1200);
-        };
-    } else {
-        const apps = getApps().filter(a => a.counsellingDone && !a.feePaid);
-        document.getElementById('fpListBody').innerHTML = apps.map(a => `
-            <tr>
-                <td>${a.appId}</td>
-                <td><strong>${a.name}</strong></td>
-                <td>${a.courseName}</td>
-                <td>${a.seatNumber || '—'}</td>
-                <td><span class="as-pill as-pill-closed"><i class="fas fa-comments"></i> Counselling Done</span></td>
-                <td><a class="as-btn as-btn-primary as-btn-sm" href="FeePayment.cshtml?appId=${a.appId}">Collect Fee</a></td>
-            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications ready for fee payment yet</td></tr>';
+        fetch('@Url.Action("SaveFeePayment", "Admission")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'applicationId=' + applicationId + '&feeMode=' + encodeURIComponent(feeMode) + '&feeAmount=' + feeAmount
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { fpShowToast(data.message, 'error'); return; }
+                document.getElementById('fpReceiptNo').value = data.receiptNo;
+                fpShowToast(data.message, 'success');
+                setTimeout(() => window.location.href = '@Url.Action("Application", "Admission")', 1200);
+            })
+            .catch(() => fpShowToast('Server error while collecting fee', 'error'));
     }
 </script>

@@ -1,9 +1,13 @@
-﻿
+﻿@using Regis.Models
 @{
     ViewBag.Title = "AdmissionSetup";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
-}
 
+    var setups = ViewBag.Setups as List<AdmissionSetupModel> ?? new List<AdmissionSetupModel>();
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+    var sessions = ViewBag.Sessions as List<AcademicSessionModel> ?? new List<AcademicSessionModel>();
+    var seatMatrixList = ViewBag.SeatMatrixList as List<SeatMatrixModel> ?? new List<SeatMatrixModel>();
+}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,14 +31,14 @@
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-cog"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="asuTotal">0</span>
+                    <span class="as-stat-number">@setups.Count</span>
                     <span class="as-stat-label">Total Setups</span>
                 </div>
             </div>
             <div class="as-stat-card active">
                 <div class="as-stat-icon"><i class="fas fa-door-open"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="asuOpen">0</span>
+                    <span class="as-stat-number">@setups.Count(s => s.Status == "Open")</span>
                     <span class="as-stat-label">Open for Admission</span>
                 </div>
             </div>
@@ -53,7 +57,33 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="asuTableBody"></tbody>
+                <tbody id="asuTableBody">
+                    @foreach (var s in setups)
+                    {
+                        <tr data-id="@s.AdmissionSetupId">
+                            <td><strong>@s.CourseName</strong></td>
+                            <td>@s.SessionName</td>
+                            <td>@s.TotalSeats</td>
+                            <td>@s.ApplicationStartDate.ToString("dd/MM/yyyy") to @s.ApplicationEndDate.ToString("dd/MM/yyyy")</td>
+                            <td>@s.MinEligibilityPct%</td>
+                            <td>
+                                @if (s.Status == "Open")
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Open</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Closed</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="as-mini-btn" title="Edit" onclick="asuEdit(@s.AdmissionSetupId)"><i class="fas fa-edit"></i></button>
+                                <button class="as-mini-btn" title="Toggle Status" onclick="asuToggleStatus(@s.AdmissionSetupId)"><i class="fas fa-toggle-on"></i></button>
+                                <button class="as-mini-btn" title="Delete" onclick="asuDelete(@s.AdmissionSetupId)"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
             </table>
         </div>
 
@@ -63,7 +93,7 @@
         </div>
     </div>
 
-    <!-- ================= ADD FORM ================= -->
+    <!-- ================= ADD/EDIT FORM ================= -->
     <div class="as-card as-wizard-card" id="asuFormWrap" style="display:none;">
         <div class="as-back-row">
             <button class="as-back-link" onclick="asuShowList()"><i class="fas fa-arrow-left"></i> Back to Admission Setup List</button>
@@ -73,33 +103,41 @@
                 <div class="as-head">
                     <div class="as-icon"><i class="fas fa-cog"></i></div>
                     <div>
-                        <h2>Open New Admission</h2>
+                        <h2 id="asuFormTitle">Open New Admission</h2>
                         <p>Once saved, this course becomes selectable in Eligibility Check &amp; Student Registration.</p>
                     </div>
                 </div>
+
+                <input type="hidden" id="asuId" value="0" />
 
                 <div class="as-section-title"><i class="fas fa-info-circle"></i> Setup Details</div>
                 <div class="as-grid">
                     <div class="as-field">
                         <label>Course <span class="req">*</span></label>
-                        <select id="asuCourse">
+                        <select id="asuCourse" onchange="asuLoadTotalSeats()">
                             <option value="">-- Select Course --</option>
-                            <option value="BTECH-CS">B.Tech - Computer Science</option>
-                            <option value="MBA">MBA</option>
-                            <option value="BCA">BCA</option>
+                            @foreach (var c in courses)
+                            {
+                                <option value="@c.CourseId">@c.CourseName</option>
+                            }
                         </select>
+                        <span class="as-hint">Managed from Course Master</span>
                     </div>
                     <div class="as-field">
                         <label>Academic Session <span class="req">*</span></label>
-                        <select id="asuSession">
+                        <select id="asuSession" onchange="asuLoadTotalSeats()">
                             <option value="">-- Select Session --</option>
-                            <option value="2025-26">2025-26</option>
-                            <option value="2024-25">2024-25</option>
+                            @foreach (var sess in sessions)
+                            {
+                                <option value="@sess.AcademicSessionId">@sess.SessionName</option>
+                            }
                         </select>
+                        <span class="as-hint">Only Active sessions shown here</span>
                     </div>
                     <div class="as-field">
                         <label>Total Seats <span class="req">*</span></label>
-                        <input type="number" id="asuSeats" placeholder="e.g. 120" min="1">
+                        <input type="number" id="asuSeats" readonly placeholder="Auto-filled from Seat Matrix">
+                        <span class="as-hint">Comes from Seat Matrix — set it there first</span>
                     </div>
                     <div class="as-field">
                         <label>Minimum Eligibility % <span class="req">*</span></label>
@@ -130,7 +168,7 @@
                 <div class="as-bar">
                     <button class="as-btn as-btn-ghost" onclick="asuShowList()">Cancel</button>
                     <span></span>
-                    <button class="as-btn as-btn-primary" onclick="asuSave()"><i class="fas fa-save"></i> Save Setup</button>
+                    <button class="as-btn as-btn-primary" onclick="asuSave()"><i class="fas fa-save"></i> <span id="asuSubmitText">Save Setup</span></button>
                 </div>
             </div>
         </div>
@@ -139,52 +177,36 @@
 
 <div class="as-toast" id="asuToast"><i class="fas fa-check-circle"></i><span id="asuToastMessage">Success!</span></div>
 
-<script>/* ============ Shared ERP Store (localStorage based) ============ */
-    function getSetups() { return JSON.parse(localStorage.getItem('erp_admissionSetups') || '[]'); }
-    function saveSetups(arr) { localStorage.setItem('erp_admissionSetups', JSON.stringify(arr)); }
-
-    // Seed dummy data on first run
-    if (getSetups().length === 0) {
-        saveSetups([
-            { id: 'SET-1', course: 'BTECH-CS', courseName: 'B.Tech - Computer Science', session: '2025-26', seats: 120, minPct: 50, startDate: '2026-06-01', endDate: '2026-07-31', criteria: '10+2 with PCM, minimum 50%', status: 'Open' },
-            { id: 'SET-2', course: 'BCA', courseName: 'BCA', session: '2025-26', seats: 120, minPct: 45, startDate: '2026-06-01', endDate: '2026-07-31', criteria: '10+2 any stream, minimum 45%', status: 'Open' },
-            { id: 'SET-3', course: 'MBA', courseName: 'MBA', session: '2025-26', seats: 60, minPct: 50, startDate: '2026-05-01', endDate: '2026-06-30', criteria: 'Graduation with min 50%', status: 'Closed' }
-        ]);
-    }
-
-    const courseNames = { 'BTECH-CS': 'B.Tech - Computer Science', 'MBA': 'MBA', 'BCA': 'BCA' };
-
-    function asuRender() {
-        const rows = getSetups();
-        document.getElementById('asuTotal').textContent = rows.length;
-        document.getElementById('asuOpen').textContent = rows.filter(r => r.status === 'Open').length;
-
-        const body = document.getElementById('asuTableBody');
-        body.innerHTML = rows.map(r => `
-            <tr>
-                <td><strong>${r.courseName}</strong></td>
-                <td>${r.session}</td>
-                <td>${r.seats}</td>
-                <td>${r.startDate} to ${r.endDate}</td>
-                <td>${r.minPct}%</td>
-                <td>${r.status === 'Open'
-                    ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Open</span>'
-                    : '<span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Closed</span>'}</td>
-                <td><button class="as-mini-btn" title="View"><i class="fas fa-eye"></i></button></td>
-            </tr>`).join('');
-    }
+<script>
+    // Seat Matrix data pushed from server (Course + Session -> TotalSeats mapping)
+    var seatMatrixData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+        seatMatrixList.Select(sm => new { sm.CourseId, sm.AcademicSessionId, sm.TotalSeats })
+    ));
 
     function asuShowForm() {
+        document.getElementById('asuId').value = 0;
+        document.getElementById('asuFormTitle').textContent = 'Open New Admission';
+        document.getElementById('asuSubmitText').textContent = 'Save Setup';
+        document.getElementById('asuCourse').value = '';
+        document.getElementById('asuSession').value = '';
+        document.getElementById('asuSeats').value = '';
+        document.getElementById('asuMinPct').value = '';
+        document.getElementById('asuStartDate').value = '';
+        document.getElementById('asuEndDate').value = '';
+        document.getElementById('asuCriteria').value = '';
+        document.getElementById('asuStatus').value = 'Open';
+
         document.getElementById('asuListWrap').style.display = 'none';
         document.getElementById('asuFormWrap').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     function asuShowList() {
         document.getElementById('asuFormWrap').style.display = 'none';
         document.getElementById('asuListWrap').style.display = 'block';
-        asuRender();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     function asuShowToast(msg, type) {
         const toast = document.getElementById('asuToast');
         toast.querySelector('span').textContent = msg;
@@ -192,35 +214,124 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+    // ----- EDIT: fetch existing setup, prefill form -----
+    function asuEdit(id) {
+        fetch('/Admission/GetAdmissionSetupById?id=' + id)
+            .then(res => res.json())
+            .then(s => {
+                document.getElementById('asuId').value = s.AdmissionSetupId;
+                document.getElementById('asuCourse').value = s.CourseId;
+                document.getElementById('asuSession').value = s.AcademicSessionId;
+                document.getElementById('asuMinPct').value = s.MinEligibilityPct;
+                document.getElementById('asuStartDate').value = s.ApplicationStartDate.substring(0, 10);
+                document.getElementById('asuEndDate').value = s.ApplicationEndDate.substring(0, 10);
+                document.getElementById('asuCriteria').value = s.EligibilityCriteria || '';
+                document.getElementById('asuStatus').value = s.Status;
+
+                // Re-derive Total Seats from Seat Matrix instead of trusting stale saved value
+                asuLoadTotalSeats();
+
+                document.getElementById('asuFormTitle').textContent = 'Edit Admission Setup';
+                document.getElementById('asuSubmitText').textContent = 'Update Setup';
+                document.getElementById('asuListWrap').style.display = 'none';
+                document.getElementById('asuFormWrap').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            })
+            .catch(() => asuShowToast('Unable to load setup', 'error'));
+    }
+
+    // ----- SAVE / UPDATE (AJAX -> Controller -> sp_AdmissionSetup) -----
     function asuSave() {
         const course = document.getElementById('asuCourse').value;
         if (!course) { asuShowToast('Please select a Course', 'error'); return; }
         const session = document.getElementById('asuSession').value;
         if (!session) { asuShowToast('Please select a Session', 'error'); return; }
         const seats = document.getElementById('asuSeats').value;
-        if (!seats) { asuShowToast('Please enter Total Seats', 'error'); return; }
+        if (!seats) { asuShowToast('No Seat Matrix found for this Course + Session. Please set it up first.', 'error'); return; }
         const minPct = document.getElementById('asuMinPct').value;
         if (!minPct) { asuShowToast('Please enter Minimum Eligibility %', 'error'); return; }
+        const startDate = document.getElementById('asuStartDate').value;
+        const endDate = document.getElementById('asuEndDate').value;
+        if (!startDate || !endDate) { asuShowToast('Please select Application Start/End Date', 'error'); return; }
 
-        const rows = getSetups();
-        rows.push({
-            id: 'SET-' + (rows.length + 1),
-            course: course,
-            courseName: courseNames[course],
-            session: session,
-            seats: parseInt(seats),
-            minPct: parseInt(minPct),
-            startDate: document.getElementById('asuStartDate').value,
-            endDate: document.getElementById('asuEndDate').value,
-            criteria: document.getElementById('asuCriteria').value,
-            status: document.getElementById('asuStatus').value
+        const id = parseInt(document.getElementById('asuId').value) || 0;
+        const isEditing = id > 0;
+
+        const payload = new URLSearchParams({
+            AdmissionSetupId: id,
+            CourseId: course,
+            AcademicSessionId: session,
+            TotalSeats: seats,
+            MinEligibilityPct: minPct,
+            ApplicationStartDate: startDate,
+            ApplicationEndDate: endDate,
+            EligibilityCriteria: document.getElementById('asuCriteria').value,
+            Status: document.getElementById('asuStatus').value
         });
-        saveSetups(rows);
 
-        asuShowToast('Admission opened for ' + courseNames[course] + '! Now visible in Eligibility Check & Student Registration.', 'success');
-        asuShowList();
+        const url = isEditing ? '/Admission/UpdateAdmissionSetup' : '/Admission/SaveAdmissionSetup';
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload.toString()
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { asuShowToast(data.message, 'error'); return; }
+                asuShowToast(data.message, 'success');
+                setTimeout(() => location.reload(), 800);
+            })
+            .catch(() => asuShowToast('Server error while saving setup', 'error'));
     }
 
-    asuRender();</script>
+    // ----- TOGGLE STATUS -----
+    function asuToggleStatus(id) {
+        fetch('/Admission/ToggleAdmissionSetupStatus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + id
+        })
+            .then(res => res.json())
+            .then(data => {
+                asuShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) setTimeout(() => location.reload(), 800);
+            });
+    }
 
+    // ----- DELETE -----
+    function asuDelete(id) {
+        if (!confirm('Delete this Admission Setup? This cannot be undone.')) return;
+        fetch('/Admission/DeleteAdmissionSetup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + id
+        })
+            .then(res => res.json())
+            .then(data => {
+                asuShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) setTimeout(() => location.reload(), 800);
+            });
+    }
 
+    // ----- AUTO-FILL TOTAL SEATS FROM SEAT MATRIX (Course + Session) -----
+    function asuLoadTotalSeats() {
+        const courseId = parseInt(document.getElementById('asuCourse').value);
+        const sessionId = parseInt(document.getElementById('asuSession').value);
+        const seatsField = document.getElementById('asuSeats');
+
+        if (!courseId || !sessionId) {
+            seatsField.value = '';
+            return;
+        }
+
+        const match = seatMatrixData.find(sm => sm.CourseId === courseId && sm.AcademicSessionId === sessionId);
+
+        if (match) {
+            seatsField.value = match.TotalSeats;
+        } else {
+            seatsField.value = '';
+            asuShowToast('No Seat Matrix set for this Course + Session combination', 'error');
+        }
+    }
+</script>

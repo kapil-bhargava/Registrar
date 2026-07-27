@@ -1,0 +1,591 @@
+﻿@model List<Regis.Models.RegistrarStudentModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "RegistrarStudentList";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+    var branches = ViewBag.Branches as List<BranchMasterModel> ?? new List<BranchMasterModel>();
+    var semesters = ViewBag.Semesters as List<SemesterMasterModel> ?? new List<SemesterMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fee; color:#900; padding:10px; margin:10px 0; border:1px solid #900;">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div style="background:#efe; color:#060; padding:10px; margin:10px 0; border:1px solid #060;">@TempData["Success"]</div>
+}
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="rgListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-user-graduate"></i> Registrar — Student Records</h2>
+                <p>Add students, map them to Course / Branch / Semester, and track submitted documents.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="rgShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Student
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Students</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(r => r.DocumentStatus == "Yes")</span>
+                    <span class="as-stat-label">Documents Complete</span>
+                </div>
+            </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(r => r.DocumentStatus == "Partial" || r.DocumentStatus == "No")</span>
+                    <span class="as-stat-label">Documents Pending</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="as-search-row" style="margin-bottom:16px;">
+            <input type="text" id="rgSearchBox" class="as-search-input"
+                   placeholder="Search by Student Name, Email or Course..."
+                   onkeyup="rgSearchTable()"
+                   style="width:100%; max-width:360px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Branch</th>
+                        <th>Semester</th>
+                        <th>Mobile</th>
+                        <th>Documents</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rgTableBody">
+                    @foreach (var s in Model)
+                    {
+                        string badgeClass = s.DocumentStatus == "Yes" ? "yes" : (s.DocumentStatus == "Partial" ? "partial" : "no");
+                        <tr>
+                            <td><strong>@s.StudentName</strong></td>
+                            <td><a href="mailto:@s.Email" class="rg-email-link">@s.Email</a></td>
+                            <td>@s.CourseName</td>
+                            <td>@(s.BranchName ?? "-")</td>
+                            <td>@(s.SemesterName ?? "-")</td>
+                            <td>@s.Mobile</td>
+                            <td>
+                                <span class="rg-doc-badge @badgeClass">
+                                    <i class="fas fa-circle"></i> @s.SubmittedDocumentCount / @s.RequiredDocumentCount
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="rgEditForm(@s.RegistrarId)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteRegistrarStudent", "Registrar", new { id = s.RegistrarId })"
+                                   onclick="return confirm('Delete this student record?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p id="rgNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching students found.</p>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> All documents received</span>
+            <span><span class="as-legend-dot draft"></span> Partially received</span>
+            <span><span class="as-legend-dot archived"></span> Not received</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM ================= -->
+    @using (Html.BeginForm("RegistrarStudentList", "Registrar", FormMethod.Post, new { id = "rgForm", onsubmit = "return rgValidateForm();" }))
+    {
+        <div class="as-card as-wizard-card" id="rgFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="rgShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Student List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div>
+                            <h2 id="rgFormTitle">Add Student</h2>
+                            <p>Fill in the student's details, then confirm which documents have been received.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Student Details</div>
+
+                    <input type="hidden" id="rgRegistrarId" name="RegistrarId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field">
+                            <label>Student Name <span class="req">*</span></label>
+                            <input type="text" id="rgStudentName" name="StudentName" placeholder="e.g. Ali Khan" required>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Email <span class="req">*</span></label>
+                            <input type="email" id="rgEmail" name="Email" placeholder="e.g. ali@gmail.com" required>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Mobile</label>
+                            <input type="text" id="rgMobile" name="Mobile" placeholder="e.g. 9876543210" maxlength="15">
+                        </div>
+
+                        <div class="as-field">
+                            <label>Course <span class="req">*</span></label>
+                            <select id="rgCourseId" name="CourseId" required onchange="rgOnCourseChange()">
+                                <option value="">-- Select Course --</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">@c.CourseName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Course Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Branch</label>
+                            <select id="rgBranchId" name="BranchId">
+                                <option value="">-- Select Branch --</option>
+                                @foreach (var b in branches)
+                                {
+                                    <option value="@b.BranchId">@b.BranchName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Branch Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Semester</label>
+                            <select id="rgSemesterId" name="SemesterId">
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                            <span class="as-hint">Cascades from selected Course</span>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-file-circle-check"></i> Document Checklist</div>
+
+                    <button type="button" class="as-btn as-btn-outline" id="rgProceedBtn" onclick="rgOpenDocModal()">
+                        <i class="fas fa-clipboard-check"></i> <span id="rgProceedBtnText">Proceed to Documents</span>
+                    </button>
+                    <span class="rg-doc-summary" id="rgDocSummaryInline"></span>
+
+                    <input type="hidden" id="rgSelectedDocumentIds" name="SelectedDocumentIds" value="" />
+                    <input type="hidden" id="rgRequiredDocumentIdsCsv" name="RequiredDocumentIdsCsv" value="" />
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="rgShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="rgSubmitText">Save Student</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<!-- ================= REQUIRED DOCUMENTS POPUP ================= -->
+<div class="rg-modal-overlay" id="rgDocModalOverlay">
+    <div class="rg-modal">
+        <div class="rg-modal-head">
+            <h3><i class="fas fa-file-circle-check"></i> Required Documents — <span id="rgModalCourseName"></span></h3>
+            <button type="button" class="rg-modal-close" onclick="rgCloseDocModal()">&times;</button>
+        </div>
+        <div class="rg-modal-body" id="rgDocChecklist">
+            <p class="rg-hint">Loading…</p>
+        </div>
+        <div class="rg-modal-foot">
+            <span id="rgDocProgress">0 / 0 documents received</span>
+            <button type="button" class="as-btn as-btn-primary" onclick="rgCloseDocModal()">Done</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rg-doc-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+
+        .rg-doc-badge i {
+            font-size: 6px;
+        }
+
+        .rg-doc-badge.yes {
+            background: #e6f7ee;
+            color: #16a34a;
+        }
+
+        .rg-doc-badge.partial {
+            background: #fff7e6;
+            color: #b45309;
+        }
+
+        .rg-doc-badge.no {
+            background: #fdecec;
+            color: #dc2626;
+        }
+
+    .rg-email-link {
+        color: #2f5faa;
+        text-decoration: none;
+        font-size: 12.5px;
+    }
+
+        .rg-email-link:hover {
+            text-decoration: underline;
+        }
+
+    .rg-doc-summary {
+        margin-left: 12px;
+        font-size: 12.5px;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .rg-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15,24,45,0.45);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .rg-modal-overlay.show {
+            display: flex;
+        }
+
+    .rg-modal {
+        background: #fff;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 460px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        font-family: 'Inter',sans-serif;
+    }
+
+    .rg-modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e3e7ef;
+    }
+
+        .rg-modal-head h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #16305c;
+            font-weight: 700;
+        }
+
+    .rg-modal-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        color: #6b7280;
+    }
+
+    .rg-modal-body {
+        padding: 14px 20px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .rg-doc-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px solid #f1f3f8;
+        font-size: 13.5px;
+        color: #1f2937;
+    }
+
+        .rg-doc-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #16305c;
+        }
+
+    .rg-hint {
+        color: #8a8f98;
+        font-size: 13px;
+    }
+
+    .rg-modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-top: 1px solid #e3e7ef;
+        font-size: 12.5px;
+        color: #6b7280;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    // ---------- data seeded from the server for pre-check on edit ----------
+    var rgCourseNames = {};
+    @foreach (var c in courses)
+    {
+        <text>rgCourseNames[@c.CourseId] = @Html.Raw(Json.Encode(c.CourseName));</text>
+    }
+
+    var rgCurrentSubmittedIds = [];   // ids already checked, populated when editing
+
+    // ---------- List <-> Form ----------
+    function rgShowForm() {
+        document.getElementById('rgListWrap').style.display = 'none';
+        document.getElementById('rgFormWrap').style.display = 'block';
+        rgResetForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function rgShowList() {
+        document.getElementById('rgFormWrap').style.display = 'none';
+        document.getElementById('rgListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function rgResetForm() {
+        document.getElementById('rgFormTitle').textContent = 'Add Student';
+        document.getElementById('rgSubmitText').textContent = 'Save Student';
+        document.getElementById('rgRegistrarId').value = 0;
+        document.getElementById('rgStudentName').value = '';
+        document.getElementById('rgEmail').value = '';
+        document.getElementById('rgMobile').value = '';
+        document.getElementById('rgCourseId').value = '';
+        document.getElementById('rgBranchId').value = '';
+        document.getElementById('rgSemesterId').innerHTML = '<option value="">-- Select Course First --</option>';
+        document.getElementById('rgSelectedDocumentIds').value = '';
+        document.getElementById('rgRequiredDocumentIdsCsv').value = '';
+        document.getElementById('rgProceedBtnText').textContent = 'Proceed to Documents';
+        document.getElementById('rgDocSummaryInline').textContent = '';
+        rgCurrentSubmittedIds = [];
+    }
+
+    // ---------- Course -> Semester cascade (existing Master endpoint) ----------
+    function rgOnCourseChange() {
+        var courseId = document.getElementById('rgCourseId').value;
+        var semSelect = document.getElementById('rgSemesterId');
+        semSelect.innerHTML = '<option value="">Loading...</option>';
+
+        // reset doc checklist state since it depended on the previous course
+        document.getElementById('rgSelectedDocumentIds').value = '';
+        document.getElementById('rgRequiredDocumentIdsCsv').value = '';
+        document.getElementById('rgProceedBtnText').textContent = 'Proceed to Documents';
+        document.getElementById('rgDocSummaryInline').textContent = '';
+
+        if (!courseId) {
+            semSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            return;
+        }
+
+        fetch('/Master/GetSemesterMasterByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(data => {
+                semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+                data.forEach(function (s) {
+                    var opt = document.createElement('option');
+                    opt.value = s.SemesterId;
+                    opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
+                    semSelect.appendChild(opt);
+                });
+            })
+            .catch(() => {
+                semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+            });
+    }
+
+    // ---------- Required Documents popup ----------
+    function rgOpenDocModal() {
+        var courseId = document.getElementById('rgCourseId').value;
+        if (!courseId) {
+            alert('Pehle Course select karein.');
+            return;
+        }
+
+        document.getElementById('rgModalCourseName').textContent = rgCourseNames[courseId] || '';
+        document.getElementById('rgDocChecklist').innerHTML = '<p class="rg-hint">Loading…</p>';
+        document.getElementById('rgDocModalOverlay').classList.add('show');
+
+        fetch('/Registrar/GetRequiredDocumentsByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(docs => {
+                var checklistEl = document.getElementById('rgDocChecklist');
+
+                if (!docs || docs.length === 0) {
+                    checklistEl.innerHTML = '<p class="rg-hint">No required documents mapped for this course.</p>';
+                    document.getElementById('rgRequiredDocumentIdsCsv').value = '';
+                    rgUpdateDocProgress();
+                    return;
+                }
+
+                checklistEl.innerHTML = '';
+                docs.forEach(function (d) {
+                    var checked = rgCurrentSubmittedIds.indexOf(String(d.DocumentEnclosureId)) > -1;
+                    var row = document.createElement('label');
+                    row.className = 'rg-doc-row';
+                    row.innerHTML = '<input type="checkbox" class="rg-doc-checkbox" value="' + d.DocumentEnclosureId + '" ' + (checked ? 'checked' : '') + ' onchange="rgUpdateDocProgress()"> <span>' + d.DocumentName + '</span>';
+                    checklistEl.appendChild(row);
+                });
+
+                document.getElementById('rgRequiredDocumentIdsCsv').value = docs.map(d => d.DocumentEnclosureId).join(',');
+                rgUpdateDocProgress();
+            })
+            .catch(() => {
+                document.getElementById('rgDocChecklist').innerHTML = '<p class="rg-hint">Unable to load documents.</p>';
+            });
+    }
+
+    function rgUpdateDocProgress() {
+        var boxes = document.querySelectorAll('.rg-doc-checkbox');
+        var checked = document.querySelectorAll('.rg-doc-checkbox:checked');
+        var total = boxes.length;
+        var got = checked.length;
+
+        document.getElementById('rgDocProgress').textContent = got + ' / ' + total + ' documents received';
+        document.getElementById('rgProceedBtnText').textContent = total ? (got + '/' + total + ' Documents') : 'Proceed to Documents';
+        document.getElementById('rgDocSummaryInline').textContent = total ? (got === total ? 'All documents received' : (got + ' of ' + total + ' received')) : '';
+
+        var ids = Array.from(checked).map(cb => cb.value);
+        document.getElementById('rgSelectedDocumentIds').value = ids.join(',');
+        rgCurrentSubmittedIds = ids;
+    }
+
+    function rgCloseDocModal() {
+        document.getElementById('rgDocModalOverlay').classList.remove('show');
+    }
+
+    document.getElementById('rgDocModalOverlay').addEventListener('click', function (e) {
+        if (e.target === this) rgCloseDocModal();
+    });
+
+    // ---------- Edit ----------
+    function rgEditForm(id) {
+        fetch('/Registrar/GetRegistrarStudentById?id=' + id)
+            .then(res => res.json())
+            .then(m => {
+                rgShowForm();
+                document.getElementById('rgFormTitle').textContent = 'Edit Student';
+                document.getElementById('rgSubmitText').textContent = 'Update Student';
+
+                document.getElementById('rgRegistrarId').value = m.RegistrarId;
+                document.getElementById('rgStudentName').value = m.StudentName || '';
+                document.getElementById('rgEmail').value = m.Email || '';
+                document.getElementById('rgMobile').value = m.Mobile || '';
+                document.getElementById('rgCourseId').value = m.CourseId || '';
+                document.getElementById('rgBranchId').value = m.BranchId || '';
+
+                document.getElementById('rgRequiredDocumentIdsCsv').value = m.RequiredDocumentIdsCsv || '';
+                document.getElementById('rgSelectedDocumentIds').value = m.SubmittedDocumentIdsCsv || '';
+                rgCurrentSubmittedIds = (m.SubmittedDocumentIdsCsv || '').split(',').filter(Boolean);
+
+                var reqCount = (m.RequiredDocumentIdsCsv || '').split(',').filter(Boolean).length;
+                var subCount = rgCurrentSubmittedIds.length;
+                document.getElementById('rgProceedBtnText').textContent = reqCount ? (subCount + '/' + reqCount + ' Documents') : 'Proceed to Documents';
+                document.getElementById('rgDocSummaryInline').textContent = reqCount ? (subCount === reqCount ? 'All documents received' : (subCount + ' of ' + reqCount + ' received')) : '';
+
+                // load semester list for this course, then select the saved one
+                var semSelect = document.getElementById('rgSemesterId');
+                semSelect.innerHTML = '<option value="">Loading...</option>';
+                fetch('/Master/GetSemesterMasterByCourse?courseId=' + m.CourseId)
+                    .then(res => res.json())
+                    .then(data => {
+                        semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+                        data.forEach(function (s) {
+                            var opt = document.createElement('option');
+                            opt.value = s.SemesterId;
+                            opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
+                            semSelect.appendChild(opt);
+                        });
+                        semSelect.value = m.SemesterId || '';
+                    });
+            });
+    }
+
+    // ---------- Search (client side) ----------
+    function rgSearchTable() {
+        var filter = document.getElementById('rgSearchBox').value.toLowerCase().trim();
+        var rows = document.querySelectorAll('#rgTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var name = row.cells[0].textContent.toLowerCase();
+            var email = row.cells[1].textContent.toLowerCase();
+            var course = row.cells[2].textContent.toLowerCase();
+
+            if (name.indexOf(filter) > -1 || email.indexOf(filter) > -1 || course.indexOf(filter) > -1) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('rgNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // ---------- Validation ----------
+    function rgValidateForm() {
+        var name = document.getElementById('rgStudentName').value.trim();
+        var email = document.getElementById('rgEmail').value.trim();
+        var courseId = document.getElementById('rgCourseId').value;
+
+        if (!name || !email || !courseId) {
+            alert('Student Name, Email aur Course zaroori hai.');
+            return false;
+        }
+        return true;
+    }
+</script>

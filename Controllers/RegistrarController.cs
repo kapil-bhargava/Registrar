@@ -1,0 +1,107 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+using Regis.Models;
+using Regis.Services;
+
+namespace Regis.Controllers
+{
+    public class RegistrarController : Controller
+    {
+        private readonly RegistrarService service = new RegistrarService();
+        private readonly MasterService masterService = new MasterService();
+
+        // GET: Registrar
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        // ============================================================
+        // REGISTRAR STUDENT LIST + FORM
+        // URL : /Registrar/RegistrarStudentList
+        // Single page, List <-> Form toggle (same pattern as
+        // BranchMaster / SemesterMaster / RequiredDocumentMaster).
+        // Course dropdown comes from Academic Setup (Course Master).
+        // Documents-required-for-course comes from Required Document
+        // Master, resolved by CourseId in the service layer.
+        // ============================================================
+
+        public ActionResult RegistrarStudentList()
+        {
+            List<RegistrarStudentModel> list = service.GetAllRegistrarStudents();
+
+            ViewBag.Courses = masterService.GetActiveCourseMaster();
+            ViewBag.Branches = masterService.GetActiveBranchMaster();
+            ViewBag.Semesters = masterService.GetAllSemesterMaster();
+
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult RegistrarStudentList(RegistrarStudentModel model, string SelectedDocumentIds, string RequiredDocumentIdsCsv)
+        {
+            // These two come from the "Proceed to Documents" popup:
+            // - RequiredDocumentIdsCsv: every document that WAS shown in the checklist
+            // - SelectedDocumentIds   : only the ones the Registrar ticked (i.e. submitted)
+            model.SubmittedDocumentIdsCsv = SelectedDocumentIds ?? "";
+            model.RequiredDocumentIdsCsv = RequiredDocumentIdsCsv ?? "";
+
+            if (ModelState.IsValid)
+            {
+                bool result;
+
+                if (model.RegistrarId > 0)
+                {
+                    result = service.UpdateRegistrarStudent(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Student record Updated Successfully." : "Unable to Update Student record.";
+                }
+                else
+                {
+                    result = service.InsertRegistrarStudent(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Student record Saved Successfully." : "Unable to Save Student record.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+
+            return RedirectToAction("RegistrarStudentList");
+        }
+
+        public ActionResult DeleteRegistrarStudent(int id)
+        {
+            bool result = service.DeleteRegistrarStudent(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Student record Deleted Successfully." : "Unable to Delete Student record.";
+            return RedirectToAction("RegistrarStudentList");
+        }
+
+        // Used by the "Edit" button to prefill the form (and the doc popup, if reopened)
+        public JsonResult GetRegistrarStudentById(int id)
+        {
+            var model = service.GetRegistrarStudentById(id);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+
+        // Course selected in the form -> which documents are required for it.
+        // Called by JS when "Proceed to Documents" is clicked.
+        public JsonResult GetRequiredDocumentsByCourse(int courseId)
+        {
+            var list = service.GetRequiredDocumentsByCourse(courseId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Registration()
+        {
+            return View();
+        }
+    }
+}

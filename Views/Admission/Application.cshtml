@@ -1,9 +1,9 @@
-﻿
+﻿@using Regis.Models
 @{
     ViewBag.Title = "Application";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var apps = ViewBag.Applications as List<ApplicationModel> ?? new List<ApplicationModel>();
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,21 +23,21 @@
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-folder-open"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="amTotal">0</span>
+                    <span class="as-stat-number">@apps.Count</span>
                     <span class="as-stat-label">Total Applications</span>
                 </div>
             </div>
             <div class="as-stat-card active">
                 <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="amVerified">0</span>
+                    <span class="as-stat-number">@apps.Count(a => a.DocVerified)</span>
                     <span class="as-stat-label">Documents Verified</span>
                 </div>
             </div>
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
                 <div class="as-stat-info">
-                    <span class="as-stat-number" id="amPending">0</span>
+                    <span class="as-stat-number">@apps.Count(a => !a.DocVerified)</span>
                     <span class="as-stat-label">Pending Verification</span>
                 </div>
             </div>
@@ -56,7 +56,66 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="amTableBody"></tbody>
+                <tbody>
+                    @if (apps.Count == 0)
+                    {
+                        <tr><td colspan="7" style="text-align:center; color:#6B7A99;">No applications yet — register a student first</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var a in apps)
+                        {
+                            <tr>
+                                <td>@a.ApplicationNo</td>
+                                <td><strong>@a.FullName</strong></td>
+                                <td>@a.CourseName</td>
+                                <td><span class="as-type-badge">@a.CategoryName</span></td>
+                                <td>@a.RegisteredOn.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (a.StudentId != null)
+                                    {
+                                        <span class="as-pill as-pill-active"><i class="fas fa-graduation-cap"></i> Admitted</span>
+                                    }
+                                    else if (a.FeePaid)
+                                    {
+                                        <span class="as-pill as-pill-locked"><i class="fas fa-check-circle"></i> Fee Paid</span>
+                                    }
+                                    else if (a.CounsellingDone)
+                                    {
+                                        <span class="as-pill as-pill-closed"><i class="fas fa-comments"></i> Counselling Done</span>
+                                    }
+                                    else if (a.DocVerified)
+                                    {
+                                        <span class="as-pill as-pill-active"><i class="fas fa-file-check"></i> Docs Verified</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Registered</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button type="button" class="as-mini-btn" title="View" onclick="alert('Application: @a.ApplicationNo')"><i class="fas fa-eye"></i></button>
+                                    @if (!a.DocVerified)
+                                    {
+                                        <a class="as-mini-btn" title="Verify Documents" href="@Url.Action("DocumentVerification", "Admission", new { appId = a.ApplicationId })"><i class="fas fa-file-check"></i></a>
+                                    }
+                                    else if (!a.CounsellingDone)
+                                    {
+                                        <a class="as-mini-btn" title="Counselling" href="@Url.Action("Counselling", "Admission", new { appId = a.ApplicationId })"><i class="fas fa-comments"></i></a>
+                                    }
+                                    else if (!a.FeePaid)
+                                    {
+                                        <a class="as-mini-btn" title="Fee Payment" href="@Url.Action("FeePayment", "Admission", new { appId = a.ApplicationId })"><i class="fas fa-sack-dollar"></i></a>
+                                    }
+                                    else if (a.StudentId == null)
+                                    {
+                                        <a class="as-mini-btn" title="Final Admission" href="@Url.Action("Final", "Admission", new { appId = a.ApplicationId })"><i class="fas fa-graduation-cap"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
             </table>
         </div>
 
@@ -68,54 +127,3 @@
         </div>
     </div>
 </div>
-
-<script>function getApps() { return JSON.parse(localStorage.getItem('erp_applications') || '[]'); }
-
-    function stagePill(app) {
-        if (app.studentId) return '<span class="as-pill as-pill-active"><i class="fas fa-graduation-cap"></i> Admitted</span>';
-        if (app.feePaid) return '<span class="as-pill as-pill-locked"><i class="fas fa-check-circle"></i> Fee Paid</span>';
-        if (app.counsellingDone) return '<span class="as-pill as-pill-closed"><i class="fas fa-comments"></i> Counselling Done</span>';
-        if (app.docVerified) return '<span class="as-pill as-pill-active"><i class="fas fa-file-check"></i> Docs Verified</span>';
-        return '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Registered</span>';
-    }
-
-    function amRender() {
-        const apps = getApps();
-        document.getElementById('amTotal').textContent = apps.length;
-        document.getElementById('amVerified').textContent = apps.filter(a => a.docVerified).length;
-        document.getElementById('amPending').textContent = apps.filter(a => !a.docVerified).length;
-
-        const body = document.getElementById('amTableBody');
-        body.innerHTML = apps.map(a => `
-            <tr>
-                <td>${a.appId}</td>
-                <td><strong>${a.name}</strong></td>
-                <td>${a.courseName}</td>
-                <td><span class="as-type-badge">${a.category}</span></td>
-                <td>${a.registeredOn}</td>
-                <td>${stagePill(a)}</td>
-                <td>
-                    <button class="as-mini-btn" title="View" onclick="amView('${a.appId}')"><i class="fas fa-eye"></i></button>
-                    ${!a.docVerified
-                        ? `<button class="as-mini-btn" title="Verify Documents" onclick="amGoTo('DocumentVerification.cshtml', '${a.appId}')"><i class="fas fa-file-check"></i></button>`
-                        : !a.counsellingDone
-                        ? `<button class="as-mini-btn" title="Counselling" onclick="amGoTo('Counselling.cshtml', '${a.appId}')"><i class="fas fa-comments"></i></button>`
-                        : !a.feePaid
-                        ? `<button class="as-mini-btn" title="Fee Payment" onclick="amGoTo('FeePayment.cshtml', '${a.appId}')"><i class="fas fa-sack-dollar"></i></button>`
-                        : !a.studentId
-                        ? `<button class="as-mini-btn" title="Final Admission" onclick="amGoTo('AdmissionFinal.cshtml', '${a.appId}')"><i class="fas fa-graduation-cap"></i></button>`
-                        : ''
-                    }
-                </td>
-            </tr>`).join('') || '<tr><td colspan="7" style="text-align:center; color:#6B7A99;">No applications yet — register a student first</td></tr>';
-    }
-
-    function amGoTo(page, appId) {
-        window.location.href = page + '?appId=' + encodeURIComponent(appId);
-    }
-    function amView(appId) {
-        alert('Application: ' + appId);
-
-    amRender();</script>
-
-
