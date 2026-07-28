@@ -1,9 +1,10 @@
-﻿using Regis.Helpers;
-using Regis.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using Regis.Helpers;
+using Regis.Models;
 
 namespace Regis.Services
 {
@@ -1143,6 +1144,9 @@ namespace Regis.Services
         //=================================================================
         //             Branch master
         //================================================================
+        //=================================================================
+        //             Branch master
+        //================================================================
         public List<BranchMasterModel> GetActiveBranchMaster()
         {
             List<BranchMasterModel> list =
@@ -1177,7 +1181,10 @@ namespace Regis.Services
                                 dr["BranchName"].ToString(),
 
                             DepartmentId =
-                                Convert.ToInt32(dr["DepartmentId"])
+                                Convert.ToInt32(dr["DepartmentId"]),
+
+                            CourseId =
+                                dr["CourseId"] == DBNull.Value ? 0 : Convert.ToInt32(dr["CourseId"])
                         });
                     }
                 }
@@ -1205,6 +1212,9 @@ namespace Regis.Services
                         list.Add(new BranchMasterModel
                         {
                             BranchId = Convert.ToInt32(dr["BranchId"]),
+                            CourseId = dr["CourseId"] == DBNull.Value ? 0 : Convert.ToInt32(dr["CourseId"]),
+                            CourseName = dr["CourseName"] == DBNull.Value ? "" : dr["CourseName"].ToString(),
+
                             BranchCode = dr["BranchCode"].ToString(),
                             BranchName = dr["BranchName"].ToString(),
                             DepartmentId = Convert.ToInt32(dr["DepartmentId"]),
@@ -1242,6 +1252,7 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@BranchName", model.BranchName);
                 cmd.Parameters.AddWithValue("@DepartmentId", model.DepartmentId);
                 cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
                 cmd.Parameters.AddWithValue("@CampusName",
                     (object)model.CampusName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@IntakeCapacity",
@@ -1267,6 +1278,7 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@BranchName", model.BranchName);
                 cmd.Parameters.AddWithValue("@DepartmentId", model.DepartmentId);
                 cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
                 cmd.Parameters.AddWithValue("@CampusName",
                     (object)model.CampusName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@IntakeCapacity",
@@ -1293,6 +1305,37 @@ namespace Regis.Services
                 int rows = cmd.ExecuteNonQuery();
                 return rows != 0;
             }
+        }
+
+        // Cascading dropdown: branches directly linked to a Course via CourseId
+        public List<BranchMasterModel> GetBranchesByCourse(int courseId)
+        {
+            var list = new List<BranchMasterModel>();
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_BranchMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYCOURSE");
+                cmd.Parameters.AddWithValue("@CourseId", courseId);
+
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new BranchMasterModel
+                        {
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchCode = dr["BranchCode"].ToString(),
+                            BranchName = dr["BranchName"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return list;
         }
         //=================================================================
         //             Duration Master

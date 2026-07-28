@@ -7,6 +7,7 @@
     var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
     var branches = ViewBag.Branches as List<BranchMasterModel> ?? new List<BranchMasterModel>();
     var semesters = ViewBag.Semesters as List<SemesterMasterModel> ?? new List<SemesterMasterModel>();
+    var categories = ViewBag.Categories as List<CategoryModel> ?? new List<CategoryModel>();
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,6 +76,7 @@
                         <th>Student Name</th>
                         <th>Email</th>
                         <th>Course</th>
+                        <th>Category</th>
                         <th>Branch</th>
                         <th>Semester</th>
                         <th>Mobile</th>
@@ -90,6 +92,7 @@
                             <td><strong>@s.StudentName</strong></td>
                             <td><a href="mailto:@s.Email" class="rg-email-link">@s.Email</a></td>
                             <td>@s.CourseName</td>
+                            <td>@(s.CategoryName ?? "-")</td>
                             <td>@(s.BranchName ?? "-")</td>
                             <td>@(s.SemesterName ?? "-")</td>
                             <td>@s.Mobile</td>
@@ -163,6 +166,7 @@
                             <input type="text" id="rgMobile" name="Mobile" placeholder="e.g. 9876543210" maxlength="15">
                         </div>
 
+                        <!-- 1. COURSE -->
                         <div class="as-field">
                             <label>Course <span class="req">*</span></label>
                             <select id="rgCourseId" name="CourseId" required onchange="rgOnCourseChange()">
@@ -175,24 +179,35 @@
                             <span class="as-hint">Managed from Course Master</span>
                         </div>
 
+                        <!-- 2. BRANCH (cascades from Course) -->
                         <div class="as-field">
                             <label>Branch</label>
-                            <select id="rgBranchId" name="BranchId">
-                                <option value="">-- Select Branch --</option>
-                                @foreach (var b in branches)
-                                {
-                                    <option value="@b.BranchId">@b.BranchName</option>
-                                }
-                            </select>
-                            <span class="as-hint">Managed from Branch Master</span>
-                        </div>
-
-                        <div class="as-field">
-                            <label>Semester</label>
-                            <select id="rgSemesterId" name="SemesterId">
+                            <select id="rgBranchId" name="BranchId" disabled>
                                 <option value="">-- Select Course First --</option>
                             </select>
                             <span class="as-hint">Cascades from selected Course</span>
+                        </div>
+
+                        <!-- 3. SEMESTER (cascades from Course) -->
+                        <div class="as-field">
+                            <label>Semester</label>
+                            <select id="rgSemesterId" name="SemesterId" disabled>
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                            <span class="as-hint">Cascades from selected Course</span>
+                        </div>
+
+                        <!-- 4. CATEGORY -->
+                        <div class="as-field">
+                            <label>Category</label>
+                            <select id="rgCategoryId" name="CategoryId">
+                                <option value="">-- Select Category --</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Category Master</span>
                         </div>
                     </div>
 
@@ -405,20 +420,28 @@
         document.getElementById('rgEmail').value = '';
         document.getElementById('rgMobile').value = '';
         document.getElementById('rgCourseId').value = '';
-        document.getElementById('rgBranchId').value = '';
-        document.getElementById('rgSemesterId').innerHTML = '<option value="">-- Select Course First --</option>';
+
+        var branchSelect = document.getElementById('rgBranchId');
+        branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+        branchSelect.disabled = true;
+
+        var semSelect = document.getElementById('rgSemesterId');
+        semSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+        semSelect.disabled = true;
+
         document.getElementById('rgSelectedDocumentIds').value = '';
         document.getElementById('rgRequiredDocumentIdsCsv').value = '';
         document.getElementById('rgProceedBtnText').textContent = 'Proceed to Documents';
+        document.getElementById('rgCategoryId').value = '';
         document.getElementById('rgDocSummaryInline').textContent = '';
         rgCurrentSubmittedIds = [];
     }
 
-    // ---------- Course -> Semester cascade (existing Master endpoint) ----------
+    // ---------- Course -> Branch + Semester cascade ----------
     function rgOnCourseChange() {
         var courseId = document.getElementById('rgCourseId').value;
+        var branchSelect = document.getElementById('rgBranchId');
         var semSelect = document.getElementById('rgSemesterId');
-        semSelect.innerHTML = '<option value="">Loading...</option>';
 
         // reset doc checklist state since it depended on the previous course
         document.getElementById('rgSelectedDocumentIds').value = '';
@@ -427,9 +450,39 @@
         document.getElementById('rgDocSummaryInline').textContent = '';
 
         if (!courseId) {
+            branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            branchSelect.disabled = true;
             semSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            semSelect.disabled = true;
             return;
         }
+
+        // ----- Branch dropdown (filtered by Course) -----
+        branchSelect.disabled = false;
+        branchSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch('/Master/GetBranchesByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || !data.length) {
+                    branchSelect.innerHTML = '<option value="">-- No Branches Found --</option>';
+                    return;
+                }
+                branchSelect.innerHTML = '<option value="">-- Select Branch --</option>';
+                data.forEach(function (b) {
+                    var opt = document.createElement('option');
+                    opt.value = b.BranchId;
+                    opt.textContent = b.BranchName;
+                    branchSelect.appendChild(opt);
+                });
+            })
+            .catch(() => {
+                branchSelect.innerHTML = '<option value="">-- Error loading branches --</option>';
+            });
+
+        // ----- Semester dropdown (by Course) -----
+        semSelect.disabled = false;
+        semSelect.innerHTML = '<option value="">Loading...</option>';
 
         fetch('/Master/GetSemesterMasterByCourse?courseId=' + courseId)
             .then(res => res.json())
@@ -450,8 +503,14 @@
     // ---------- Required Documents popup ----------
     function rgOpenDocModal() {
         var courseId = document.getElementById('rgCourseId').value;
+        var categoryId = document.getElementById('rgCategoryId').value;
+
         if (!courseId) {
             alert('Pehle Course select karein.');
+            return;
+        }
+        if (!categoryId) {
+            alert('Pehle Category select karein.');
             return;
         }
 
@@ -459,13 +518,13 @@
         document.getElementById('rgDocChecklist').innerHTML = '<p class="rg-hint">Loading…</p>';
         document.getElementById('rgDocModalOverlay').classList.add('show');
 
-        fetch('/Registrar/GetRequiredDocumentsByCourse?courseId=' + courseId)
+        fetch('/Registrar/GetRequiredDocumentsByCourse?courseId=' + courseId + '&categoryId=' + categoryId)
             .then(res => res.json())
             .then(docs => {
                 var checklistEl = document.getElementById('rgDocChecklist');
 
                 if (!docs || docs.length === 0) {
-                    checklistEl.innerHTML = '<p class="rg-hint">No required documents mapped for this course.</p>';
+                    checklistEl.innerHTML = '<p class="rg-hint">No required documents mapped for this Course + Category.</p>';
                     document.getElementById('rgRequiredDocumentIdsCsv').value = '';
                     rgUpdateDocProgress();
                     return;
@@ -510,6 +569,14 @@
     document.getElementById('rgDocModalOverlay').addEventListener('click', function (e) {
         if (e.target === this) rgCloseDocModal();
     });
+    // Category change → old checklist ab invalid hai, reset karo
+    document.getElementById('rgCategoryId').addEventListener('change', function () {
+        document.getElementById('rgSelectedDocumentIds').value = '';
+        document.getElementById('rgRequiredDocumentIdsCsv').value = '';
+        document.getElementById('rgProceedBtnText').textContent = 'Proceed to Documents';
+        document.getElementById('rgDocSummaryInline').textContent = '';
+        rgCurrentSubmittedIds = [];
+    });
 
     // ---------- Edit ----------
     function rgEditForm(id) {
@@ -525,7 +592,7 @@
                 document.getElementById('rgEmail').value = m.Email || '';
                 document.getElementById('rgMobile').value = m.Mobile || '';
                 document.getElementById('rgCourseId').value = m.CourseId || '';
-                document.getElementById('rgBranchId').value = m.BranchId || '';
+                document.getElementById('rgCategoryId').value = m.CategoryId || '';
 
                 document.getElementById('rgRequiredDocumentIdsCsv').value = m.RequiredDocumentIdsCsv || '';
                 document.getElementById('rgSelectedDocumentIds').value = m.SubmittedDocumentIdsCsv || '';
@@ -536,8 +603,39 @@
                 document.getElementById('rgProceedBtnText').textContent = reqCount ? (subCount + '/' + reqCount + ' Documents') : 'Proceed to Documents';
                 document.getElementById('rgDocSummaryInline').textContent = reqCount ? (subCount === reqCount ? 'All documents received' : (subCount + ' of ' + reqCount + ' received')) : '';
 
-                // load semester list for this course, then select the saved one
+                var branchSelect = document.getElementById('rgBranchId');
                 var semSelect = document.getElementById('rgSemesterId');
+
+                if (!m.CourseId) {
+                    branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+                    branchSelect.disabled = true;
+                    semSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+                    semSelect.disabled = true;
+                    return;
+                }
+
+                // load branch list for this course, then select the saved one
+                branchSelect.disabled = false;
+                branchSelect.innerHTML = '<option value="">Loading...</option>';
+                fetch('/Master/GetBranchesByCourse?courseId=' + m.CourseId)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data || !data.length) {
+                            branchSelect.innerHTML = '<option value="">-- No Branches Found --</option>';
+                            return;
+                        }
+                        branchSelect.innerHTML = '<option value="">-- Select Branch --</option>';
+                        data.forEach(function (b) {
+                            var opt = document.createElement('option');
+                            opt.value = b.BranchId;
+                            opt.textContent = b.BranchName;
+                            branchSelect.appendChild(opt);
+                        });
+                        branchSelect.value = m.BranchId || '';
+                    });
+
+                // load semester list for this course, then select the saved one
+                semSelect.disabled = false;
                 semSelect.innerHTML = '<option value="">Loading...</option>';
                 fetch('/Master/GetSemesterMasterByCourse?courseId=' + m.CourseId)
                     .then(res => res.json())
@@ -550,6 +648,9 @@
                             semSelect.appendChild(opt);
                         });
                         semSelect.value = m.SemesterId || '';
+
+                        // re-apply Category here too, in case anything reset it in between
+                        document.getElementById('rgCategoryId').value = m.CategoryId || '';
                     });
             });
     }

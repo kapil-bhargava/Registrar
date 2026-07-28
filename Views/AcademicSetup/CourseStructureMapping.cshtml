@@ -1,0 +1,455 @@
+﻿@model List<Regis.Models.CourseStructureMappingModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "CourseStructureMapping";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fee; color:#900; padding:10px; margin:10px 0; border:1px solid #900;">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div style="background:#efe; color:#060; padding:10px; margin:10px 0; border:1px solid #060;">@TempData["Success"]</div>
+}
+
+<style>
+    /* ===== Filter card — teen cascading dropdowns list ke upar ===== */
+    .csm-filter-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(17,24,39,0.04);
+    }
+
+    .csm-filter-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 6px;
+    }
+
+    .csm-filter-field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .csm-filter-field select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d9dee3;
+        border-radius: 9px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        background: #f9fafb;
+        color: #1f2937;
+        cursor: pointer;
+    }
+
+        .csm-filter-field select:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    @@media (max-width: 768px) {
+        .csm-filter-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="as-wrap">
+
+    <!-- ================= FILTER BAR (list ke upar) ================= -->
+    <div class="csm-filter-card" id="csmListWrap">
+        <div class="csm-filter-row">
+            <div class="csm-filter-field">
+                <label>Course</label>
+                <select id="filterCourseId" onchange="csmFilterOnCourseChange()">
+                    <option value="">All Courses</option>
+                    @foreach (var c in courses)
+                    {
+                        <option value="@c.CourseId">@c.CourseName</option>
+                    }
+                </select>
+            </div>
+            <div class="csm-filter-field">
+                <label>Branch</label>
+                <select id="filterBranchId" onchange="csmApplyFilter()" disabled>
+                    <option value="">All Branches</option>
+                </select>
+            </div>
+            <div class="csm-filter-field">
+                <label>Semester</label>
+                <select id="filterSemesterNumber" onchange="csmApplyFilter()" disabled>
+                    <option value="">All Semesters</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-sitemap"></i> Course Structure Mapping</h2>
+                <p>Map each Course to its Branches and Semesters.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="csmShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Mapping
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-sitemap"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number" id="csmTotalCount">@Model.Count</span>
+                    <span class="as-stat-label">Total Mappings</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(m => m.IsActive)</span>
+                    <span class="as-stat-label">Active Mappings</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Branch</th>
+                        <th>Semester</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="csmTableBody">
+                    @foreach (var m in Model)
+                    {
+                        <tr data-courseid="@m.CourseId" data-branchid="@m.BranchId" data-semester="@m.SemesterNumber">
+                            <td><strong>@m.CourseName</strong></td>
+                            <td>@m.BranchName</td>
+                            <td>Semester @m.SemesterNumber</td>
+                            <td>
+                                @if (m.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="csmShowForm(this)"
+                                        data-id="@m.MappingId" data-courseid="@m.CourseId"
+                                        data-branchid="@m.BranchId" data-branchname="@m.BranchName"
+                                        data-semester="@m.SemesterNumber" data-active="@m.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteCourseStructureMapping", "AcademicSetup", new { id = m.MappingId })"
+                                   onclick="return confirm('Delete this mapping?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p id="csmNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching mappings found.</p>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT FORM ================= -->
+    @using (Html.BeginForm("CourseStructureMapping", "AcademicSetup", FormMethod.Post, new { id = "csmForm", onsubmit = "return csmValidateForm()" }))
+    {
+        <div class="as-card as-wizard-card" id="csmFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="csmShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Mapping List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-sitemap"></i></div>
+                        <div>
+                            <h2 id="csmFormTitle">Add Mapping</h2>
+                            <p>Select Course first — Branch and Semester will unlock automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Mapping Details</div>
+
+                    <input type="hidden" id="mappingId" name="MappingId" value="0" />
+
+                    <div class="as-grid">
+
+                        <div class="as-field">
+                            <label>Course <span class="req">*</span></label>
+                            <select id="csmCourseId" name="CourseId" onchange="csmOnCourseChange()">
+                                <option value="">-- Select Course --</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">@c.CourseName</option>
+                                }
+                            </select>
+                            <span class="as-hint">Managed from Course Master</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Branch <span class="req">*</span></label>
+                            <select id="csmBranchId" name="BranchId" disabled>
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                            <span class="as-hint">Filtered by selected Course's Department</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Semester <span class="req">*</span></label>
+                            <select id="csmSemesterNumber" name="SemesterNumber" disabled>
+                                <option value="">-- Select Course First --</option>
+                            </select>
+                            <span class="as-hint">Generated from Course's Total Semesters</span>
+                        </div>
+
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="csmStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="csmShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="csmSubmitText">Save Mapping</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script>
+    // ============================================================
+    // FORM (Add / Edit)
+    // ============================================================
+    function csmShowForm(btn) {
+        document.getElementById('csmListWrap').closest('.as-wrap').querySelectorAll('.as-card')[0].style.display = 'none';
+        document.getElementById('csmListWrap').style.display = 'none';
+        document.getElementById('csmFormWrap').style.display = 'block';
+
+        var branchSelect = document.getElementById('csmBranchId');
+        var semesterSelect = document.getElementById('csmSemesterNumber');
+
+        if (btn) {
+            document.getElementById('csmFormTitle').textContent = 'Edit Mapping';
+            document.getElementById('csmSubmitText').textContent = 'Update Mapping';
+
+            document.getElementById('mappingId').value = btn.dataset.id;
+            document.getElementById('csmCourseId').value = btn.dataset.courseid;
+            document.getElementById('csmStatus').value = btn.dataset.active;
+
+            csmLoadBranches(btn.dataset.courseid, btn.dataset.branchid);
+            csmLoadSemesters(btn.dataset.courseid, btn.dataset.semester);
+        } else {
+            document.getElementById('csmFormTitle').textContent = 'Add Mapping';
+            document.getElementById('csmSubmitText').textContent = 'Save Mapping';
+
+            document.getElementById('mappingId').value = 0;
+            document.getElementById('csmCourseId').value = '';
+            document.getElementById('csmStatus').value = 'true';
+
+            branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            branchSelect.disabled = true;
+
+            semesterSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            semesterSelect.disabled = true;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function csmShowList() {
+        document.getElementById('csmFormWrap').style.display = 'none';
+        document.getElementById('csmListWrap').closest('.as-wrap').querySelectorAll('.as-card')[0].style.display = 'block';
+        document.getElementById('csmListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function csmOnCourseChange() {
+        var courseId = document.getElementById('csmCourseId').value;
+        csmLoadBranches(courseId, null);
+        csmLoadSemesters(courseId, null);
+    }
+
+    function csmLoadBranches(courseId, selectedBranchId, targetSelectId) {
+        var branchSelect = document.getElementById(targetSelectId || 'csmBranchId');
+
+        if (!courseId) {
+            branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            branchSelect.disabled = true;
+            return;
+        }
+
+        branchSelect.disabled = false;
+        branchSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch('@Url.Action("GetBranchesByCourse", "AcademicSetup")?courseId=' + courseId)
+            .then(res => {
+                if (!res.ok) throw new Error('Server error: ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (!data.length) {
+                    branchSelect.innerHTML = '<option value="">-- No Branches Found --</option>';
+                    return;
+                }
+                var options = '<option value="">-- Select Branch --</option>';
+                data.forEach(function (b) {
+                    options += '<option value="' + b.BranchId + '">' + b.BranchName + '</option>';
+                });
+                branchSelect.innerHTML = options;
+
+                if (selectedBranchId) {
+                    branchSelect.value = selectedBranchId;
+                }
+            })
+            .catch(err => {
+                console.error('Branch load failed:', err);
+                branchSelect.innerHTML = '<option value="">-- Error loading branches --</option>';
+            });
+    }
+
+    function csmLoadSemesters(courseId, selectedSemesterNumber, targetSelectId) {
+        var semesterSelect = document.getElementById(targetSelectId || 'csmSemesterNumber');
+
+        if (!courseId) {
+            semesterSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            semesterSelect.disabled = true;
+            return;
+        }
+
+        semesterSelect.disabled = false;
+        semesterSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch('@Url.Action("GetSemesterNumbersByCourse", "AcademicSetup")?courseId=' + courseId)
+            .then(res => {
+                if (!res.ok) throw new Error('Server error: ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (!data.length) {
+                    semesterSelect.innerHTML = '<option value="">-- No Semesters Defined --</option>';
+                    return;
+                }
+                var options = '<option value="">-- Select Semester --</option>';
+                data.forEach(function (s) {
+                    options += '<option value="' + s.SemesterNumber + '">' + s.SemesterLabel + '</option>';
+                });
+                semesterSelect.innerHTML = options;
+
+                if (selectedSemesterNumber) {
+                    semesterSelect.value = selectedSemesterNumber;
+                }
+            })
+            .catch(err => {
+                console.error('Semester load failed:', err);
+                semesterSelect.innerHTML = '<option value="">-- Error loading semesters --</option>';
+            });
+    }
+
+    function csmValidateForm() {
+        var courseId = document.getElementById('csmCourseId').value;
+        var branchId = document.getElementById('csmBranchId').value;
+        var semesterNumber = document.getElementById('csmSemesterNumber').value;
+
+        if (!courseId || !branchId || !semesterNumber) {
+            alert('Course, Branch aur Semester teeno select karna zaroori hai.');
+            return false;
+        }
+        return true;
+    }
+
+    // ============================================================
+    // FILTER BAR (list ke upar) — cascading, list ko filter karta hai
+    // ============================================================
+    function csmFilterOnCourseChange() {
+        var courseId = document.getElementById('filterCourseId').value;
+        var branchSelect = document.getElementById('filterBranchId');
+        var semesterSelect = document.getElementById('filterSemesterNumber');
+
+        branchSelect.innerHTML = '<option value="">All Branches</option>';
+        semesterSelect.innerHTML = '<option value="">All Semesters</option>';
+
+        if (!courseId) {
+            branchSelect.disabled = true;
+            semesterSelect.disabled = true;
+            csmApplyFilter();
+            return;
+        }
+
+        csmLoadBranches(courseId, null, 'filterBranchId');
+        csmLoadSemesters(courseId, null, 'filterSemesterNumber');
+
+        csmApplyFilter();
+    }
+
+    function csmApplyFilter() {
+        var courseId = document.getElementById('filterCourseId').value;
+        var branchId = document.getElementById('filterBranchId').value;
+        var semesterNumber = document.getElementById('filterSemesterNumber').value;
+
+        var rows = document.querySelectorAll('#csmTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var matchCourse = !courseId || row.dataset.courseid === courseId;
+            var matchBranch = !branchId || row.dataset.branchid === branchId;
+            var matchSemester = !semesterNumber || row.dataset.semester === semesterNumber;
+
+            if (matchCourse && matchBranch && matchSemester) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('csmNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+        document.getElementById('csmTotalCount').textContent = visibleCount;
+    }
+</script>

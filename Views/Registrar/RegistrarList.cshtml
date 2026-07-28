@@ -1,0 +1,470 @@
+﻿@model List<Regis.Models.RegistrarStudentModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "RegistrarList";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+    var branches = ViewBag.Branches as List<BranchMasterModel> ?? new List<BranchMasterModel>();
+    var semesters = ViewBag.Semesters as List<SemesterMasterModel> ?? new List<SemesterMasterModel>();
+}
+
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<style>
+    :root {
+        --navy: #16305c;
+        --blue: #2f5faa;
+        --blue-light: #eef2fb;
+        --border: #e3e7ef;
+        --text: #1f2937;
+        --muted: #6b7280;
+    }
+
+    /* ---- header (same type scale as academicSession.css as-list-head) ---- */
+    .rg-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .rg-icon-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .rg-title-row h1 {
+        font-size: 1.4rem;
+        margin: 0;
+        color: #0b1b33;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+
+    .rg-step-tag {
+        color: #7c5cff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .rg-subtitle {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin: 0.3rem 0 0 44px;
+    }
+
+    /* ---- filters row ---- */
+    .rg-filters {
+        display: grid;
+        grid-template-columns: repeat(5,1fr) auto;
+        gap: 0.85rem;
+        align-items: end;
+        margin-top: 1.2rem;
+    }
+
+    .rg-field label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .rg-filters select,
+    .rg-filters input[type="text"] {
+        width: 100%;
+        padding: 0.5rem 0.7rem;
+        border-radius: 10px;
+        border: 1.5px solid #c9d6ef;
+        background: var(--blue-light);
+        font-size: 0.82rem;
+        color: var(--text);
+        outline: none;
+        font-family: 'Inter', sans-serif;
+    }
+
+        .rg-filters select:focus,
+        .rg-filters input[type="text"]:focus {
+            border-color: var(--blue);
+            background: #fff;
+        }
+
+        .rg-filters select:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    .rg-btn-icon-only {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+    }
+
+    /* ---- documents chip list (same visual language as Required Document Master) ---- */
+    .rg-doc-chip {
+        display: inline-block;
+        background: #eef2ff;
+        color: #4f6ef7;
+        border: 1px solid #dbe3fe;
+        border-radius: 20px;
+        padding: 0.18rem 0.65rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin: 2px 4px 2px 0;
+        white-space: nowrap;
+    }
+
+    .rg-no-docs {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .rg-email-link {
+        color: var(--blue);
+        text-decoration: none;
+        font-size: 0.78rem;
+    }
+
+        .rg-email-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Let cells wrap naturally (long course/branch names, emails) instead of
+       forcing one line — that was pushing the whole table wider than the
+       page and causing the horizontal cut-off. Table-wrapper below still
+       has overflow-x:auto as a safety net for genuinely narrow screens. */
+    .as-table-wrapper {
+        overflow-x: auto !important;
+        max-width: 100%;
+    }
+
+    .as-table {
+        table-layout: auto;
+    }
+
+        .as-table tbody td {
+            word-break: break-word;
+        }
+
+    .rg-doc-chip-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        max-width: 260px;
+    }
+
+    @@media (max-width:1100px) {
+        .rg-filters {
+            grid-template-columns: repeat(2,1fr);
+        }
+    }
+
+    @@media (max-width:640px) {
+        .rg-filters {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="as-wrap">
+    <div class="as-card">
+        <div>
+            <div class="rg-title-row">
+                <div class="rg-icon-badge"><i class="fas fa-folder-open"></i></div>
+                <h1>Registrar <span class="rg-step-tag">STUDENT RECORDS</span></h1>
+            </div>
+            <div class="rg-subtitle">Search and manage registered students. Data is shared with the Registrar Student List (Add/Edit) page.</div>
+        </div>
+
+        <div class="rg-filters">
+            <div class="rg-field">
+                <label>Course</label>
+                <select id="f-course" onchange="rgFilterOnCourseChange()">
+                    <option value="">All Courses</option>
+                    @foreach (var c in courses)
+                    {
+                        <option value="@c.CourseId">@c.CourseName</option>
+                    }
+                </select>
+            </div>
+            <div class="rg-field">
+                <label>Branch</label>
+                <select id="f-branch" onchange="rgFilterOnBranchChange()" disabled>
+                    <option value="">-- Select Course First --</option>
+                </select>
+            </div>
+            <div class="rg-field">
+                <label>Semester</label>
+                <select id="f-semester" disabled>
+                    <option value="">-- Select Branch First --</option>
+                </select>
+            </div>
+            <div class="rg-field">
+                <label>Document Status</label>
+                <select id="f-doc">
+                    <option value="">All</option>
+                    <option value="Yes">Complete</option>
+                    <option value="Partial">Partial</option>
+                    <option value="No">Not Received</option>
+                </select>
+            </div>
+            <div class="rg-field">
+                <label>Student Name</label>
+                <input type="text" id="f-name" placeholder="Search by Student Name, Email or Course...">
+            </div>
+            <div class="btn-group" style="display:flex; gap:8px;">
+                <button type="button" class="as-btn as-btn-primary rg-btn-icon-only" id="btn-search" title="Search"><i class="fas fa-search"></i></button>
+                <button type="button" class="as-btn as-btn-ghost" id="btn-reset">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="as-quick-stats">
+        <div class="as-stat-card">
+            <div class="as-stat-icon"><i class="fas fa-users"></i></div>
+            <div class="as-stat-info">
+                <span class="as-stat-number" id="stat-total">0</span>
+                <span class="as-stat-label">Total Students</span>
+            </div>
+        </div>
+        <div class="as-stat-card active">
+            <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="as-stat-info">
+                <span class="as-stat-number" id="stat-docyes">0</span>
+                <span class="as-stat-label">Documents Complete</span>
+            </div>
+        </div>
+        <div class="as-stat-card">
+            <div class="as-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="as-stat-info">
+                <span class="as-stat-number" id="stat-docno">0</span>
+                <span class="as-stat-label">Documents Pending</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="as-card">
+        <div class="as-table-wrapper">
+            <table id="registrar-table" class="as-table as-list-table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Category</th>
+                        <th>Branch</th>
+                        <th>Semester</th>
+                        <th>Mobile</th>
+                        <th>Documents</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="registrarTableBody">
+                    @foreach (var s in Model)
+                    {
+                        string pillClass = s.DocumentStatus == "Yes" ? "as-pill-active" : (s.DocumentStatus == "Partial" ? "as-pill-inactive" : "as-pill-closed");
+                        string statusLabel = s.DocumentStatus == "Yes" ? "Complete" : (s.DocumentStatus == "Partial" ? "Partial" : "Pending");
+                        <tr data-courseid="@s.CourseId" data-branchid="@(s.BranchId?.ToString() ?? "")" data-semesterid="@(s.SemesterId?.ToString() ?? "")" data-docstatus="@s.DocumentStatus">
+                            <td><strong>@s.StudentName</strong></td>
+                            <td><a class="rg-email-link" href="mailto:@s.Email">@s.Email</a></td>
+                            <td>@s.CourseName</td>
+                            <td>@(s.CategoryName ?? "-")</td>
+                            <td>@(s.BranchName ?? "-")</td>
+                            <td>@(s.SemesterName ?? "-")</td>
+                            <td>@s.Mobile</td>
+                            <td>
+                                <div class="rg-doc-chip-wrap">
+                                    @if (!string.IsNullOrEmpty(s.SubmittedDocumentNames))
+                                    {
+                                        foreach (var docName in s.SubmittedDocumentNames.Split(','))
+                                        {
+                                            <span class="rg-doc-chip">@docName.Trim()</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="rg-no-docs">No documents received</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><span class="as-pill @pillClass"><i class="fas fa-circle"></i> @statusLabel</span></td>
+                            <td><a class="as-mini-btn" href="@Url.Action("RegistrarStudentList", "Registrar")" title="View/Edit"><i class="fas fa-edit"></i></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p id="rgListNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching students found.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // Cascading filter dropdowns: Course -> Branch -> Semester
+    // Branch stays disabled until a Course is picked; Semester stays
+    // disabled until a Branch is picked. Uses the same endpoints the
+    // Add/Edit form already uses (Course->Branch via CourseStructureMapping,
+    // Course->Semester via Master/GetSemesterMasterByCourse).
+    // ============================================================
+
+    function rgFilterOnCourseChange() {
+        var courseId = document.getElementById('f-course').value;
+        var branchSelect = document.getElementById('f-branch');
+        var semesterSelect = document.getElementById('f-semester');
+
+        branchSelect.innerHTML = '<option value="">All Branches</option>';
+        semesterSelect.innerHTML = '<option value="">-- Select Branch First --</option>';
+        semesterSelect.disabled = true;
+
+        if (!courseId) {
+            branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            branchSelect.disabled = true;
+            rgListApplyFilters();
+            return;
+        }
+
+        branchSelect.disabled = false;
+        branchSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch('/Master/GetBranchesByCourse?courseId=' + courseId)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data || !data.length) {
+                    branchSelect.innerHTML = '<option value="">-- No Branches Found --</option>';
+                    rgListApplyFilters();
+                    return;
+                }
+                var options = '<option value="">All Branches</option>';
+                data.forEach(function (b) {
+                    options += '<option value="' + b.BranchId + '">' + b.BranchName + '</option>';
+                });
+                branchSelect.innerHTML = options;
+                rgListApplyFilters();
+            })
+            .catch(function () {
+                branchSelect.innerHTML = '<option value="">-- Error loading branches --</option>';
+            });
+    }
+
+    function rgFilterOnBranchChange() {
+        var courseId = document.getElementById('f-course').value;
+        var semesterSelect = document.getElementById('f-semester');
+
+        semesterSelect.innerHTML = '<option value="">All Semesters</option>';
+
+        if (!courseId) {
+            semesterSelect.innerHTML = '<option value="">-- Select Branch First --</option>';
+            semesterSelect.disabled = true;
+            rgListApplyFilters();
+            return;
+        }
+
+        semesterSelect.disabled = false;
+        semesterSelect.innerHTML = '<option value="">Loading...</option>';
+
+        fetch('/Master/GetSemesterMasterByCourse?courseId=' + courseId)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data || !data.length) {
+                    semesterSelect.innerHTML = '<option value="">-- No Semesters Found --</option>';
+                    rgListApplyFilters();
+                    return;
+                }
+                var options = '<option value="">All Semesters</option>';
+                data.forEach(function (s) {
+                    options += '<option value="' + s.SemesterId + '">' + (s.SemesterName || ('Semester ' + s.SemesterNumber)) + '</option>';
+                });
+                semesterSelect.innerHTML = options;
+                rgListApplyFilters();
+            })
+            .catch(function () {
+                semesterSelect.innerHTML = '<option value="">-- Error loading semesters --</option>';
+            });
+    }
+
+    // Simple, dependency-free filter — no DataTables. Rows are already
+    // rendered server-side from the real RegistrarStudent table; this
+    // script only shows/hides them based on the filter fields.
+
+    function rgListApplyFilters() {
+        var courseId = document.getElementById('f-course').value;
+        var branchId = document.getElementById('f-branch').value;
+        var semesterId = document.getElementById('f-semester').value;
+        var docStatus = document.getElementById('f-doc').value;
+        var nameText = document.getElementById('f-name').value.toLowerCase().trim();
+
+        var rows = document.querySelectorAll('#registrarTableBody tr');
+        var visibleCount = 0, yesCount = 0, pendingCount = 0;
+
+        rows.forEach(function (row) {
+            var matchCourse = !courseId || row.dataset.courseid === courseId;
+            var matchBranch = !branchId || row.dataset.branchid === branchId;
+            var matchSemester = !semesterId || row.dataset.semesterid === semesterId;
+            var matchDoc = !docStatus || row.dataset.docstatus === docStatus;
+            // searches across every column (Student Name, Email, Course, Branch, Semester, Mobile, Documents...)
+            var matchName = !nameText || row.textContent.toLowerCase().indexOf(nameText) > -1;
+
+            var show = matchCourse && matchBranch && matchSemester && matchDoc && matchName;
+            row.style.display = show ? '' : 'none';
+
+            if (show) {
+                visibleCount++;
+                if (row.dataset.docstatus === 'Yes') yesCount++; else pendingCount++;
+            }
+        });
+
+        document.getElementById('stat-total').textContent = visibleCount;
+        document.getElementById('stat-docyes').textContent = yesCount;
+        document.getElementById('stat-docno').textContent = pendingCount;
+        document.getElementById('rgListNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        rgListApplyFilters();
+
+        document.getElementById('btn-search').addEventListener('click', rgListApplyFilters);
+
+        document.getElementById('btn-reset').addEventListener('click', function () {
+            document.getElementById('f-course').value = '';
+
+            var branchSelect = document.getElementById('f-branch');
+            branchSelect.innerHTML = '<option value="">-- Select Course First --</option>';
+            branchSelect.disabled = true;
+
+            var semesterSelect = document.getElementById('f-semester');
+            semesterSelect.innerHTML = '<option value="">-- Select Branch First --</option>';
+            semesterSelect.disabled = true;
+
+            document.getElementById('f-doc').value = '';
+            document.getElementById('f-name').value = '';
+            rgListApplyFilters();
+        });
+
+        // live filter as you type / change any dropdown
+        document.getElementById('f-name').addEventListener('keyup', rgListApplyFilters);
+        document.getElementById('f-doc').addEventListener('change', rgListApplyFilters);
+        // Note: f-course and f-branch already trigger rgListApplyFilters
+        // via rgFilterOnCourseChange / rgFilterOnBranchChange above.
+        // f-semester still needs its own listener since nothing loads after it.
+        document.getElementById('f-semester').addEventListener('change', rgListApplyFilters);
+    });
+</script>

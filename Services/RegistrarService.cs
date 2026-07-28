@@ -63,7 +63,6 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@Flag", "INSERT");
                 AddCommonParams(cmd, model);
                 con.Open();
-                // SP has SET NOCOUNT ON -> successful INSERT returns -1, not the row count.
                 int rows = cmd.ExecuteNonQuery();
                 return rows != 0;
             }
@@ -82,6 +81,20 @@ namespace Regis.Services
                 int rows = cmd.ExecuteNonQuery();
                 return rows != 0;
             }
+        }
+
+        private void AddCommonParams(SqlCommand cmd, RegistrarStudentModel model)
+        {
+            cmd.Parameters.AddWithValue("@StudentName", model.StudentName);
+            cmd.Parameters.AddWithValue("@Email", model.Email);
+            cmd.Parameters.AddWithValue("@Mobile", (object)model.Mobile ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
+            cmd.Parameters.AddWithValue("@BranchId", (object)model.BranchId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@SemesterId", (object)model.SemesterId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CategoryId", (object)model.CategoryId ?? DBNull.Value);   // <-- ADD YEH LINE
+            cmd.Parameters.AddWithValue("@RequiredDocumentIdsCsv", (object)model.RequiredDocumentIdsCsv ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@SubmittedDocumentIdsCsv", (object)model.SubmittedDocumentIdsCsv ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
         }
 
         public bool DeleteRegistrarStudent(int id)
@@ -105,7 +118,12 @@ namespace Regis.Services
         // -> DocumentEnclosureMaster, filtered by CourseId + IsActive) —
         // same one already used by Document Verification — instead of
         // duplicating that join here.
-        public List<DocumentEnclosureModel> GetRequiredDocumentsByCourse(int courseId)
+        // Feeds the "Proceed to Documents" popup: which documents are
+        // required for the Course + Category currently selected in the form.
+        // Reuses sp_RequiredDocumentMaster @Flag = 'GETDOCSFORCOURSE',
+        // now filtered by CourseId + CategoryId + IsActive (a Course can have
+        // multiple Categories, each with a different document checklist).
+        public List<DocumentEnclosureModel> GetRequiredDocumentsByCourseAndCategory(int courseId, int categoryId)
         {
             var list = new List<DocumentEnclosureModel>();
             using (SqlConnection con = db.GetConnection())
@@ -114,6 +132,7 @@ namespace Regis.Services
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "GETDOCSFORCOURSE");
                 cmd.Parameters.AddWithValue("@CourseId", courseId);
+                cmd.Parameters.AddWithValue("@CategoryId", categoryId);
                 con.Open();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -130,18 +149,6 @@ namespace Regis.Services
             return list;
         }
 
-        private void AddCommonParams(SqlCommand cmd, RegistrarStudentModel model)
-        {
-            cmd.Parameters.AddWithValue("@StudentName", model.StudentName);
-            cmd.Parameters.AddWithValue("@Email", model.Email);
-            cmd.Parameters.AddWithValue("@Mobile", (object)model.Mobile ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
-            cmd.Parameters.AddWithValue("@BranchId", (object)model.BranchId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@SemesterId", (object)model.SemesterId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@RequiredDocumentIdsCsv", (object)model.RequiredDocumentIdsCsv ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@SubmittedDocumentIdsCsv", (object)model.SubmittedDocumentIdsCsv ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
-        }
 
         private RegistrarStudentModel MapReader(SqlDataReader dr)
         {
@@ -160,6 +167,8 @@ namespace Regis.Services
                 RequiredDocumentIdsCsv = dr["RequiredDocumentIdsCsv"] as string ?? "",
                 RequiredDocumentNames = dr["RequiredDocumentNames"] as string ?? "",
                 SubmittedDocumentIdsCsv = dr["SubmittedDocumentIdsCsv"] as string ?? "",
+                CategoryId = dr["CategoryId"] != DBNull.Value ? Convert.ToInt32(dr["CategoryId"]) : (int?)null,
+                CategoryName = dr["CategoryName"] as string,
                 SubmittedDocumentNames = dr["SubmittedDocumentNames"] as string ?? "",
                 RequiredDocumentCount = dr["RequiredDocumentCount"] != DBNull.Value ? Convert.ToInt32(dr["RequiredDocumentCount"]) : 0,
                 SubmittedDocumentCount = dr["SubmittedDocumentCount"] != DBNull.Value ? Convert.ToInt32(dr["SubmittedDocumentCount"]) : 0,

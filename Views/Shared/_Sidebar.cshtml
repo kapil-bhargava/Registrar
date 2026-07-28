@@ -135,6 +135,13 @@
                         <i class="fas fa-puzzle-piece"></i> Required Document
                     </a>
                 </li>
+                <li>
+                    <a href="@Url.Action("CourseStructureMapping", "AcademicSetup")"
+                       class="@(activeSubMenu == "RequiredDocument" ? "active-link" : "")"
+                       asp-controller="Academic" asp-action="Subject">
+                        <i class="fas fa-puzzle-piece"></i> CourseStructureMapping
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -326,7 +333,13 @@
                 <li>
                     <a href="@Url.Action("RegistrarStudentList", "Registrar")"
                        class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
-                        <i class="fas fa-list"></i> Registrar Student List
+                        <i class="fas fa-list"></i> Student List
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("RegistrarList", "Registrar")"
+                       class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
+                        <i class="fas fa-list"></i> Registrar List
                     </a>
                 </li>
 

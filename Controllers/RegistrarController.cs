@@ -11,6 +11,7 @@ namespace Regis.Controllers
     {
         private readonly RegistrarService service = new RegistrarService();
         private readonly MasterService masterService = new MasterService();
+        private readonly CategoryService categoryService = new CategoryService();   // add this field
 
         // GET: Registrar
         public ActionResult Index()
@@ -35,6 +36,7 @@ namespace Regis.Controllers
             ViewBag.Courses = masterService.GetActiveCourseMaster();
             ViewBag.Branches = masterService.GetActiveBranchMaster();
             ViewBag.Semesters = masterService.GetAllSemesterMaster();
+            ViewBag.Categories = categoryService.GetActiveCategories();
 
             return View(list);
         }
@@ -93,10 +95,33 @@ namespace Regis.Controllers
 
         // Course selected in the form -> which documents are required for it.
         // Called by JS when "Proceed to Documents" is clicked.
-        public JsonResult GetRequiredDocumentsByCourse(int courseId)
+        // Course + Category selected in the form -> which documents are
+        // required for that combination. Called by JS when "Proceed to
+        // Documents" is clicked.
+        public JsonResult GetRequiredDocumentsByCourse(int courseId, int categoryId)
         {
-            var list = service.GetRequiredDocumentsByCourse(courseId);
+            var list = service.GetRequiredDocumentsByCourseAndCategory(courseId, categoryId);
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // ============================================================
+        // REGISTRAR LIST (search/filter view)
+        // URL : /Registrar/RegistrarList
+        // Read-only search screen. Pulls from the SAME RegistrarStudent
+        // data that the RegistrarStudentList form saves into — so a
+        // record saved there shows up here immediately, no separate
+        // data source. Editing still happens on RegistrarStudentList.
+        // ============================================================
+        public ActionResult RegistrarList()
+        {
+            List<RegistrarStudentModel> list = service.GetAllRegistrarStudents();
+
+            ViewBag.Courses = masterService.GetActiveCourseMaster();
+            ViewBag.Branches = masterService.GetActiveBranchMaster();
+            ViewBag.Semesters = masterService.GetAllSemesterMaster();
+
+
+            return View(list);
         }
 
         public ActionResult Registration()

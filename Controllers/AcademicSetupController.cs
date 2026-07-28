@@ -526,5 +526,74 @@ namespace Regis.Controllers
             return RedirectToAction("RequiredDocumentMaster");
         }
 
+        // ============================================================
+        // COURSE STRUCTURE MAPPING
+        // URL : /Master/CourseStructureMapping
+        // ============================================================
+
+        public ActionResult CourseStructureMapping()
+        {
+            List<CourseStructureMappingModel> list = service.GetAllCourseStructureMappings();
+            ViewBag.Courses = MasterService.GetActiveCourseMaster();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult CourseStructureMapping(CourseStructureMappingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.MappingId > 0)
+                {
+                    result = service.UpdateCourseStructureMapping(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Mapping Updated Successfully." : "Unable to Update Mapping.";
+                }
+                else
+                {
+                    result = service.InsertCourseStructureMapping(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Mapping Saved Successfully." : "Unable to Save Mapping.";
+                }
+            }
+            else
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation Failed: " + errors;
+            }
+            return RedirectToAction("CourseStructureMapping");
+        }
+
+        public ActionResult DeleteCourseStructureMapping(int id)
+        {
+            bool result = service.DeleteCourseStructureMapping(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Mapping Deleted Successfully." : "Unable to Delete Mapping.";
+            return RedirectToAction("CourseStructureMapping");
+        }
+
+        // Cascading dropdown 1: Course selected -> uske Department ke Branches
+        public JsonResult GetBranchesByCourse(int courseId)
+        {
+            var list =service.GetBranchesByCourse(courseId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // Cascading dropdown 2: Course selected -> uske TotalSemesters se 1..N list
+        public JsonResult GetSemesterNumbersByCourse(int courseId)
+        {
+            var course = MasterService.GetAllCourseMaster().FirstOrDefault(c => c.CourseId == courseId);
+            int totalSemesters = course?.TotalSemesters ?? 0;
+
+            var semesterList = Enumerable.Range(1, totalSemesters)
+                .Select(n => new { SemesterNumber = n, SemesterLabel = "Semester " + n })
+                .ToList();
+
+            return Json(semesterList, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

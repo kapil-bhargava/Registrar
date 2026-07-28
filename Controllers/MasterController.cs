@@ -348,6 +348,7 @@ namespace Regis.Controllers
 
             ViewBag.Programs =
                 MasterService.GetActiveProgramMaster();
+            ViewBag.Courses = MasterService.GetActiveCourseMaster();
 
             return View(list);
         }
@@ -998,6 +999,11 @@ namespace Regis.Controllers
         // Status (Active/Inactive) is changed simply by editing the record and
         // choosing "Inactive" from the Status dropdown in the form — same UPDATE
         // flag is reused (see sp_DocumentEnclosureMaster), no separate route needed.
-
+        // Cascading dropdown: branches under one Course
+        public JsonResult GetBranchesByCourse(int courseId)
+        {
+            var list = MasterService.GetBranchesByCourse(courseId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
     }
 }

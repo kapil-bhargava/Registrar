@@ -1251,5 +1251,113 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
+        //==================================================================
+        // =================================================================
+        //             Course Structure Mapping
+        // =================================================================
+        //==================================================================
+        public List<CourseStructureMappingModel> GetAllCourseStructureMappings()
+        {
+            var list = new List<CourseStructureMappingModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseStructureMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CourseStructureMappingModel
+                        {
+                            MappingId = Convert.ToInt32(dr["MappingId"]),
+                            CourseId = Convert.ToInt32(dr["CourseId"]),
+                            CourseName = dr["CourseName"].ToString(),
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchName = dr["BranchName"].ToString(),
+                            SemesterNumber = Convert.ToInt32(dr["SemesterNumber"]),
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool InsertCourseStructureMapping(CourseStructureMappingModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseStructureMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
+                cmd.Parameters.AddWithValue("@BranchId", model.BranchId);
+                cmd.Parameters.AddWithValue("@SemesterNumber", model.SemesterNumber);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool UpdateCourseStructureMapping(CourseStructureMappingModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseStructureMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@MappingId", model.MappingId);
+                cmd.Parameters.AddWithValue("@CourseId", model.CourseId);
+                cmd.Parameters.AddWithValue("@BranchId", model.BranchId);
+                cmd.Parameters.AddWithValue("@SemesterNumber", model.SemesterNumber);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool DeleteCourseStructureMapping(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseStructureMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@MappingId", id);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        // Cascading: Course select -> uske Department ke Branches
+        public List<BranchMasterModel> GetBranchesByCourse(int courseId)
+        {
+            var list = new List<BranchMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseStructureMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBRANCHESBYCOURSE");
+                cmd.Parameters.AddWithValue("@CourseId", courseId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new BranchMasterModel
+                        {
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchCode = dr["BranchCode"].ToString(),
+                            BranchName = dr["BranchName"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
     }
 }

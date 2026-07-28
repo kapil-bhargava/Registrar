@@ -1,10 +1,11 @@
-CREATE PROCEDURE sp_BranchMaster
+ALTER PROCEDURE sp_BranchMaster
     @Flag               NVARCHAR(20),
     @BranchId           INT             = NULL,
     @BranchCode         NVARCHAR(30)    = NULL,
     @BranchName         NVARCHAR(200)   = NULL,
     @DepartmentId       INT             = NULL,
     @ProgramId          INT             = NULL,
+    @CourseId           INT             = NULL,
     @CampusName         NVARCHAR(100)   = NULL,
     @IntakeCapacity     INT             = NULL,
     @IsActive           BIT             = NULL
@@ -23,6 +24,8 @@ BEGIN
             d.DepartmentName,
             b.ProgramId,
             p.ProgramName,
+            b.CourseId,
+            c.CourseName,
             b.CampusName,
             b.IntakeCapacity,
             b.IsActive,
@@ -32,6 +35,8 @@ BEGIN
             ON b.DepartmentId = d.DepartmentId
         INNER JOIN ProgramMaster p
             ON b.ProgramId = p.ProgramId
+        LEFT JOIN CourseMaster c
+            ON b.CourseId = c.CourseId
         ORDER BY b.BranchName;
     END
 
@@ -44,6 +49,7 @@ BEGIN
             BranchName,
             DepartmentId,
             ProgramId,
+            CourseId,
             CampusName,
             IntakeCapacity
         FROM BranchMaster
@@ -67,7 +73,8 @@ BEGIN
             BranchCode,
             BranchName,
             DepartmentId,
-            ProgramId
+            ProgramId,
+            CourseId
         FROM BranchMaster
         WHERE DepartmentId = @DepartmentId
           AND IsActive = 1
@@ -82,9 +89,26 @@ BEGIN
             BranchCode,
             BranchName,
             DepartmentId,
-            ProgramId
+            ProgramId,
+            CourseId
         FROM BranchMaster
         WHERE ProgramId = @ProgramId
+          AND IsActive = 1
+        ORDER BY BranchName;
+    END
+
+    -- GET BRANCHES BY COURSE  (NEW — this is what fixes the dropdown)
+    ELSE IF @Flag = 'GETBYCOURSE'
+    BEGIN
+        SELECT
+            BranchId,
+            BranchCode,
+            BranchName,
+            DepartmentId,
+            ProgramId,
+            CourseId
+        FROM BranchMaster
+        WHERE CourseId = @CourseId
           AND IsActive = 1
         ORDER BY BranchName;
     END
@@ -98,6 +122,7 @@ BEGIN
             BranchName,
             DepartmentId,
             ProgramId,
+            CourseId,
             CampusName,
             IntakeCapacity,
             IsActive
@@ -108,6 +133,7 @@ BEGIN
             @BranchName,
             @DepartmentId,
             @ProgramId,
+            @CourseId,
             @CampusName,
             @IntakeCapacity,
             ISNULL(@IsActive, 1)
@@ -123,6 +149,7 @@ BEGIN
             BranchName = @BranchName,
             DepartmentId = @DepartmentId,
             ProgramId = @ProgramId,
+            CourseId = @CourseId,
             CampusName = @CampusName,
             IntakeCapacity = @IntakeCapacity,
             IsActive = @IsActive
@@ -136,20 +163,4 @@ BEGIN
         WHERE BranchId = @BranchId;
     END
 END
-GO
-
-INSERT INTO BranchMaster
-(
-    BranchCode,
-    BranchName,
-    DepartmentId,
-    ProgramId,
-    CampusName,
-    IntakeCapacity,
-    IsActive
-)
-VALUES
-('CSE-AI', 'Computer Science & Engineering - AI', 1, 1, 'Main Campus', 120, 1),
-('CSE-DS', 'Computer Science & Engineering - Data Science', 1, 1, 'Main Campus', 60, 1),
-('ECE', 'Electronics & Communication Engineering', 2, 1, 'Main Campus', 60, 1);
 GO

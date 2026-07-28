@@ -28,5 +28,7 @@ namespace Regis.Models
         public bool IsActive { get; set; }
 
         public DateTime? CreatedDate { get; set; }
+        public int CourseId { get; set; }
+        public string CourseName { get; set; }
     }
 }

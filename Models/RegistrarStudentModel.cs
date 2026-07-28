@@ -49,5 +49,8 @@ namespace Regis.Models
         // ids in and out of the controller action (bound from the hidden
         // "SelectedDocumentIds" form field).
         public List<int> DocumentEnclosureIds { get; set; }
+
+        public int? CategoryId { get; set; }
+        public string CategoryName { get; set; }
     }
 }

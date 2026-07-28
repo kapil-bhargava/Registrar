@@ -10,6 +10,9 @@
 
     var programs = ViewBag.Programs as List<ProgramMasterModel>
         ?? new List<ProgramMasterModel>();
+
+    var courses = ViewBag.Courses as List<CourseMasterModel>
+        ?? new List<CourseMasterModel>();
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,6 +118,7 @@
                         <th>Branch Name</th>
                         <th>Department</th>
                         <th>Program</th>
+                        <th>Course</th>
                         <th>Campus</th>
                         <th>Intake Capacity</th>
                         <th>Status</th>
@@ -148,6 +152,10 @@
                                 <span class="as-type-badge">
                                     @b.ProgramName
                                 </span>
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrEmpty(b.CourseName) ? "-" : b.CourseName)
                             </td>
 
                             <td>
@@ -188,6 +196,7 @@
                                         data-name="@b.BranchName"
                                         data-departmentid="@b.DepartmentId"
                                         data-programid="@b.ProgramId"
+                                        data-courseid="@b.CourseId"
                                         data-campus="@b.CampusName"
                                         data-intake="@b.IntakeCapacity"
                                         data-active="@b.IsActive.ToString().ToLower()">
@@ -402,6 +411,38 @@
                         </div>
 
 
+                        <!-- COURSE -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Course
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="courseId"
+                                    name="CourseId">
+
+                                <option value="">
+                                    -- Select Course --
+                                </option>
+
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">
+                                        @c.CourseName
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span class="as-hint">
+                                Managed from Course Master
+                            </span>
+
+                        </div>
+
+
                         <!-- CAMPUS -->
 
                         <div class="as-field">
@@ -532,6 +573,9 @@
             document.getElementById('programId').value =
                 btn.dataset.programid || '';
 
+            document.getElementById('courseId').value =
+                btn.dataset.courseid || '';
+
             document.getElementById('campusName').value =
                 btn.dataset.campus || '';
 
@@ -560,6 +604,8 @@
             document.getElementById('departmentId').value = '';
 
             document.getElementById('programId').value = '';
+
+            document.getElementById('courseId').value = '';
 
             document.getElementById('campusName').value = '';
 
@@ -623,9 +669,10 @@
         var name = document.getElementById('branchName').value.trim();
         var departmentId = document.getElementById('departmentId').value.trim();
         var programId = document.getElementById('programId').value.trim();
+        var courseId = document.getElementById('courseId').value.trim();
 
-        if (!code || !name || !departmentId || !programId) {
-            alert('Branch Code, Branch Name, Department aur Program zaroori hai. Empty form save nahi hoga.');
+        if (!code || !name || !departmentId || !programId || !courseId) {
+            alert('Branch Code, Branch Name, Department, Program aur Course zaroori hai. Empty form save nahi hoga.');
             return false;
         }
 
