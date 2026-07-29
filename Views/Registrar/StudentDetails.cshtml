@@ -1,0 +1,297 @@
+﻿@model Regis.Models.RegistrarStudentModel
+@using System.Linq
+
+@{
+    ViewBag.Title = "StudentDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+
+    string[] requiredNames = string.IsNullOrEmpty(Model.RequiredDocumentNames)
+        ? new string[0]
+        : Model.RequiredDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
+
+    string[] submittedNames = string.IsNullOrEmpty(Model.SubmittedDocumentNames)
+        ? new string[0]
+        : Model.SubmittedDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
+
+    var missingNames = requiredNames.Where(r => !submittedNames.Contains(r)).ToArray();
+
+    string pillClass = Model.DocumentStatus == "Yes" ? "as-pill-active"
+                        : (Model.DocumentStatus == "Partial" ? "as-pill-inactive" : "as-pill-closed");
+    string statusLabel = Model.DocumentStatus == "Yes" ? "All Documents Received"
+                        : (Model.DocumentStatus == "Partial" ? "Partially Received" : "Documents Pending");
+
+    string initials = string.Join("", (Model.StudentName ?? "").Split(' ')
+                        .Where(p => p.Length > 0)
+                        .Take(2)
+                        .Select(p => char.ToUpper(p[0])));
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+@if (TempData["Error"] != null)
+{
+    <div style="background:#fee; color:#900; padding:10px; margin:10px 0; border:1px solid #900;">@TempData["Error"]</div>
+}
+
+<div class="as-wrap">
+
+    <div class="as-back-row">
+        <a class="as-back-link" href="@Url.Action("RegistrarStudentList", "Registrar")">
+            <i class="fas fa-arrow-left"></i> Back to Student List
+        </a>
+    </div>
+
+    <!-- ================= PROFILE HEADER ================= -->
+    <div class="as-card sd-header-card">
+        <div class="sd-avatar">@initials</div>
+        <div class="sd-header-info">
+            <h2>@Model.StudentName</h2>
+            <div class="sd-header-meta">
+                <a href="mailto:@Model.Email" class="sd-meta-link"><i class="fas fa-envelope"></i> @Model.Email</a>
+                @if (!string.IsNullOrEmpty(Model.Mobile))
+                {
+                    <span class="sd-meta-item"><i class="fas fa-phone"></i> @Model.Mobile</span>
+                }
+            </div>
+        </div>
+        <span class="as-pill @pillClass sd-status-pill"><i class="fas fa-circle"></i> @statusLabel</span>
+    </div>
+
+    <!-- ================= ACADEMIC INFO ================= -->
+    <div class="as-card">
+        <div class="as-section-title" style="margin-top:0;"><i class="fas fa-graduation-cap"></i> Academic Details</div>
+        <div class="sd-info-grid">
+            <div class="sd-info-item">
+                <span class="sd-info-label">Course</span>
+                <span class="sd-info-value">@Model.CourseName</span>
+            </div>
+            <div class="sd-info-item">
+                <span class="sd-info-label">Branch</span>
+                <span class="sd-info-value">@(Model.BranchName ?? "-")</span>
+            </div>
+            <div class="sd-info-item">
+                <span class="sd-info-label">Semester</span>
+                <span class="sd-info-value">@(Model.SemesterName ?? "-")</span>
+            </div>
+            <div class="sd-info-item">
+                <span class="sd-info-label">Category</span>
+                <span class="sd-info-value">@(Model.CategoryName ?? "-")</span>
+            </div>
+            <div class="sd-info-item">
+                <span class="sd-info-label">Registered On</span>
+                <span class="sd-info-value">@(Model.CreatedDate?.ToString("dd MMM yyyy") ?? "-")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DOCUMENT CHECKLIST ================= -->
+    <div class="as-card">
+        <div class="as-section-title" style="margin-top:0;">
+            <i class="fas fa-file-circle-check"></i> Document Checklist
+            <span class="sd-doc-count">(@Model.SubmittedDocumentCount / @Model.RequiredDocumentCount received)</span>
+        </div>
+
+        @if (submittedNames.Length > 0)
+        {
+            <div class="sd-doc-block">
+                <div class="sd-doc-block-label sd-received"><i class="fas fa-check-circle"></i> Received</div>
+                <div class="sd-chip-wrap">
+                    @foreach (var name in submittedNames)
+                    {
+                        <span class="sd-chip sd-chip-received">@name</span>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (missingNames.Length > 0)
+        {
+            <div class="sd-doc-block">
+                <div class="sd-doc-block-label sd-pending"><i class="fas fa-hourglass-half"></i> Pending</div>
+                <div class="sd-chip-wrap">
+                    @foreach (var name in missingNames)
+                    {
+                        <span class="sd-chip sd-chip-pending">@name</span>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (requiredNames.Length == 0)
+        {
+            <p class="rg-hint">No documents are required for this Course / Category combination.</p>
+        }
+    </div>
+
+    <div class="as-bar" style="border-top:none; padding-top:0;">
+        <a class="as-btn as-btn-primary" href="@Url.Action("RegistrarStudentList", "Registrar")" onclick="sessionStorage.setItem('editStudentId', @Model.RegistrarId);">
+            <i class="fas fa-edit"></i> Edit This Student
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .sd-header-card {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+    }
+
+    .sd-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #e9eff6;
+        color: #0A4E95;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .sd-header-info {
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .sd-header-info h2 {
+            margin: 0 0 0.3rem 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0b1b33;
+        }
+
+    .sd-header-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    .sd-meta-link {
+        color: #0A4E95;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .sd-meta-link:hover {
+            text-decoration: underline;
+        }
+
+    .sd-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sd-status-pill {
+        font-size: 0.78rem;
+        padding: 0.35rem 1rem;
+    }
+
+    .sd-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .sd-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .sd-info-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .sd-info-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0b1b33;
+    }
+
+    .sd-doc-count {
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #94a3b8;
+        text-transform: none;
+        letter-spacing: normal;
+        margin-left: 4px;
+    }
+
+    .sd-doc-block {
+        margin-top: 0.9rem;
+    }
+
+    .sd-doc-block-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .sd-doc-block-label.sd-received {
+            color: #16a34a;
+        }
+
+        .sd-doc-block-label.sd-pending {
+            color: #b45309;
+        }
+
+    .sd-chip-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .sd-chip {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .sd-chip-received {
+        background: #e6f7ee;
+        color: #16a34a;
+    }
+
+    .sd-chip-pending {
+        background: #fff7e6;
+        color: #b45309;
+        border: 1px dashed #f0c675;
+    }
+
+    .rg-hint {
+        color: #8a8f98;
+        font-size: 0.85rem;
+    }
+
+    @@media (max-width: 640px) {
+        .sd-header-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .sd-status-pill {
+            align-self: flex-start;
+        }
+    }
+</style>

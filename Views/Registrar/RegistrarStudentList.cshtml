@@ -16,7 +16,7 @@
 
 @if (TempData["Error"] != null)
 {
-    <div style="background:#fee; color:#900; padding:10px; margin:10px 0; border:1px solid #900;">@TempData["Error"]</div>
+    <div style="background: #FFCCBC; color: #900; padding: 10px; margin: 10px 0; border: 1px solid #900; ">@TempData["Error"]</div>
 }
 @if (TempData["Success"] != null)
 {
@@ -89,7 +89,7 @@
                     {
                         string badgeClass = s.DocumentStatus == "Yes" ? "yes" : (s.DocumentStatus == "Partial" ? "partial" : "no");
                         <tr>
-                            <td><strong>@s.StudentName</strong></td>
+                            <td><a class="rg-student-link" href="@Url.Action("StudentDetails", "Registrar", new { id = s.RegistrarId })">@s.StudentName</a></td>
                             <td><a href="mailto:@s.Email" class="rg-email-link">@s.Email</a></td>
                             <td>@s.CourseName</td>
                             <td>@(s.CategoryName ?? "-")</td>
@@ -102,7 +102,7 @@
                                 </span>
                             </td>
                             <td>
-                                <button type="button" class="as-mini-btn" title="Edit" onclick="rgEditForm(@s.RegistrarId)">
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="rgEditFormForm(@s.RegistrarId)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <a class="as-mini-btn" title="Delete"
@@ -163,7 +163,9 @@
 
                         <div class="as-field">
                             <label>Mobile</label>
-                            <input type="text" id="rgMobile" name="Mobile" placeholder="e.g. 9876543210" maxlength="15">
+                            <input type="text" id="rgMobile" name="Mobile" placeholder="e.g. 9876543210"
+                                   maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                         </div>
 
                         <!-- 1. COURSE -->
@@ -280,6 +282,17 @@
         .rg-doc-badge.no {
             background: #fdecec;
             color: #dc2626;
+        }
+
+    .rg-student-link {
+        color: #16305c;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .rg-student-link:hover {
+            color: #2f5faa;
+            text-decoration: underline;
         }
 
     .rg-email-link {
@@ -506,11 +519,11 @@
         var categoryId = document.getElementById('rgCategoryId').value;
 
         if (!courseId) {
-            alert('Pehle Course select karein.');
+            alert('Please select a Course first.');
             return;
         }
         if (!categoryId) {
-            alert('Pehle Category select karein.');
+            alert('Please select a Category first.');
             return;
         }
 
@@ -569,7 +582,7 @@
     document.getElementById('rgDocModalOverlay').addEventListener('click', function (e) {
         if (e.target === this) rgCloseDocModal();
     });
-    // Category change → old checklist ab invalid hai, reset karo
+    // Category changed → old checklist is no longer valid, reset it
     document.getElementById('rgCategoryId').addEventListener('change', function () {
         document.getElementById('rgSelectedDocumentIds').value = '';
         document.getElementById('rgRequiredDocumentIdsCsv').value = '';
@@ -682,11 +695,18 @@
         var name = document.getElementById('rgStudentName').value.trim();
         var email = document.getElementById('rgEmail').value.trim();
         var courseId = document.getElementById('rgCourseId').value;
+        var mobile = document.getElementById('rgMobile').value.trim();
 
         if (!name || !email || !courseId) {
-            alert('Student Name, Email aur Course zaroori hai.');
+            alert('Student Name, Email and Course are required.');
             return false;
         }
+
+        if (mobile && !/^[6-9][0-9]{9}$/.test(mobile)) {
+            alert('Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.');//REGULAR EXPERESSIONS
+            return false;
+        }
+
         return true;
     }
 </script>

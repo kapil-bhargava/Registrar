@@ -1,0 +1,206 @@
+﻿.csm-filter-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.04);
+}
+
+.csm-filter-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 6px;
+}
+
+.csm-filter-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.csm-filter-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d9dee3;
+    border-radius: 9px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #f9fafb;
+    color: #1f2937;
+    cursor: pointer;
+}
+
+    .csm-filter-field select:disabled {
+        background: #f3f4f6;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+/* ===== Two-pane layout: Course sidebar (left) + Branch/Semester table (right) ===== */
+.csm-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 0;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.04);
+    font-family: 'Inter', sans-serif;
+    min-height: 380px;
+}
+
+/* ---- Left: Course list ---- */
+.csm-course-panel {
+    border-right: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+    .csm-course-panel .csm-panel-head {
+        padding: 14px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+.csm-course-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f8;
+    transition: background 0.15s;
+}
+
+    .csm-course-item:hover {
+        background: #eef2f7;
+    }
+
+    .csm-course-item.active {
+        background: #16305c;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .csm-course-item .csm-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        flex-shrink: 0;
+    }
+
+    .csm-course-item.active .csm-dot {
+        background: #fff;
+    }
+
+/* ---- Right: Branch/Semester detail ---- */
+.csm-detail-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.csm-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .csm-detail-head h3 {
+        margin: 0;
+        font-size: 15px;
+        color: #16305c;
+        font-weight: 700;
+    }
+
+        .csm-detail-head h3 span {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+.csm-empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13.5px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.csm-detail-table-wrap {
+    padding: 0 20px 20px;
+}
+
+.csm-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+    .csm-detail-table thead th {
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #6b7280;
+        font-weight: 700;
+        padding: 8px 10px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .csm-detail-table tbody td {
+        padding: 10px 10px;
+        border-bottom: 1px solid #f1f3f8;
+        color: #1f2937;
+    }
+
+    .csm-detail-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+.csm-add-branch-btn {
+    background: none;
+    border: 1px solid #16305c;
+    color: #16305c;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .csm-add-branch-btn:hover {
+        background: #16305c;
+        color: #fff;
+    }
+
+@@media (max-width: 768px) {
+    .csm-filter-row {
+        grid-template-columns: 1fr;
+    }
+
+    .csm-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .csm-course-panel {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+}

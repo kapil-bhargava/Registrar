@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
 using Regis.Models;
@@ -54,17 +55,29 @@ namespace Regis.Controllers
             {
                 bool result;
 
-                if (model.RegistrarId > 0)
+                try
                 {
-                    result = service.UpdateRegistrarStudent(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Student record Updated Successfully." : "Unable to Update Student record.";
+                    if (model.RegistrarId > 0)
+                    {
+                        result = service.UpdateRegistrarStudent(model);
+                        TempData[result ? "Success" : "Error"] =
+                            result ? "Student record Updated Successfully." : "Unable to Update Student record.";
+                    }
+                    else
+                    {
+                        result = service.InsertRegistrarStudent(model);
+                        TempData[result ? "Success" : "Error"] =
+                            result ? "Student record Saved Successfully." : "Unable to Save Student record.";
+                    }
                 }
-                else
+                catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
                 {
-                    result = service.InsertRegistrarStudent(model);
-                    TempData[result ? "Success" : "Error"] =
-                        result ? "Student record Saved Successfully." : "Unable to Save Student record.";
+                    // 2627/2601 = SQL Server unique-constraint / unique-index violation
+                    TempData["Error"] = "Duplicate Email or Mobile Number is not allowed. A student with this Email or Mobile already exists.";
+                }
+                catch (SqlException)
+                {
+                    TempData["Error"] = "A database error occurred while saving the student record. Please try again.";
                 }
             }
             else
@@ -124,9 +137,24 @@ namespace Regis.Controllers
             return View(list);
         }
 
-        public ActionResult Registration()
+
+        // ============================================================
+        // STUDENT DETAILS (read-only profile page)
+        // URL : /Registrar/StudentDetails/5
+        // Reached by clicking a student's name in RegistrarStudentList.
+        // ============================================================
+        public ActionResult StudentDetails(int id)
         {
-            return View();
+            var model = service.GetRegistrarStudentById(id);
+
+            if (model == null)
+            {
+                TempData["Error"] = "Student record not found.";
+                return RedirectToAction("RegistrarStudentList");
+            }
+
+            return View(model);
         }
+
     }
 }
