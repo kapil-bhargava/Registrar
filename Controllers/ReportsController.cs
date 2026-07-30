@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class ReportsController : Controller
     {
         // GET: Reports

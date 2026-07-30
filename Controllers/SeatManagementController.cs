@@ -8,6 +8,7 @@ using Regis.Services;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class SeatManagementController : Controller
     {
         private readonly SeatMatrixService seatMatrixService = new SeatMatrixService();

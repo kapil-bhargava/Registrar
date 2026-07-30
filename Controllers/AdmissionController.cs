@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class AdmissionController : Controller
     {
         // Single service for all 8 Admission steps — mirrors AcademicSetupController's

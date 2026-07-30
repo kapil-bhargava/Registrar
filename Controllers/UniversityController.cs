@@ -8,6 +8,7 @@ using Regis.Services;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class UniversityController : Controller
     {
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();

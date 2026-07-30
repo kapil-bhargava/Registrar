@@ -7,6 +7,7 @@ using Regis.Services;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class AcademicSetupController : Controller
     {
         // ============================================================

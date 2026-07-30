@@ -11,6 +11,7 @@ using Regis.Views.Master;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class MasterController : Controller
     {
         // ============================================================
@@ -82,6 +83,12 @@ namespace Regis.Controllers
         // Receives the form data from UniversityType.cshtml
         // Saves it into the database
         // ============================================================
+
+        public JsonResult GetAllCat()
+        {
+            var cc = categoryService.GetAllCategories(); 
+            return Json(cc, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public ActionResult UniversityType(UniversityTypeModel model)

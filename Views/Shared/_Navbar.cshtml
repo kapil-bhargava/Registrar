@@ -5,6 +5,7 @@
 
 @{
     string pageTitle = ViewData["PageTitle"]?.ToString() ?? "Dashboard";
+    string currentUser = Session["RegistrarUser"]?.ToString() ?? "Registrar";
 }
 <link href="~/Content/css/navbar.css" rel="stylesheet" />
 <nav class="navbar-top">
@@ -34,9 +35,9 @@
 
         <!-- User Profile -->
         <div class="user-profile" onclick="toggleUserMenu()">
-            <span class="user-avatar">R</span>
+            <span class="user-avatar">@currentUser.Substring(0, 1).ToUpper()</span>
             <div class="user-info">
-                <span class="user-name">Registrar</span>
+                <span class="user-name">@currentUser</span>
                 <span class="user-role">Admin</span>
             </div>
             <i class="fas fa-chevron-down user-dropdown-arrow"></i>
@@ -48,17 +49,17 @@
             <a href="#"><i class="fas fa-cog"></i> Settings</a>
             <a href="#"><i class="fas fa-question-circle"></i> Help</a>
             <hr />
-            <a href="#" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="@Url.Action("Logout", "Account")" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
 </nav>
 
 <script>
-    (function() {
+    (function () {
         'use strict';
 
         // ----- Toggle User Dropdown -----
-        window.toggleUserMenu = function() {
+        window.toggleUserMenu = function () {
             const dropdown = document.getElementById('userDropdown');
             if (dropdown) {
                 dropdown.classList.toggle('open');
@@ -66,7 +67,7 @@
         };
 
         // ----- Close dropdown on outside click -----
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const dropdown = document.getElementById('userDropdown');
             const profile = document.querySelector('.user-profile');
             if (dropdown && profile) {
@@ -77,7 +78,7 @@
         });
 
         // ----- Close dropdown on Escape key -----
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 const dropdown = document.getElementById('userDropdown');
                 if (dropdown) {
@@ -87,12 +88,12 @@
         });
 
         // ----- Search button (demo) -----
-        document.querySelector('.search-btn')?.addEventListener('click', function() {
+        document.querySelector('.search-btn')?.addEventListener('click', function () {
             alert('🔍 Search functionality (coming soon)');
         });
 
         // ----- Notification button (demo) -----
-        document.querySelector('.notification-btn')?.addEventListener('click', function() {
+        document.querySelector('.notification-btn')?.addEventListener('click', function () {
             alert('🔔 You have 3 notifications');
         });
 

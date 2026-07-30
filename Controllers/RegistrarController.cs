@@ -9,6 +9,7 @@ using Regis.Services;
 
 namespace Regis.Controllers
 {
+    [Regis.Filters.AuthFilter]
     public class RegistrarController : Controller
     {
         private readonly RegistrarService service = new RegistrarService();
