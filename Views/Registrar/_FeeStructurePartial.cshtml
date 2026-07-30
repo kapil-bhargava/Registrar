@@ -1,0 +1,37 @@
+﻿@model Regis.Models.RegistrarStudentModel
+
+<div class="as-card sd-panel sd-feestruct-card">
+    <div class="sd-info-head">
+        <i class="fas fa-table"></i>
+        <span>Fee Structure</span>
+    </div>
+    <div class="sd-feestruct-sub">@Model.StudentName : semester onwards</div>
+
+    <div class="sd-table-wrap">
+        <table class="sd-mini-table">
+            <thead>
+                <tr>
+                    <th>Semester</th>
+                    <th>Actual Due</th>
+                    <th>Amount Received</th>
+                    <th>Fee Due</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4" class="sd-empty-row">
+                        <i class="fas fa-circle-info"></i> Fee structure data is not available yet.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!--
+        No Fee Structure table exists in the backend yet (per-semester
+        Actual Due / Amount Received / Fee Due). Once a FeeStructure
+        model + endpoint exists, loop the real rows into <tbody> here
+        the same way the Document List partial loops documents.
+    -->
+</div>
+

@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Regis.Models;
 using Regis.Services;
 
+
 namespace Regis.Controllers
 {
     public class RegistrarController : Controller

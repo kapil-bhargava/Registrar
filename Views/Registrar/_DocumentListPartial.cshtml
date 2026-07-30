@@ -1,0 +1,75 @@
+﻿@model Regis.Models.RegistrarStudentModel
+@using System.Linq
+
+@{
+    string[] requiredNames2 = string.IsNullOrEmpty(Model.RequiredDocumentNames)
+        ? new string[0]
+        : Model.RequiredDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
+
+    string[] submittedNames2 = string.IsNullOrEmpty(Model.SubmittedDocumentNames)
+        ? new string[0]
+        : Model.SubmittedDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
+}
+
+<div class="as-card sd-panel sd-doclist-card">
+    <div class="sd-info-head">
+        <i class="fas fa-file-lines"></i>
+        <span>List of Documents</span>
+        <span class="sd-info-id">(@submittedNames2.Length / @requiredNames2.Length received)</span>
+    </div>
+
+    <div class="sd-table-wrap sd-doclist-scroll">
+        <table class="sd-mini-table sd-doc-table">
+            <thead>
+                <tr>
+                    <th>SNo</th>
+                    <th>List of Documents</th>
+                    <th>Status</th>
+                    <th>Received</th>
+                    <th>Certificate No</th>
+                    <th>Issue Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (requiredNames2.Length == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="sd-empty-row">
+                            <i class="fas fa-circle-info"></i> No documents are required for this Course / Category combination.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    int sno = 1;
+                    foreach (var docName in requiredNames2)
+                    {
+                        bool isReceived = submittedNames2.Contains(docName);
+                        <tr>
+                            <td>@sno</td>
+                            <td>@docName</td>
+                            <td class="@(isReceived ? "sd-status-uploaded" : "sd-status-notuploaded")">
+                                @(isReceived ? "Uploaded" : "Not uploaded")
+                            </td>
+                            <td class="@(isReceived ? "sd-received-yes" : "sd-received-no")">
+                                <i class="fas @(isReceived ? "fa-check" : "fa-xmark")"></i>
+                                @(isReceived ? "Received" : "Not Received")
+                            </td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        sno++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!--
+        Certificate No / Issue Date columns are shown as "-" — those
+        fields don't exist in RegistrarStudentModel / DocumentEnclosureMaster
+        yet. "Status: Uploaded/Not uploaded" is derived from whether the
+        document id appears in SubmittedDocumentIdsCsv, same logic the
+        rest of the app already uses.
+    -->
+</div>

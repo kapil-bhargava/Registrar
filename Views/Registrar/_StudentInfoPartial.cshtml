@@ -1,0 +1,28 @@
+﻿@model Regis.Models.RegistrarStudentModel
+
+@{
+    string pillClass2 = Model.DocumentStatus == "Yes" ? "as-pill-active"
+                        : (Model.DocumentStatus == "Partial" ? "as-pill-inactive" : "as-pill-closed");
+    string statusLabel2 = Model.DocumentStatus == "Yes" ? "All Documents Received"
+                        : (Model.DocumentStatus == "Partial" ? "Partially Received" : "Documents Pending");
+}
+
+<div class="as-card sd-panel sd-info-card">
+    <div class="sd-info-head">
+        <i class="fas fa-user"></i>
+        <span>Student Info</span>
+        <span class="sd-info-id">(ID @Model.RegistrarId)</span>
+    </div>
+
+    <div class="sd-info-lines">
+        <div class="sd-info-line"><span class="sd-info-k">Name:</span> <strong>@Model.StudentName</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Email:</span> <a href="mailto:@Model.Email" class="sd-meta-link">@Model.Email</a></div>
+        <div class="sd-info-line"><span class="sd-info-k">Mobile:</span> <strong>@(string.IsNullOrEmpty(Model.Mobile) ? "-" : Model.Mobile)</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Course:</span> <strong>@Model.CourseName</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Branch:</span> <strong>@(Model.BranchName ?? "-")</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Semester:</span> <strong>@(Model.SemesterName ?? "-")</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Category:</span> <strong>@(Model.CategoryName ?? "-")</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Registered On:</span> <strong>@(Model.CreatedDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+        <div class="sd-info-line"><span class="sd-info-k">Status:</span> <span class="as-pill @pillClass2 sd-status-pill">@statusLabel2</span></div>
+    </div>
+</div>

@@ -1,29 +1,8 @@
 ﻿@model Regis.Models.RegistrarStudentModel
-@using System.Linq
 
 @{
     ViewBag.Title = "StudentDetails";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
-
-    string[] requiredNames = string.IsNullOrEmpty(Model.RequiredDocumentNames)
-        ? new string[0]
-        : Model.RequiredDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
-
-    string[] submittedNames = string.IsNullOrEmpty(Model.SubmittedDocumentNames)
-        ? new string[0]
-        : Model.SubmittedDocumentNames.Split(',').Select(n => n.Trim()).ToArray();
-
-    var missingNames = requiredNames.Where(r => !submittedNames.Contains(r)).ToArray();
-
-    string pillClass = Model.DocumentStatus == "Yes" ? "as-pill-active"
-                        : (Model.DocumentStatus == "Partial" ? "as-pill-inactive" : "as-pill-closed");
-    string statusLabel = Model.DocumentStatus == "Yes" ? "All Documents Received"
-                        : (Model.DocumentStatus == "Partial" ? "Partially Received" : "Documents Pending");
-
-    string initials = string.Join("", (Model.StudentName ?? "").Split(' ')
-                        .Where(p => p.Length > 0)
-                        .Take(2)
-                        .Select(p => char.ToUpper(p[0])));
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,86 +22,12 @@
         </a>
     </div>
 
-    <!-- ================= PROFILE HEADER ================= -->
-    <div class="as-card sd-header-card">
-        <div class="sd-avatar">@initials</div>
-        <div class="sd-header-info">
-            <h2>@Model.StudentName</h2>
-            <div class="sd-header-meta">
-                <a href="mailto:@Model.Email" class="sd-meta-link"><i class="fas fa-envelope"></i> @Model.Email</a>
-                @if (!string.IsNullOrEmpty(Model.Mobile))
-                {
-                    <span class="sd-meta-item"><i class="fas fa-phone"></i> @Model.Mobile</span>
-                }
-            </div>
-        </div>
-        <span class="as-pill @pillClass sd-status-pill"><i class="fas fa-circle"></i> @statusLabel</span>
-    </div>
-
-    <!-- ================= ACADEMIC INFO ================= -->
-    <div class="as-card">
-        <div class="as-section-title" style="margin-top:0;"><i class="fas fa-graduation-cap"></i> Academic Details</div>
-        <div class="sd-info-grid">
-            <div class="sd-info-item">
-                <span class="sd-info-label">Course</span>
-                <span class="sd-info-value">@Model.CourseName</span>
-            </div>
-            <div class="sd-info-item">
-                <span class="sd-info-label">Branch</span>
-                <span class="sd-info-value">@(Model.BranchName ?? "-")</span>
-            </div>
-            <div class="sd-info-item">
-                <span class="sd-info-label">Semester</span>
-                <span class="sd-info-value">@(Model.SemesterName ?? "-")</span>
-            </div>
-            <div class="sd-info-item">
-                <span class="sd-info-label">Category</span>
-                <span class="sd-info-value">@(Model.CategoryName ?? "-")</span>
-            </div>
-            <div class="sd-info-item">
-                <span class="sd-info-label">Registered On</span>
-                <span class="sd-info-value">@(Model.CreatedDate?.ToString("dd MMM yyyy") ?? "-")</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= DOCUMENT CHECKLIST ================= -->
-    <div class="as-card">
-        <div class="as-section-title" style="margin-top:0;">
-            <i class="fas fa-file-circle-check"></i> Document Checklist
-            <span class="sd-doc-count">(@Model.SubmittedDocumentCount / @Model.RequiredDocumentCount received)</span>
-        </div>
-
-        @if (submittedNames.Length > 0)
-        {
-            <div class="sd-doc-block">
-                <div class="sd-doc-block-label sd-received"><i class="fas fa-check-circle"></i> Received</div>
-                <div class="sd-chip-wrap">
-                    @foreach (var name in submittedNames)
-                    {
-                        <span class="sd-chip sd-chip-received">@name</span>
-                    }
-                </div>
-            </div>
-        }
-
-        @if (missingNames.Length > 0)
-        {
-            <div class="sd-doc-block">
-                <div class="sd-doc-block-label sd-pending"><i class="fas fa-hourglass-half"></i> Pending</div>
-                <div class="sd-chip-wrap">
-                    @foreach (var name in missingNames)
-                    {
-                        <span class="sd-chip sd-chip-pending">@name</span>
-                    }
-                </div>
-            </div>
-        }
-
-        @if (requiredNames.Length == 0)
-        {
-            <p class="rg-hint">No documents are required for this Course / Category combination.</p>
-        }
+    <!-- ================= 2x2 DASHBOARD GRID ================= -->
+    <div class="sd-grid">
+        @Html.Partial("_StudentInfoPartial", Model)
+        @Html.Partial("_FeeInfoPartial", Model)
+        @Html.Partial("_FeeStructurePartial", Model)
+        @Html.Partial("_DocumentListPartial", Model)
     </div>
 
     <div class="as-bar" style="border-top:none; padding-top:0;">
@@ -134,164 +39,187 @@
 </div>
 
 <style>
-    .sd-header-card {
+    /* ============================================================
+       2x2 dashboard grid — Student Info | Fee Info
+                            Fee Structure | List of Documents
+       ============================================================ */
+    .sd-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .sd-panel {
+        margin: 0;
+        height: 100%;
         display: flex;
-        align-items: center;
-        gap: 1.2rem;
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
-    .sd-avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: #e9eff6;
-        color: #0A4E95;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.3rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .sd-header-info {
-        flex: 1;
-        min-width: 200px;
-    }
-
-        .sd-header-info h2 {
-            margin: 0 0 0.3rem 0;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #0b1b33;
+    @@media (max-width: 900px) {
+        .sd-grid {
+            grid-template-columns: 1fr;
+            grid-auto-rows: auto;
         }
 
-    .sd-header-meta {
+        .sd-panel {
+            height: auto;
+        }
+    }
+
+    /* ---- shared panel header ---- */
+    .sd-info-head {
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        font-size: 0.85rem;
-        color: #64748b;
+        align-items: baseline;
+        gap: 8px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #0A4E95;
+        padding-bottom: 0.7rem;
+        margin-bottom: 0.6rem;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+        .sd-info-head i {
+            font-size: 0.8rem;
+            align-self: center;
+        }
+
+        .sd-info-head .sd-info-id {
+            font-weight: 500;
+            color: #9aa3af;
+            font-size: 0.78rem;
+        }
+
+    .sd-status-pill {
+        font-size: 0.7rem;
+        padding: 0.22rem 0.6rem;
+        vertical-align: middle;
+    }
+
+    .sd-info-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .sd-info-line {
+        font-size: 0.82rem;
+        color: #1f2937;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sd-info-k {
+        color: #6b7280;
+        margin-right: 4px;
     }
 
     .sd-meta-link {
         color: #0A4E95;
         text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
     }
 
         .sd-meta-link:hover {
             text-decoration: underline;
         }
 
-    .sd-meta-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .sd-status-pill {
-        font-size: 0.78rem;
-        padding: 0.35rem 1rem;
-    }
-
-    .sd-info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.2rem;
-    }
-
-    .sd-info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .sd-info-label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
-
-    .sd-info-value {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #0b1b33;
-    }
-
-    .sd-doc-count {
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: #94a3b8;
-        text-transform: none;
-        letter-spacing: normal;
-        margin-left: 4px;
-    }
-
-    .sd-doc-block {
-        margin-top: 0.9rem;
-    }
-
-    .sd-doc-block-label {
-        font-size: 0.78rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
+    /* ---- Fee Info panel sub-sections ---- */
+    .sd-sub-head {
         display: flex;
         align-items: center;
         gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0A4E95;
+        margin: 0.9rem 0 0.4rem;
     }
 
-        .sd-doc-block-label.sd-received {
-            color: #16a34a;
-        }
-
-        .sd-doc-block-label.sd-pending {
-            color: #b45309;
-        }
-
-    .sd-chip-wrap {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
+    .sd-not-available {
+        color: #9aa3af;
+        font-style: italic;
+        font-size: 0.8rem;
     }
 
-    .sd-chip {
-        display: inline-block;
-        border-radius: 20px;
-        padding: 0.3rem 0.8rem;
+    .sd-edit-link {
+        color: #94a3b8;
+        margin-left: 6px;
+        font-size: 0.72rem;
+    }
+
+    /* ---- mini tables (Fee Structure / List of Documents) ---- */
+    .sd-feestruct-sub {
+        font-size: 0.75rem;
+        color: #9aa3af;
+        margin-bottom: 0.6rem;
+    }
+
+    .sd-table-wrap {
+        overflow-x: auto;
+        flex: 1;
+    }
+
+    .sd-doclist-scroll {
+        max-height: 320px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .sd-mini-table {
+        width: 100%;
+        border-collapse: collapse;
         font-size: 0.78rem;
-        font-weight: 600;
     }
 
-    .sd-chip-received {
-        background: #e6f7ee;
+        .sd-mini-table thead th {
+            background: #16305c;
+            color: #fff;
+            text-align: left;
+            padding: 8px 10px;
+            font-weight: 700;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+
+        .sd-mini-table tbody td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f3f8;
+            color: #1f2937;
+        }
+
+        .sd-mini-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+    .sd-empty-row {
+        text-align: center;
+        color: #9aa3af;
+        padding: 18px 10px !important;
+        font-size: 0.8rem;
+    }
+
+    .sd-mini-table tbody td.sd-status-uploaded {
         color: #16a34a;
+        font-weight: 600;
     }
 
-    .sd-chip-pending {
-        background: #fff7e6;
-        color: #b45309;
-        border: 1px dashed #f0c675;
+    .sd-mini-table tbody td.sd-status-notuploaded {
+        color: #dc2626;
+        font-weight: 600;
     }
 
-    .rg-hint {
-        color: #8a8f98;
-        font-size: 0.85rem;
+    .sd-mini-table tbody td.sd-received-yes {
+        color: #16a34a;
+        font-weight: 600;
     }
 
-    @@media (max-width: 640px) {
-        .sd-header-card {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .sd-status-pill {
-            align-self: flex-start;
-        }
+    .sd-mini-table tbody td.sd-received-no {
+        color: #dc2626;
+        font-weight: 600;
     }
 </style>

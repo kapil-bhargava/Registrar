@@ -1,0 +1,47 @@
+﻿@model Regis.Models.RegistrarStudentModel
+
+<div class="as-card sd-panel sd-fee-card">
+    <div class="sd-info-head">
+        <i class="fas fa-receipt"></i>
+        <span>Fee Info</span>
+    </div>
+
+    <div class="sd-info-lines">
+        <div class="sd-info-line">
+            <span class="sd-info-k">Fee Due:</span>
+            <span class="sd-not-available">Not available</span>
+        </div>
+    </div>
+
+    <div class="sd-sub-head"><i class="fas fa-calendar-check"></i> Attendance</div>
+    <div class="sd-info-lines">
+        <div class="sd-info-line">
+            <span class="sd-info-k">Present Ratio:</span>
+            <span class="sd-not-available">Not available</span>
+        </div>
+    </div>
+
+    <div class="sd-sub-head"><i class="fas fa-flag"></i> Mode Of Admission</div>
+    <div class="sd-info-lines">
+        <div class="sd-info-line">
+            <span class="sd-not-available">Not set</span>
+            <a href="#" class="sd-edit-link" title="Edit"><i class="fas fa-pen"></i></a>
+        </div>
+    </div>
+
+    <div class="sd-sub-head"><i class="fas fa-flag"></i> Admission Status</div>
+    <div class="sd-info-lines">
+        <div class="sd-info-line">
+            <span class="sd-not-available">Not set</span>
+            <a href="#" class="sd-edit-link" title="Edit"><i class="fas fa-pen"></i></a>
+        </div>
+    </div>
+
+    @*
+        This entire panel is a UI shell — Fee, Attendance, Mode Of
+        Admission and Admission Status don't exist anywhere in
+        RegistrarStudentModel or sp_RegistrarStudent yet. Once those
+        fields/tables exist, swap the "Not available" spans for the
+        real bound values (e.g. Model.FeeDue formatted as currency).
+    *@
+</div>

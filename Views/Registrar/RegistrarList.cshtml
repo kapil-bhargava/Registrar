@@ -147,6 +147,18 @@
             text-decoration: underline;
         }
 
+    /* Student name link — clickable, opens Registrar/StudentDetails/{id} */
+    .rg-name-link {
+        color: #0b1b33;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+        .rg-name-link:hover {
+            color: var(--blue);
+            text-decoration: underline;
+        }
+
     /* Let cells wrap naturally (long course/branch names, emails) instead of
        forcing one line — that was pushing the whole table wider than the
        page and causing the horizontal cut-off. Table-wrapper below still
@@ -284,7 +296,9 @@
                         string pillClass = s.DocumentStatus == "Yes" ? "as-pill-active" : (s.DocumentStatus == "Partial" ? "as-pill-inactive" : "as-pill-closed");
                         string statusLabel = s.DocumentStatus == "Yes" ? "Complete" : (s.DocumentStatus == "Partial" ? "Partial" : "Pending");
                         <tr data-courseid="@s.CourseId" data-branchid="@(s.BranchId?.ToString() ?? "")" data-semesterid="@(s.SemesterId?.ToString() ?? "")" data-docstatus="@s.DocumentStatus">
-                            <td><strong>@s.StudentName</strong></td>
+                            <td>
+                                <a class="rg-name-link" href="@Url.Action("StudentDetails", "Registrar", new { id = s.RegistrarId })">@s.StudentName</a>
+                            </td>
                             <td><a class="rg-email-link" href="mailto:@s.Email">@s.Email</a></td>
                             <td>@s.CourseName</td>
                             <td>@(s.CategoryName ?? "-")</td>
@@ -321,9 +335,12 @@
     // ============================================================
     // Cascading filter dropdowns: Course -> Branch -> Semester
     // Branch stays disabled until a Course is picked; Semester stays
-    // disabled until a Branch is picked. Uses the same endpoints the
-    // Add/Edit form already uses (Course->Branch via CourseStructureMapping,
-    // Course->Semester via Master/GetSemesterMasterByCourse).
+    // disabled until both a Course and a specific Branch are picked
+    // (going back to "All Branches" re-disables Semester too, same
+    // as going back to "All Courses" re-disables Branch). Uses the
+    // same endpoints the Add/Edit form already uses (Course->Branch
+    // via CourseStructureMapping, Course->Semester via
+    // Master/GetSemesterMasterByCourse).
     // ============================================================
 
     function rgFilterOnCourseChange() {
@@ -367,11 +384,14 @@
 
     function rgFilterOnBranchChange() {
         var courseId = document.getElementById('f-course').value;
+        var branchId = document.getElementById('f-branch').value;
         var semesterSelect = document.getElementById('f-semester');
 
         semesterSelect.innerHTML = '<option value="">All Semesters</option>';
 
-        if (!courseId) {
+        // Semester stays locked until a Course AND a specific Branch
+        // (not "All Branches") are both selected.
+        if (!courseId || !branchId) {
             semesterSelect.innerHTML = '<option value="">-- Select Branch First --</option>';
             semesterSelect.disabled = true;
             rgListApplyFilters();
