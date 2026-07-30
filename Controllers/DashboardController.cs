@@ -7,7 +7,7 @@ using System.Web.Mvc;
 namespace Regis.Controllers
 {
     [Regis.Filters.AuthFilter]
-    public class DashboardController : Controller
+    public class DashboardController : Controller//
     {
         // GET: Dashboard
         public ActionResult Index()

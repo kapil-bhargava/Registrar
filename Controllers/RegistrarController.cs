@@ -14,7 +14,7 @@ namespace Regis.Controllers
     {
         private readonly RegistrarService service = new RegistrarService();
         private readonly MasterService masterService = new MasterService();
-        private readonly CategoryService categoryService = new CategoryService();   // add this field
+        private readonly CategoryService categoryService = new CategoryService();   // add this field//
 
         // GET: Registrar
         public ActionResult Index()

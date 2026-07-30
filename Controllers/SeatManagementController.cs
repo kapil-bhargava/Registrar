@@ -13,7 +13,7 @@ namespace Regis.Controllers
     {
         private readonly SeatMatrixService seatMatrixService = new SeatMatrixService();
         private readonly MasterService MasterService = new MasterService();
-        private readonly AcademicSetupService academicSetupService = new AcademicSetupService();
+        private readonly AcademicSetupService academicSetupService = new AcademicSetupService();//
 
         // GET: SeatManagement
         public ActionResult Index()

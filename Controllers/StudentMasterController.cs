@@ -7,7 +7,7 @@ using System.Web.Mvc;
 namespace Regis.Controllers
 {
     [Regis.Filters.AuthFilter]
-    public class StudentMasterController : Controller
+    public class StudentMasterController : Controller//
     {
         // GET: Default
         public ActionResult Index()

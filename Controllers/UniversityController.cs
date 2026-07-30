@@ -12,7 +12,7 @@ namespace Regis.Controllers
     public class UniversityController : Controller
     {
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
-        private readonly UniversityProfileService universityProfileService = new UniversityProfileService();
+        private readonly UniversityProfileService universityProfileService = new UniversityProfileService()//
         private readonly UniversityTypeService universityTypeService = new UniversityTypeService();
 
         public ActionResult Index()

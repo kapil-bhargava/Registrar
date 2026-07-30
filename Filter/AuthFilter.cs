@@ -9,7 +9,7 @@ namespace Regis.Filters
         {
             if (filterContext.HttpContext.Session["RegistrarUser"] == null)
             {
-                filterContext.Result = new RedirectResult("~/Account/Login");
+                filterContext.Result = new RedirectResult("~/Account/Login");//
             }
         }
     }

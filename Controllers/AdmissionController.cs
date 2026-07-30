@@ -9,7 +9,7 @@ namespace Regis.Controllers
     [Regis.Filters.AuthFilter]
     public class AdmissionController : Controller
     {
-        // Single service for all 8 Admission steps — mirrors AcademicSetupController's
+        // Single service for all 8 Admission steps — mirrors AcademicSetupController's.
         // "one service, one controller" pattern.
         private readonly AdmissionService admissionService = new AdmissionService();
 

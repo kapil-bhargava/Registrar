@@ -14,7 +14,7 @@ namespace Regis.Controllers
         // One service instance handles every table in this module —
         // Faculty, Department, HOD, Program, Course, Semester, Subject,
         // AcademicSession. No other Service class is needed here.
-        // ============================================================
+        // =============================================================
         private readonly AcademicSetupService service = new AcademicSetupService();
         private readonly CampusCategoryService campusCategoryService = new CampusCategoryService();
         private readonly MasterService MasterService = new MasterService();

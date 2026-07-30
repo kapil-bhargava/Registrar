@@ -17,7 +17,7 @@ namespace Regis.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            // agar already logged in hai, seedha dashboard bhej do
+            // agar already logged in hai, seedha dashboard bhej do.
             if (Session["RegistrarUser"] != null)
                 return RedirectToAction("Dashboard", "Dashboard");
 

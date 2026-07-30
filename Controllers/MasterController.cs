@@ -14,7 +14,7 @@ namespace Regis.Controllers
     [Regis.Filters.AuthFilter]
     public class MasterController : Controller
     {
-        // ============================================================
+        // =============================================================
         // Create an object of the Service class.
         // The controller will use this object to communicate
         // with the database through the Service layer.
