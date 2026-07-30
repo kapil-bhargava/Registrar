@@ -440,7 +440,7 @@
             var matchBranch = !branchId || row.dataset.branchid === branchId;
             var matchSemester = !semesterId || row.dataset.semesterid === semesterId;
             var matchDoc = !docStatus || row.dataset.docstatus === docStatus;
-            // searches across every column (Student Name, Email, Course, Branch, Semester, Mobile, Documents...)
+            // searches across every column (Student Name, Email, Course, Branch, Semester, Mobile, kklllDocuments...)
             var matchName = !nameText || row.textContent.toLowerCase().indexOf(nameText) > -1;
 
             var show = matchCourse && matchBranch && matchSemester && matchDoc && matchName;
