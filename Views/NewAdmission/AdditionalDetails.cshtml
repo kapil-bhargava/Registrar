@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "AdditionalDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/AdittionalDetails.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+
+<div class="ad-page">
+
+    <div class="ad-banner">
+        <div class="ad-banner-label">New admission</div>
+        <div class="ad-banner-title">Additional details</div>
+    </div>
+
+    <div class="ad-panel">
+        <div class="ad-panel-head">
+            <h3>Awards / Recognitions</h3>
+            <button type="button" class="ad-btn-add" onclick="adOpenModal()">Add</button>
+        </div>
+
+        <table class="ad-table">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Level</th>
+                    <th>Participation Level</th>
+                    <th>Category</th>
+                    <th>Awarding Institution</th>
+                    <th>Award Name</th>
+                    <th>Received When</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody id="adTableBody">
+                <tr class="ad-empty-row" id="adEmptyRow">
+                    <td colspan="8">
+                        <span class="ad-empty-icon">&#128269;</span>
+                        No Record found
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ad-pagination">
+            <button type="button" class="ad-page-btn" id="adPrevBtn" onclick="adChangePage(-1)">&#8249;</button>
+            <span id="adPageLabel" style="font-size:13px;color:#777;">Page 1</span>
+            <button type="button" class="ad-page-btn" id="adNextBtn" onclick="adChangePage(1)">&#8250;</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="ad-modal-overlay" id="adModalOverlay">
+    <div class="ad-modal">
+        <div class="ad-modal-header">
+            <h3>Awards / Recognitions</h3>
+            <button type="button" class="ad-modal-close" onclick="adCloseModal()">&times;</button>
+        </div>
+
+        <div class="ad-modal-body">
+            <form id="adForm">
+                <div class="ad-form-grid">
+                    <div class="ad-form-field">
+                        <label>Level</label>
+                        <select id="adLevel">
+                            <option value="">Choose</option>
+                            <option>School</option>
+                            <option>District</option>
+                            <option>State</option>
+                            <option>National</option>
+                            <option>International</option>
+                        </select>
+                    </div>
+                    <div class="ad-form-field">
+                        <label>Participation Level</label>
+                        <select id="adParticipationLevel">
+                            <option value="">Choose</option>
+                            <option>Individual</option>
+                            <option>Team</option>
+                        </select>
+                    </div>
+
+                    <div class="ad-form-field">
+                        <label>Category</label>
+                        <select id="adCategory">
+                            <option value="">Choose</option>
+                            <option>Academic</option>
+                            <option>Sports</option>
+                            <option>Cultural</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="ad-form-field">
+                        <label>Awarding Institution</label>
+                        <input type="text" id="adAwardingInstitution" />
+                    </div>
+
+                    <div class="ad-form-field">
+                        <label>Award Name</label>
+                        <input type="text" id="adAwardName" />
+                    </div>
+                    <div class="ad-form-field">
+                        <label>Received When</label>
+                        <input type="text" id="adReceivedWhen" placeholder="dd-mm-yyyy" />
+                    </div>
+
+                    <div class="ad-form-field" style="grid-column: span 2;">
+                        <label>Reason</label>
+                        <input type="text" id="adReason" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="ad-modal-footer">
+            <button type="button" class="ad-btn-submit" onclick="adSubmitRecord()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>var adRecords = [];
+
+    function adOpenModal() {
+        document.getElementById('adModalOverlay').classList.add('open');
+    }
+    function adCloseModal() {
+        document.getElementById('adModalOverlay').classList.remove('open');
+        document.getElementById('adForm').reset();
+    }
+
+    function adSubmitRecord() {
+        var level = document.getElementById('adLevel').value;
+        var participationLevel = document.getElementById('adParticipationLevel').value;
+        var category = document.getElementById('adCategory').value;
+        var awardingInstitution = document.getElementById('adAwardingInstitution').value;
+        var awardName = document.getElementById('adAwardName').value;
+        var receivedWhen = document.getElementById('adReceivedWhen').value;
+        var reason = document.getElementById('adReason').value;
+
+        adRecords.push({
+            level: level,
+            participationLevel: participationLevel,
+            category: category,
+            awardingInstitution: awardingInstitution,
+            awardName: awardName,
+            receivedWhen: receivedWhen,
+            reason: reason
+        });
+
+        adRenderTable();
+        adCloseModal();
+    }
+
+    function adRenderTable() {
+        var tbody = document.getElementById('adTableBody');
+        tbody.innerHTML = '';
+
+        if (adRecords.length === 0) {
+            tbody.innerHTML = '<tr class="ad-empty-row" id="adEmptyRow"><td colspan="8"><span class="ad-empty-icon">&#128269;</span>No Record found</td></tr>';
+            return;
+        }
+
+        adRecords.forEach(function (r, index) {
+            var row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (index + 1) + '</td>' +
+                '<td>' + r.level + '</td>' +
+                '<td>' + r.participationLevel + '</td>' +
+                '<td>' + r.category + '</td>' +
+                '<td>' + r.awardingInstitution + '</td>' +
+                '<td>' + r.awardName + '</td>' +
+                '<td>' + r.receivedWhen + '</td>' +
+                '<td>' + r.reason + '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    function adChangePage(direction) {
+        // Placeholder pagination logic - hook up to real paging when server data is wired
+    }</script>
+
+

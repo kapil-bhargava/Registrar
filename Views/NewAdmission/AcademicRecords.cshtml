@@ -1,0 +1,246 @@
+﻿
+@{
+    ViewBag.Title = "AcademicRecords";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+@Html.Partial("_NewAdmission");
+<link href="~/Content/CSS/AcademicRecords.css" rel="stylesheet" />
+
+<div class="ar-page">
+
+    <div class="ar-banner">
+        <div class="ar-banner-label">New admission</div>
+        <div class="ar-banner-title">Academic records</div>
+    </div>
+
+    <div class="ar-panel">
+        <div class="ar-panel-head">
+            <h3>Academic <span class="required">*</span></h3>
+            <button type="button" class="ar-btn-add" onclick="arOpenModal()">Add</button>
+        </div>
+
+        <table class="ar-table">
+            <thead>
+                <tr>
+                    <th>Exam Passed</th>
+                    <th>Board / University</th>
+                    <th>Institute / School</th>
+                    <th>Roll Number</th>
+                    <th>Passing Year</th>
+                    <th>CGPA / Percentage</th>
+                    <th>Grade / Percentage</th>
+                </tr>
+            </thead>
+            <tbody id="arTableBody">
+                <tr class="ar-empty-row" id="arEmptyRow">
+                    <td colspan="7">
+                        <span class="ar-empty-icon">&#128269;</span>
+                        No Record found
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ar-pagination">
+            <button type="button" class="ar-page-btn" id="arPrevBtn" onclick="arChangePage(-1)">&#8249;</button>
+            <span id="arPageLabel" style="font-size:13px;color:#777;">Page 1</span>
+            <button type="button" class="ar-page-btn" id="arNextBtn" onclick="arChangePage(1)">&#8250;</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="ar-modal-overlay" id="arModalOverlay">
+    <div class="ar-modal">
+        <div class="ar-modal-header">
+            <h3>Academic Record</h3>
+            <button type="button" class="ar-modal-close" onclick="arCloseModal()">&times;</button>
+        </div>
+
+        <div class="ar-modal-body">
+            <form id="arForm">
+                <div class="ar-form-grid">
+                    <div class="ar-form-field">
+                        <label>Exam Passed <span class="required">*</span></label>
+                        <select id="arExamPassed" required>
+                            <option value="">Choose</option>
+                            <option>10th</option>
+                            <option>12th</option>
+                            <option>Graduation</option>
+                            <option>Post Graduation</option>
+                        </select>
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Board / University <span class="required">*</span></label>
+                        <select id="arBoard" required>
+                            <option value="">Choose</option>
+                            <option>CBSE</option>
+                            <option>ICSE</option>
+                            <option>State Board</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Institute / School <span class="required">*</span></label>
+                        <input type="text" id="arInstitute" required />
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Rank</label>
+                        <input type="text" id="arRank" />
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Roll Number</label>
+                        <input type="text" id="arRollNumber" />
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Passing Year <span class="required">*</span></label>
+                        <input type="text" id="arPassingYear" required />
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Result Type <span class="required">*</span></label>
+                        <div class="ar-radio-row">
+                            <label><input type="radio" name="arResultType" value="Grade" /> Grade</label>
+                            <label><input type="radio" name="arResultType" value="Percentage" checked /> Percentage</label>
+                        </div>
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Percentage</label>
+                        <input type="text" id="arPercentage" />
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Stream</label>
+                        <input type="text" id="arStream" />
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Enrollment Number</label>
+                        <input type="text" id="arEnrollmentNumber" />
+                    </div>
+
+                    <div class="ar-form-field" style="grid-column: span 2;">
+                        <label>Marks</label>
+                        <div class="ar-marks-row">
+                            <input type="text" id="arMarksObtained" placeholder="Marks Obtained" />
+                            <span>/</span>
+                            <input type="text" id="arMarksOutOf" placeholder="Out of Marks" />
+                        </div>
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Medium</label>
+                        <select id="arMedium">
+                            <option value="">Choose</option>
+                            <option>English</option>
+                            <option>Hindi</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Mode</label>
+                        <select id="arMode">
+                            <option value="">Choose</option>
+                            <option>Regular</option>
+                            <option>Distance</option>
+                            <option>Online</option>
+                        </select>
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Gap Year</label>
+                        <input type="text" id="arGapYear" />
+                    </div>
+                    <div class="ar-form-field">
+                        <label>Gap Reason</label>
+                        <input type="text" id="arGapReason" />
+                    </div>
+
+                    <div class="ar-form-field">
+                        <label>Result Status</label>
+                        <select id="arResultStatus">
+                            <option value="">Choose</option>
+                            <option>Pass</option>
+                            <option>Fail</option>
+                            <option>Awaited</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="ar-modal-footer">
+            <button type="button" class="ar-btn-submit" onclick="arSubmitRecord()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>var arRecords = [];
+
+    function arOpenModal() {
+        document.getElementById('arModalOverlay').classList.add('open');
+    }
+    function arCloseModal() {
+        document.getElementById('arModalOverlay').classList.remove('open');
+        document.getElementById('arForm').reset();
+    }
+
+    function arSubmitRecord() {
+        var examPassed = document.getElementById('arExamPassed').value;
+        var board = document.getElementById('arBoard').value;
+        var institute = document.getElementById('arInstitute').value;
+        var rollNumber = document.getElementById('arRollNumber').value;
+        var passingYear = document.getElementById('arPassingYear').value;
+        var percentage = document.getElementById('arPercentage').value;
+        var resultType = document.querySelector('input[name="arResultType"]:checked').value;
+
+        if (!examPassed || !board || !institute || !passingYear) {
+            alert('Please fill all required (*) fields.');
+            return;
+        }
+
+        arRecords.push({
+            examPassed: examPassed,
+            board: board,
+            institute: institute,
+            rollNumber: rollNumber,
+            passingYear: passingYear,
+            percentage: percentage,
+            resultType: resultType
+        });
+
+        arRenderTable();
+        arCloseModal();
+    }
+
+    function arRenderTable() {
+        var tbody = document.getElementById('arTableBody');
+        tbody.innerHTML = '';
+
+        if (arRecords.length === 0) {
+            tbody.innerHTML = '<tr class="ar-empty-row" id="arEmptyRow"><td colspan="7"><span class="ar-empty-icon">&#128269;</span>No Record found</td></tr>';
+            return;
+        }
+
+        arRecords.forEach(function (r) {
+            var row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + r.examPassed + '</td>' +
+                '<td>' + r.board + '</td>' +
+                '<td>' + r.institute + '</td>' +
+                '<td>' + r.rollNumber + '</td>' +
+                '<td>' + r.passingYear + '</td>' +
+                '<td>' + r.percentage + '</td>' +
+                '<td>' + r.resultType + '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    function arChangePage(direction) {
+        // Placeholder pagination logic - hook up to real paging when server data is wired
+    }</script>
+
+

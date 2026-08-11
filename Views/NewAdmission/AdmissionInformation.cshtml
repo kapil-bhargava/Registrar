@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "AdmissionInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<div class="af-wrap">
+
+    <div class="af-page-header">
+        <span class="af-eyebrow">New admission</span>
+        <h1>Admission information</h1>
+    </div>
+
+    <div class="af-two-col">
+
+        <!-- Current academic information -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-purple">
+                <span class="af-icon">🎓</span>
+                <span>Current academic information</span>
+            </div>
+            <div class="af-card-body af-purple-labels">
+                <div class="af-field af-full">
+                    <label>Academic stream<span class="req">*</span></label>
+                    <select><option>Select stream</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Session<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Degree<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Branch<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Academic batch<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Enrollment<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Year<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Semester<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Scheme<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Class section</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Roll number</label>
+                    <input type="text" placeholder="Auto-generated" disabled>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admission information -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-crimson">
+                <span class="af-icon">📄</span>
+                <span>Admission information</span>
+            </div>
+            <div class="af-card-body af-crimson-labels">
+                <div class="af-field">
+                    <label>Date of admission<span class="req">*</span></label>
+                    <input type="text" placeholder="dd/mm/yyyy">
+                </div>
+                <div class="af-field">
+                    <label>Admission category<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Fees category<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Shift</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Entrance exam reg. no.</label>
+                    <input type="text" placeholder="Optional">
+                </div>
+                <div class="af-field">
+                    <label>Entrance exam merit no.</label>
+                    <input type="text" placeholder="Optional">
+                </div>
+                <div class="af-field af-full">
+                    <label>Reference name</label>
+                    <input type="text" placeholder="Optional">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="af-footer-bar">
+        <button class="af-btn af-btn-ghost">Back</button>
+        <button class="af-btn af-btn-primary">Save and continue</button>
+    </div>
+
+</div>
+
+

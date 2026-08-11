@@ -4,7 +4,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER PROCEDURE [dbo].[sp_FacultyAssignment]
+ALTER PROCEDURE .[sp_FacultyAssignment]
 (
     @Flag VARCHAR(20),
     @FacultyId INT = NULL,

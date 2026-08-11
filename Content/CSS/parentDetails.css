@@ -1,0 +1,231 @@
+﻿/* ============================================================
+   PARENT DETAILS - self-contained stylesheet
+   ============================================================ */
+
+.af-wrap {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0.5rem 1rem 2.5rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0b1b33;
+    overflow-x: hidden;
+}
+
+@media (min-width: 1300px) {
+    .af-wrap {
+        max-width: 1220px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* ----- THREE COLUMN LAYOUT ----- */
+.af-three-col {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .af-three-col {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .af-three-col {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ----- CARD ----- */
+.af-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e9edf2;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.af-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.4rem;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+
+.af-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.af-grad-blue {
+    background: linear-gradient(90deg, #3b6fed 0%, #5b93f5 100%);
+}
+
+.af-grad-pink {
+    background: linear-gradient(90deg, #e0469b 0%, #f06fb0 100%);
+}
+
+.af-grad-teal {
+    background: linear-gradient(90deg, #1fa87e 0%, #21c08a 100%);
+}
+
+/* ----- CARD BODY (stacked single column) ----- */
+.af-card-body.af-stack {
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    box-sizing: border-box;
+}
+
+.af-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+    .af-field label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #334155;
+    }
+
+        .af-field label .req {
+            color: #dc2626;
+            margin-left: 2px;
+        }
+
+    .af-field input,
+    .af-field select {
+        padding: 0.55rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        background: #fff;
+        outline: none;
+        color: #0b1b33;
+        font-family: inherit;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        transition: 0.15s;
+    }
+
+        .af-field input::placeholder {
+            color: #94a3b8;
+        }
+
+/* card-specific label accent colours */
+.af-blue-labels .af-field label {
+    color: #3b6fed;
+}
+
+.af-pink-labels .af-field label {
+    color: #d9247e;
+}
+
+.af-teal-labels .af-field label {
+    color: #1fa87e;
+}
+
+.af-blue-labels .af-field input:focus,
+.af-blue-labels .af-field select:focus {
+    border-color: #3b6fed;
+    box-shadow: 0 0 0 4px rgba(59, 111, 237, 0.08);
+}
+
+.af-pink-labels .af-field input:focus,
+.af-pink-labels .af-field select:focus {
+    border-color: #d9247e;
+    box-shadow: 0 0 0 4px rgba(217, 36, 126, 0.08);
+}
+
+.af-teal-labels .af-field input:focus,
+.af-teal-labels .af-field select:focus {
+    border-color: #1fa87e;
+    box-shadow: 0 0 0 4px rgba(31, 168, 126, 0.08);
+}
+
+/* mobile number combo row */
+.af-combo-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+    .af-combo-row select {
+        flex: 0 0 76px;
+    }
+
+    .af-combo-row input {
+        flex: 1;
+        min-width: 0;
+    }
+
+/* currency prefix (Annual income) */
+.af-currency {
+    position: relative;
+}
+
+    .af-currency .af-currency-prefix {
+        position: absolute;
+        left: 0.8rem;
+        top: 34px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        pointer-events: none;
+    }
+
+    .af-currency input {
+        padding-left: 1.7rem;
+    }
+
+/* ----- FOOTER BAR ----- */
+.af-footer-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.af-btn {
+    padding: 0.65rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+}
+
+.af-btn-ghost {
+    background: #fff;
+    color: #334155;
+    border: 1.5px solid #e2e8f0;
+}
+
+.af-btn-primary {
+    background: linear-gradient(90deg, #6b3fd6, #9647db);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(107, 63, 214, 0.3);
+}

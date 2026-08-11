@@ -1,15 +1,23 @@
 -- Step 1: FK constraint hatao (sirf yeh relationship tootega, baaki kuch nahi)
 ALTER TABLE dbo.SemesterMaster
 DROP CONSTRAINT FK_SemesterMaster_AcademicSession;
+GO
 
 -- Step 2: naya text column add karo (asal session text yahan save hoga)
 ALTER TABLE dbo.SemesterMaster
 ADD AcademicSessionName NVARCHAR(50) NULL;
+GO
 
 -- Step 3: purane AcademicSessionId column ko optional bana do (FK gaya, ab isko required rakhne ki zaroorat nahi)
 ALTER TABLE dbo.SemesterMaster
 ALTER COLUMN AcademicSessionId INT NULL;
+GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'sp_SemesterMaster') AND type = 'P')
+BEGIN
+    EXEC('CREATE PROCEDURE sp_SemesterMaster AS BEGIN SET NOCOUNT ON; END')
+END
+GO
 
 ALTER PROCEDURE sp_SemesterMaster
     @Flag               NVARCHAR(20),

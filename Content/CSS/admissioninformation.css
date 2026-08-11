@@ -1,0 +1,554 @@
+﻿/* ===== ADMISSION FORM — colorful header design ===== */
+
+body {
+    background: #f4f6fb;
+}
+
+.adm-page {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1fa 100%);
+    padding: 4px;
+}
+
+.adm-banner {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(100deg, #4F46E5 0%, #8B5CF6 45%, #DB2777 85%, #EC4899 100%);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 22px rgba(139,92,246,0.28);
+}
+
+    .adm-banner::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: 40px;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%);
+        pointer-events: none;
+    }
+
+    .adm-banner::after {
+        content: "";
+        position: absolute;
+        bottom: -60px;
+        right: 220px;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%);
+        pointer-events: none;
+    }
+
+.adm-banner-label {
+    position: relative;
+    color: rgba(255,255,255,0.75);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.adm-banner-title {
+    position: relative;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.adm-banner-dots {
+    position: relative;
+    display: flex;
+    gap: 4px;
+}
+
+    .adm-banner-dots span {
+        width: 20px;
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.2);
+    }
+
+        .adm-banner-dots span.done {
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+        }
+
+.adm-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.adm-panel {
+    background: linear-gradient(100deg, #4F46E5 0%, #8B5CF6 45%, #DB2777 85%, #EC4899 100%);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #eef0f5;
+    box-shadow: 0 6px 20px rgba(17,24,39,0.06);
+}
+
+    .adm-panel:has(.c-teal) {
+        background: linear-gradient(180deg, #eef2ff 0%, #ffffff 130px);
+    }
+
+    .adm-panel:has(.c-coral) {
+        background: linear-gradient(180deg, #fff1f5 0%, #ffffff 130px);
+    }
+
+    .adm-panel:has(.c-purple) {
+        background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 130px);
+    }
+
+    .adm-panel:has(.c-blue) {
+        background: linear-gradient(180deg, #eff6ff 0%, #ffffff 130px);
+    }
+
+    .adm-panel:has(.c-pink) {
+        background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 130px);
+    }
+
+    .adm-panel:has(.c-green) {
+        background: linear-gradient(180deg, #f7fee7 0%, #ffffff 130px);
+    }
+
+.adm-panel-head {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
+    .adm-panel-head.c-teal {
+        background: linear-gradient(100deg, #4F46E5 0%, #8B5CF6 45%, #DB2777 85%, #EC4899 100%);
+    }
+
+    .adm-panel-head.c-coral {
+        background: linear-gradient(120deg, #be123c, #f43f5e);
+    }
+
+    .adm-panel-head.c-purple {
+        background: linear-gradient(120deg, #6d28d9, #a78bfa);
+    }
+
+    .adm-panel-head.c-blue {
+        background: linear-gradient(120deg, #2563eb, #60a5fa);
+    }
+
+    .adm-panel-head.c-pink {
+        background: linear-gradient(120deg, #db2777, #f472b6);
+    }
+
+    .adm-panel-head.c-green {
+        background: linear-gradient(120deg, #15803d, #4ade80);
+    }
+
+.adm-panel-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.adm-panel-head h3 {
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    margin: 0;
+}
+
+.adm-fields {
+    padding: 14px 16px 18px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+}
+
+.adm-field {
+    margin-bottom: 12px;
+}
+
+    .adm-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .adm-field label {
+        display: block;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 5px;
+    }
+
+    .adm-field .required {
+        color: #db2777;
+    }
+
+.adm-panel:has(.c-teal) .adm-field label {
+    color: #4338ca;
+}
+
+.adm-panel:has(.c-coral) .adm-field label {
+    color: #be123c;
+}
+
+.adm-panel:has(.c-purple) .adm-field label {
+    color: #6d28d9;
+}
+
+.adm-panel:has(.c-blue) .adm-field label {
+    color: #2563eb;
+}
+
+.adm-panel:has(.c-pink) .adm-field label {
+    color: #db2777;
+}
+
+.adm-panel:has(.c-green) .adm-field label {
+    color: #15803d;
+}
+
+.adm-field select,
+.adm-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.4px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #1f2937;
+    border-radius: 9px;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.adm-field select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 13px;
+    padding-right: 26px;
+}
+
+    .adm-field select:hover,
+    .adm-field input:hover {
+        border-color: #cbd0d9;
+    }
+
+    .adm-field select:disabled,
+    .adm-field input:disabled {
+        color: #b0b5bd;
+        background: #f6f7f9;
+        border-style: dashed;
+    }
+
+.adm-panel:has(.c-teal) .adm-field select:focus,
+.adm-panel:has(.c-teal) .adm-field input:focus {
+    outline: none;
+    border-color: #4338ca;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(67,56,202,0.14);
+}
+
+.adm-panel:has(.c-coral) .adm-field select:focus,
+.adm-panel:has(.c-coral) .adm-field input:focus {
+    outline: none;
+    border-color: #be123c;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(190,18,60,0.14);
+}
+
+.adm-panel:has(.c-purple) .adm-field select:focus,
+.adm-panel:has(.c-purple) .adm-field input:focus {
+    outline: none;
+    border-color: #6d28d9;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(109,40,217,0.14);
+}
+
+.adm-panel:has(.c-blue) .adm-field select:focus,
+.adm-panel:has(.c-blue) .adm-field input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
+}
+
+.adm-panel:has(.c-pink) .adm-field select:focus,
+.adm-panel:has(.c-pink) .adm-field input:focus {
+    outline: none;
+    border-color: #db2777;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(219,39,119,0.14);
+}
+
+.adm-panel:has(.c-green) .adm-field select:focus,
+.adm-panel:has(.c-green) .adm-field input:focus {
+    outline: none;
+    border-color: #15803d;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(21,128,61,0.14);
+}
+
+.adm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.adm-btn-ghost {
+    background: #ffffff;
+    border: 1.4px solid #d1d5db;
+    color: #4b5563;
+    padding: 9px 20px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+    .adm-btn-ghost:hover {
+        border-color: #9ca3af;
+        background: #f9fafb;
+    }
+
+.adm-btn-primary {
+    background: linear-gradient(120deg, #4f46e5, #db2777);
+    border: none;
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(79,70,229,0.32);
+    transition: transform .12s ease;
+}
+
+    .adm-btn-primary:hover {
+        transform: translateY(-1px);
+    }
+
+@media (max-width: 768px) {
+    .adm-body {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-fields {
+        grid-template-columns: 1fr;
+    }
+}
+.adm-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.adm-banner-actions {
+    display: flex;
+    gap: 10px;
+}
+.adm-action-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    text-decoration: none;
+    margin-right: 8px;
+    transition: all .3s;
+}
+
+.adm-view-btn {
+    color: #4f46e5;
+}
+
+.adm-edit-btn {
+    color: #ec4899;
+}
+
+.adm-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.adm-view-btn:hover {
+    background: #eef2ff;
+}
+
+.adm-edit-btn:hover {
+    background: #fdf2f8;
+}
+
+/* ===== LIST TABLE — clean design ===== */
+
+.adm-table-wrap {
+    overflow-x: auto;
+    padding: 4px;
+}
+
+.adm-list-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    font-size: 13px;
+}
+
+    .adm-list-table thead th {
+        background: #1f2430;
+        color: #fff;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 12px 14px;
+        white-space: nowrap;
+        text-align: left;
+        position: sticky;
+        top: 0;
+    }
+
+        .adm-list-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .adm-list-table thead th:last-child {
+            border-top-right-radius: 10px;
+            text-align: center;
+        }
+
+    .adm-list-table tbody td {
+        padding: 10px 14px;
+        color: #374151;
+        border-bottom: 1px solid #eef0f5;
+        white-space: nowrap;
+    }
+
+    .adm-list-table tbody tr:nth-child(even) {
+        background: #fafbfe;
+    }
+
+    .adm-list-table tbody tr:hover {
+        background: #f0f2ff;
+    }
+
+    .adm-list-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.adm-empty-row {
+    text-align: center;
+    padding: 24px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Action buttons: side-by-side, always */
+.adm-actions-cell {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.adm-action-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    background: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all .2s ease;
+}
+
+.adm-view-btn {
+    color: #4f46e5;
+}
+
+.adm-edit-btn {
+    color: #ec4899;
+}
+
+.adm-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+}
+
+.adm-view-btn:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.adm-edit-btn:hover {
+    background: #fdf2f8;
+    border-color: #fbcfe8;
+}
+
+/* ===== Header Import/Export round buttons (jaise screenshot me hai) ===== */
+.adm-panel-head {
+    justify-content: space-between;
+}
+
+.adm-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.adm-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    border: none;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(2px);
+    color: #ffffff;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+    .adm-icon-btn:hover {
+        background: rgba(255,255,255,0.35);
+        transform: translateY(-2px);
+    }
+
+    .adm-icon-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }

@@ -13,7 +13,7 @@ CREATE TABLE Course
     Status            NVARCHAR(20)   NOT NULL DEFAULT 'Active',
     CreatedDate       DATETIME       NOT NULL DEFAULT GETDATE(),
 
-    CONSTRAINT FK_Course_Program FOREIGN KEY (ProgramId) REFERENCES Program(ProgramId),
+    CONSTRAINT FK_Course_Program FOREIGN KEY (ProgramId) REFERENCES ProgramMaster(ProgramId),
     CONSTRAINT FK_Course_Department FOREIGN KEY (DepartmentId) REFERENCES Department(DepartmentId)
 );
 GO

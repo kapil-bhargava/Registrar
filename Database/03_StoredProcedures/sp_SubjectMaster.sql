@@ -1,4 +1,11 @@
-CREATE PROCEDURE sp_SubjectMaster
+-- Pehle proc exist karta hai ya nahi check karo, agar nahi to dummy create karo
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'sp_SubjectMaster') AND type = 'P')
+BEGIN
+    EXEC('CREATE PROCEDURE sp_SubjectMaster AS BEGIN SET NOCOUNT ON; END')
+END
+GO
+
+ALTER PROCEDURE sp_SubjectMaster
     @Flag           NVARCHAR(20),
     @SubjectId      INT             = NULL,
     @SubjectCode    NVARCHAR(30)    = NULL,
@@ -44,7 +51,17 @@ BEGIN
 END
 GO
 
-INSERT INTO SubjectMaster (SubjectCode, SubjectName, SubjectType, SemesterId, CourseId, Credits, Status) VALUES
-('CS201', 'Data Structures', 'Theory', 1, 1, 4, 'Active'),
-('EC202L', 'Electronics Lab', 'Practical', 1, 1, 2, 'Active');
-GO
+-- ============================================================
+-- IMPORTANT: SemesterId = 1 aapke SemesterMaster table mein
+-- exist nahi karta, isliye pehle wali INSERT fail hui thi.
+-- Yeh query chala ke pehle apne valid SemesterId dekh lo:
+--
+--   SELECT SemesterId, SemesterName, CourseId FROM SemesterMaster;
+--
+-- Phir neeche wali INSERT mein sahi SemesterId aur CourseId daalo.
+-- ============================================================
+
+-- INSERT INTO SubjectMaster (SubjectCode, SubjectName, SubjectType, SemesterId, CourseId, Credits, Status) VALUES
+-- ('CS201', 'Data Structures', 'Theory', <VALID_SEMESTER_ID>, <VALID_COURSE_ID>, 4, 'Active'),
+-- ('EC202L', 'Electronics Lab', 'Practical', <VALID_SEMESTER_ID>, <VALID_COURSE_ID>, 2, 'Active');
+-- GO

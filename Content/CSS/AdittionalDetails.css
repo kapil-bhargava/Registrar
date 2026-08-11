@@ -1,0 +1,230 @@
+﻿.ad-page {
+    padding: 24px;
+}
+
+.ad-banner {
+    background: linear-gradient(135deg, #6d3ff0 0%, #b83fd6 50%, #e6398f 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 4px 8px;
+    margin-bottom: 20px;
+}
+
+.ad-banner-label {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: .85;
+}
+
+.ad-banner-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.ad-panel {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.ad-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+    .ad-panel-head h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #222;
+    }
+
+.ad-btn-add {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .ad-btn-add:hover {
+        opacity: .92;
+    }
+
+table.ad-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    table.ad-table thead th {
+        background: #2b2b33;
+        color: #fff;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    table.ad-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+    table.ad-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+.ad-empty-row td {
+    text-align: center;
+    padding: 40px 0;
+    background: #f4f5f7;
+    color: #9aa0a6;
+}
+
+.ad-empty-icon {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: .5;
+}
+
+.ad-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #f4f5f7;
+}
+
+.ad-page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #55565e;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+    .ad-page-btn:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+/* -------- Modal -------- */
+.ad-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+    .ad-modal-overlay.open {
+        display: flex;
+    }
+
+.ad-modal {
+    background: #fff;
+    width: 100%;
+    max-width: 700px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-modal-header {
+    background: linear-gradient(135deg, #6d3ff0 0%, #b83fd6 50%, #e6398f 100%);
+    color: #fff;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+    .ad-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+.ad-modal-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: .9;
+}
+
+    .ad-modal-close:hover {
+        opacity: 1;
+    }
+
+.ad-modal-body {
+    padding: 22px;
+    overflow-y: auto;
+}
+
+.ad-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+}
+
+.ad-form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.ad-form-field input[type="text"],
+.ad-form-field select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+    .ad-form-field input:focus, .ad-form-field select:focus {
+        outline: none;
+        border-color: #b83fd6;
+    }
+
+.ad-modal-footer {
+    padding: 16px 22px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ad-btn-submit {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}

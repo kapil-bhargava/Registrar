@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "ParentDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/parentDetails.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+
+<div class="af-wrap">
+
+    <div class="af-three-col">
+
+        <!-- Father's information -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-blue">
+                <span class="af-icon">👤</span>
+                <span>Father's information</span>
+            </div>
+            <div class="af-card-body af-stack af-blue-labels">
+                <div class="af-field">
+                    <label>Title</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>First name<span class="req">*</span></label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Last name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Email ID</label>
+                    <input type="email">
+                </div>
+                <div class="af-field">
+                    <label>Mobile number</label>
+                    <div class="af-combo-row">
+                        <select><option>+91</option></select>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="af-field">
+                    <label>Occupation</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Organization name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Designation</label>
+                    <input type="text">
+                </div>
+                <div class="af-field af-currency">
+                    <label>Annual income</label>
+                    <span class="af-currency-prefix">₹</span>
+                    <input type="text">
+                </div>
+            </div>
+        </div>
+
+        <!-- Mother's information -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-pink">
+                <span class="af-icon">👤</span>
+                <span>Mother's information</span>
+            </div>
+            <div class="af-card-body af-stack af-pink-labels">
+                <div class="af-field">
+                    <label>Title</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>First name<span class="req">*</span></label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Last name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Email ID</label>
+                    <input type="email">
+                </div>
+                <div class="af-field">
+                    <label>Mobile number</label>
+                    <div class="af-combo-row">
+                        <select><option>+91</option></select>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="af-field">
+                    <label>Occupation</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Organization name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Designation</label>
+                    <input type="text">
+                </div>
+                <div class="af-field af-currency">
+                    <label>Annual income</label>
+                    <span class="af-currency-prefix">₹</span>
+                    <input type="text">
+                </div>
+            </div>
+        </div>
+
+        <!-- Local guardian information -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-teal">
+                <span class="af-icon">🛡️</span>
+                <span>Local guardian information</span>
+            </div>
+            <div class="af-card-body af-stack af-teal-labels">
+                <div class="af-field">
+                    <label>Title</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>First name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Last name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Email ID</label>
+                    <input type="email">
+                </div>
+                <div class="af-field">
+                    <label>Mobile number</label>
+                    <div class="af-combo-row">
+                        <select><option>+91</option></select>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="af-field">
+                    <label>Occupation</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Organization name</label>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Designation</label>
+                    <input type="text">
+                </div>
+                <div class="af-field af-currency">
+                    <label>Annual income</label>
+                    <span class="af-currency-prefix">₹</span>
+                    <input type="text">
+                </div>
+                <div class="af-field">
+                    <label>Family income</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>Relationship with student</label>
+                    <select><option>Choose</option></select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="af-footer-bar">
+        <button class="af-btn af-btn-ghost">Back</button>
+        <button class="af-btn af-btn-primary">Save and continue</button>
+    </div>
+
+</div>
+
+
+

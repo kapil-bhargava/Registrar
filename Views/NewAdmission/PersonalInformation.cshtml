@@ -1,0 +1,240 @@
+﻿
+@{
+    ViewBag.Title = "PersonalInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link href="~/Content/CSS/prsonalinf.css" rel="stylesheet" />
+@Html.Partial("_NewAdmission");
+<div class="wrap">
+
+    <div class="page-header">
+        <div>
+            <h1>Student admission form</h1>
+        </div>
+    </div>
+
+    <div class="two-col">
+
+        <!-- Basic Information -->
+        <div class="section">
+            <div class="section-head grad-indigo">
+                <span class="icon">&#128100;</span> Basic information
+            </div>
+            <div class="section-body">
+                <div class="photo-block">
+                    <div class="avatar">&#128100;</div>
+                    <div class="photo-meta">
+                        <button class="upload-btn">Upload photo</button>
+                        <p>PNG, JPG or JPEG · Max 2 MB · Passport size only</p>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Title</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>First name<span class="req">*</span></label>
+                    <input type="text" placeholder="First name">
+                </div>
+                <div class="field">
+                    <label>Middle name</label>
+                    <input type="text" placeholder="Middle name">
+                </div>
+                <div class="field">
+                    <label>Last name</label>
+                    <input type="text" placeholder="Last name">
+                </div>
+                <div class="field">
+                    <label>Display name format</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>Display name</label>
+                    <input type="text" placeholder="Display name">
+                </div>
+                <div class="field">
+                    <label>Marital status</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>Gender<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>Date of birth<span class="req">*</span></label>
+                    <input type="text" placeholder="dd-mm-yyyy">
+                </div>
+                <div class="field">
+                    <label>Email ID<span class="req">*</span></label>
+                    <input type="email" placeholder="name@example.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Information -->
+        <div class="section">
+            <div class="section-head grad-orange">
+                <span class="icon">&#128188;</span> Admin information
+            </div>
+            <div class="section-body" style="grid-template-columns:1fr;">
+                <div class="field">
+                    <label>Registration number</label>
+                    <input type="text" placeholder="Registration number">
+                </div>
+                <div class="field">
+                    <label>University / enrollment number</label>
+                    <input type="text" placeholder="University / enrollment number">
+                </div>
+                <div class="field">
+                    <label>Application number</label>
+                    <input type="text" placeholder="Application number">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Personal Information -->
+    <div class="section">
+        <div class="section-head grad-blue">
+            <span class="icon">&#128221;</span> Personal information
+        </div>
+        <div class="section-body">
+            <div class="field">
+                <label>Birth state</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>Birth place</label>
+                <input type="text" placeholder="Birth place">
+            </div>
+            <div class="field">
+                <label>WhatsApp mobile number</label>
+                <div class="combo-row">
+                    <select><option>+91</option></select>
+                    <input type="text" placeholder="Enter number">
+                </div>
+            </div>
+            <div class="field">
+                <label>Referral source</label>
+                <input type="text" placeholder="Referral source">
+            </div>
+            <div class="field">
+                <div class="toggle-row">
+                    <label>Physically challenged</label>
+                </div>
+                <div class="toggle">
+                    <span class="radio-opt"><input type="radio" name="pc"> Yes</span>
+                    <span class="radio-opt"><input type="radio" name="pc" checked> No</span>
+                </div>
+            </div>
+            <div class="field">
+                <label>Blood group</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>Identity mark</label>
+                <input type="text" placeholder="e.g. Mole on left cheek">
+            </div>
+            <div class="field">
+                <label>Mother tongue</label>
+                <select><option>Choose</option></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col">
+
+        <!-- Contact and personal details -->
+        <div class="section">
+            <div class="section-head grad-green">
+                <span class="icon">&#128222;</span> Contact details
+            </div>
+            <div class="section-body" style="grid-template-columns:1fr 1fr;">
+                <div class="field">
+                    <label>Institute email ID</label>
+                    <input type="text" placeholder="Institute email ID">
+                </div>
+                <div class="field">
+                    <label>Mobile number<span class="req">*</span></label>
+                    <div class="combo-row">
+                        <select><option>+91</option></select>
+                        <input type="text" placeholder="Enter number">
+                    </div>
+                </div>
+                <div class="field" style="grid-column:span 2;">
+                    <label>Alternate mobile number</label>
+                    <div class="combo-row">
+                        <select><option>+91</option></select>
+                        <input type="text" placeholder="Enter number">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Identity and domicile -->
+        <div class="section">
+            <div class="section-head grad-green">
+                <span class="icon">&#127760;</span> Identity and domicile
+            </div>
+            <div class="section-body" style="grid-template-columns:1fr 1fr;">
+                <div class="field">
+                    <label>Citizenship<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>Domicile country</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="field">
+                    <label>Domicile state</label>
+                    <select><option>Choose</option></select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Other information -->
+    <div class="section">
+        <div class="section-head grad-pink">
+            <span class="icon">&#128203;</span> Other information
+        </div>
+        <div class="section-body">
+            <div class="field">
+                <label>Nationality</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>Religion</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>Category</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>Caste</label>
+                <select><option>Choose</option></select>
+            </div>
+            <div class="field">
+                <label>ABC ID</label>
+                <input type="text" placeholder="Academic Bank of Credits ID">
+            </div>
+            <div class="field">
+                <label>Anti-ragging ID</label>
+                <input type="text" placeholder="Anti-ragging affidavit ID">
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <button class="btn btn-ghost">Save draft</button>
+        <button class="btn btn-primary">Save and continue</button>
+    </div>
+
+</div>
+
+

@@ -1,0 +1,65 @@
+﻿
+@{
+    ViewBag.Title = "BankDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+@Html.Partial("_NewAdmission");
+<link href="~/Content/CSS/BankDetails.css" rel="stylesheet" />
+<div class="af-wrap">
+
+    <div class="af-card af-bank-card">
+        <div class="af-card-head af-grad-purple af-head-with-sub">
+            <span class="af-icon">🏦</span>
+            <div>
+                <div class="af-head-title">Bank information</div>
+                <div class="af-head-sub">Used for fee refunds and scholarships</div>
+            </div>
+        </div>
+
+        <div class="af-bank-body">
+
+            <div class="af-bank-row">
+                <label>IFSC code</label>
+                <input type="text">
+                <button type="button" class="af-confirm-btn">Confirm IFSC</button>
+            </div>
+
+            <div class="af-bank-row">
+                <label>Bank name</label>
+                <input type="text">
+            </div>
+
+            <div class="af-bank-row">
+                <label>Branch name</label>
+                <input type="text">
+            </div>
+
+            <hr class="af-bank-divider">
+
+            <div class="af-bank-row">
+                <label>Account holder name</label>
+                <input type="text">
+            </div>
+
+            <div class="af-bank-row">
+                <label>Account number</label>
+                <input type="text">
+            </div>
+
+            <div class="af-bank-row">
+                <label>PAN number of account holder</label>
+                <input type="text">
+            </div>
+
+            <div class="af-bank-footer">
+                <button type="button" class="af-back-link">Back</button>
+                <button type="button" class="af-btn af-btn-green">Save and continue</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+

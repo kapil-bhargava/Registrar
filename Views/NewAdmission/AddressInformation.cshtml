@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "AddressInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<div class="af-wrap">
+
+    <div class="af-page-header">
+        <h1>Address information</h1>
+        <p class="af-page-sub">Fields marked * are required.</p>
+    </div>
+
+    <div class="af-two-col">
+
+        <!-- Permanent address -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-purple af-head-with-sub">
+                <span class="af-icon">🏠</span>
+                <div>
+                    <div class="af-head-title">Permanent address</div>
+                    <div class="af-head-sub">Your registered home address</div>
+                </div>
+            </div>
+            <div class="af-card-body">
+                <div class="af-field af-full">
+                    <label>Address<span class="req">*</span></label>
+                    <input type="text" placeholder="">
+                </div>
+                <div class="af-field">
+                    <label>Country<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>State<span class="req">*</span></label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>District</label>
+                    <select><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>City / taluka</label>
+                    <input type="text" placeholder="">
+                </div>
+                <div class="af-field af-full">
+                    <label>Pin code<span class="req">*</span></label>
+                    <input type="text" placeholder="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Local address -->
+        <div class="af-card">
+            <div class="af-card-head af-grad-orange af-head-with-sub">
+                <span class="af-icon">📍</span>
+                <div>
+                    <div class="af-head-title">Local address</div>
+                    <div class="af-head-sub">Current place of stay</div>
+                </div>
+                <label class="af-switch af-head-switch">
+                    <input type="checkbox" id="sameAsPermanent">
+                    <span class="af-slider"></span>
+                </label>
+                <span class="af-switch-label">Same as permanent</span>
+            </div>
+            <div class="af-card-body" id="localAddressBody">
+                <div class="af-field af-full">
+                    <label>Address<span class="req">*</span></label>
+                    <input type="text" placeholder="" id="localAddress">
+                </div>
+                <div class="af-field">
+                    <label>Country<span class="req">*</span></label>
+                    <select id="localCountry"><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>State<span class="req">*</span></label>
+                    <select id="localState"><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>District</label>
+                    <select id="localDistrict"><option>Choose</option></select>
+                </div>
+                <div class="af-field">
+                    <label>City / taluka</label>
+                    <input type="text" placeholder="" id="localCity">
+                </div>
+                <div class="af-field af-full">
+                    <label>Pin code<span class="req">*</span></label>
+                    <input type="text" placeholder="" id="localPin">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="af-footer-bar">
+        <button class="af-btn af-btn-ghost">Back</button>
+        <button class="af-btn af-btn-primary">Save and continue</button>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        var toggle = document.getElementById('sameAsPermanent');
+        var localBody = document.getElementById('localAddressBody');
+        if (!toggle || !localBody) return;
+
+        toggle.addEventListener('change', function () {
+            var disabled = toggle.checked;
+            localBody.querySelectorAll('input, select').forEach(function (el) {
+                el.disabled = disabled;
+            });
+            localBody.style.opacity = disabled ? '0.55' : '1';
+        });
+    })();</script>

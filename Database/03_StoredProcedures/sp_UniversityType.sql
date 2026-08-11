@@ -1,10 +1,19 @@
 USE [UniversityERP]
 GO
+
 /****** Object:  StoredProcedure [dbo].[sp_UniversityType]    Script Date: 17-07-2026 14:38:28 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
+-- Proc pehle se exist nahi karta, isliye pehle ek dummy CREATE kar do
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_UniversityType]') AND type = 'P')
+BEGIN
+    EXEC('CREATE PROCEDURE [dbo].[sp_UniversityType] AS BEGIN SET NOCOUNT ON; END')
+END
+GO
+
 /*
 =============================================================
 Procedure Name : sp_UniversityType
@@ -115,3 +124,4 @@ BEGIN
         WHERE UniversityTypeId = @UniversityTypeId;
     END
 END
+GO
