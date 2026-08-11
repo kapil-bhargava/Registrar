@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 namespace Regis.Services
 {
     /// <summary>
-    /// One combined service for the entire Admission module (Steps 1–8):
+    /// One combined service for the entire Admission module (Steps 1–8)://
     /// Admission Setup, Eligibility Check, Student Registration, Application
     /// Management, Document Verification, Counselling, Fee Payment, Admission
     /// Final. Mirrors AcademicSetupService's Flag + DBHelper pattern.
