@@ -1,0 +1,477 @@
+﻿@{
+    ViewBag.Title = "ParentDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<style>
+    .pd-search-row {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 12px;
+    }
+
+        .pd-search-row input {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            width: 260px;
+            max-width: 100%;
+        }
+
+    .af-three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 18px;
+    }
+
+    @@media (max-width: 1100px) {
+        .af-three-col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .af-grad-green {
+        background: linear-gradient(90deg,#10B981,#34D399);
+    }
+
+    .af-green-labels label {
+        color: #047857;
+    }
+
+    .af-mobile-row {
+        display: flex;
+        gap: 6px;
+    }
+
+        .af-mobile-row span {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 10px;
+            background: #F9FAFB;
+            font-size: 13.5px;
+        }
+
+        .af-mobile-row input {
+            flex: 1;
+        }
+</style>
+
+<div class="af-wrap">
+
+    <input type="hidden" id="pdApplicationId" value="0" />
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="pdListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-users"></i> Parent Details</h2>
+                <p>Select an application below to view or edit its parent / guardian details.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="pdShowForm(0, false, 'new')">
+                <i class="fas fa-plus-circle"></i> Add New
+            </button>
+        </div>
+
+        <div class="pd-search-row">
+            <input type="text" id="pdSearchBox" placeholder="Search by name, application no..." oninput="pdFilterTable()">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Father's Name</th>
+                        <th>Mother's Name</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pdTableBody">
+                    <tr><td colspan="6" style="text-align:center; color:#6B7A99;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= FORM PAGE ================= -->
+    <div id="pdFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="pdShowList()"><i class="fas fa-arrow-left"></i> Back to List</button>
+        </div>
+
+        <div class="af-page-header">
+            <span class="af-eyebrow">New admission</span>
+            <h1 id="pdFormTitle">Parent details</h1>
+        </div>
+
+        <div class="af-three-col">
+
+            <!-- Father's information -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-purple">
+                    <span class="af-icon">👨</span>
+                    <span>Father's information</span>
+                </div>
+                <div class="af-card-body af-purple-labels" style="grid-template-columns:1fr;">
+                    <div class="af-field">
+                        <label>Title</label>
+                        <select id="pdFatherTitle"><option value="">Choose</option><option>Mr.</option><option>Dr.</option><option>Late Mr.</option></select>
+                    </div>
+                    <div class="af-field">
+                        <label>First name<span class="req">*</span></label>
+                        <input type="text" id="pdFatherFirstName">
+                    </div>
+                    <div class="af-field">
+                        <label>Last name</label>
+                        <input type="text" id="pdFatherLastName">
+                    </div>
+                    <div class="af-field">
+                        <label>Email ID</label>
+                        <input type="email" id="pdFatherEmail">
+                    </div>
+                    <div class="af-field">
+                        <label>Mobile number</label>
+                        <div class="af-mobile-row"><span>+91</span><input type="text" id="pdFatherMobile" maxlength="10" inputmode="numeric"></div>
+                    </div>
+                    <div class="af-field">
+                        <label>Occupation</label>
+                        <select id="pdFatherOccupation">
+                            <option value="">Choose</option>
+                            <option>Salaried</option>
+                            <option>Self-Employed</option>
+                            <option>Business</option>
+                            <option>Farmer</option>
+                            <option>Retired</option>
+                            <option>Not Employed</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="af-field">
+                        <label>Organization name</label>
+                        <input type="text" id="pdFatherOrganization">
+                    </div>
+                    <div class="af-field">
+                        <label>Designation</label>
+                        <input type="text" id="pdFatherDesignation">
+                    </div>
+                    <div class="af-field">
+                        <label>Annual income</label>
+                        <input type="number" id="pdFatherAnnualIncome" placeholder="₹">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mother's information -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-crimson">
+                    <span class="af-icon">👩</span>
+                    <span>Mother's information</span>
+                </div>
+                <div class="af-card-body af-crimson-labels" style="grid-template-columns:1fr;">
+                    <div class="af-field">
+                        <label>Title</label>
+                        <select id="pdMotherTitle"><option value="">Choose</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option><option>Late Mrs.</option></select>
+                    </div>
+                    <div class="af-field">
+                        <label>First name<span class="req">*</span></label>
+                        <input type="text" id="pdMotherFirstName">
+                    </div>
+                    <div class="af-field">
+                        <label>Last name</label>
+                        <input type="text" id="pdMotherLastName">
+                    </div>
+                    <div class="af-field">
+                        <label>Email ID</label>
+                        <input type="email" id="pdMotherEmail">
+                    </div>
+                    <div class="af-field">
+                        <label>Mobile number</label>
+                        <div class="af-mobile-row"><span>+91</span><input type="text" id="pdMotherMobile" maxlength="10" inputmode="numeric"></div>
+                    </div>
+                    <div class="af-field">
+                        <label>Occupation</label>
+                        <select id="pdMotherOccupation">
+                            <option value="">Choose</option>
+                            <option>Salaried</option>
+                            <option>Self-Employed</option>
+                            <option>Business</option>
+                            <option>Homemaker</option>
+                            <option>Retired</option>
+                            <option>Not Employed</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="af-field">
+                        <label>Organization name</label>
+                        <input type="text" id="pdMotherOrganization">
+                    </div>
+                    <div class="af-field">
+                        <label>Designation</label>
+                        <input type="text" id="pdMotherDesignation">
+                    </div>
+                    <div class="af-field">
+                        <label>Annual income</label>
+                        <input type="number" id="pdMotherAnnualIncome" placeholder="₹">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local guardian information -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-green">
+                    <span class="af-icon">🧑‍🤝‍🧑</span>
+                    <span>Local guardian information</span>
+                </div>
+                <div class="af-card-body af-green-labels" style="grid-template-columns:1fr;">
+                    <div class="af-field">
+                        <label>Title</label>
+                        <select id="pdGuardianTitle"><option value="">Choose</option><option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option></select>
+                    </div>
+                    <div class="af-field">
+                        <label>First name</label>
+                        <input type="text" id="pdGuardianFirstName">
+                    </div>
+                    <div class="af-field">
+                        <label>Last name</label>
+                        <input type="text" id="pdGuardianLastName">
+                    </div>
+                    <div class="af-field">
+                        <label>Email ID</label>
+                        <input type="email" id="pdGuardianEmail">
+                    </div>
+                    <div class="af-field">
+                        <label>Mobile number</label>
+                        <div class="af-mobile-row"><span>+91</span><input type="text" id="pdGuardianMobile" maxlength="10" inputmode="numeric"></div>
+                    </div>
+                    <div class="af-field">
+                        <label>Occupation</label>
+                        <select id="pdGuardianOccupation">
+                            <option value="">Choose</option>
+                            <option>Salaried</option>
+                            <option>Self-Employed</option>
+                            <option>Business</option>
+                            <option>Retired</option>
+                            <option>Not Employed</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="af-field">
+                        <label>Organization name</label>
+                        <input type="text" id="pdGuardianOrganization">
+                    </div>
+                    <div class="af-field">
+                        <label>Designation</label>
+                        <input type="text" id="pdGuardianDesignation">
+                    </div>
+                    <div class="af-field">
+                        <label>Annual income</label>
+                        <input type="number" id="pdGuardianAnnualIncome" placeholder="₹">
+                    </div>
+                    <div class="af-field">
+                        <label>Family income</label>
+                        <select id="pdGuardianFamilyIncome">
+                            <option value="">Choose</option>
+                            <option>Below 1 Lakh</option>
+                            <option>1–3 Lakh</option>
+                            <option>3–5 Lakh</option>
+                            <option>5–10 Lakh</option>
+                            <option>10+ Lakh</option>
+                        </select>
+                    </div>
+                    <div class="af-field">
+                        <label>Relationship with student</label>
+                        <select id="pdGuardianRelationship">
+                            <option value="">Choose</option>
+                            <option>Uncle</option>
+                            <option>Aunt</option>
+                            <option>Grandfather</option>
+                            <option>Grandmother</option>
+                            <option>Family friend</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="af-footer-bar">
+            <button class="af-btn af-btn-ghost" onclick="pdGoBack()">Back</button>
+            <button class="af-btn af-btn-primary" id="pdSubmitBtn" onclick="pdSaveAndContinue()"><span id="pdSubmitText">Save and continue</span></button>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="as-toast" id="pdToast"><i class="fas fa-check-circle"></i><span id="pdToastMessage">Success!</span></div>
+
+<script>
+    var pdCurrentList = [];
+    var pdCurrentMode = 'new';
+    var pdFieldIds = ['pdFatherTitle', 'pdFatherFirstName', 'pdFatherLastName', 'pdFatherEmail', 'pdFatherMobile', 'pdFatherOccupation', 'pdFatherOrganization', 'pdFatherDesignation', 'pdFatherAnnualIncome',
+        'pdMotherTitle', 'pdMotherFirstName', 'pdMotherLastName', 'pdMotherEmail', 'pdMotherMobile', 'pdMotherOccupation', 'pdMotherOrganization', 'pdMotherDesignation', 'pdMotherAnnualIncome',
+        'pdGuardianTitle', 'pdGuardianFirstName', 'pdGuardianLastName', 'pdGuardianEmail', 'pdGuardianMobile', 'pdGuardianOccupation', 'pdGuardianOrganization', 'pdGuardianDesignation', 'pdGuardianAnnualIncome', 'pdGuardianFamilyIncome', 'pdGuardianRelationship'];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var qsAppId = getQueryParam('applicationId');
+        if (qsAppId && parseInt(qsAppId) > 0) {
+            pdShowForm(parseInt(qsAppId), false, 'wizard');
+        } else {
+            pdLoadList();
+        }
+    });
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function pdShowToast(msg, type) {
+        const toast = document.getElementById('pdToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ----- LIST -----
+    function pdLoadList() {
+        document.getElementById('pdTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">Loading...</td></tr>';
+        fetch('/Admission/GetAllPersonalInformation')
+            .then(res => res.json())
+            .then(data => {
+                pdCurrentList = data || [];
+                pdRenderTable(pdCurrentList);
+            })
+            .catch(() => pdShowToast('Unable to load applications', 'error'));
+    }
+
+    function pdRenderTable(list) {
+        const tbody = document.getElementById('pdTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications found</td></tr>';
+            return;
+        }
+
+        list.forEach(r => {
+            const fatherName = [r.FatherFirstName, r.FatherLastName].filter(Boolean).join(' ') || '-';
+            const motherName = [r.MotherFirstName, r.MotherLastName].filter(Boolean).join(' ') || '-';
+            const row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (r.ApplicationNo || '-') + '</td>' +
+                '<td><strong>' + (r.FullName || '') + '</strong></td>' +
+                '<td>' + fatherName + '</td>' +
+                '<td>' + motherName + '</td>' +
+                '<td><span class="as-pill as-pill-draft">' + (r.Stage || '') + '</span></td>' +
+                '<td>' +
+                '<button type="button" class="as-mini-btn" title="View" onclick="pdShowForm(' + r.ApplicationId + ', true, \'view\')"><i class="fas fa-eye"></i></button>' +
+                '<button type="button" class="as-mini-btn" title="Edit" onclick="pdShowForm(' + r.ApplicationId + ', false, \'edit\')"><i class="fas fa-edit"></i></button>' +
+                '</td>';
+            tbody.appendChild(row);
+        });
+    }
+    function pdFilterTable() {
+        const term = document.getElementById('pdSearchBox').value.trim().toLowerCase();
+        if (!term) { pdRenderTable(pdCurrentList); return; }
+        const filtered = pdCurrentList.filter(r =>
+            (r.FullName || '').toLowerCase().includes(term) ||
+            (r.ApplicationNo || '').toLowerCase().includes(term)
+        );
+        pdRenderTable(filtered);
+    }
+
+    // ----- SHOW FORM (Add / Edit / View) -----
+    function pdShowForm(applicationId, readOnly, mode) {
+        pdResetForm();
+        pdCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
+        document.getElementById('pdApplicationId').value = applicationId || 0;
+
+        pdFieldIds.forEach(id => document.getElementById(id).disabled = !!readOnly);
+
+        document.getElementById('pdSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
+        document.getElementById('pdFormTitle').textContent = readOnly ? 'View parent details' : 'Parent details';
+        document.getElementById('pdSubmitText').textContent = (pdCurrentMode === 'edit') ? 'Update' : 'Save and continue';
+
+        if (applicationId && applicationId > 0) {
+            fetch('/Admission/GetParentDetailsById?applicationId=' + applicationId)
+                .then(res => res.json())
+                .then(m => {
+                    if (!m) { pdGoToFormView(); return; }
+                    pdFieldIds.forEach(id => {
+                        var key = id.replace('pd', '');
+                        var val = m[key];
+                        document.getElementById(id).value = (val === null || val === undefined) ? '' : val;
+                    });
+                    pdGoToFormView();
+                })
+                .catch(() => { pdShowToast('Unable to load application', 'error'); pdGoToFormView(); });
+        } else {
+            pdGoToFormView();
+        }
+    }
+
+    function pdGoToFormView() {
+        document.getElementById('pdListWrap').style.display = 'none';
+        document.getElementById('pdFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function pdResetForm() {
+        pdFieldIds.forEach(id => document.getElementById(id).value = '');
+    }
+
+    function pdShowList() {
+        document.getElementById('pdFormWrap').style.display = 'none';
+        document.getElementById('pdListWrap').style.display = 'block';
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        pdLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function pdGoBack() {
+        var appId = parseInt(document.getElementById('pdApplicationId').value) || 0;
+        window.location.href = '/Admission/AddressInformation?applicationId=' + appId;
+    }
+
+    // ----- SAVE -----
+    function pdSaveAndContinue() {
+        var appId = parseInt(document.getElementById('pdApplicationId').value) || 0;
+        if (!appId) { pdShowToast('Application not found — start from Personal Information', 'error'); return; }
+
+        var payload = { ApplicationId: appId };
+        pdFieldIds.forEach(id => {
+            var key = id.replace('pd', '');
+            payload[key] = document.getElementById(id).value;
+        });
+
+        fetch('/Admission/SaveParentDetails', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { pdShowToast(data.message, 'error'); return; }
+                pdShowToast(data.message, 'success');
+
+                if (pdCurrentMode === 'edit') {
+                    setTimeout(() => pdShowList(), 700);
+                } else {
+                    setTimeout(() => window.location.href = '/Admission/BankDetails?applicationId=' + appId, 700);
+                }
+            })
+            .catch(() => pdShowToast('Server error while saving', 'error'));
+    }
+</script>

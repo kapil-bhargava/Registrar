@@ -1,0 +1,456 @@
+﻿@{
+    ViewBag.Title = "AddressInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<style>
+    .adr-search-row {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 12px;
+    }
+
+        .adr-search-row input {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            width: 260px;
+            max-width: 100%;
+        }
+
+    .af-toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .af-switch {
+        position: relative;
+        display: inline-block;
+        width: 42px;
+        height: 22px;
+        flex-shrink: 0;
+    }
+
+        .af-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .af-switch-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #D1D5DB;
+        border-radius: 22px;
+        transition: .15s;
+    }
+
+        .af-switch-slider:before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: .15s;
+        }
+
+    .af-switch input:checked + .af-switch-slider {
+        background: #F97316;
+    }
+
+        .af-switch input:checked + .af-switch-slider:before {
+            transform: translateX(20px);
+        }
+</style>
+
+<div class="af-wrap">
+
+    <input type="hidden" id="adrApplicationId" value="0" />
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="adrListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-map-marker-alt"></i> Address Information</h2>
+                <p>Select an application below to view or edit its address information.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="adrShowForm(0, false, 'new')">
+                <i class="fas fa-plus-circle"></i> Add New
+            </button>
+        </div>
+
+        <div class="adr-search-row">
+            <input type="text" id="adrSearchBox" placeholder="Search by name, application no, city..." oninput="adrFilterTable()">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Permanent City</th>
+                        <th>Permanent State</th>
+                        <th>Local City</th>
+                        <th>Local State</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adrTableBody">
+                    <tr><td colspan="8" style="text-align:center; color:#6B7A99;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= FORM PAGE ================= -->
+    <div id="adrFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="adrShowList()"><i class="fas fa-arrow-left"></i> Back to List</button>
+        </div>
+
+        <div class="af-page-header">
+            <span class="af-eyebrow">New admission</span>
+            <h1 id="adrFormTitle">Address information</h1>
+            <p style="color:#6B7A99; font-size:13px; margin-top:4px;">Fields marked * are required.</p>
+        </div>
+
+        <div class="af-two-col">
+
+            <!-- Permanent address -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-purple">
+                    <span class="af-icon">🏠</span>
+                    <span>Permanent address</span>
+                </div>
+                <div class="af-card-body af-purple-labels">
+                    <div class="af-field af-full">
+                        <label>Address<span class="req">*</span></label>
+                        <input type="text" id="adrPermanentAddress" placeholder="House no, street, area">
+                    </div>
+                    <div class="af-field">
+                        <label>Country<span class="req">*</span></label>
+                        <input type="text" id="adrPermanentCountry" placeholder="e.g. India">
+                    </div>
+                    <div class="af-field">
+                        <label>State<span class="req">*</span></label>
+                        <input type="text" id="adrPermanentState">
+                    </div>
+                    <div class="af-field">
+                        <label>District</label>
+                        <input type="text" id="adrPermanentDistrict">
+                    </div>
+                    <div class="af-field">
+                        <label>City<span class="req">*</span></label>
+                        <input type="text" id="adrPermanentCity">
+                    </div>
+                    <div class="af-field">
+                        <label>PIN code<span class="req">*</span></label>
+                        <input type="text" id="adrPermanentPinCode" maxlength="6" inputmode="numeric">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local address -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-crimson">
+                    <span class="af-icon">📍</span>
+                    <span>Local address</span>
+                    <div class="af-toggle-row" style="margin-left:auto;">
+                        <label class="af-switch">
+                            <input type="checkbox" id="adrSameAsPermanent" onchange="adrToggleSameAsPermanent()">
+                            <span class="af-switch-slider"></span>
+                        </label>
+                        <span style="font-size:12.5px;">Same as permanent</span>
+                    </div>
+                </div>
+                <div class="af-card-body af-crimson-labels">
+                    <div class="af-field af-full">
+                        <label>Address<span class="req">*</span></label>
+                        <input type="text" id="adrLocalAddress" placeholder="House no, street, area">
+                    </div>
+                    <div class="af-field">
+                        <label>Country<span class="req">*</span></label>
+                        <input type="text" id="adrLocalCountry" placeholder="e.g. India">
+                    </div>
+                    <div class="af-field">
+                        <label>State<span class="req">*</span></label>
+                        <input type="text" id="adrLocalState">
+                    </div>
+                    <div class="af-field">
+                        <label>District</label>
+                        <input type="text" id="adrLocalDistrict">
+                    </div>
+                    <div class="af-field">
+                        <label>City<span class="req">*</span></label>
+                        <input type="text" id="adrLocalCity">
+                    </div>
+                    <div class="af-field">
+                        <label>PIN code<span class="req">*</span></label>
+                        <input type="text" id="adrLocalPinCode" maxlength="6" inputmode="numeric">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="af-footer-bar">
+            <button class="af-btn af-btn-ghost" onclick="adrGoBack()">Back</button>
+            <button class="af-btn af-btn-primary" id="adrSubmitBtn" onclick="adrSaveAndContinue()"><span id="adrSubmitText">Save and continue</span></button>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="as-toast" id="adrToast"><i class="fas fa-check-circle"></i><span id="adrToastMessage">Success!</span></div>
+
+<script>
+    var adrCurrentList = [];
+    // 'wizard' = arrived via redirect from a previous step (keep moving forward through the wizard)
+    // 'edit'   = opened from the list's Edit icon (should return to the list after saving)
+    // 'new'    = opened from "Add New" (no application selected yet)
+    // 'view'   = read-only
+    var adrCurrentMode = 'new';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var qsAppId = getQueryParam('applicationId');
+        if (qsAppId && parseInt(qsAppId) > 0) {
+            // Came here from the wizard (e.g. after Admission Information save) — jump straight to the form.
+            adrShowForm(parseInt(qsAppId), false, 'wizard');
+        } else {
+            adrLoadList();
+        }
+    });
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function adrShowToast(msg, type) {
+        const toast = document.getElementById('adrToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ----- LIST -----
+    function adrLoadList() {
+        document.getElementById('adrTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">Loading...</td></tr>';
+        fetch('/Admission/GetAllPersonalInformation')
+            .then(res => res.json())
+            .then(data => {
+                adrCurrentList = data || [];
+                adrRenderTable(adrCurrentList);
+            })
+            .catch(() => adrShowToast('Unable to load applications', 'error'));
+    }
+
+    function adrRenderTable(list) {
+        const tbody = document.getElementById('adrTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No applications found</td></tr>';
+            return;
+        }
+
+        list.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (r.ApplicationNo || '-') + '</td>' +
+                '<td><strong>' + (r.FullName || '') + '</strong></td>' +
+                '<td>' + (r.PermanentCity || '-') + '</td>' +
+                '<td>' + (r.PermanentState || '-') + '</td>' +
+                '<td>' + (r.LocalCity || '-') + '</td>' +
+                '<td>' + (r.LocalState || '-') + '</td>' +
+                '<td><span class="as-pill as-pill-draft">' + (r.Stage || '') + '</span></td>' +
+                '<td>' +
+                '<button type="button" class="as-mini-btn" title="View" onclick="adrShowForm(' + r.ApplicationId + ', true, \'view\')"><i class="fas fa-eye"></i></button>' +
+                '<button type="button" class="as-mini-btn" title="Edit" onclick="adrShowForm(' + r.ApplicationId + ', false, \'edit\')"><i class="fas fa-edit"></i></button>' +
+                '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    function adrFilterTable() {
+        const term = document.getElementById('adrSearchBox').value.trim().toLowerCase();
+        if (!term) { adrRenderTable(adrCurrentList); return; }
+        const filtered = adrCurrentList.filter(r =>
+            (r.FullName || '').toLowerCase().includes(term) ||
+            (r.ApplicationNo || '').toLowerCase().includes(term) ||
+            (r.PermanentCity || '').toLowerCase().includes(term) ||
+            (r.LocalCity || '').toLowerCase().includes(term)
+        );
+        adrRenderTable(filtered);
+    }
+
+    // ----- SAME AS PERMANENT -----
+    function adrToggleSameAsPermanent() {
+        const same = document.getElementById('adrSameAsPermanent').checked;
+        const localIds = ['adrLocalAddress', 'adrLocalCountry', 'adrLocalState', 'adrLocalDistrict', 'adrLocalCity', 'adrLocalPinCode'];
+
+        if (same) {
+            document.getElementById('adrLocalAddress').value = document.getElementById('adrPermanentAddress').value;
+            document.getElementById('adrLocalCountry').value = document.getElementById('adrPermanentCountry').value;
+            document.getElementById('adrLocalState').value = document.getElementById('adrPermanentState').value;
+            document.getElementById('adrLocalDistrict').value = document.getElementById('adrPermanentDistrict').value;
+            document.getElementById('adrLocalCity').value = document.getElementById('adrPermanentCity').value;
+            document.getElementById('adrLocalPinCode').value = document.getElementById('adrPermanentPinCode').value;
+        }
+
+        localIds.forEach(id => document.getElementById(id).disabled = same);
+    }
+
+    // ----- SHOW FORM (Add / Edit / View) -----
+    function adrShowForm(applicationId, readOnly, mode) {
+        adrResetForm();
+        adrCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
+        document.getElementById('adrApplicationId').value = applicationId || 0;
+
+        const permIds = ['adrPermanentAddress', 'adrPermanentCountry', 'adrPermanentState', 'adrPermanentDistrict', 'adrPermanentCity', 'adrPermanentPinCode'];
+        const localIds = ['adrLocalAddress', 'adrLocalCountry', 'adrLocalState', 'adrLocalDistrict', 'adrLocalCity', 'adrLocalPinCode'];
+        permIds.concat(localIds).forEach(id => document.getElementById(id).disabled = !!readOnly);
+        document.getElementById('adrSameAsPermanent').disabled = !!readOnly;
+
+        document.getElementById('adrSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
+        document.getElementById('adrFormTitle').textContent = readOnly ? 'View address information' : 'Address information';
+        document.getElementById('adrSubmitText').textContent = (adrCurrentMode === 'edit') ? 'Update' : 'Save and continue';
+
+        if (applicationId && applicationId > 0) {
+            fetch('/Admission/GetAddressInformationById?applicationId=' + applicationId)
+                .then(res => res.json())
+                .then(m => {
+                    if (!m) { adrGoToFormView(); return; }
+                    document.getElementById('adrPermanentAddress').value = m.PermanentAddress || '';
+                    document.getElementById('adrPermanentCountry').value = m.PermanentCountry || '';
+                    document.getElementById('adrPermanentState').value = m.PermanentState || '';
+                    document.getElementById('adrPermanentDistrict').value = m.PermanentDistrict || '';
+                    document.getElementById('adrPermanentCity').value = m.PermanentCity || '';
+                    document.getElementById('adrPermanentPinCode').value = m.PermanentPinCode || '';
+
+                    document.getElementById('adrSameAsPermanent').checked = !!m.LocalSameAsPermanent;
+                    document.getElementById('adrLocalAddress').value = m.LocalAddress || '';
+                    document.getElementById('adrLocalCountry').value = m.LocalCountry || '';
+                    document.getElementById('adrLocalState').value = m.LocalState || '';
+                    document.getElementById('adrLocalDistrict').value = m.LocalDistrict || '';
+                    document.getElementById('adrLocalCity').value = m.LocalCity || '';
+                    document.getElementById('adrLocalPinCode').value = m.LocalPinCode || '';
+
+                    if (!readOnly) {
+                        localIds.forEach(id => document.getElementById(id).disabled = !!m.LocalSameAsPermanent);
+                    }
+
+                    adrGoToFormView();
+                })
+                .catch(() => { adrShowToast('Unable to load application', 'error'); adrGoToFormView(); });
+        } else {
+            adrGoToFormView();
+        }
+    }
+
+    function adrGoToFormView() {
+        document.getElementById('adrListWrap').style.display = 'none';
+        document.getElementById('adrFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function adrResetForm() {
+        const fieldIds = ['adrPermanentAddress', 'adrPermanentCountry', 'adrPermanentState', 'adrPermanentDistrict', 'adrPermanentCity', 'adrPermanentPinCode',
+            'adrLocalAddress', 'adrLocalCountry', 'adrLocalState', 'adrLocalDistrict', 'adrLocalCity', 'adrLocalPinCode'];
+        fieldIds.forEach(id => document.getElementById(id).value = '');
+        document.getElementById('adrSameAsPermanent').checked = false;
+    }
+
+    function adrShowList() {
+        document.getElementById('adrFormWrap').style.display = 'none';
+        document.getElementById('adrListWrap').style.display = 'block';
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        adrLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function adrGoBack() {
+        var appId = parseInt(document.getElementById('adrApplicationId').value) || 0;
+        window.location.href = '/Admission/AdmissionInformation?applicationId=' + appId;
+    }
+
+    // ----- SAVE -----
+    function adrSaveAndContinue() {
+        var appId = parseInt(document.getElementById('adrApplicationId').value) || 0;
+        if (!appId) { adrShowToast('Application not found — start from Personal Information', 'error'); return; }
+
+        var permanentAddress = document.getElementById('adrPermanentAddress').value.trim();
+        var permanentCountry = document.getElementById('adrPermanentCountry').value.trim();
+        var permanentState = document.getElementById('adrPermanentState').value.trim();
+        var permanentCity = document.getElementById('adrPermanentCity').value.trim();
+        var permanentPinCode = document.getElementById('adrPermanentPinCode').value.trim();
+
+        if (!permanentAddress || !permanentCountry || !permanentState || !permanentCity || !permanentPinCode) {
+            adrShowToast('Please fill all required (*) Permanent address fields', 'error');
+            return;
+        }
+
+        var sameAsPermanent = document.getElementById('adrSameAsPermanent').checked;
+
+        var payload = {
+            ApplicationId: appId,
+            PermanentAddress: permanentAddress,
+            PermanentCountry: permanentCountry,
+            PermanentState: permanentState,
+            PermanentDistrict: document.getElementById('adrPermanentDistrict').value,
+            PermanentCity: permanentCity,
+            PermanentPinCode: permanentPinCode,
+
+            LocalSameAsPermanent: sameAsPermanent,
+            LocalAddress: sameAsPermanent ? permanentAddress : document.getElementById('adrLocalAddress').value,
+            LocalCountry: sameAsPermanent ? permanentCountry : document.getElementById('adrLocalCountry').value,
+            LocalState: sameAsPermanent ? permanentState : document.getElementById('adrLocalState').value,
+            LocalDistrict: sameAsPermanent ? document.getElementById('adrPermanentDistrict').value : document.getElementById('adrLocalDistrict').value,
+            LocalCity: sameAsPermanent ? permanentCity : document.getElementById('adrLocalCity').value,
+            LocalPinCode: sameAsPermanent ? permanentPinCode : document.getElementById('adrLocalPinCode').value
+        };
+
+        if (!sameAsPermanent) {
+            if (!payload.LocalAddress || !payload.LocalCountry || !payload.LocalState || !payload.LocalCity || !payload.LocalPinCode) {
+                adrShowToast('Please fill all required (*) Local address fields', 'error');
+                return;
+            }
+        }
+
+        fetch('/Admission/SaveAddressInformation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { adrShowToast(data.message, 'error'); return; }
+                adrShowToast(data.message, 'success');
+
+                if (adrCurrentMode === 'edit') {
+                    // Edited from the list — go back to the list, don't push the user further into the wizard.
+                    setTimeout(() => adrShowList(), 700);
+                } else {
+                    // Came from the wizard (or a fresh Add New) — keep moving forward.
+                    setTimeout(() => window.location.href = '/Admission/ParentDetails?applicationId=' + appId, 700);
+                }
+            })
+            .catch(() => adrShowToast('Server error while saving', 'error'));
+    }
+</script>

@@ -1,0 +1,336 @@
+﻿@{
+    ViewBag.Title = "BankDetails";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<style>
+    .bd-search-row {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 12px;
+    }
+
+        .bd-search-row input {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            width: 260px;
+            max-width: 100%;
+        }
+
+    .bd-ifsc-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+        .bd-ifsc-row input {
+            flex: 1;
+        }
+
+    .bd-confirm-btn {
+        background: #10B981;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .bd-confirm-btn:disabled {
+            opacity: .6;
+            cursor: default;
+        }
+
+    .bd-divider {
+        border: none;
+        border-top: 1px solid #E5E7EB;
+        margin: 14px 0;
+        grid-column: 1 / -1;
+    }
+</style>
+
+<div class="af-wrap">
+
+    <input type="hidden" id="bdApplicationId" value="0" />
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="bdListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-university"></i> Bank Details</h2>
+                <p>Select an application below to view or edit its bank details.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="bdShowForm(0, false, 'new')">
+                <i class="fas fa-plus-circle"></i> Add New
+            </button>
+        </div>
+
+        <div class="bd-search-row">
+            <input type="text" id="bdSearchBox" placeholder="Search by name, application no, bank..." oninput="bdFilterTable()">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Bank Name</th>
+                        <th>Account Number</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bdTableBody">
+                    <tr><td colspan="6" style="text-align:center; color:#6B7A99;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= FORM PAGE ================= -->
+    <div id="bdFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="bdShowList()"><i class="fas fa-arrow-left"></i> Back to List</button>
+        </div>
+
+        <div class="af-card" style="max-width:640px;">
+            <div class="af-card-head af-grad-purple">
+                <span class="af-icon">🏦</span>
+                <span>Bank information</span>
+            </div>
+            <p style="padding:12px 20px 0; color:#6B7A99; font-size:12.5px;">Used for fee refunds and scholarships</p>
+
+            <div class="af-card-body af-purple-labels" style="grid-template-columns:1fr;">
+                <div class="af-field">
+                    <label>IFSC code</label>
+                    <div class="bd-ifsc-row">
+                        <input type="text" id="bdIFSCCode" maxlength="11" style="text-transform:uppercase;">
+                        <button type="button" class="bd-confirm-btn" id="bdConfirmBtn" onclick="bdConfirmIFSC()">Confirm IFSC</button>
+                    </div>
+                </div>
+                <div class="af-field">
+                    <label>Bank name</label>
+                    <input type="text" id="bdBankName">
+                </div>
+                <div class="af-field">
+                    <label>Branch name</label>
+                    <input type="text" id="bdBranchName">
+                </div>
+
+                <hr class="bd-divider">
+
+                <div class="af-field">
+                    <label>Account holder name</label>
+                    <input type="text" id="bdAccountHolderName">
+                </div>
+                <div class="af-field">
+                    <label>Account number</label>
+                    <input type="text" id="bdAccountNumber" inputmode="numeric">
+                </div>
+                <div class="af-field">
+                    <label>PAN number of account holder</label>
+                    <input type="text" id="bdPANNumber" maxlength="10" style="text-transform:uppercase;">
+                </div>
+            </div>
+        </div>
+
+        <div class="af-footer-bar" style="max-width:640px;">
+            <button class="af-btn af-btn-ghost" onclick="bdGoBack()">Back</button>
+            <button class="af-btn af-btn-primary" id="bdSubmitBtn" onclick="bdSaveAndContinue()"><span id="bdSubmitText">Save and continue</span></button>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="as-toast" id="bdToast"><i class="fas fa-check-circle"></i><span id="bdToastMessage">Success!</span></div>
+
+<script>
+    var bdCurrentList = [];
+    var bdCurrentMode = 'new';
+    var bdFieldIds = ['bdIFSCCode', 'bdBankName', 'bdBranchName', 'bdAccountHolderName', 'bdAccountNumber', 'bdPANNumber'];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var qsAppId = getQueryParam('applicationId');
+        if (qsAppId && parseInt(qsAppId) > 0) {
+            bdShowForm(parseInt(qsAppId), false, 'wizard');
+        } else {
+            bdLoadList();
+        }
+    });
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function bdShowToast(msg, type) {
+        const toast = document.getElementById('bdToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ----- CONFIRM IFSC : auto-fill Bank name + Branch name -----
+    function bdConfirmIFSC() {
+        var code = document.getElementById('bdIFSCCode').value.trim().toUpperCase();
+        if (!code || code.length !== 11) { bdShowToast('Enter a valid 11-character IFSC code', 'error'); return; }
+
+        var btn = document.getElementById('bdConfirmBtn');
+        btn.disabled = true;
+        btn.textContent = 'Checking...';
+
+        fetch('https://ifsc.razorpay.com/' + code)
+            .then(res => { if (!res.ok) throw new Error('not found'); return res.json(); })
+            .then(data => {
+                document.getElementById('bdBankName').value = data.BANK || '';
+                document.getElementById('bdBranchName').value = data.BRANCH || '';
+                bdShowToast('IFSC verified — bank details filled', 'success');
+            })
+            .catch(() => bdShowToast('IFSC not found — please fill Bank/Branch manually', 'error'))
+            .finally(() => { btn.disabled = false; btn.textContent = 'Confirm IFSC'; });
+    }
+
+    // ----- LIST -----
+    function bdLoadList() {
+        document.getElementById('bdTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">Loading...</td></tr>';
+        fetch('/Admission/GetAllPersonalInformation')
+            .then(res => res.json())
+            .then(data => {
+                bdCurrentList = data || [];
+                bdRenderTable(bdCurrentList);
+            })
+            .catch(() => bdShowToast('Unable to load applications', 'error'));
+    }
+
+    function bdRenderTable(list) {
+        const tbody = document.getElementById('bdTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No applications found</td></tr>';
+            return;
+        }
+        list.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (r.ApplicationNo || '-') + '</td>' +
+                '<td><strong>' + (r.FullName || '') + '</strong></td>' +
+                '<td>' + (r.BankName || '-') + '</td>' +
+                '<td>' + (r.AccountNumber || '-') + '</td>' +
+                '<td><span class="as-pill as-pill-draft">' + (r.Stage || '') + '</span></td>' +
+                '<td>' +
+                '<button type="button" class="as-mini-btn" title="View" onclick="bdShowForm(' + r.ApplicationId + ', true, \'view\')"><i class="fas fa-eye"></i></button>' +
+                '<button type="button" class="as-mini-btn" title="Edit" onclick="bdShowForm(' + r.ApplicationId + ', false, \'edit\')"><i class="fas fa-edit"></i></button>' +
+                '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    function bdFilterTable() {
+        const term = document.getElementById('bdSearchBox').value.trim().toLowerCase();
+        if (!term) { bdRenderTable(bdCurrentList); return; }
+        const filtered = bdCurrentList.filter(r =>
+            (r.FullName || '').toLowerCase().includes(term) ||
+            (r.ApplicationNo || '').toLowerCase().includes(term)
+        );
+        bdRenderTable(filtered);
+    }
+
+    // ----- SHOW FORM (Add / Edit / View) -----
+    function bdShowForm(applicationId, readOnly, mode) {
+        bdResetForm();
+        bdCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
+        document.getElementById('bdApplicationId').value = applicationId || 0;
+
+        bdFieldIds.forEach(id => document.getElementById(id).disabled = !!readOnly);
+        document.getElementById('bdConfirmBtn').style.display = readOnly ? 'none' : 'inline-block';
+
+        document.getElementById('bdSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
+        document.getElementById('bdSubmitText').textContent = (bdCurrentMode === 'edit') ? 'Update' : 'Save and continue';
+
+        if (applicationId && applicationId > 0) {
+            fetch('/Admission/GetBankDetailsById?applicationId=' + applicationId)
+                .then(res => res.json())
+                .then(m => {
+                    if (!m) { bdGoToFormView(); return; }
+                    document.getElementById('bdIFSCCode').value = m.IFSCCode || '';
+                    document.getElementById('bdBankName').value = m.BankName || '';
+                    document.getElementById('bdBranchName').value = m.BranchName || '';
+                    document.getElementById('bdAccountHolderName').value = m.AccountHolderName || '';
+                    document.getElementById('bdAccountNumber').value = m.AccountNumber || '';
+                    document.getElementById('bdPANNumber').value = m.PANNumber || '';
+                    bdGoToFormView();
+                })
+                .catch(() => { bdShowToast('Unable to load application', 'error'); bdGoToFormView(); });
+        } else {
+            bdGoToFormView();
+        }
+    }
+
+    function bdGoToFormView() {
+        document.getElementById('bdListWrap').style.display = 'none';
+        document.getElementById('bdFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bdResetForm() {
+        bdFieldIds.forEach(id => document.getElementById(id).value = '');
+    }
+
+    function bdShowList() {
+        document.getElementById('bdFormWrap').style.display = 'none';
+        document.getElementById('bdListWrap').style.display = 'block';
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        bdLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bdGoBack() {
+        var appId = parseInt(document.getElementById('bdApplicationId').value) || 0;
+        window.location.href = '/Admission/ParentDetails?applicationId=' + appId;
+    }
+
+    // ----- SAVE -----
+    function bdSaveAndContinue() {
+        var appId = parseInt(document.getElementById('bdApplicationId').value) || 0;
+        if (!appId) { bdShowToast('Application not found — start from Personal Information', 'error'); return; }
+
+        var payload = { ApplicationId: appId };
+        bdFieldIds.forEach(id => {
+            var key = id.replace('bd', '');
+            payload[key] = document.getElementById(id).value;
+        });
+
+        fetch('/Admission/SaveBankDetails', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { bdShowToast(data.message, 'error'); return; }
+                bdShowToast(data.message, 'success');
+
+                if (bdCurrentMode === 'edit') {
+                    setTimeout(() => bdShowList(), 700);
+                } else {
+                    setTimeout(() => window.location.href = '/Admission/AcademicRecords?applicationId=' + appId, 700);
+                }
+            })
+            .catch(() => bdShowToast('Server error while saving', 'error'));
+    }
+</script>

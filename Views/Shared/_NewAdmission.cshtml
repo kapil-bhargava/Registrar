@@ -1,12 +1,21 @@
 ﻿@{
-    var navStudentId = ViewBag.StudentId ?? Session["StudentId"];
+    // Query string me applicationId aaya to Session update kar do, warna Session me jo pehle se hai wahi use karo
+    if (Request.QueryString["applicationId"] != null)
+    {
+        int qsAppId;
+        if (int.TryParse(Request.QueryString["applicationId"], out qsAppId) && qsAppId > 0)
+        {
+            Session["ApplicationId"] = qsAppId;
+        }
+    }
+    var navApplicationId = Session["ApplicationId"];
     string action = ViewContext.RouteData.Values["action"].ToString();
 }
 <style>
     .cp-sticky-header {
         position: sticky;
-        top: 60px; /* apne top navbar (DASHBOARD bar) ki actual height yahan daalo */
-        z-index: 998; /* navbar ke z-index se 1 kam rakho taaki navbar hamesha upar rahe */
+        top: 60px;
+        z-index: 998;
         background: #fff;
         border-radius: 12px;
         box-shadow: 0 2px 10px rgba(20, 20, 43, 0.06);
@@ -79,37 +88,37 @@
     <div class="cp-nav-tabs">
 
         <a class="cp-nav-link @(action == "PersonalInformation" ? "active" : "")"
-           href="@Url.Action("PersonalInformation", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("PersonalInformation", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-user"></i> Personal Information
         </a>
 
         <a class="cp-nav-link @(action == "AdmissionInformation" ? "active" : "")"
-           href="@Url.Action("AdmissionInformation", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("AdmissionInformation", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-file-signature"></i> Admission Information
         </a>
 
         <a class="cp-nav-link @(action == "AddressInformation" ? "active" : "")"
-           href="@Url.Action("AddressInformation", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("AddressInformation", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-map-marker-alt"></i> Address Information
         </a>
 
         <a class="cp-nav-link @(action == "ParentDetails" ? "active" : "")"
-           href="@Url.Action("ParentDetails", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("ParentDetails", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-users"></i> Parent Details
         </a>
 
         <a class="cp-nav-link @(action == "BankDetails" ? "active" : "")"
-           href="@Url.Action("BankDetails", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("BankDetails", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-university"></i> Bank Details
         </a>
 
         <a class="cp-nav-link @(action == "AcademicRecords" ? "active" : "")"
-           href="@Url.Action("AcademicRecords", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("AcademicRecords", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-book"></i> Academic Records
         </a>
 
         <a class="cp-nav-link @(action == "AdditionalDetails" ? "active" : "")"
-           href="@Url.Action("AdditionalDetails", "NewAdmission", new { studentId = navStudentId })">
+           href="@Url.Action("AdditionalDetails", "Admission", new { applicationId = navApplicationId })">
             <i class="fas fa-plus-circle"></i> Additional Details
         </a>
 

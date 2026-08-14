@@ -1,0 +1,494 @@
+﻿@using Regis.Models
+@{
+    ViewBag.Title = "PersonalInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
+@Html.Partial("_NewAdmission");
+
+<style>
+    .sa-wrap { font-family:'Inter',sans-serif; max-width:1200px; margin:0 auto; }
+    .sa-header { background:linear-gradient(90deg,#6D28D9,#DB2777); color:#fff; font-size:20px; font-weight:700; padding:16px 22px; border-radius:10px 10px 0 0; }
+    .sa-body { border:1px solid #E5E7EB; border-top:none; border-radius:0 0 10px 10px; padding:18px; background:#fff; }
+    .sa-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+    .sa-card { border:1px solid #E5E7EB; border-radius:10px; overflow:hidden; }
+    .sa-card-head { padding:10px 16px; font-weight:700; color:#fff; font-size:14px; display:flex; align-items:center; gap:8px; }
+    .sa-purple { background:linear-gradient(90deg,#7C3AED,#9333EA); }
+    .sa-orange { background:linear-gradient(90deg,#F97316,#FB923C); }
+    .sa-blue   { background:linear-gradient(90deg,#0EA5E9,#38BDF8); }
+    .sa-green  { background:linear-gradient(90deg,#10B981,#34D399); }
+    .sa-pink   { background:linear-gradient(90deg,#EF4444,#EC4899); }
+    .sa-card-body { padding:16px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    .sa-card-body.sa-cols2 { grid-template-columns:1fr 1fr; }
+    .sa-field { display:flex; flex-direction:column; gap:5px; }
+    .sa-field label { font-size:12.5px; font-weight:600; color:#111827; }
+    .sa-field .req { color:#DC2626; }
+    .sa-field input, .sa-field select {
+        border:1px solid #D1D5DB; border-radius:7px; padding:9px 10px; font-size:13.5px; font-family:'Inter',sans-serif; background:#fff;
+    }
+    .sa-field input:disabled, .sa-field select:disabled { background:#F3F4F6; color:#6B7280; }
+    .sa-photo-box { display:flex; align-items:center; gap:12px; grid-column:span 3; }
+    .sa-photo-circle { width:56px; height:56px; border-radius:50%; background:#F3E8FF; display:flex; align-items:center; justify-content:center; font-size:22px; color:#7C3AED; overflow:hidden; flex-shrink:0; }
+    .sa-photo-circle img { width:100%; height:100%; object-fit:cover; }
+    .sa-photo-btn { background:#7C3AED; color:#fff; border:none; border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; }
+    .sa-photo-hint { font-size:11.5px; color:#6B7280; margin-top:2px; }
+    .sa-radio-row { display:flex; gap:14px; align-items:center; padding-top:6px; font-size:13.5px; }
+    .sa-radio-row label { display:flex; align-items:center; gap:5px; font-weight:500; color:#111827; }
+    .sa-mobile-row { display:flex; gap:6px; }
+    .sa-mobile-row span { border:1px solid #D1D5DB; border-radius:7px; padding:9px 10px; background:#F9FAFB; font-size:13.5px; }
+    .sa-mobile-row input { flex:1; }
+    .sa-bar { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+    @@media (max-width:900px){ .sa-grid2{grid-template-columns:1fr;} .sa-card-body{grid-template-columns:1fr 1fr;} }
+</style>
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="piListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-user-plus"></i> New Admission <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 1 · PERSONAL INFORMATION</span></h2>
+                <p>Submitting here creates an Application (Application Number auto-generated) that flows to the next steps.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="piShowForm(null, false)">
+                <i class="fas fa-plus-circle"></i> Add New
+            </button>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Citizenship</th>
+                        <th>Registered On</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="piTableBody">
+                    <tr><td colspan="9" style="text-align:center; color:#6B7A99;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT / VIEW FORM ================= -->
+    <div class="sa-wrap" id="piFormWrap" style="display:none; margin-top:10px;">
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="piShowList()"><i class="fas fa-arrow-left"></i> Back to List</button>
+        </div>
+
+        <div class="sa-header" id="piFormTitle">Student admission form</div>
+        <div class="sa-body">
+
+            <input type="hidden" id="piApplicationId" value="0" />
+
+            <div class="sa-grid2">
+                <!-- Basic information -->
+                <div class="sa-card">
+                    <div class="sa-card-head sa-purple"><i class="fas fa-user"></i> Basic information</div>
+                    <div class="sa-card-body">
+                        <div class="sa-photo-box">
+                            <div class="sa-photo-circle" id="piPhotoCircle"><i class="fas fa-user"></i></div>
+                            <div>
+                                <button type="button" class="sa-photo-btn" onclick="document.getElementById('piPhotoInput').click()">Upload photo</button>
+                                <input type="file" id="piPhotoInput" accept="image/*" style="display:none" onchange="piPreviewPhoto(this)">
+                                <div class="sa-photo-hint">PNG, JPG or JPEG · Max 2 MB · Passport size only</div>
+                            </div>
+                        </div>
+                        <div class="sa-field">
+                            <label>Title</label>
+                            <select id="piTitle"><option value="">Choose</option><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select>
+                        </div>
+                        <div class="sa-field">
+                            <label>First name <span class="req">*</span></label>
+                            <input type="text" id="piFirstName" oninput="piBuildDisplayName()">
+                        </div>
+                        <div class="sa-field">
+                            <label>Middle name</label>
+                            <input type="text" id="piMiddleName" oninput="piBuildDisplayName()">
+                        </div>
+                        <div class="sa-field">
+                            <label>Last name</label>
+                            <input type="text" id="piLastName" oninput="piBuildDisplayName()">
+                        </div>
+                        <div class="sa-field">
+                            <label>Display name format</label>
+                            <select id="piDisplayNameFormat" onchange="piBuildDisplayName()">
+                                <option value="First Last">First Last</option>
+                                <option value="Last, First">Last, First</option>
+                                <option value="First Middle Last">First Middle Last</option>
+                            </select>
+                        </div>
+                        <div class="sa-field">
+                            <label>Display name</label>
+                            <input type="text" id="piDisplayName" readonly placeholder="Auto-generated">
+                        </div>
+                        <div class="sa-field">
+                            <label>Marital status</label>
+                            <select id="piMaritalStatus"><option value="">Choose</option><option>Single</option><option>Married</option></select>
+                        </div>
+                        <div class="sa-field">
+                            <label>Gender <span class="req">*</span></label>
+                            <select id="piGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
+                        </div>
+                        <div class="sa-field">
+                            <label>Date of birth <span class="req">*</span></label>
+                            <input type="date" id="piDob">
+                        </div>
+                        <div class="sa-field">
+                            <label>Email ID <span class="req">*</span></label>
+                            <input type="email" id="piEmail" placeholder="name@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin information -->
+                <div class="sa-card">
+                    <div class="sa-card-head sa-orange"><i class="fas fa-id-badge"></i> Admin information</div>
+                    <div class="sa-card-body sa-cols2">
+                        <div class="sa-field">
+                            <label>Registration number</label>
+                            <input type="text" readonly placeholder="Auto-generated at Admission (Final)">
+                        </div>
+                        <div class="sa-field">
+                            <label>University / enrollment number</label>
+                            <input type="text" readonly placeholder="Auto-generated at Admission (Final)">
+                        </div>
+                        <div class="sa-field" style="grid-column:span 2;">
+                            <label>Application number</label>
+                            <input type="text" id="piApplicationNo" readonly placeholder="Auto-generated on first save">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal information -->
+            <div class="sa-card" style="margin-bottom:18px;">
+                <div class="sa-card-head sa-blue"><i class="fas fa-id-card"></i> Personal information</div>
+                <div class="sa-card-body">
+                    <div class="sa-field"><label>Birth state</label><input type="text" id="piBirthState"></div>
+                    <div class="sa-field"><label>Birth place</label><input type="text" id="piBirthPlace"></div>
+                    <div class="sa-field">
+                        <label>WhatsApp mobile number</label>
+                        <div class="sa-mobile-row"><span>+91</span><input type="text" id="piWhatsApp" maxlength="10"></div>
+                    </div>
+                    <div class="sa-field"><label>Referral source</label><input type="text" id="piReferral"></div>
+                    <div class="sa-field">
+                        <label>Physically challenged</label>
+                        <div class="sa-radio-row">
+                            <label><input type="radio" name="piPhysicallyChallenged" value="true"> Yes</label>
+                            <label><input type="radio" name="piPhysicallyChallenged" value="false" checked> No</label>
+                        </div>
+                    </div>
+                    <div class="sa-field">
+                        <label>Blood group</label>
+                        <select id="piBloodGroup">
+                            <option value="">Choose</option>
+                            <option>A+</option>
+                            <option>A-</option>
+                            <option>B+</option>
+                            <option>B-</option>
+                            <option>O+</option>
+                            <option>O-</option>
+                            <option>AB+</option>
+                            <option>AB-</option>
+                        </select>
+                    </div>
+                    <div class="sa-field"><label>Identity mark</label><input type="text" id="piIdentityMark" placeholder="e.g. Mole on left cheek"></div>
+                    <div class="sa-field"><label>Mother tongue</label><input type="text" id="piMotherTongue"></div>
+                </div>
+            </div>
+
+            <div class="sa-grid2">
+                <!-- Contact details -->
+                <div class="sa-card">
+                    <div class="sa-card-head sa-green"><i class="fas fa-phone-alt"></i> Contact details</div>
+                    <div class="sa-card-body sa-cols2">
+                        <div class="sa-field"><label>Institute email ID</label><input type="text" id="piInstituteEmail"></div>
+                        <div class="sa-field">
+                            <label>Mobile number <span class="req">*</span></label>
+                            <div class="sa-mobile-row"><span>+91</span><input type="text" id="piPhone" maxlength="10" inputmode="numeric" oninput="piValidatePhoneInput(this)"></div>
+                        </div>
+                        <div class="sa-field">
+                            <label>Alternate mobile number</label>
+                            <div class="sa-mobile-row"><span>+91</span><input type="text" id="piAltMobile" maxlength="10"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identity & domicile -->
+                <div class="sa-card">
+                    <div class="sa-card-head sa-pink"><i class="fas fa-globe"></i> Identity and domicile</div>
+                    <div class="sa-card-body sa-cols2">
+                        <div class="sa-field">
+                            <label>Citizenship <span class="req">*</span></label>
+                            <input type="text" id="piCitizenship" placeholder="e.g. Indian">
+                        </div>
+                        <div class="sa-field"><label>Domicile country</label><input type="text" id="piDomicileCountry"></div>
+                        <div class="sa-field"><label>Domicile state</label><input type="text" id="piDomicileState"></div>
+                        <div class="sa-field"><label>Nationality</label><input type="text" id="piNationality"></div>
+                        <div class="sa-field"><label>Religion</label><input type="text" id="piReligion"></div>
+                        <div class="sa-field"><label>Caste</label><input type="text" id="piCaste"></div>
+                        <div class="sa-field"><label>ABC ID</label><input type="text" id="piAbcId"></div>
+                        <div class="sa-field"><label>Anti-Ragging ID</label><input type="text" id="piAntiRaggingId"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sa-bar">
+                <button class="as-btn as-btn-ghost" onclick="piShowList()">Cancel</button>
+                <button class="as-btn as-btn-primary" id="piSubmitBtn" onclick="piSave()"><i class="fas fa-save"></i> <span id="piSubmitText">Save &amp; Submit</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="as-toast" id="piToast"><i class="fas fa-check-circle"></i><span id="piToastMessage">Success!</span></div>
+
+<script>
+    var piCurrentList = [];
+
+    document.addEventListener('DOMContentLoaded', function () { piLoadList(); });
+
+    function piShowToast(msg, type) {
+        const toast = document.getElementById('piToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function piValidatePhoneInput(input) {
+        input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+    }
+
+    function piPreviewPhoto(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('piPhotoCircle').innerHTML = '<img src="' + e.target.result + '">';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function piBuildDisplayName() {
+        const first = document.getElementById('piFirstName').value.trim();
+        const middle = document.getElementById('piMiddleName').value.trim();
+        const last = document.getElementById('piLastName').value.trim();
+        const format = document.getElementById('piDisplayNameFormat').value;
+
+        let display = '';
+        if (format === 'Last, First') display = [last, first].filter(Boolean).join(', ');
+        else if (format === 'First Middle Last') display = [first, middle, last].filter(Boolean).join(' ');
+        else display = [first, last].filter(Boolean).join(' ');
+
+        document.getElementById('piDisplayName').value = display;
+    }
+
+    // ----- LIST -----
+    function piLoadList() {
+        fetch('/Admission/GetAllPersonalInformation')
+            .then(res => res.json())
+            .then(data => {
+                piCurrentList = data;
+                piRenderTable();
+            })
+            .catch(() => piShowToast('Unable to load applications', 'error'));
+    }
+    // paste karo piRenderTable() ke UPAR
+    function parseAspDate(v) {
+        if (!v) return null;
+        var m = /\/Date\((\d+)\)\//.exec(v);
+        var d = m ? new Date(parseInt(m[1])) : new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    function piRenderTable() {
+        const tbody = document.getElementById('piTableBody');
+        tbody.innerHTML = '';
+
+        if (!piCurrentList || piCurrentList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6B7A99;">No applications yet — click "Add New" to register a student</td></tr>';
+            return;
+        }
+
+        piCurrentList.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (r.ApplicationNo || '-') + '</td>' +
+                '<td><strong>' + (r.FullName || '') + '</strong></td>' +
+                '<td>' + (r.Email || '') + '</td>' +
+                '<td>' + (r.Phone || '') + '</td>' +
+                '<td>' + (r.Gender || '') + '</td>' +
+                '<td>' + (r.Citizenship || '') + '</td>' +
+                '<td>' + (parseAspDate(r.RegisteredOn) ? parseAspDate(r.RegisteredOn).toLocaleDateString('en-GB') : '-') + '</td>' +
+                '<td><span class="as-pill as-pill-draft">' + (r.Stage || '') + '</span></td>' +
+                '<td>' +
+                '<button type="button" class="as-mini-btn" title="View" onclick="piShowForm(' + r.ApplicationId + ', true)"><i class="fas fa-eye"></i></button>' +
+                '<button type="button" class="as-mini-btn" title="Edit" onclick="piShowForm(' + r.ApplicationId + ', false)"><i class="fas fa-edit"></i></button>' +
+                '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    // ----- SHOW FORM (Add / Edit / View) -----
+    function piShowForm(applicationId, readOnly) {
+        piResetForm();
+
+        const fieldIds = ['piTitle', 'piFirstName', 'piMiddleName', 'piLastName', 'piDisplayNameFormat', 'piMaritalStatus',
+            'piGender', 'piDob', 'piEmail', 'piPhone', 'piBirthState', 'piBirthPlace', 'piWhatsApp', 'piReferral',
+            'piBloodGroup', 'piIdentityMark', 'piMotherTongue', 'piInstituteEmail', 'piAltMobile',
+            'piCitizenship', 'piDomicileCountry', 'piDomicileState', 'piNationality', 'piReligion', 'piCaste',
+            'piAbcId', 'piAntiRaggingId'];
+        fieldIds.forEach(id => document.getElementById(id).disabled = !!readOnly);
+        document.querySelectorAll('input[name="piPhysicallyChallenged"]').forEach(r => r.disabled = !!readOnly);
+
+        document.getElementById('piSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
+        document.getElementById('piFormTitle').textContent = readOnly ? 'View admission form' : 'Student admission form';
+        document.getElementById('piSubmitText').textContent = applicationId ? 'Update' : 'Save & Submit';
+
+        if (applicationId) {
+            fetch('/Admission/GetPersonalInformationById?applicationId=' + applicationId)
+                .then(res => res.json())
+                .then(m => {
+                    document.getElementById('piApplicationId').value = m.ApplicationId;
+                    document.getElementById('piApplicationNo').value = m.ApplicationNo || '';
+                    document.getElementById('piTitle').value = m.Title || '';
+                    document.getElementById('piFirstName').value = m.FirstName || '';
+                    document.getElementById('piMiddleName').value = m.MiddleName || '';
+                    document.getElementById('piLastName').value = m.LastName || '';
+                    document.getElementById('piDisplayNameFormat').value = m.DisplayNameFormat || 'First Last';
+                    document.getElementById('piDisplayName').value = m.DisplayName || '';
+                    document.getElementById('piMaritalStatus').value = m.MaritalStatus || '';
+                    document.getElementById('piGender').value = m.Gender || 'Male';
+                    document.getElementById('piDob').value = m.DOB ? m.DOB.substring(0, 10) : '';
+                    document.getElementById('piEmail').value = m.Email || '';
+                    document.getElementById('piPhone').value = m.Phone || '';
+                    document.getElementById('piBirthState').value = m.BirthState || '';
+                    document.getElementById('piBirthPlace').value = m.BirthPlace || '';
+                    document.getElementById('piWhatsApp').value = (m.WhatsAppNumber || '').replace('+91-', '');
+                    document.getElementById('piReferral').value = m.ReferralSource || '';
+                    document.querySelector('input[name="piPhysicallyChallenged"][value="' + (m.PhysicallyChallenged ? 'true' : 'false') + '"]').checked = true;
+                    document.getElementById('piBloodGroup').value = m.BloodGroup || '';
+                    document.getElementById('piIdentityMark').value = m.IdentityMark || '';
+                    document.getElementById('piMotherTongue').value = m.MotherTongue || '';
+                    document.getElementById('piAltMobile').value = (m.AlternateMobileNumber || '').replace('+91-', '');
+                    document.getElementById('piCitizenship').value = m.Citizenship || '';
+                    document.getElementById('piDomicileCountry').value = m.DomicileCountry || '';
+                    document.getElementById('piDomicileState').value = m.DomicileState || '';
+                    document.getElementById('piNationality').value = m.Nationality || '';
+                    document.getElementById('piReligion').value = m.Religion || '';
+                    document.getElementById('piCaste').value = m.Caste || '';
+                    document.getElementById('piAbcId').value = m.ABCId || '';
+                    document.getElementById('piAntiRaggingId').value = m.AntiRaggingId || '';
+
+                    piGoToFormView();
+                })
+                .catch(() => piShowToast('Unable to load application', 'error'));
+        } else {
+            piGoToFormView();
+        }
+    }
+
+    function piGoToFormView() {
+        document.getElementById('piListWrap').style.display = 'none';
+        document.getElementById('piFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function piResetForm() {
+        document.getElementById('piApplicationId').value = 0;
+        document.getElementById('piApplicationNo').value = '';
+        document.getElementById('piPhotoCircle').innerHTML = '<i class="fas fa-user"></i>';
+        ['piTitle', 'piFirstName', 'piMiddleName', 'piLastName', 'piMaritalStatus', 'piDob', 'piEmail', 'piPhone',
+            'piBirthState', 'piBirthPlace', 'piWhatsApp', 'piReferral', 'piBloodGroup', 'piIdentityMark', 'piMotherTongue',
+            'piInstituteEmail', 'piAltMobile', 'piCitizenship', 'piDomicileCountry', 'piDomicileState', 'piNationality',
+            'piReligion', 'piCaste', 'piAbcId', 'piAntiRaggingId', 'piDisplayName'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('piDisplayNameFormat').value = 'First Last';
+        document.getElementById('piGender').value = 'Male';
+        document.querySelector('input[name="piPhysicallyChallenged"][value="false"]').checked = true;
+    }
+
+    function piShowList() {
+        document.getElementById('piFormWrap').style.display = 'none';
+        document.getElementById('piListWrap').style.display = 'block';
+        piLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ----- SAVE (Insert or Update) -----
+    function piSave() {
+        const firstName = document.getElementById('piFirstName').value.trim();
+        if (!firstName) { piShowToast('First Name is required', 'error'); return; }
+        const email = document.getElementById('piEmail').value.trim();
+        if (!email) { piShowToast('Email is required', 'error'); return; }
+        const phone = document.getElementById('piPhone').value.trim();
+        if (!/^[0-9]{10}$/.test(phone)) { piShowToast('Phone must be exactly 10 digits', 'error'); return; }
+        const citizenship = document.getElementById('piCitizenship').value.trim();
+        if (!citizenship) { piShowToast('Please enter Citizenship', 'error'); return; }
+
+        const payload = {
+            ApplicationId: parseInt(document.getElementById('piApplicationId').value) || 0,
+            Email: email,
+            Phone: phone,
+            DOB: document.getElementById('piDob').value || null,
+            Gender: document.getElementById('piGender').value,
+
+            Title: document.getElementById('piTitle').value,
+            FirstName: firstName,
+            MiddleName: document.getElementById('piMiddleName').value,
+            LastName: document.getElementById('piLastName').value,
+            DisplayNameFormat: document.getElementById('piDisplayNameFormat').value,
+            DisplayName: document.getElementById('piDisplayName').value,
+            MaritalStatus: document.getElementById('piMaritalStatus').value,
+
+            BirthState: document.getElementById('piBirthState').value,
+            BirthPlace: document.getElementById('piBirthPlace').value,
+            WhatsAppNumber: document.getElementById('piWhatsApp').value ? ('+91-' + document.getElementById('piWhatsApp').value) : '',
+            ReferralSource: document.getElementById('piReferral').value,
+            PhysicallyChallenged: document.querySelector('input[name="piPhysicallyChallenged"]:checked').value === 'true',
+            BloodGroup: document.getElementById('piBloodGroup').value,
+            IdentityMark: document.getElementById('piIdentityMark').value,
+            MotherTongue: document.getElementById('piMotherTongue').value,
+            AlternateMobileNumber: document.getElementById('piAltMobile').value ? ('+91-' + document.getElementById('piAltMobile').value) : '',
+
+            Citizenship: citizenship,
+            DomicileCountry: document.getElementById('piDomicileCountry').value,
+            DomicileState: document.getElementById('piDomicileState').value,
+            Nationality: document.getElementById('piNationality').value,
+            Religion: document.getElementById('piReligion').value,
+            Caste: document.getElementById('piCaste').value,
+            ABCId: document.getElementById('piAbcId').value,
+            AntiRaggingId: document.getElementById('piAntiRaggingId').value
+        };
+
+        fetch('/Admission/SavePersonalInformation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { piShowToast(data.message, 'error'); return; }
+                piShowToast(data.message, 'success');
+                var isNew = !payload.ApplicationId;
+                var appId = data.applicationId;
+                setTimeout(() => {
+                    if (isNew && appId) {
+                        window.location.href = '/Admission/AdmissionInformation?applicationId=' + appId;
+                    } else {
+                        piShowList();
+                    }
+                }, 700);
+            })
+            .catch(() => piShowToast('Server error while saving', 'error'));
+    }
+</script>

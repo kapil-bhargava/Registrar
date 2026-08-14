@@ -466,7 +466,7 @@ namespace Regis.Services
             var list = new List<ProgramModel>();
             using (SqlConnection con = db.GetConnection())
             {
-                SqlCommand cmd = new SqlCommand("sp_Program", con);
+                SqlCommand cmd = new SqlCommand("sp_ProgramMaster", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "GETALL");
                 con.Open();
@@ -493,7 +493,7 @@ namespace Regis.Services
             var list = new List<ProgramModel>();
             using (SqlConnection con = db.GetConnection())
             {
-                SqlCommand cmd = new SqlCommand("sp_Program", con);
+                SqlCommand cmd = new SqlCommand("sp_ProgramMaster", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "GETACTIVE");
                 con.Open();
@@ -516,7 +516,7 @@ namespace Regis.Services
         {
             using (SqlConnection con = db.GetConnection())
             {
-                SqlCommand cmd = new SqlCommand("sp_Program", con);
+                SqlCommand cmd = new SqlCommand("sp_ProgramMaster", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "INSERT");
                 cmd.Parameters.AddWithValue("@ProgramCode", model.ProgramCode);
@@ -534,7 +534,7 @@ namespace Regis.Services
         {
             using (SqlConnection con = db.GetConnection())
             {
-                SqlCommand cmd = new SqlCommand("sp_Program", con);
+                SqlCommand cmd = new SqlCommand("sp_ProgramMaster", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "UPDATE");
                 cmd.Parameters.AddWithValue("@ProgramId", model.ProgramId);
@@ -553,7 +553,7 @@ namespace Regis.Services
         {
             using (SqlConnection con = db.GetConnection())
             {
-                SqlCommand cmd = new SqlCommand("sp_Program", con);
+                SqlCommand cmd = new SqlCommand("sp_ProgramMaster", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "DELETE");
                 cmd.Parameters.AddWithValue("@ProgramId", id);
@@ -562,7 +562,6 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
-
         // =========================================================
         // COURSE
         // ProgramId -> FK to Program, DepartmentId -> FK to Department

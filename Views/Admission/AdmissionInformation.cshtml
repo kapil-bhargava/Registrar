@@ -1,0 +1,415 @@
+﻿@{
+    ViewBag.Title = "AdmissionInformation";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+<link href="~/Content/CSS/Addressinformation.css" rel="stylesheet" />
+<link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
+
+@Html.Partial("_NewAdmission");
+
+<style>
+    .ai-search-row {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 12px;
+    }
+
+        .ai-search-row input {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            width: 260px;
+            max-width: 100%;
+        }
+</style>
+
+<div class="af-wrap">
+
+    <input type="hidden" id="aiApplicationId" value="0" />
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="aiListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-file-signature"></i> Admission Information</h2>
+                <p>Select an application below to view or edit its Admission Information.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="aiShowForm(0, false, 'new')">
+                <i class="fas fa-plus-circle"></i> Add New
+            </button>
+        </div>
+
+        <div class="ai-search-row">
+            <input type="text" id="aiSearchBox" placeholder="Search by name, application no, degree..." oninput="aiFilterTable()">
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Application No.</th>
+                        <th>Name</th>
+                        <th>Degree</th>
+                        <th>Branch</th>
+                        <th>Session</th>
+                        <th>Date of Admission</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="aiTableBody">
+                    <tr><td colspan="8" style="text-align:center; color:#6B7A99;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= FORM PAGE ================= -->
+    <div id="aiFormWrap" style="display:none;">
+
+        <div class="as-back-row">
+            <button class="as-back-link" onclick="aiShowList()"><i class="fas fa-arrow-left"></i> Back to List</button>
+        </div>
+
+        <div class="af-page-header">
+            <span class="af-eyebrow">New admission</span>
+            <h1 id="aiFormTitle">Admission information</h1>
+        </div>
+
+        <div class="af-two-col">
+
+            <!-- Current academic information -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-purple">
+                    <span class="af-icon">🎓</span>
+                    <span>Current academic information</span>
+                </div>
+                <div class="af-card-body af-purple-labels">
+                    <div class="af-field af-full">
+                        <label>Academic stream<span class="req">*</span></label>
+                        <input type="text" id="aiAcademicStream" placeholder="e.g. Science / Commerce">
+                    </div>
+                    <div class="af-field af-full">
+                        <label>Admission Setup (Course + Session)<span class="req">*</span></label>
+                        <select id="aiAdmissionSetupId" onchange="aiOnSetupChange()">
+                            <option value="">-- Select --</option>
+                            @foreach (var s in (List<Regis.Models.AdmissionSetupModel>)ViewBag.OpenSetups)
+                            {
+                                <option value="@s.AdmissionSetupId" data-course="@s.CourseName" data-session="@s.SessionName">
+                                    @s.CourseName — @s.SessionName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="af-field">
+                        <label>Category<span class="req">*</span></label>
+                        <select id="aiCategoryId">
+                            <option value="">-- Select --</option>
+                            @foreach (var c in (List<Regis.Models.CategoryModel>)ViewBag.Categories)
+                            {
+                                <option value="@c.CategoryId">@c.CategoryName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="af-field">
+                        <label>Degree<span class="req">*</span></label>
+                        <input type="text" id="aiDegree">
+                    </div>
+                    <div class="af-field">
+                        <label>Branch<span class="req">*</span></label>
+                        <input type="text" id="aiBranch">
+                    </div>
+                    <div class="af-field">
+                        <label>Academic batch<span class="req">*</span></label>
+                        <input type="text" id="aiAcademicBatch">
+                    </div>
+                    <div class="af-field">
+                        <label>Enrollment<span class="req">*</span></label>
+                        <input type="text" id="aiEnrollment">
+                    </div>
+                    <div class="af-field">
+                        <label>Year<span class="req">*</span></label>
+                        <input type="text" id="aiAcademicYear">
+                    </div>
+                    <div class="af-field">
+                        <label>Semester<span class="req">*</span></label>
+                        <input type="text" id="aiSemester">
+                    </div>
+                    <div class="af-field">
+                        <label>Scheme<span class="req">*</span></label>
+                        <input type="text" id="aiScheme">
+                    </div>
+                    <div class="af-field">
+                        <label>Class section</label>
+                        <input type="text" id="aiClassSection">
+                    </div>
+                    <div class="af-field">
+                        <label>Roll number</label>
+                        <input type="text" id="aiRollNumber" placeholder="Auto-generated" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admission information -->
+            <div class="af-card">
+                <div class="af-card-head af-grad-crimson">
+                    <span class="af-icon">📄</span>
+                    <span>Admission information</span>
+                </div>
+                <div class="af-card-body af-crimson-labels">
+                    <div class="af-field">
+                        <label>Date of admission<span class="req">*</span></label>
+                        <input type="date" id="aiDateOfAdmission">
+                    </div>
+                    <div class="af-field">
+                        <label>Admission category<span class="req">*</span></label>
+                        <input type="text" id="aiAdmissionCategory">
+                    </div>
+                    <div class="af-field">
+                        <label>Fees category<span class="req">*</span></label>
+                        <input type="text" id="aiFeesCategory">
+                    </div>
+                    <div class="af-field">
+                        <label>Shift</label>
+                        <input type="text" id="aiShift">
+                    </div>
+                    <div class="af-field">
+                        <label>Entrance exam reg. no.</label>
+                        <input type="text" id="aiEntranceExamRegNo" placeholder="Optional">
+                    </div>
+                    <div class="af-field">
+                        <label>Entrance exam merit no.</label>
+                        <input type="text" id="aiEntranceExamMeritNo" placeholder="Optional">
+                    </div>
+                    <div class="af-field af-full">
+                        <label>Reference name</label>
+                        <input type="text" id="aiReferenceName" placeholder="Optional">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="af-footer-bar">
+            <button class="af-btn af-btn-ghost" onclick="aiShowList()">Back</button>
+            <button class="af-btn af-btn-primary" id="aiSubmitBtn" onclick="aiSaveAndContinue()"><span id="aiSubmitText">Save and continue</span></button>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="as-toast" id="aiToast"><i class="fas fa-check-circle"></i><span id="aiToastMessage">Success!</span></div>
+
+<script>
+    var aiCurrentList = [];
+    // 'wizard' = arrived via redirect from a previous step (keep moving forward through the wizard)
+    // 'edit'   = opened from the list's Edit icon (should return to the list after saving)
+    // 'new'    = opened from "Add New" (no application selected yet)
+    // 'view'   = read-only
+    var aiCurrentMode = 'new';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var qsAppId = getQueryParam('applicationId');
+        if (qsAppId && parseInt(qsAppId) > 0) {
+            // Came here from the wizard (e.g. after Personal Information save) — jump straight to the form.
+            aiShowForm(parseInt(qsAppId), false, 'wizard');
+        } else {
+            aiLoadList();
+        }
+    });
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    function aiShowToast(msg, type) {
+        const toast = document.getElementById('aiToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ----- LIST -----
+    function aiLoadList() {
+        document.getElementById('aiTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">Loading...</td></tr>';
+        fetch('/Admission/GetAllPersonalInformation')
+            .then(res => res.json())
+            .then(data => {
+                aiCurrentList = data || [];
+                aiRenderTable(aiCurrentList);
+            })
+            .catch(() => aiShowToast('Unable to load applications', 'error'));
+    }
+
+    function aiRenderTable(list) {
+        const tbody = document.getElementById('aiTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No applications found</td></tr>';
+            return;
+        }
+
+        list.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + (r.ApplicationNo || '-') + '</td>' +
+                '<td><strong>' + (r.FullName || '') + '</strong></td>' +
+                '<td>' + (r.Degree || '-') + '</td>' +
+                '<td>' + (r.Branch || '-') + '</td>' +
+                '<td>' + (r.AcademicSessionName || '-') + '</td>' +
+                '<td>' + (parseAspDate(r.DateOfAdmission) ? parseAspDate(r.DateOfAdmission).toLocaleDateString('en-GB') : '-') + '</td>' +
+                '<td><span class="as-pill as-pill-draft">' + (r.Stage || '') + '</span></td>' +
+                '<td>' +
+                '<button type="button" class="as-mini-btn" title="View" onclick="aiShowForm(' + r.ApplicationId + ', true, \'view\')"><i class="fas fa-eye"></i></button>' +
+                '<button type="button" class="as-mini-btn" title="Edit" onclick="aiShowForm(' + r.ApplicationId + ', false, \'edit\')"><i class="fas fa-edit"></i></button>' +
+                '</td>';
+            tbody.appendChild(row);
+        });
+    }
+
+    function aiFilterTable() {
+        const term = document.getElementById('aiSearchBox').value.trim().toLowerCase();
+        if (!term) { aiRenderTable(aiCurrentList); return; }
+        const filtered = aiCurrentList.filter(r =>
+            (r.FullName || '').toLowerCase().includes(term) ||
+            (r.ApplicationNo || '').toLowerCase().includes(term) ||
+            (r.Degree || '').toLowerCase().includes(term) ||
+            (r.Branch || '').toLowerCase().includes(term)
+        );
+        aiRenderTable(filtered);
+    }
+
+    // ----- SHOW FORM (Add / Edit / View) -----
+    function aiShowForm(applicationId, readOnly, mode) {
+        aiResetForm();
+        aiCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
+        document.getElementById('aiApplicationId').value = applicationId || 0;
+
+        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiBranch', 'aiAcademicBatch',
+            'aiEnrollment', 'aiAcademicYear', 'aiSemester', 'aiScheme', 'aiClassSection',
+            'aiDateOfAdmission', 'aiAdmissionCategory', 'aiFeesCategory', 'aiShift',
+            'aiEntranceExamRegNo', 'aiEntranceExamMeritNo', 'aiReferenceName'];
+        fieldIds.forEach(id => document.getElementById(id).disabled = !!readOnly);
+
+        document.getElementById('aiSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
+        document.getElementById('aiFormTitle').textContent = readOnly ? 'View admission information' : 'Admission information';
+        document.getElementById('aiSubmitText').textContent = (aiCurrentMode === 'edit') ? 'Update' : 'Save and continue';
+
+        if (applicationId && applicationId > 0) {
+            fetch('/Admission/GetAdmissionInformationById?applicationId=' + applicationId)
+                .then(res => res.json())
+                .then(m => {
+                    if (!m) { aiGoToFormView(); return; }
+                    document.getElementById('aiAcademicStream').value = m.AcademicStream || '';
+                    document.getElementById('aiAcademicSessionName').value = m.AcademicSessionName || '';
+                    document.getElementById('aiDegree').value = m.Degree || '';
+                    document.getElementById('aiBranch').value = m.Branch || '';
+                    document.getElementById('aiAcademicBatch').value = m.AcademicBatch || '';
+                    document.getElementById('aiEnrollment').value = m.Enrollment || '';
+                    document.getElementById('aiAcademicYear').value = m.AcademicYear || '';
+                    document.getElementById('aiSemester').value = m.Semester || '';
+                    document.getElementById('aiScheme').value = m.Scheme || '';
+                    document.getElementById('aiClassSection').value = m.ClassSection || '';
+                    document.getElementById('aiRollNumber').value = m.RollNumber || '';
+                    document.getElementById('aiDateOfAdmission').value = m.DateOfAdmission ? m.DateOfAdmission.substring(0, 10) : '';
+                    document.getElementById('aiAdmissionCategory').value = m.AdmissionCategory || '';
+                    document.getElementById('aiFeesCategory').value = m.FeesCategory || '';
+                    document.getElementById('aiShift').value = m.Shift || '';
+                    document.getElementById('aiAdmissionSetupId').value = m.AdmissionSetupId || '';
+                    document.getElementById('aiCategoryId').value = m.CategoryId || '';
+                    document.getElementById('aiEntranceExamRegNo').value = m.EntranceExamRegNo || '';
+                    document.getElementById('aiEntranceExamMeritNo').value = m.EntranceExamMeritNo || '';
+                    document.getElementById('aiReferenceName').value = m.ReferenceName || '';
+                    aiGoToFormView();
+                })
+                .catch(() => { aiShowToast('Unable to load application', 'error'); aiGoToFormView(); });
+        } else {
+            aiGoToFormView();
+        }
+    }
+
+    function aiGoToFormView() {
+        document.getElementById('aiListWrap').style.display = 'none';
+        document.getElementById('aiFormWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function aiResetForm() {
+        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiBranch', 'aiAcademicBatch',
+            'aiEnrollment', 'aiAcademicYear', 'aiSemester', 'aiScheme', 'aiClassSection', 'aiRollNumber',
+            'aiDateOfAdmission', 'aiAdmissionCategory', 'aiFeesCategory', 'aiShift',
+            'aiEntranceExamRegNo', 'aiEntranceExamMeritNo', 'aiReferenceName'];
+        fieldIds.forEach(id => document.getElementById(id).value = '');
+    }
+
+    function aiShowList() {
+        document.getElementById('aiFormWrap').style.display = 'none';
+        document.getElementById('aiListWrap').style.display = 'block';
+        // Clean the URL so a stray applicationId query param doesn't re-open the form.
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        aiLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function aiOnSetupChange() {
+        var sel = document.getElementById('aiAdmissionSetupId');
+        var opt = sel.options[sel.selectedIndex];
+        document.getElementById('aiDegree').value = opt.getAttribute('data-course') || '';
+        document.getElementById('aiAcademicSessionName').value = opt.getAttribute('data-session') || '';
+    }
+    // ----- SAVE -----
+    function aiSaveAndContinue() {
+        var appId = parseInt(document.getElementById('aiApplicationId').value) || 0;
+        if (!appId) { aiShowToast('Application not found — start from Personal Information', 'error'); return; }
+        if (!payload.AdmissionSetupId) { aiShowToast('Please select Admission Setup (Course + Session)', 'error'); return; }
+
+        var payload = {
+            ApplicationId: appId,
+            AcademicStream: document.getElementById('aiAcademicStream').value,
+            AdmissionSetupId: parseInt(document.getElementById('aiAdmissionSetupId').value) || 0,
+            CategoryId: parseInt(document.getElementById('aiCategoryId').value) || 0,
+            AcademicSessionName: document.getElementById('aiAcademicSessionName').value,
+            Degree: document.getElementById('aiDegree').value,
+            Branch: document.getElementById('aiBranch').value,
+            AcademicBatch: document.getElementById('aiAcademicBatch').value,
+            Enrollment: document.getElementById('aiEnrollment').value,
+            AcademicYear: document.getElementById('aiAcademicYear').value,
+            Semester: document.getElementById('aiSemester').value,
+            Scheme: document.getElementById('aiScheme').value,
+            ClassSection: document.getElementById('aiClassSection').value,
+            DateOfAdmission: document.getElementById('aiDateOfAdmission').value || null,
+            AdmissionCategory: document.getElementById('aiAdmissionCategory').value,
+            FeesCategory: document.getElementById('aiFeesCategory').value,
+            Shift: document.getElementById('aiShift').value,
+            EntranceExamRegNo: document.getElementById('aiEntranceExamRegNo').value,
+            EntranceExamMeritNo: document.getElementById('aiEntranceExamMeritNo').value,
+            ReferenceName: document.getElementById('aiReferenceName').value
+        };
+
+        fetch('/Admission/SaveAdmissionInformation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { aiShowToast(data.message, 'error'); return; }
+                aiShowToast(data.message, 'success');
+
+                if (aiCurrentMode === 'edit') {
+                    // Edited from the list — go back to the list, don't push the user further into the wizard.
+                    setTimeout(() => aiShowList(), 700);
+                } else {
+                    // Came from the wizard (or a fresh Add New) — keep moving forward.
+                    setTimeout(() => window.location.href = '/Admission/AddressInformation?applicationId=' + appId, 700);
+                }
+            })
+            .catch(() => aiShowToast('Server error while saving', 'error'));
+    }
+</script>

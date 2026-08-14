@@ -14,6 +14,33 @@ CREATE PROCEDURE sp_Application
     @AdmissionSetupId      INT = NULL,
     @PreviousPercentage    DECIMAL(5,2) = NULL,
 
+    -- Personal Information (Student Registration — new full form)
+    @Title                 NVARCHAR(20)  = NULL,
+    @FirstName             NVARCHAR(60)  = NULL,
+    @MiddleName            NVARCHAR(60)  = NULL,
+    @LastName              NVARCHAR(60)  = NULL,
+    @DisplayNameFormat     NVARCHAR(30)  = NULL,
+    @DisplayName           NVARCHAR(150) = NULL,
+    @MaritalStatus         NVARCHAR(20)  = NULL,
+    @BirthState            NVARCHAR(60)  = NULL,
+    @BirthPlace            NVARCHAR(100) = NULL,
+    @WhatsAppNumber        NVARCHAR(15)  = NULL,
+    @ReferralSource        NVARCHAR(100) = NULL,
+    @PhysicallyChallenged  BIT           = 0,
+    @BloodGroup            NVARCHAR(5)   = NULL,
+    @IdentityMark          NVARCHAR(150) = NULL,
+    @MotherTongue          NVARCHAR(50)  = NULL,
+    @InstituteEmail        NVARCHAR(150) = NULL,
+    @AlternateMobileNumber NVARCHAR(15)  = NULL,
+    @Citizenship           NVARCHAR(50)  = NULL,
+    @DomicileCountry       NVARCHAR(50)  = NULL,
+    @DomicileState         NVARCHAR(60)  = NULL,
+    @Nationality           NVARCHAR(50)  = NULL,
+    @Religion              NVARCHAR(50)  = NULL,
+    @Caste                 NVARCHAR(50)  = NULL,
+    @ABCId                 NVARCHAR(30)  = NULL,
+    @AntiRaggingId         NVARCHAR(30)  = NULL,
+
     -- Document Verification (Step 5)
     @SubmittedDocumentIds  NVARCHAR(MAX) = NULL,   -- comma separated DocumentEnclosureIds actually submitted
 
@@ -31,6 +58,7 @@ BEGIN
 
     -- =========================================================
     -- STEP 3 : STUDENT REGISTRATION -> creates the Application
+    -- (full Personal Information form)
     -- =========================================================
     IF @Flag = 'INSERT'
     BEGIN
@@ -38,12 +66,30 @@ BEGIN
         SELECT @NextSeq = ISNULL(MAX(ApplicationId), 0) + 1 FROM Application;
         SET @NewApplicationNo = 'APP-' + CAST(YEAR(GETDATE()) AS NVARCHAR(4)) + '-' + RIGHT('000' + CAST(@NextSeq AS NVARCHAR(5)), 3);
 
+        -- FullName kept for backward-compat with existing joins/grids
+        DECLARE @ComputedFullName NVARCHAR(150) =
+            LTRIM(RTRIM(ISNULL(@FirstName,'') + ' ' + ISNULL(@MiddleName + ' ', '') + ISNULL(@LastName,'')));
+
+        DECLARE @ComputedDisplayName NVARCHAR(150) = ISNULL(NULLIF(@DisplayName, ''), @ComputedFullName);
+
         INSERT INTO Application
             (ApplicationNo, FullName, Email, Phone, DOB, Gender, CategoryId,
-             AdmissionModeId, AdmissionSetupId, PreviousPercentage, Stage)
+             AdmissionModeId, AdmissionSetupId, PreviousPercentage, Stage,
+             Title, FirstName, MiddleName, LastName, DisplayNameFormat, DisplayName, MaritalStatus,
+             BirthState, BirthPlace, WhatsAppNumber, ReferralSource, PhysicallyChallenged,
+             BloodGroup, IdentityMark, MotherTongue,
+             InstituteEmail, AlternateMobileNumber,
+             Citizenship, DomicileCountry, DomicileState,
+             Nationality, Religion, Caste, ABCId, AntiRaggingId)
         VALUES
-            (@NewApplicationNo, @FullName, @Email, @Phone, @DOB, @Gender, @CategoryId,
-             @AdmissionModeId, @AdmissionSetupId, @PreviousPercentage, 'Registered');
+            (@NewApplicationNo, @ComputedFullName, @Email, @Phone, @DOB, @Gender, @CategoryId,
+             @AdmissionModeId, @AdmissionSetupId, @PreviousPercentage, 'Registered',
+             @Title, @FirstName, @MiddleName, @LastName, @DisplayNameFormat, @ComputedDisplayName, @MaritalStatus,
+             @BirthState, @BirthPlace, @WhatsAppNumber, @ReferralSource, @PhysicallyChallenged,
+             @BloodGroup, @IdentityMark, @MotherTongue,
+             @InstituteEmail, @AlternateMobileNumber,
+             @Citizenship, @DomicileCountry, @DomicileState,
+             @Nationality, @Religion, @Caste, @ABCId, @AntiRaggingId);
 
         DECLARE @NewAppId INT = SCOPE_IDENTITY();
 
@@ -57,11 +103,40 @@ BEGIN
     END
 
     -- =========================================================
+    -- NEW: EDIT an existing application (list + edit on one page)
+    -- =========================================================
+    ELSE IF @Flag = 'UPDATE'
+    BEGIN
+        DECLARE @UpdFullName NVARCHAR(150) =
+            LTRIM(RTRIM(ISNULL(@FirstName,'') + ' ' + ISNULL(@MiddleName + ' ', '') + ISNULL(@LastName,'')));
+        DECLARE @UpdDisplayName NVARCHAR(150) = ISNULL(NULLIF(@DisplayName, ''), @UpdFullName);
+
+        UPDATE Application SET
+            FullName = @UpdFullName, Email = @Email, Phone = @Phone, DOB = @DOB, Gender = @Gender,
+            CategoryId = @CategoryId, AdmissionModeId = @AdmissionModeId, AdmissionSetupId = @AdmissionSetupId,
+            PreviousPercentage = @PreviousPercentage,
+            Title = @Title, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName,
+            DisplayNameFormat = @DisplayNameFormat, DisplayName = @UpdDisplayName, MaritalStatus = @MaritalStatus,
+            BirthState = @BirthState, BirthPlace = @BirthPlace, WhatsAppNumber = @WhatsAppNumber,
+            ReferralSource = @ReferralSource, PhysicallyChallenged = @PhysicallyChallenged,
+            BloodGroup = @BloodGroup, IdentityMark = @IdentityMark, MotherTongue = @MotherTongue,
+            InstituteEmail = @InstituteEmail, AlternateMobileNumber = @AlternateMobileNumber,
+            Citizenship = @Citizenship, DomicileCountry = @DomicileCountry, DomicileState = @DomicileState,
+            Nationality = @Nationality, Religion = @Religion, Caste = @Caste,
+            ABCId = @ABCId, AntiRaggingId = @AntiRaggingId
+        WHERE ApplicationId = @ApplicationId;
+
+        SELECT @ApplicationId AS ApplicationId;
+    END
+
+    -- =========================================================
     -- STEP 4 : APPLICATION MANAGEMENT -> full list, all stages
+    -- (also used as the Student Registration LIST view)
     -- =========================================================
     ELSE IF @Flag = 'GETALL'
     BEGIN
-        SELECT ap.ApplicationId, ap.ApplicationNo, ap.FullName, c.CourseName, cat.CategoryName,
+        SELECT ap.ApplicationId, ap.ApplicationNo, ap.FullName, ap.DisplayName, ap.Email, ap.Phone,
+               c.CourseName, cat.CategoryName,
                ap.RegisteredOn, ap.Stage, ap.DocVerified, ap.CounsellingDone, ap.FeePaid, ap.StudentId
         FROM Application ap
         INNER JOIN AdmissionSetup a ON a.AdmissionSetupId = ap.AdmissionSetupId
@@ -72,6 +147,7 @@ BEGIN
 
     ELSE IF @Flag = 'GETBYID'
     BEGIN
+        -- ap.* already returns every new Personal Information column too
         SELECT ap.*, c.CourseName, cat.CategoryName, am.AdmissionModeName
         FROM Application ap
         INNER JOIN AdmissionSetup a ON a.AdmissionSetupId = ap.AdmissionSetupId
@@ -96,7 +172,6 @@ BEGIN
 
     ELSE IF @Flag = 'GETDOCCHECKLIST'
     BEGIN
-        -- Document Type Master (DocumentEnclosureMaster) joined with this application's submitted flags
         SELECT d.DocumentEnclosureId, d.DocumentName, d.IsMandatory,
                ISNULL(ad.IsSubmitted, 0) AS IsSubmitted
         FROM DocumentEnclosureMaster d
@@ -107,7 +182,6 @@ BEGIN
 
     ELSE IF @Flag = 'VERIFYDOCS'
     BEGIN
-        -- reset all to not-submitted, then mark the ones ticked in the UI
         UPDATE ApplicationDocument SET IsSubmitted = 0 WHERE ApplicationId = @ApplicationId;
 
         UPDATE ad
@@ -195,6 +269,7 @@ BEGIN
 
     -- =========================================================
     -- STEP 8 : ADMISSION FINAL -> creates the Student record
+    -- (also auto-generates RegistrationNumber, UniversityEnrollmentNumber, InstituteEmail)
     -- =========================================================
     ELSE IF @Flag = 'GETPENDINGFINAL'
     BEGIN
@@ -213,6 +288,21 @@ BEGIN
         SELECT @NextStudentSeq = ISNULL(MAX(CAST(RIGHT(StudentId, 4) AS INT)), 999) + 1 FROM Student;
         SET @NewStudentId = 'STU-' + CAST(YEAR(GETDATE()) AS NVARCHAR(4)) + CAST(@NextStudentSeq AS NVARCHAR(4));
 
+        -- Auto-generate Registration Number, University/Enrollment No., Institute Email
+        DECLARE @RegNo NVARCHAR(30) = 'REG-' + CAST(YEAR(GETDATE()) AS NVARCHAR(4)) + '-' + RIGHT('0000' + CAST(@ApplicationId AS NVARCHAR(5)), 4);
+        DECLARE @UnivEnrollNo NVARCHAR(30) = 'ENR' + CAST(YEAR(GETDATE()) AS NVARCHAR(4)) + RIGHT('0000' + CAST(@ApplicationId AS NVARCHAR(5)), 4);
+        DECLARE @InstEmail NVARCHAR(150);
+
+        SELECT @InstEmail = LOWER(REPLACE(ISNULL(FirstName, LEFT(FullName, CHARINDEX(' ', FullName + ' ') - 1)), ' ', ''))
+                             + CAST(@ApplicationId AS NVARCHAR(10)) + '@college.edu'
+        FROM Application WHERE ApplicationId = @ApplicationId;
+
+        UPDATE Application
+        SET RegistrationNumber = @RegNo,
+            UniversityEnrollmentNumber = @UnivEnrollNo,
+            InstituteEmail = @InstEmail
+        WHERE ApplicationId = @ApplicationId;
+
         INSERT INTO Student (StudentId, ApplicationId, FullName, CourseId, CategoryId, AcademicSessionId, SeatNumber)
         SELECT @NewStudentId, ap.ApplicationId, ap.FullName, a.CourseId, ap.CategoryId, a.AcademicSessionId, ap.SeatNumber
         FROM Application ap
@@ -221,7 +311,7 @@ BEGIN
 
         UPDATE Application SET StudentId = @NewStudentId, Stage = 'Admitted' WHERE ApplicationId = @ApplicationId;
 
-        SELECT @NewStudentId AS StudentId;
+        SELECT @NewStudentId AS StudentId, @RegNo AS RegistrationNumber, @UnivEnrollNo AS UniversityEnrollmentNumber, @InstEmail AS InstituteEmail;
     END
 END
 GO

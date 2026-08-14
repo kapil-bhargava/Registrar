@@ -2,6 +2,7 @@
 using Regis.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -558,6 +559,629 @@ namespace Regis.Services
                     if (dr.Read()) return dr["StudentId"].ToString();
             }
             return null;
+        }
+
+        // ==========================================================================
+        // APNI AdmissionService.cs class me ye poora region add/REPLACE karo
+        // (agar pehle wala already paste kar chuke ho to use isse overwrite karo)
+        // ==========================================================================
+
+        // =========================================================
+        // NEW ADMISSION → PERSONAL INFORMATION (Step 1 of 7)
+        // =========================================================
+
+        public List<ApplicationListItemModel> GetAllPersonalInformation()
+        {
+            var list = new List<ApplicationListItemModel>();
+
+            using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["erpdb"].ConnectionString))
+            using (var cmd = new SqlCommand("sp_NewAdmissionPersonalInfo", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new ApplicationListItemModel
+                        {
+                            ApplicationId = reader["ApplicationId"] != DBNull.Value ? Convert.ToInt32(reader["ApplicationId"]) : 0,
+                            ApplicationNo = reader["ApplicationNo"] as string,
+                            FullName = reader["FullName"] as string,
+                            Email = reader["Email"] as string,
+                            Phone = reader["Phone"] as string,
+                            DOB = reader["DOB"] != DBNull.Value ? Convert.ToDateTime(reader["DOB"]) : (DateTime?)null,
+                            Gender = reader["Gender"] as string,
+                            RegisteredOn = reader["RegisteredOn"] != DBNull.Value ? Convert.ToDateTime(reader["RegisteredOn"]) : (DateTime?)null,
+                            Stage = reader["Stage"] as string,
+                            Citizenship = reader["Citizenship"] as string,
+                            BloodGroup = reader["BloodGroup"] as string,
+
+                            AcademicSessionName = reader["AcademicSessionName"] as string,
+                            Degree = reader["Degree"] as string,
+                            Branch = reader["Branch"] as string,
+                            DateOfAdmission = reader["DateOfAdmission"] != DBNull.Value ? Convert.ToDateTime(reader["DateOfAdmission"]) : (DateTime?)null,
+
+                            PermanentCity = reader["PermanentCity"] as string,
+                            PermanentState = reader["PermanentState"] as string,
+                            LocalCity = reader["LocalCity"] as string,
+                            LocalState = reader["LocalState"] as string,
+
+                            FatherFirstName = reader["FatherFirstName"] as string,
+                            FatherLastName = reader["FatherLastName"] as string,
+                            MotherFirstName = reader["MotherFirstName"] as string,
+                            MotherLastName = reader["MotherLastName"] as string,
+
+                            BankName = reader["BankName"] as string,
+                            AccountNumber = reader["AccountNumber"] as string
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        public PersonalInformationModel GetPersonalInformationById(int applicationId)
+        {
+            PersonalInformationModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionPersonalInfo", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new PersonalInformationModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"] as string,
+                            Email = dr["Email"] as string,
+                            Phone = dr["Phone"] as string,
+                            DOB = dr["DOB"] as DateTime?,
+                            Gender = dr["Gender"] as string,
+                            Title = dr["Title"] as string,
+                            FirstName = dr["FirstName"] as string,
+                            MiddleName = dr["MiddleName"] as string,
+                            LastName = dr["LastName"] as string,
+                            DisplayNameFormat = dr["DisplayNameFormat"] as string,
+                            DisplayName = dr["DisplayName"] as string,
+                            MaritalStatus = dr["MaritalStatus"] as string,
+                            BirthState = dr["BirthState"] as string,
+                            BirthPlace = dr["BirthPlace"] as string,
+                            WhatsAppNumber = dr["WhatsAppNumber"] as string,
+                            ReferralSource = dr["ReferralSource"] as string,
+                            PhysicallyChallenged = Convert.ToBoolean(dr["PhysicallyChallenged"]),
+                            BloodGroup = dr["BloodGroup"] as string,
+                            IdentityMark = dr["IdentityMark"] as string,
+                            MotherTongue = dr["MotherTongue"] as string,
+                            AlternateMobileNumber = dr["AlternateMobileNumber"] as string,
+                            Citizenship = dr["Citizenship"] as string,
+                            DomicileCountry = dr["DomicileCountry"] as string,
+                            DomicileState = dr["DomicileState"] as string,
+                            Nationality = dr["Nationality"] as string,
+                            Religion = dr["Religion"] as string,
+                            Caste = dr["Caste"] as string,
+                            ABCId = dr["ABCId"] as string,
+                            AntiRaggingId = dr["AntiRaggingId"] as string
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public (int applicationId, string applicationNo) InsertPersonalInformation(PersonalInformationModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionPersonalInfo", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                AddPersonalInfoParams(cmd, model);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                        return (Convert.ToInt32(dr["ApplicationId"]), dr["ApplicationNo"].ToString());
+                }
+            }
+            return (0, null);
+        }
+
+        public bool UpdatePersonalInformation(PersonalInformationModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionPersonalInfo", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@ApplicationId", model.ApplicationId);
+                AddPersonalInfoParams(cmd, model);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        private void AddPersonalInfoParams(SqlCommand cmd, PersonalInformationModel m)
+        {
+            cmd.Parameters.AddWithValue("@Email", (object)m.Email ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Phone", (object)m.Phone ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DOB", (object)m.DOB ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Gender", (object)m.Gender ?? DBNull.Value);
+
+            cmd.Parameters.AddWithValue("@Title", (object)m.Title ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@FirstName", (object)m.FirstName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@MiddleName", (object)m.MiddleName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@LastName", (object)m.LastName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DisplayNameFormat", (object)m.DisplayNameFormat ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DisplayName", (object)m.DisplayName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@MaritalStatus", (object)m.MaritalStatus ?? DBNull.Value);
+
+            cmd.Parameters.AddWithValue("@BirthState", (object)m.BirthState ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@BirthPlace", (object)m.BirthPlace ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@WhatsAppNumber", (object)m.WhatsAppNumber ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ReferralSource", (object)m.ReferralSource ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PhysicallyChallenged", m.PhysicallyChallenged);
+            cmd.Parameters.AddWithValue("@BloodGroup", (object)m.BloodGroup ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IdentityMark", (object)m.IdentityMark ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@MotherTongue", (object)m.MotherTongue ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@AlternateMobileNumber", (object)m.AlternateMobileNumber ?? DBNull.Value);
+
+            cmd.Parameters.AddWithValue("@Citizenship", (object)m.Citizenship ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DomicileCountry", (object)m.DomicileCountry ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DomicileState", (object)m.DomicileState ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Nationality", (object)m.Nationality ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Religion", (object)m.Religion ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Caste", (object)m.Caste ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ABCId", (object)m.ABCId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@AntiRaggingId", (object)m.AntiRaggingId ?? DBNull.Value);
+        }
+        // =========================================================
+        // NEW ADMISSION → ADDRESS INFORMATION (Step 2 of 7)
+        // AdmissionService.cs class ke andar paste karo
+        // =========================================================
+
+        public AddressInformationModel GetAddressInformationById(int applicationId)
+        {
+            AddressInformationModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionAddress", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new AddressInformationModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"] as string,
+                            PermanentAddress = dr["PermanentAddress"] as string,
+                            PermanentCountry = dr["PermanentCountry"] as string,
+                            PermanentState = dr["PermanentState"] as string,
+                            PermanentDistrict = dr["PermanentDistrict"] as string,
+                            PermanentCity = dr["PermanentCity"] as string,
+                            PermanentPinCode = dr["PermanentPinCode"] as string,
+                            LocalSameAsPermanent = dr["LocalSameAsPermanent"] != DBNull.Value && Convert.ToBoolean(dr["LocalSameAsPermanent"]),
+                            LocalAddress = dr["LocalAddress"] as string,
+                            LocalCountry = dr["LocalCountry"] as string,
+                            LocalState = dr["LocalState"] as string,
+                            LocalDistrict = dr["LocalDistrict"] as string,
+                            LocalCity = dr["LocalCity"] as string,
+                            LocalPinCode = dr["LocalPinCode"] as string
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool SaveAddressInformation(AddressInformationModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionAddress", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+                cmd.Parameters.AddWithValue("@PermanentAddress", (object)m.PermanentAddress ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PermanentCountry", (object)m.PermanentCountry ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PermanentState", (object)m.PermanentState ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PermanentDistrict", (object)m.PermanentDistrict ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PermanentCity", (object)m.PermanentCity ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PermanentPinCode", (object)m.PermanentPinCode ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalSameAsPermanent", m.LocalSameAsPermanent);
+                cmd.Parameters.AddWithValue("@LocalAddress", (object)m.LocalAddress ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalCountry", (object)m.LocalCountry ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalState", (object)m.LocalState ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalDistrict", (object)m.LocalDistrict ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalCity", (object)m.LocalCity ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LocalPinCode", (object)m.LocalPinCode ?? DBNull.Value);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+        // =========================================================
+        // NEW ADMISSION → ADMISSION INFORMATION (Step 2 of 7)
+        // AdmissionService.cs class ke andar paste karo
+        // =========================================================
+
+        public AdmissionInformationModel GetAdmissionInformationById(int applicationId)
+        {
+            AdmissionInformationModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionAdmissionInfo", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new AdmissionInformationModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"] as string,
+                            AcademicStream = dr["AcademicStream"] as string,
+                            AcademicSessionName = dr["AcademicSessionName"] as string,
+                            AdmissionSetupId = dr["AdmissionSetupId"] != DBNull.Value ? Convert.ToInt32(dr["AdmissionSetupId"]) : 0,
+                            CategoryId = dr["CategoryId"] != DBNull.Value ? Convert.ToInt32(dr["CategoryId"]) : 0,
+                            Degree = dr["Degree"] as string,
+                            Branch = dr["Branch"] as string,
+                            AcademicBatch = dr["AcademicBatch"] as string,
+                            Enrollment = dr["Enrollment"] as string,
+                            AcademicYear = dr["AcademicYear"] as string,
+                            Semester = dr["Semester"] as string,
+                            Scheme = dr["Scheme"] as string,
+                            ClassSection = dr["ClassSection"] as string,
+                            RollNumber = dr["RollNumber"] as string,
+                            DateOfAdmission = dr["DateOfAdmission"] as DateTime?,
+                            AdmissionCategory = dr["AdmissionCategory"] as string,
+                            FeesCategory = dr["FeesCategory"] as string,
+                            Shift = dr["Shift"] as string,
+                            EntranceExamRegNo = dr["EntranceExamRegNo"] as string,
+                            EntranceExamMeritNo = dr["EntranceExamMeritNo"] as string,
+                            ReferenceName = dr["ReferenceName"] as string
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool SaveAdmissionInformation(AdmissionInformationModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionAdmissionInfo", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@AdmissionSetupId", m.AdmissionSetupId);
+                cmd.Parameters.AddWithValue("@CategoryId", m.CategoryId);
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+                cmd.Parameters.AddWithValue("@AcademicStream", (object)m.AcademicStream ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AcademicSessionName", (object)m.AcademicSessionName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Degree", (object)m.Degree ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Branch", (object)m.Branch ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AcademicBatch", (object)m.AcademicBatch ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Enrollment", (object)m.Enrollment ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AcademicYear", (object)m.AcademicYear ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Semester", (object)m.Semester ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Scheme", (object)m.Scheme ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ClassSection", (object)m.ClassSection ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@RollNumber", (object)m.RollNumber ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateOfAdmission", (object)m.DateOfAdmission ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AdmissionCategory", (object)m.AdmissionCategory ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FeesCategory", (object)m.FeesCategory ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Shift", (object)m.Shift ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@EntranceExamRegNo", (object)m.EntranceExamRegNo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@EntranceExamMeritNo", (object)m.EntranceExamMeritNo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ReferenceName", (object)m.ReferenceName ?? DBNull.Value);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+        // =========================================================
+        // NEW ADMISSION → PARENT DETAILS
+        // AdmissionService.cs class ke andar paste karo
+        // =========================================================
+
+        public ParentDetailsModel GetParentDetailsById(int applicationId)
+        {
+            ParentDetailsModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionParentDetails", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new ParentDetailsModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"] as string,
+
+                            FatherTitle = dr["FatherTitle"] as string,
+                            FatherFirstName = dr["FatherFirstName"] as string,
+                            FatherLastName = dr["FatherLastName"] as string,
+                            FatherEmail = dr["FatherEmail"] as string,
+                            FatherMobile = dr["FatherMobile"] as string,
+                            FatherOccupation = dr["FatherOccupation"] as string,
+                            FatherOrganization = dr["FatherOrganization"] as string,
+                            FatherDesignation = dr["FatherDesignation"] as string,
+                            FatherAnnualIncome = dr["FatherAnnualIncome"] as decimal?,
+
+                            MotherTitle = dr["MotherTitle"] as string,
+                            MotherFirstName = dr["MotherFirstName"] as string,
+                            MotherLastName = dr["MotherLastName"] as string,
+                            MotherEmail = dr["MotherEmail"] as string,
+                            MotherMobile = dr["MotherMobile"] as string,
+                            MotherOccupation = dr["MotherOccupation"] as string,
+                            MotherOrganization = dr["MotherOrganization"] as string,
+                            MotherDesignation = dr["MotherDesignation"] as string,
+                            MotherAnnualIncome = dr["MotherAnnualIncome"] as decimal?,
+
+                            GuardianTitle = dr["GuardianTitle"] as string,
+                            GuardianFirstName = dr["GuardianFirstName"] as string,
+                            GuardianLastName = dr["GuardianLastName"] as string,
+                            GuardianEmail = dr["GuardianEmail"] as string,
+                            GuardianMobile = dr["GuardianMobile"] as string,
+                            GuardianOccupation = dr["GuardianOccupation"] as string,
+                            GuardianOrganization = dr["GuardianOrganization"] as string,
+                            GuardianDesignation = dr["GuardianDesignation"] as string,
+                            GuardianAnnualIncome = dr["GuardianAnnualIncome"] as decimal?,
+                            GuardianFamilyIncome = dr["GuardianFamilyIncome"] as string,
+                            GuardianRelationship = dr["GuardianRelationship"] as string
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool SaveParentDetails(ParentDetailsModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionParentDetails", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+
+                cmd.Parameters.AddWithValue("@FatherTitle", (object)m.FatherTitle ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherFirstName", (object)m.FatherFirstName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherLastName", (object)m.FatherLastName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherEmail", (object)m.FatherEmail ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherMobile", (object)m.FatherMobile ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherOccupation", (object)m.FatherOccupation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherOrganization", (object)m.FatherOrganization ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherDesignation", (object)m.FatherDesignation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FatherAnnualIncome", (object)m.FatherAnnualIncome ?? DBNull.Value);
+
+                cmd.Parameters.AddWithValue("@MotherTitle", (object)m.MotherTitle ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherFirstName", (object)m.MotherFirstName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherLastName", (object)m.MotherLastName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherEmail", (object)m.MotherEmail ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherMobile", (object)m.MotherMobile ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherOccupation", (object)m.MotherOccupation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherOrganization", (object)m.MotherOrganization ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherDesignation", (object)m.MotherDesignation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MotherAnnualIncome", (object)m.MotherAnnualIncome ?? DBNull.Value);
+
+                cmd.Parameters.AddWithValue("@GuardianTitle", (object)m.GuardianTitle ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianFirstName", (object)m.GuardianFirstName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianLastName", (object)m.GuardianLastName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianEmail", (object)m.GuardianEmail ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianMobile", (object)m.GuardianMobile ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianOccupation", (object)m.GuardianOccupation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianOrganization", (object)m.GuardianOrganization ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianDesignation", (object)m.GuardianDesignation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianAnnualIncome", (object)m.GuardianAnnualIncome ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianFamilyIncome", (object)m.GuardianFamilyIncome ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuardianRelationship", (object)m.GuardianRelationship ?? DBNull.Value);
+
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public BankDetailsModel GetBankDetailsById(int applicationId)
+        {
+            BankDetailsModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionBankDetails", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYID");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new BankDetailsModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"] as string,
+                            BankName = dr["BankName"] as string,
+                            BranchName = dr["BranchName"] as string,
+                            IFSCCode = dr["IFSCCode"] as string,
+                            AccountHolderName = dr["AccountHolderName"] as string,
+                            AccountNumber = dr["AccountNumber"] as string,
+                            PANNumber = dr["PANNumber"] as string
+                        };
+                    }
+                }
+            }
+            return model;
+        }
+
+        public bool SaveBankDetails(BankDetailsModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NewAdmissionBankDetails", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+                cmd.Parameters.AddWithValue("@BankName", (object)m.BankName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@BranchName", (object)m.BranchName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IFSCCode", (object)m.IFSCCode ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AccountHolderName", (object)m.AccountHolderName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AccountNumber", (object)m.AccountNumber ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PANNumber", (object)m.PANNumber ?? DBNull.Value);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+        // =========================================================
+        // NEW ADMISSION → ACADEMIC RECORDS (multi-row per Application)
+        // =========================================================
+
+        public List<AcademicRecordModel> GetAcademicRecords(int applicationId)
+        {
+            var list = new List<AcademicRecordModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AcademicRecord", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new AcademicRecordModel
+                        {
+                            AcademicRecordId = Convert.ToInt32(dr["AcademicRecordId"]),
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ExamPassed = dr["ExamPassed"] as string,
+                            Board = dr["Board"] as string,
+                            Institute = dr["Institute"] as string,
+                            Rank = dr["Rank"] as string,
+                            RollNumber = dr["RollNumber"] as string,
+                            PassingYear = dr["PassingYear"] as string,
+                            ResultType = dr["ResultType"] as string,
+                            Percentage = dr["Percentage"] as string,
+                            Stream = dr["Stream"] as string,
+                            EnrollmentNumber = dr["EnrollmentNumber"] as string,
+                            MarksObtained = dr["MarksObtained"] as string,
+                            MarksOutOf = dr["MarksOutOf"] as string,
+                            Medium = dr["Medium"] as string,
+                            Mode = dr["Mode"] as string,
+                            GapYear = dr["GapYear"] as string,
+                            GapReason = dr["GapReason"] as string,
+                            ResultStatus = dr["ResultStatus"] as string
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public int InsertAcademicRecord(AcademicRecordModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AcademicRecord", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+                cmd.Parameters.AddWithValue("@ExamPassed", (object)m.ExamPassed ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Board", (object)m.Board ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Institute", (object)m.Institute ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Rank", (object)m.Rank ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@RollNumber", (object)m.RollNumber ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PassingYear", (object)m.PassingYear ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ResultType", (object)m.ResultType ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Percentage", (object)m.Percentage ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Stream", (object)m.Stream ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@EnrollmentNumber", (object)m.EnrollmentNumber ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MarksObtained", (object)m.MarksObtained ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@MarksOutOf", (object)m.MarksOutOf ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Medium", (object)m.Medium ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Mode", (object)m.Mode ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GapYear", (object)m.GapYear ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GapReason", (object)m.GapReason ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ResultStatus", (object)m.ResultStatus ?? DBNull.Value);
+                con.Open();
+                object result = cmd.ExecuteScalar();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+        }
+
+        // =========================================================
+        // NEW ADMISSION → ADDITIONAL DETAILS (multi-row per Application)
+        // =========================================================
+
+        public List<AdditionalDetailModel> GetAdditionalDetails(int applicationId)
+        {
+            var list = new List<AdditionalDetailModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdditionalDetail", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new AdditionalDetailModel
+                        {
+                            AdditionalDetailId = Convert.ToInt32(dr["AdditionalDetailId"]),
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            Level = dr["Level"] as string,
+                            ParticipationLevel = dr["ParticipationLevel"] as string,
+                            Category = dr["Category"] as string,
+                            AwardingInstitution = dr["AwardingInstitution"] as string,
+                            AwardName = dr["AwardName"] as string,
+                            ReceivedWhen = dr["ReceivedWhen"] as string,
+                            Reason = dr["Reason"] as string
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public int InsertAdditionalDetail(AdditionalDetailModel m)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_AdditionalDetail", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@ApplicationId", m.ApplicationId);
+                cmd.Parameters.AddWithValue("@Level", (object)m.Level ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ParticipationLevel", (object)m.ParticipationLevel ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Category", (object)m.Category ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AwardingInstitution", (object)m.AwardingInstitution ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@AwardName", (object)m.AwardName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@ReceivedWhen", (object)m.ReceivedWhen ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Reason", (object)m.Reason ?? DBNull.Value);
+                con.Open();
+                object result = cmd.ExecuteScalar();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
         }
     }
 }

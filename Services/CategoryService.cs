@@ -38,12 +38,13 @@ namespace Regis.Services
                         CategoryId = Convert.ToInt32(dr["CategoryId"]),
                         CategoryCode = dr["CategoryCode"].ToString(),
                         CategoryName = dr["CategoryName"].ToString(),
-                        Description = dr["Description"].ToString(),
+                        Description = dr["Description"] != DBNull.Value ? dr["Description"].ToString() : null,
                         FeeConcession = dr["FeeConcession"] != DBNull.Value ? Convert.ToDecimal(dr["FeeConcession"]) : (decimal?)null,
                         DisplayOrder = dr["DisplayOrder"] != DBNull.Value ? Convert.ToInt32(dr["DisplayOrder"]) : (int?)null,
-                        IsActive = Convert.ToBoolean(dr["IsActive"]),
+                        IsActive = dr["IsActive"] != DBNull.Value ? Convert.ToBoolean(dr["IsActive"]) : false,
                         CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
-                    });
+                   
+                });
                 }
             }
 
