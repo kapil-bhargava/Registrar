@@ -1,10 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Alumni";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
-
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -95,55 +92,9 @@
 
 <div class="as-toast" id="alToast"><i class="fas fa-check-circle"></i><span id="alToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function getAlumniInfo() { return JSON.parse(localStorage.getItem('erp_alumniInfo') || '[]'); }
-    function saveAlumniInfo(arr) { localStorage.setItem('erp_alumniInfo', JSON.stringify(arr)); }
-
+<script>
     let alSelectedId = null;
 
-    function alRender() {
-        const alumni = getStudents().filter(s => s.status === 'Graduated');
-        const infos = getAlumniInfo();
-        document.getElementById('alTotal').textContent = alumni.length;
-
-        document.getElementById('alTableBody').innerHTML = alumni.map(s => {
-            const info = infos.find(i => i.studentId === s.studentId);
-            return `
-            <tr>
-                <td><strong>${s.studentId}</strong></td>
-                <td>${s.name}</td>
-                <td>${s.courseName}</td>
-                <td>${s.session}</td>
-                <td>${info && info.company ? info.company + (info.designation ? ' — ' + info.designation : '') : '<span style="color:#6B7A99;">Not updated</span>'}</td>
-                <td><button class="as-mini-btn" title="Update Info" onclick="alOpenForm('${s.studentId}')"><i class="fas fa-edit"></i></button></td>
-            </tr>`;
-        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No alumni yet — mark a student as "Graduated" in Student Records first</td></tr>';
-    }
-
-    function alOpenForm(studentId) {
-        const s = getStudents().find(x => x.studentId === studentId);
-        if (!s) return;
-        alSelectedId = studentId;
-
-        document.getElementById('alListWrap').style.display = 'none';
-        document.getElementById('alFormWrap').style.display = 'block';
-        document.getElementById('alFormSub').textContent = s.studentId + ' — ' + s.name;
-
-        const info = getAlumniInfo().find(i => i.studentId === studentId) || {};
-        document.getElementById('alCompany').value = info.company || '';
-        document.getElementById('alDesignation').value = info.designation || '';
-        document.getElementById('alEmail').value = info.email || '';
-        document.getElementById('alLinkedin').value = info.linkedin || '';
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function alShowList() {
-        document.getElementById('alFormWrap').style.display = 'none';
-        document.getElementById('alListWrap').style.display = 'block';
-        alRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
     function alShowToast(msg, type) {
         const toast = document.getElementById('alToast');
         toast.querySelector('span').textContent = msg;
@@ -151,21 +102,77 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function alSave() {
-        const infos = getAlumniInfo().filter(i => i.studentId !== alSelectedId);
-        infos.push({
-            studentId: alSelectedId,
-            company: document.getElementById('alCompany').value,
-            designation: document.getElementById('alDesignation').value,
-            email: document.getElementById('alEmail').value,
-            linkedin: document.getElementById('alLinkedin').value
-        });
-        saveAlumniInfo(infos);
-
-        alShowToast('Alumni info updated!', 'success');
-        alShowList();
+    function alLoadList() {
+        fetch('/StudentMaster/GetAlumniList')
+            .then(res => res.json())
+            .then(alumni => {
+                document.getElementById('alTotal').textContent = alumni.length;
+                document.getElementById('alTableBody').innerHTML = alumni.map(s => `
+                    <tr>
+                        <td><strong>${s.StudentId}</strong></td>
+                        <td>${s.Name || ''}</td>
+                        <td>${s.CourseName || ''}</td>
+                        <td>${s.Session || ''}</td>
+                        <td>${s.Company ? s.Company + (s.Designation ? ' — ' + s.Designation : '') : '<span style="color:#6B7A99;">Not updated</span>'}</td>
+                        <td><button class="as-mini-btn" title="Update Info" onclick="alOpenForm('${s.StudentId}', '${(s.Name || '').replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button></td>
+                    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No alumni yet — mark a student as "Graduated" in Student Records first</td></tr>';
+            })
+            .catch(() => alShowToast('Unable to load alumni list', 'error'));
     }
 
-    alRender();</script>
+    function alOpenForm(studentId, name) {
+        alSelectedId = studentId;
 
+        document.getElementById('alListWrap').style.display = 'none';
+        document.getElementById('alFormWrap').style.display = 'block';
+        document.getElementById('alFormSub').textContent = studentId + ' — ' + name;
 
+        fetch('/StudentMaster/GetAlumniInfoById?studentId=' + encodeURIComponent(studentId))
+            .then(res => res.json())
+            .then(info => {
+                document.getElementById('alCompany').value = (info && info.Company) || '';
+                document.getElementById('alDesignation').value = (info && info.Designation) || '';
+                document.getElementById('alEmail').value = (info && info.Email) || '';
+                document.getElementById('alLinkedin').value = (info && info.LinkedInUrl) || '';
+            })
+            .catch(() => {
+                document.getElementById('alCompany').value = '';
+                document.getElementById('alDesignation').value = '';
+                document.getElementById('alEmail').value = '';
+                document.getElementById('alLinkedin').value = '';
+            });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function alShowList() {
+        document.getElementById('alFormWrap').style.display = 'none';
+        document.getElementById('alListWrap').style.display = 'block';
+        alLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function alSave() {
+        const payload = {
+            StudentId: alSelectedId,
+            Company: document.getElementById('alCompany').value,
+            Designation: document.getElementById('alDesignation').value,
+            Email: document.getElementById('alEmail').value,
+            LinkedInUrl: document.getElementById('alLinkedin').value
+        };
+
+        fetch('/StudentMaster/SaveAlumniInfo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                alShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) alShowList();
+            })
+            .catch(() => alShowToast('Server error while saving alumni info', 'error'));
+    }
+
+    alLoadList();
+</script>

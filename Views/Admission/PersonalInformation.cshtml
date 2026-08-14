@@ -10,39 +10,513 @@
 <link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
 @Html.Partial("_NewAdmission");
 
+<!-- DataTables (search + pagination on list) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.8/css/jquery.dataTables.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    // Some layouts load their own jQuery elsewhere on the page (often at the bottom of _mainLayout),
+    // which overwrites window.$/jQuery and wipes out the DataTables plugin attached above,
+    // causing "Cannot read properties of undefined (reading 'ext')". Grabbing our own copy here
+    // via noConflict(true) protects this page's DataTable/search code from that collision.
+    var piJQ = window.jQuery ? window.jQuery.noConflict(true) : null;
+</script>
+
+<!-- Export libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <style>
-    .sa-wrap { font-family:'Inter',sans-serif; max-width:1200px; margin:0 auto; }
-    .sa-header { background:linear-gradient(90deg,#6D28D9,#DB2777); color:#fff; font-size:20px; font-weight:700; padding:16px 22px; border-radius:10px 10px 0 0; }
-    .sa-body { border:1px solid #E5E7EB; border-top:none; border-radius:0 0 10px 10px; padding:18px; background:#fff; }
-    .sa-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
-    .sa-card { border:1px solid #E5E7EB; border-radius:10px; overflow:hidden; }
-    .sa-card-head { padding:10px 16px; font-weight:700; color:#fff; font-size:14px; display:flex; align-items:center; gap:8px; }
-    .sa-purple { background:linear-gradient(90deg,#7C3AED,#9333EA); }
-    .sa-orange { background:linear-gradient(90deg,#F97316,#FB923C); }
-    .sa-blue   { background:linear-gradient(90deg,#0EA5E9,#38BDF8); }
-    .sa-green  { background:linear-gradient(90deg,#10B981,#34D399); }
-    .sa-pink   { background:linear-gradient(90deg,#EF4444,#EC4899); }
-    .sa-card-body { padding:16px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-    .sa-card-body.sa-cols2 { grid-template-columns:1fr 1fr; }
-    .sa-field { display:flex; flex-direction:column; gap:5px; }
-    .sa-field label { font-size:12.5px; font-weight:600; color:#111827; }
-    .sa-field .req { color:#DC2626; }
-    .sa-field input, .sa-field select {
-        border:1px solid #D1D5DB; border-radius:7px; padding:9px 10px; font-size:13.5px; font-family:'Inter',sans-serif; background:#fff;
+    .sa-wrap {
+        font-family: 'Inter',sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
     }
-    .sa-field input:disabled, .sa-field select:disabled { background:#F3F4F6; color:#6B7280; }
-    .sa-photo-box { display:flex; align-items:center; gap:12px; grid-column:span 3; }
-    .sa-photo-circle { width:56px; height:56px; border-radius:50%; background:#F3E8FF; display:flex; align-items:center; justify-content:center; font-size:22px; color:#7C3AED; overflow:hidden; flex-shrink:0; }
-    .sa-photo-circle img { width:100%; height:100%; object-fit:cover; }
-    .sa-photo-btn { background:#7C3AED; color:#fff; border:none; border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; }
-    .sa-photo-hint { font-size:11.5px; color:#6B7280; margin-top:2px; }
-    .sa-radio-row { display:flex; gap:14px; align-items:center; padding-top:6px; font-size:13.5px; }
-    .sa-radio-row label { display:flex; align-items:center; gap:5px; font-weight:500; color:#111827; }
-    .sa-mobile-row { display:flex; gap:6px; }
-    .sa-mobile-row span { border:1px solid #D1D5DB; border-radius:7px; padding:9px 10px; background:#F9FAFB; font-size:13.5px; }
-    .sa-mobile-row input { flex:1; }
-    .sa-bar { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
-    @@media (max-width:900px){ .sa-grid2{grid-template-columns:1fr;} .sa-card-body{grid-template-columns:1fr 1fr;} }
+
+    .sa-header {
+        background: linear-gradient(90deg,#6D28D9,#DB2777);
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 16px 22px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .sa-body {
+        border: 1px solid #E5E7EB;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 18px;
+        background: #fff;
+    }
+
+    .sa-grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .sa-card {
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .sa-card-head {
+        padding: 10px 16px;
+        font-weight: 700;
+        color: #fff;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sa-purple {
+        background: linear-gradient(90deg,#7C3AED,#9333EA);
+    }
+
+    .sa-orange {
+        background: linear-gradient(90deg,#F97316,#FB923C);
+    }
+
+    .sa-blue {
+        background: linear-gradient(90deg,#0EA5E9,#38BDF8);
+    }
+
+    .sa-green {
+        background: linear-gradient(90deg,#10B981,#34D399);
+    }
+
+    .sa-pink {
+        background: linear-gradient(90deg,#EF4444,#EC4899);
+    }
+
+    .sa-card-body {
+        padding: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+    }
+
+        .sa-card-body.sa-cols2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+    .sa-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+        .sa-field label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .sa-field .req {
+            color: #DC2626;
+        }
+
+        .sa-field input, .sa-field select {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-size: 13.5px;
+            font-family: 'Inter',sans-serif;
+            background: #fff;
+        }
+
+            .sa-field input:disabled, .sa-field select:disabled {
+                background: #F3F4F6;
+                color: #6B7280;
+            }
+
+    .sa-photo-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        grid-column: span 3;
+    }
+
+    .sa-photo-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #F3E8FF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #7C3AED;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+        .sa-photo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .sa-photo-btn {
+        background: #7C3AED;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .sa-photo-hint {
+        font-size: 11.5px;
+        color: #6B7280;
+        margin-top: 2px;
+    }
+
+    .sa-radio-row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding-top: 6px;
+        font-size: 13.5px;
+    }
+
+        .sa-radio-row label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            color: #111827;
+        }
+
+    .sa-mobile-row {
+        display: flex;
+        gap: 6px;
+    }
+
+        .sa-mobile-row span {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 10px;
+            background: #F9FAFB;
+            font-size: 13.5px;
+        }
+
+        .sa-mobile-row input {
+            flex: 1;
+        }
+
+    .sa-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    @@media (max-width:900px) {
+        .sa-grid2 {
+            grid-template-columns: 1fr;
+        }
+
+        .sa-card-body {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* ===== Filter bar (Course/Branch/Semester style row) ===== */
+    .pi-filter-bar {
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+        background: #fff;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+    }
+
+    .pi-filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 150px;
+    }
+
+        .pi-filter-field.pi-filter-grow {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .pi-filter-field label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: #6B7280;
+        }
+
+        .pi-filter-field select, .pi-filter-field input {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-size: 13.5px;
+            font-family: 'Inter',sans-serif;
+            background: #F5F3FF;
+            color: #374151;
+        }
+
+            .pi-filter-field input:focus {
+                outline: none;
+                border-color: #7C3AED;
+            }
+
+    .pi-search-btn {
+        background: #312E81;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 9px 16px;
+        font-size: 13.5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .pi-search-btn:hover {
+            background: #3730A3;
+        }
+
+    .pi-reset-btn {
+        background: #fff;
+        border: 1px solid #D1D5DB;
+        color: #374151;
+        border-radius: 7px;
+        padding: 9px 18px;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .pi-reset-btn:hover {
+            background: #F9FAFB;
+        }
+
+    .pi-export-btn {
+        background: #fff;
+        border: 1px solid #10B981;
+        color: #10B981;
+        border-radius: 7px;
+        padding: 9px 16px;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .pi-export-btn:hover {
+            background: #ECFDF5;
+        }
+
+    @@media (max-width:900px) {
+        .pi-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pi-filter-field {
+            min-width: 0;
+        }
+    }
+
+    /* DataTables minor tweaks to blend with existing table styling (default search box hidden — custom one used instead) */
+    #piDataTable_wrapper .dataTables_filter {
+        display: none;
+    }
+
+    #piDataTable_wrapper .dataTables_length {
+        float: left;
+        margin-bottom: 10px;
+        font-size: 13px;
+    }
+
+    #piDataTable_wrapper .dataTables_info, #piDataTable_wrapper .dataTables_paginate {
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    #piDataTable_wrapper .paginate_button {
+        padding: 4px 9px !important;
+    }
+
+    /* Sticky table header */
+    .as-table-wrapper {
+        max-height: 65vh;
+        overflow: auto;
+    }
+
+    #piDataTable thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #F9FAFB;
+        box-shadow: 0 1px 0 #E5E7EB;
+    }
+
+    /* ===== Export modal ===== */
+    .pi-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(17,24,39,0.45);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .pi-modal-overlay.show {
+            display: flex;
+        }
+
+    .pi-modal-box {
+        background: #fff;
+        border-radius: 12px;
+        width: 420px;
+        max-width: 92vw;
+        padding: 20px;
+        font-family: 'Inter',sans-serif;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .pi-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+        .pi-modal-head h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+    .pi-modal-close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #6B7280;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .pi-modal-label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .pi-tag-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .pi-tag {
+        background: #F3F4F6;
+        border-radius: 16px;
+        padding: 6px 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #111827;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .pi-tag button {
+            background: none;
+            border: none;
+            color: #6B7280;
+            font-size: 13px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+
+            .pi-tag button:hover {
+                color: #DC2626;
+            }
+
+    .pi-modal-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+        .pi-modal-row label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .pi-modal-row select {
+            border: 1px solid #D1D5DB;
+            border-radius: 7px;
+            padding: 7px 10px;
+            font-size: 13px;
+            font-family: 'Inter',sans-serif;
+        }
+
+    .pi-modal-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+        .pi-modal-actions button {
+            flex: 1;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #fff;
+        }
+
+    .pi-btn-excel {
+        background: #16A34A;
+    }
+
+        .pi-btn-excel:hover {
+            background: #15803D;
+        }
+
+    .pi-btn-pdf {
+        background: #16A34A;
+    }
+
+        .pi-btn-pdf:hover {
+            background: #15803D;
+        }
 </style>
 
 <div class="as-wrap">
@@ -59,8 +533,29 @@
             </button>
         </div>
 
+        <div class="pi-filter-bar">
+            <div class="pi-filter-field">
+                <label>Name</label>
+                <input type="text" id="piFilterName" placeholder="Search by name" onkeydown="if(event.key==='Enter') piApplyFilters();">
+            </div>
+            <div class="pi-filter-field">
+                <label>Email</label>
+                <input type="text" id="piFilterEmail" placeholder="Search by email" onkeydown="if(event.key==='Enter') piApplyFilters();">
+            </div>
+            <div class="pi-filter-field">
+                <label>Number</label>
+                <input type="text" id="piFilterNumber" placeholder="Search by number" onkeydown="if(event.key==='Enter') piApplyFilters();">
+            </div>
+            <button type="button" class="pi-search-btn" onclick="piApplyFilters()" title="Search"><i class="fas fa-search"></i> Search</button>
+            <button type="button" class="pi-reset-btn" onclick="piResetFilters()">Reset</button>
+            <button type="button" class="pi-export-btn" onclick="piOpenExportModal()">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+        </div>
+
+
         <div class="as-table-wrapper">
-            <table class="as-table as-list-table">
+            <table class="as-table as-list-table" id="piDataTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Application No.</th>
@@ -253,12 +748,71 @@
     </div>
 </div>
 
+<!-- ================= EXPORT MODAL ================= -->
+<div class="pi-modal-overlay" id="piExportModal">
+    <div class="pi-modal-box">
+        <div class="pi-modal-head">
+            <h3>Download</h3>
+            <button type="button" class="pi-modal-close" onclick="piCloseExportModal()">&times;</button>
+        </div>
+
+        <div class="pi-modal-label">Column Name</div>
+        <div class="pi-tag-wrap" id="piExportTags"></div>
+
+        <div class="pi-modal-row">
+            <label>Entries</label>
+            <select id="piExportEntries">
+                <option value="current">Current</option>
+                <option value="all">All</option>
+            </select>
+        </div>
+
+        <div class="pi-modal-actions">
+            <button type="button" class="pi-btn-excel" onclick="piExportExcel()"><i class="fas fa-file-excel"></i> Excel Download</button>
+            <button type="button" class="pi-btn-pdf" onclick="piExportPdf()"><i class="fas fa-file-pdf"></i> PDF Download</button>
+        </div>
+    </div>
+</div>
+
 <div class="as-toast" id="piToast"><i class="fas fa-check-circle"></i><span id="piToastMessage">Success!</span></div>
 
 <script>
     var piCurrentList = [];
+    var piDataTable = null;
 
-    document.addEventListener('DOMContentLoaded', function () { piLoadList(); });
+    // Master column definition used by the table + export modal.
+    // "included" controls whether a column is currently selected for export (tags with an × remove it from this list).
+    var piExportColumns = [
+        { key: 'ApplicationNo', label: 'Application No.', included: true },
+        { key: 'FullName', label: 'Name', included: true },
+        { key: 'Email', label: 'Email', included: true },
+        { key: 'Phone', label: 'Phone', included: true },
+        { key: 'Gender', label: 'Gender', included: true },
+        { key: 'Citizenship', label: 'Citizenship', included: true },
+        { key: 'RegisteredOn', label: 'Registered On', included: true },
+        { key: 'Stage', label: 'Stage', included: true }
+    ];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var qsName = getQueryParam('name');
+        if (qsName) {
+            // Eligibility Check se aaya — seedha form kholo, naam pre-fill karo
+            piShowForm(null, false);
+            document.getElementById('piFirstName').value = qsName;
+            piBuildDisplayName();
+            // URL clean kar do taaki refresh pe dubara pre-fill na ho
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        } else {
+            piLoadList();
+        }
+    });
+
+    function getQueryParam(name) {
+        var params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
 
     function piShowToast(msg, type) {
         const toast = document.getElementById('piToast');
@@ -311,16 +865,29 @@
         var d = m ? new Date(parseInt(m[1])) : new Date(v);
         return isNaN(d.getTime()) ? null : d;
     }
-    function piRenderTable() {
+    function piRenderTable(list) {
+        const rows = list || piCurrentList;
+        piFilteredList = rows; // remember what's currently on screen, used by Export "Current"
+
         const tbody = document.getElementById('piTableBody');
         tbody.innerHTML = '';
 
-        if (!piCurrentList || piCurrentList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6B7A99;">No applications yet — click "Add New" to register a student</td></tr>';
+        // Destroy any existing DataTable instance before re-rendering rows
+        if (piDataTable) {
+            piDataTable.destroy();
+            piDataTable = null;
+        }
+
+        if (!rows || rows.length === 0) {
+            const msg = (piCurrentList && piCurrentList.length > 0)
+                ? 'No matching applications found'
+                : 'No applications yet — click "Add New" to register a student';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6B7A99;">' + msg + '</td></tr>';
+            piInitDataTable(false);
             return;
         }
 
-        piCurrentList.forEach(r => {
+        rows.forEach(r => {
             const row = document.createElement('tr');
             row.innerHTML =
                 '<td>' + (r.ApplicationNo || '-') + '</td>' +
@@ -337,6 +904,57 @@
                 '</td>';
             tbody.appendChild(row);
         });
+
+        piInitDataTable(true);
+    }
+
+    var piFilteredList = []; // list currently shown on screen (after Name/Email/Number search) — used by Export "Current"
+
+    // Initialise (or re-initialise) the DataTable — adds pagination on top of whatever rows are currently in the table body.
+    function piInitDataTable(hasData) {
+        if (!piJQ || !piJQ.fn || !piJQ.fn.dataTable) {
+            console.error('jQuery/DataTables failed to load — pagination will not work on this page.');
+            return;
+        }
+        piDataTable = piJQ('#piDataTable').DataTable({
+            destroy: true,
+            paging: hasData,
+            searching: false,   // filtering is handled ourselves via the Name/Email/Number fields, not DataTables' own search
+            info: hasData,
+            lengthChange: hasData,
+            ordering: hasData,
+            columnDefs: [{ orderable: false, targets: -1 }] // Actions column not sortable
+        });
+    }
+
+    // Filters piCurrentList by the Name/Email/Number fields (each matched independently, case-insensitive, partial match)
+    // and re-renders the table with the result. Simple and reliable — doesn't depend on DataTables' own filtering.
+    function piApplyFilters() {
+        const nameTerm = document.getElementById('piFilterName').value.trim().toLowerCase();
+        const emailTerm = document.getElementById('piFilterEmail').value.trim().toLowerCase();
+        const numberTerm = document.getElementById('piFilterNumber').value.trim().toLowerCase();
+
+        if (!nameTerm && !emailTerm && !numberTerm) {
+            piRenderTable(piCurrentList);
+            return;
+        }
+
+        const filtered = (piCurrentList || []).filter(r => {
+            if (nameTerm && !(r.FullName || '').toLowerCase().includes(nameTerm)) return false;
+            if (emailTerm && !(r.Email || '').toLowerCase().includes(emailTerm)) return false;
+            if (numberTerm && !(r.Phone || '').toLowerCase().includes(numberTerm)) return false;
+            return true;
+        });
+
+        piRenderTable(filtered);
+    }
+
+    // Clears all search fields and shows the full list again.
+    function piResetFilters() {
+        document.getElementById('piFilterName').value = '';
+        document.getElementById('piFilterEmail').value = '';
+        document.getElementById('piFilterNumber').value = '';
+        piRenderTable(piCurrentList);
     }
 
     // ----- SHOW FORM (Add / Edit / View) -----
@@ -491,4 +1109,103 @@
             })
             .catch(() => piShowToast('Server error while saving', 'error'));
     }
+
+    // ===================== EXPORT MODAL =====================
+
+    function piOpenExportModal() {
+        piRenderExportTags();
+        document.getElementById('piExportModal').classList.add('show');
+    }
+
+    function piCloseExportModal() {
+        document.getElementById('piExportModal').classList.remove('show');
+    }
+
+    // Renders the column tags. Clicking × removes that column from the export (sets included = false)
+    // and drops the tag from view. Once removed a column stays excluded until page reload.
+    function piRenderExportTags() {
+        const wrap = document.getElementById('piExportTags');
+        wrap.innerHTML = '';
+        piExportColumns.forEach((col, idx) => {
+            if (!col.included) return;
+            const tag = document.createElement('span');
+            tag.className = 'pi-tag';
+            tag.innerHTML = col.label + ' <button type="button" title="Remove column">&times;</button>';
+            tag.querySelector('button').onclick = function () {
+                piExportColumns[idx].included = false;
+                piRenderExportTags();
+            };
+            wrap.appendChild(tag);
+        });
+
+        if (!piExportColumns.some(c => c.included)) {
+            wrap.innerHTML = '<span style="font-size:12.5px;color:#9CA3AF;">No columns selected</span>';
+        }
+    }
+
+    // Returns the row data to export, respecting the Entries dropdown
+    // (Current = whatever the Name/Email/Number search is currently showing, All = full unfiltered list)
+    function piGetExportRows() {
+        const mode = document.getElementById('piExportEntries').value;
+        return mode === 'all' ? piCurrentList : piFilteredList;
+    }
+
+    function piGetSelectedColumns() {
+        return piExportColumns.filter(c => c.included);
+    }
+
+    function piFormatCell(col, row) {
+        if (col.key === 'RegisteredOn') {
+            const d = parseAspDate(row.RegisteredOn);
+            return d ? d.toLocaleDateString('en-GB') : '-';
+        }
+        return row[col.key] || '';
+    }
+
+    function piExportExcel() {
+        const cols = piGetSelectedColumns();
+        if (cols.length === 0) { piShowToast('Please select at least one column', 'error'); return; }
+        const rows = piGetExportRows();
+        if (rows.length === 0) { piShowToast('No data to export', 'error'); return; }
+
+        const data = rows.map(r => {
+            const obj = {};
+            cols.forEach(c => obj[c.label] = piFormatCell(c, r));
+            return obj;
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Applications');
+        XLSX.writeFile(wb, 'PersonalInformation.xlsx');
+        piCloseExportModal();
+    }
+
+    function piExportPdf() {
+        const cols = piGetSelectedColumns();
+        if (cols.length === 0) { piShowToast('Please select at least one column', 'error'); return; }
+        const rows = piGetExportRows();
+        if (rows.length === 0) { piShowToast('No data to export', 'error'); return; }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: cols.length > 5 ? 'landscape' : 'portrait' });
+
+        const head = [cols.map(c => c.label)];
+        const body = rows.map(r => cols.map(c => piFormatCell(c, r)));
+
+        doc.autoTable({
+            head: head,
+            body: body,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [16, 185, 129] }
+        });
+
+        doc.save('PersonalInformation.pdf');
+        piCloseExportModal();
+    }
+
+    // Close modal on outside click
+    document.getElementById('piExportModal').addEventListener('click', function (e) {
+        if (e.target === this) piCloseExportModal();
+    });
 </script>

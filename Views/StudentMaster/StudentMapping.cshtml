@@ -1,9 +1,4 @@
-﻿
-@{
-    ViewBag.Title = "StudentMapping";
-    Layout = "~/Views/Shared/_mainLayout.cshtml";
-}
-@{
+﻿@{
     ViewBag.Title = "Student Mapping";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
     ViewBag.ActiveMenu = "StudentMaster";
@@ -73,7 +68,7 @@
                     <div class="as-icon"><i class="fas fa-link"></i></div>
                     <div>
                         <h2>Add Student Mapping</h2>
-                        <p>Select a student — their course &amp; category auto-fetch from Student Records.</p>
+                        <p>Select a student — their course auto-fetches from Student Records.</p>
                     </div>
                 </div>
 
@@ -123,14 +118,31 @@
 
 <div class="as-toast" id="smToast"><i class="fas fa-check-circle"></i><span id="smToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function getMappings() { return JSON.parse(localStorage.getItem('erp_studentMappings') || '[]'); }
-    function saveMappings(arr) { localStorage.setItem('erp_studentMappings', JSON.stringify(arr)); }
+<script>
+    let smCurrentList = [];
+
+    function smShowToast(msg, type) {
+        const toast = document.getElementById('smToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function smLoadList() {
+        fetch('/StudentMaster/GetStudentMappingList')
+            .then(res => res.json())
+            .then(data => {
+                smCurrentList = data;
+                smRender();
+            })
+            .catch(() => smShowToast('Unable to load mapping list', 'error'));
+    }
 
     function smPopulateStudents() {
-        const students = getStudents().filter(s => s.status === 'Active');
+        // GETSTUDENTS flag exist nahi karta sp_StudentMapping me — isliye
+        // same GETALL list reuse kar rahe hain dropdown ke liye
         document.getElementById('smStudent').innerHTML = '<option value="">-- Select Student --</option>' +
-            students.map(s => `<option value="${s.studentId}" data-course="${s.courseName}">${s.studentId} — ${s.name}</option>`).join('');
+            smCurrentList.map(s => `<option value="${s.StudentId}" data-course="${s.CourseName || ''}">${s.StudentId} — ${s.Name}</option>`).join('');
     }
 
     function smLoadStudent() {
@@ -140,25 +152,21 @@
     }
 
     function smRender() {
-        const students = getStudents().filter(s => s.status === 'Active');
-        const mappings = getMappings();
-        document.getElementById('smMapped').textContent = mappings.length;
-        document.getElementById('smUnmapped').textContent = students.length - mappings.length;
+        const mappedCount = smCurrentList.filter(m => m.IsMapped).length;
+        document.getElementById('smMapped').textContent = mappedCount;
+        document.getElementById('smUnmapped').textContent = smCurrentList.length - mappedCount;
 
-        document.getElementById('smTableBody').innerHTML = students.map(s => {
-            const m = mappings.find(x => x.studentId === s.studentId);
-            return `
+        document.getElementById('smTableBody').innerHTML = smCurrentList.map(m => `
             <tr>
-                <td><strong>${s.studentId}</strong></td>
-                <td>${s.name}</td>
-                <td>${s.courseName}</td>
-                <td>${m ? 'Section ' + m.section : '—'}</td>
-                <td>${m ? 'Semester ' + m.semester : '—'}</td>
-                <td>${m
-                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Mapped</span>'
-                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Not Mapped</span>'}</td>
-            </tr>`;
-        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
+                <td><strong>${m.StudentId}</strong></td>
+                <td>${m.Name || ''}</td>
+                <td>${m.CourseName || ''}</td>
+                <td>${m.IsMapped ? 'Section ' + m.Section : '—'}</td>
+                <td>${m.IsMapped ? 'Semester ' + m.Semester : '—'}</td>
+                <td>${m.IsMapped
+                ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Mapped</span>'
+                : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Not Mapped</span>'}</td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
     }
 
     function smShowForm() {
@@ -170,14 +178,8 @@
     function smShowList() {
         document.getElementById('smFormWrap').style.display = 'none';
         document.getElementById('smListWrap').style.display = 'block';
-        smRender();
+        smLoadList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    function smShowToast(msg, type) {
-        const toast = document.getElementById('smToast');
-        toast.querySelector('span').textContent = msg;
-        toast.className = 'as-toast show ' + (type || '');
-        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function smSaveMapping() {
@@ -188,14 +190,18 @@
         const semester = document.getElementById('smSemester').value;
         if (!semester) { smShowToast('Please select a Semester', 'error'); return; }
 
-        const mappings = getMappings().filter(m => m.studentId !== studentId); // replace if exists
-        mappings.push({ studentId, section, semester });
-        saveMappings(mappings);
-
-        smShowToast('Mapping saved successfully!', 'success');
-        smShowList();
+        fetch('/StudentMaster/SaveStudentMapping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'studentId=' + encodeURIComponent(studentId) + '&section=' + encodeURIComponent(section) + '&semester=' + semester
+        })
+            .then(res => res.json())
+            .then(data => {
+                smShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) smShowList();
+            })
+            .catch(() => smShowToast('Server error while saving mapping', 'error'));
     }
 
-    smRender();</script>
-
-
+    smLoadList();
+</script>

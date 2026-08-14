@@ -12,6 +12,8 @@
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
 <link href="~/Content/CSS/eligibilityCheck.css" rel="stylesheet" />
 
+
+
 <div class="as-wrap">
 
     <!-- ================= LIST PAGE ================= -->
@@ -141,7 +143,7 @@
                     <button class="as-btn as-btn-ghost" onclick="ecShowList()">Back to List</button>
                     <span></span>
                     <button class="as-btn as-btn-primary" onclick="ecProceedToRegistration()">
-                        <i class="fas fa-arrow-right"></i> Proceed to Student Registration
+                        <i class="fas fa-arrow-right"></i> Proceed to New Admission
                     </button>
                 </div>
 
@@ -242,12 +244,13 @@
             .catch(() => ecShowToast('Server error while checking eligibility', 'error'));
     }
 
+    // 🔑 FIXED: added '?' before params.toString()
     function ecProceedToRegistration() {
         if (!ecLastResult) return;
         const params = new URLSearchParams({
             name: ecLastResult.applicantName,
             pct: ecLastResult.pctObtained
         });
-        window.location.href = '/Admission/StudentRegistration?' + params.toString();
+        window.location.href = '/Admission/PersonalInformation?' + params.toString();
     }
 </script>

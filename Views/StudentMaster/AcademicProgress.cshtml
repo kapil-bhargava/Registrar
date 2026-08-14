@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "AcademicProgress";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
@@ -106,37 +105,51 @@
 
 <div class="as-toast" id="apToast"><i class="fas fa-check-circle"></i><span id="apToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function getProgress() { return JSON.parse(localStorage.getItem('erp_academicProgress') || '[]'); }
-    function saveProgress(arr) { localStorage.setItem('erp_academicProgress', JSON.stringify(arr)); }
+<script>
+    function apShowToast(msg, type) {
+        const toast = document.getElementById('apToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function apLoadList() {
+        fetch('/StudentMaster/GetAcademicProgressList')
+            .then(res => res.json())
+            .then(data => apRender(data))
+            .catch(() => apShowToast('Unable to load progress records', 'error'));
+    }
+
+    function apRender(records) {
+        document.getElementById('apTableBody').innerHTML = records.map(r => `
+            <tr>
+                <td><strong>${r.StudentId}</strong></td>
+                <td>${r.Name || ''}</td>
+                <td>Semester ${r.Semester}</td>
+                <td>${r.SGPA}</td>
+                <td>${r.Attendance != null ? r.Attendance + '%' : '—'}</td>
+                <td>${r.ResultStatus === 'Pass'
+                ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Pass</span>'
+                : r.ResultStatus === 'Fail'
+                    ? '<span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Fail</span>'
+                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No progress records yet</td></tr>';
+    }
 
     function apPopulateStudents() {
-        const students = getStudents().filter(s => s.status === 'Active');
-        document.getElementById('apStudent').innerHTML = '<option value="">-- Select Student --</option>' +
-            students.map(s => `<option value="${s.studentId}" data-name="${s.name}" data-course="${s.courseName}">${s.studentId} — ${s.name}</option>`).join('');
+        fetch('/StudentMaster/GetStudentsForProgress')
+            .then(res => res.json())
+            .then(students => {
+                document.getElementById('apStudent').innerHTML = '<option value="">-- Select Student --</option>' +
+                    students.map(s => `<option value="${s.StudentId}" data-name="${s.Name}" data-course="${s.CourseName || ''}">${s.StudentId} — ${s.Name}</option>`).join('');
+            })
+            .catch(() => apShowToast('Unable to load students', 'error'));
     }
 
     function apLoadStudent() {
         const select = document.getElementById('apStudent');
         const opt = select.options[select.selectedIndex];
         document.getElementById('apCourse').value = opt.getAttribute('data-course') || '';
-    }
-
-    function apRender() {
-        const records = getProgress();
-        document.getElementById('apTableBody').innerHTML = records.map(r => `
-            <tr>
-                <td><strong>${r.studentId}</strong></td>
-                <td>${r.name}</td>
-                <td>Semester ${r.semester}</td>
-                <td>${r.sgpa}</td>
-                <td>${r.attendance}%</td>
-                <td>${r.result === 'Pass'
-                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Pass</span>'
-                    : r.result === 'Fail'
-                    ? '<span class="as-pill as-pill-locked"><i class="fas fa-times-circle"></i> Fail</span>'
-                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
-            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No progress records yet</td></tr>';
     }
 
     function apShowForm() {
@@ -148,14 +161,8 @@
     function apShowList() {
         document.getElementById('apFormWrap').style.display = 'none';
         document.getElementById('apListWrap').style.display = 'block';
-        apRender();
+        apLoadList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    function apShowToast(msg, type) {
-        const toast = document.getElementById('apToast');
-        toast.querySelector('span').textContent = msg;
-        toast.className = 'as-toast show ' + (type || '');
-        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function apSaveProgress() {
@@ -167,22 +174,26 @@
         const sgpa = document.getElementById('apSgpa').value;
         if (!sgpa) { apShowToast('Please enter SGPA', 'error'); return; }
 
-        const opt = select.options[select.selectedIndex];
-        const records = getProgress();
-        records.push({
-            studentId,
-            name: opt.getAttribute('data-name'),
-            semester,
-            sgpa,
-            attendance: document.getElementById('apAttendance').value || 0,
-            result: document.getElementById('apResult').value
-        });
-        saveProgress(records);
+        const payload = {
+            StudentId: studentId,
+            Semester: parseInt(semester),
+            SGPA: parseFloat(sgpa),
+            Attendance: document.getElementById('apAttendance').value ? parseFloat(document.getElementById('apAttendance').value) : null,
+            ResultStatus: document.getElementById('apResult').value
+        };
 
-        apShowToast('Progress record saved!', 'success');
-        apShowList();
+        fetch('/StudentMaster/SaveAcademicProgress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                apShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) apShowList();
+            })
+            .catch(() => apShowToast('Server error while saving progress', 'error'));
     }
 
-    apRender();</script>
-
-
+    apLoadList();
+</script>

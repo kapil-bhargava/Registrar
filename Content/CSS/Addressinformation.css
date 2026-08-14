@@ -327,3 +327,113 @@
         margin-left: 0;
     }
 }
+/* ----- BACK TO LIST ----- */
+.as-back-row {
+    margin-bottom: 0.9rem;
+}
+
+.as-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    color: #334155;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+
+    .as-back-link i {
+        font-size: 0.75rem;
+    }
+
+    .as-back-link:hover {
+        background: #f8fafc;
+        border-color: #6b3fd6;
+        color: #6b3fd6;
+    }
+
+/* ----- ACTION BUTTONS (view/edit icons in list table) ----- */
+.as-mini-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-right: 0.35rem;
+    transition: 0.15s;
+}
+
+    .as-mini-btn:last-child {
+        margin-right: 0;
+    }
+
+    .as-mini-btn:hover {
+        background: #f8fafc;
+        border-color: #6b3fd6;
+        color: #6b3fd6;
+    }
+
+    /* view icon */
+    .as-mini-btn[title="View"]:hover {
+        border-color: #6b3fd6;
+        color: #6b3fd6;
+    }
+
+    /* edit icon */
+    .as-mini-btn[title="Edit"]:hover {
+        border-color: #f0932b;
+        color: #f0932b;
+    }
+
+/* ----- LIST PAGE HEADER (title/subtitle left, Add New right) ----- */
+.as-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+    .as-list-head h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0b1b33;
+    }
+
+        .as-list-head h2 i {
+            color: #6b3fd6;
+        }
+
+    .as-list-head p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.8rem;
+        color: #6b7a99;
+    } 
+
+@media (max-width: 640px) {
+    .as-list-head {
+        align-items: flex-start;
+    }
+
+        .as-list-head .as-btn {
+            width: 100%;
+            justify-content: center;
+        }
+}

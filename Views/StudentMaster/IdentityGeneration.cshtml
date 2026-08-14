@@ -1,9 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "IdentityGeneration";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -101,60 +99,10 @@
 
 <div class="as-toast" id="igToast"><i class="fas fa-check-circle"></i><span id="igToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function getIdentities() { return JSON.parse(localStorage.getItem('erp_identities') || '[]'); }
-    function saveIdentities(arr) { localStorage.setItem('erp_identities', JSON.stringify(arr)); }
-
+<script>
+    let igCurrentList = [];
     let igSelectedId = null;
 
-    function igRender() {
-        const students = getStudents().filter(s => s.status === 'Active');
-        const identities = getIdentities();
-        document.getElementById('igGenerated').textContent = identities.length;
-        document.getElementById('igPending').textContent = students.length - identities.length;
-
-        document.getElementById('igTableBody').innerHTML = students.map(s => {
-            const id = identities.find(x => x.studentId === s.studentId);
-            return `
-            <tr>
-                <td><strong>${s.studentId}</strong></td>
-                <td>${s.name}</td>
-                <td>${s.courseName}</td>
-                <td>${id ? id.enrollmentNo : '—'}</td>
-                <td>${id
-                    ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Generated</span>'
-                    : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
-                <td><button class="as-mini-btn" title="${id ? 'View' : 'Generate'}" onclick="igOpenDetail('${s.studentId}')"><i class="fas fa-id-badge"></i></button></td>
-            </tr>`;
-        }).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
-    }
-
-    function igOpenDetail(studentId) {
-        const s = getStudents().find(x => x.studentId === studentId);
-        if (!s) return;
-        igSelectedId = studentId;
-
-        document.getElementById('igListWrap').style.display = 'none';
-        document.getElementById('igDetailWrap').style.display = 'block';
-        document.getElementById('igDetailSub').textContent = s.studentId + ' — ' + s.name;
-
-        document.getElementById('igCardName').textContent = s.name;
-        document.getElementById('igCardCourse').textContent = s.courseName;
-        document.getElementById('igCardStudentId').textContent = s.studentId;
-        document.getElementById('igCardSession').textContent = s.session;
-
-        const existing = getIdentities().find(x => x.studentId === studentId);
-        document.getElementById('igCardEnroll').textContent = existing ? existing.enrollmentNo : 'Not generated yet';
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function igShowList() {
-        document.getElementById('igDetailWrap').style.display = 'none';
-        document.getElementById('igListWrap').style.display = 'block';
-        igRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
     function igShowToast(msg, type) {
         const toast = document.getElementById('igToast');
         toast.querySelector('span').textContent = msg;
@@ -162,20 +110,77 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function igGenerate() {
-        const identities = getIdentities();
-        if (identities.find(x => x.studentId === igSelectedId)) {
-            igShowToast('ID Card already generated for this student', 'error');
-            return;
-        }
-        const enrollmentNo = 'ENR-2026-' + String(identities.length + 1).padStart(4, '0');
-        identities.push({ studentId: igSelectedId, enrollmentNo, issuedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) });
-        saveIdentities(identities);
-
-        document.getElementById('igCardEnroll').textContent = enrollmentNo;
-        igShowToast('ID Card generated! Enrollment No: ' + enrollmentNo, 'success');
+    function igLoadList() {
+        fetch('/StudentMaster/GetIdentityList')
+            .then(res => res.json())
+            .then(data => {
+                igCurrentList = data;
+                igRender();
+            })
+            .catch(() => igShowToast('Unable to load identity list', 'error'));
     }
 
-    igRender();</script>
+    function igRender() {
+        const generatedCount = igCurrentList.filter(s => s.IsGenerated).length;
+        document.getElementById('igGenerated').textContent = generatedCount;
+        document.getElementById('igPending').textContent = igCurrentList.length - generatedCount;
 
+        document.getElementById('igTableBody').innerHTML = igCurrentList.map(s => `
+            <tr>
+                <td><strong>${s.StudentId}</strong></td>
+                <td>${s.Name || ''}</td>
+                <td>${s.CourseName || ''}</td>
+                <td>${s.EnrollmentNo || '—'}</td>
+                <td>${s.IsGenerated
+                ? '<span class="as-pill as-pill-active"><i class="fas fa-check-circle"></i> Generated</span>'
+                : '<span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Pending</span>'}</td>
+                <td><button class="as-mini-btn" title="${s.IsGenerated ? 'View' : 'Generate'}" onclick="igOpenDetail('${s.StudentId}')"><i class="fas fa-id-badge"></i></button></td>
+            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No active students found</td></tr>';
+    }
 
+    function igOpenDetail(studentId) {
+        fetch('/StudentMaster/GetIdentityDetail?studentId=' + encodeURIComponent(studentId))
+            .then(res => res.json())
+            .then(s => {
+                if (!s) { igShowToast('Student not found', 'error'); return; }
+                igSelectedId = studentId;
+
+                document.getElementById('igListWrap').style.display = 'none';
+                document.getElementById('igDetailWrap').style.display = 'block';
+                document.getElementById('igDetailSub').textContent = s.StudentId + ' — ' + s.Name;
+
+                document.getElementById('igCardName').textContent = s.Name;
+                document.getElementById('igCardCourse').textContent = s.CourseName;
+                document.getElementById('igCardStudentId').textContent = s.StudentId;
+                document.getElementById('igCardSession').textContent = s.Session;
+                document.getElementById('igCardEnroll').textContent = s.EnrollmentNo || 'Not generated yet';
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            })
+            .catch(() => igShowToast('Unable to load student', 'error'));
+    }
+
+    function igShowList() {
+        document.getElementById('igDetailWrap').style.display = 'none';
+        document.getElementById('igListWrap').style.display = 'block';
+        igLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function igGenerate() {
+        fetch('/StudentMaster/GenerateIdentity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'studentId=' + encodeURIComponent(igSelectedId)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { igShowToast(data.message, 'error'); return; }
+                document.getElementById('igCardEnroll').textContent = data.enrollmentNo;
+                igShowToast(data.message, data.isNew ? 'success' : 'error');
+            })
+            .catch(() => igShowToast('Server error while generating identity', 'error'));
+    }
+
+    igLoadList();
+</script>

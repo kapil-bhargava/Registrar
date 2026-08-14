@@ -193,11 +193,48 @@ namespace Regis.Controllers
         // ============================================================
         // Fee Head Master
         // ============================================================
+        // ============================================================
+        // FEE HEAD MASTER
+        // URL : /Master/FeeheadMaster
+        // purane "public ActionResult FeeheadMaster() { return View(); }" ko isse REPLACE karo
+        // ============================================================
 
         public ActionResult FeeheadMaster()
         {
-            return View();
+            List<FeeHeadModel> list = MasterService.GetAllFeeHeadMaster();
+            return View(list);
         }
+
+        [HttpPost]
+        public ActionResult FeeheadMaster(FeeHeadModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.FeeHeadId > 0)
+                {
+                    result = MasterService.UpdateFeeHeadMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Fee Head Updated Successfully." : "Unable to Update Fee Head.";
+                }
+                else
+                {
+                    result = MasterService.InsertFeeHeadMaster(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Fee Head Saved Successfully." : "Unable to Save Fee Head.";
+                }
+            }
+            return RedirectToAction("FeeheadMaster");
+        }
+
+        public ActionResult DeleteFeeHeadMaster(int id)
+        {
+            bool result = MasterService.DeleteFeeHeadMaster(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Fee Head Deleted Successfully." : "Unable to Delete Fee Head.";
+            return RedirectToAction("FeeheadMaster");
+        }
+
 
         // ============================================================
         // Discount / Scholarship Master
@@ -1012,5 +1049,6 @@ namespace Regis.Controllers
             var list = MasterService.GetBranchesByCourse(courseId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
     }
 }

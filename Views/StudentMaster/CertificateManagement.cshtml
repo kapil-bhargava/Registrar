@@ -1,9 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "CertificateManagement";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -107,34 +105,46 @@
 
 <div class="as-toast" id="cmToast"><i class="fas fa-check-circle"></i><span id="cmToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function getCertificates() { return JSON.parse(localStorage.getItem('erp_certificates') || '[]'); }
-    function saveCertificates(arr) { localStorage.setItem('erp_certificates', JSON.stringify(arr)); }
+<script>
+    function cmShowToast(msg, type) {
+        const toast = document.getElementById('cmToast');
+        toast.querySelector('span').textContent = msg;
+        toast.className = 'as-toast show ' + (type || '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cmLoadList() {
+        fetch('/StudentMaster/GetCertificateList')
+            .then(res => res.json())
+            .then(certs => {
+                document.getElementById('cmTotal').textContent = certs.length;
+                document.getElementById('cmTableBody').innerHTML = certs.map(c => `
+                    <tr>
+                        <td><strong>${c.CertNo}</strong></td>
+                        <td>${c.StudentId}</td>
+                        <td>${c.Name || ''}</td>
+                        <td><span class="as-type-badge">${c.CertificateType}</span></td>
+                        <td>${c.Purpose || '—'}</td>
+                        <td>${new Date(c.IssuedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No certificates issued yet</td></tr>';
+            })
+            .catch(() => cmShowToast('Unable to load certificates', 'error'));
+    }
 
     function cmPopulateStudents() {
-        const students = getStudents();
-        document.getElementById('cmStudent').innerHTML = '<option value="">-- Select Student --</option>' +
-            students.map(s => `<option value="${s.studentId}" data-name="${s.name}" data-course="${s.courseName}">${s.studentId} — ${s.name}</option>`).join('');
+        fetch('/StudentMaster/GetStudentsForCertificate')
+            .then(res => res.json())
+            .then(students => {
+                document.getElementById('cmStudent').innerHTML = '<option value="">-- Select Student --</option>' +
+                    students.map(s => `<option value="${s.StudentId}" data-name="${s.Name}" data-course="${s.CourseName || ''}">${s.StudentId} — ${s.Name}</option>`).join('');
+            })
+            .catch(() => cmShowToast('Unable to load students', 'error'));
     }
 
     function cmLoadStudent() {
         const select = document.getElementById('cmStudent');
         const opt = select.options[select.selectedIndex];
         document.getElementById('cmCourse').value = opt.getAttribute('data-course') || '';
-    }
-
-    function cmRender() {
-        const certs = getCertificates();
-        document.getElementById('cmTotal').textContent = certs.length;
-        document.getElementById('cmTableBody').innerHTML = certs.map(c => `
-            <tr>
-                <td><strong>${c.certNo}</strong></td>
-                <td>${c.studentId}</td>
-                <td>${c.name}</td>
-                <td><span class="as-type-badge">${c.type}</span></td>
-                <td>${c.purpose || '—'}</td>
-                <td>${c.issuedOn}</td>
-            </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#6B7A99;">No certificates issued yet</td></tr>';
     }
 
     function cmShowForm() {
@@ -146,14 +156,8 @@
     function cmShowList() {
         document.getElementById('cmFormWrap').style.display = 'none';
         document.getElementById('cmListWrap').style.display = 'block';
-        cmRender();
+        cmLoadList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    function cmShowToast(msg, type) {
-        const toast = document.getElementById('cmToast');
-        toast.querySelector('span').textContent = msg;
-        toast.className = 'as-toast show ' + (type || '');
-        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function cmIssue() {
@@ -163,24 +167,24 @@
         const type = document.getElementById('cmType').value;
         if (!type) { cmShowToast('Please select a Certificate Type', 'error'); return; }
 
-        const opt = select.options[select.selectedIndex];
-        const certs = getCertificates();
-        const certNo = 'CERT-2026-' + String(certs.length + 1).padStart(4, '0');
+        const payload = {
+            StudentId: studentId,
+            CertificateType: type,
+            Purpose: document.getElementById('cmPurpose').value
+        };
 
-        certs.push({
-            certNo,
-            studentId,
-            name: opt.getAttribute('data-name'),
-            type,
-            purpose: document.getElementById('cmPurpose').value,
-            issuedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-        });
-        saveCertificates(certs);
-
-        cmShowToast('Certificate ' + certNo + ' generated!', 'success');
-        cmShowList();
+        fetch('/StudentMaster/IssueCertificate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                cmShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) cmShowList();
+            })
+            .catch(() => cmShowToast('Server error while issuing certificate', 'error'));
     }
 
-    cmRender();</script>
-
-
+    cmLoadList();
+</script>

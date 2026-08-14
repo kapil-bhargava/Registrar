@@ -102,6 +102,8 @@
                             }
                         </select>
                     </div>
+                    <!-- 🔑 FIX: hidden input jo JS ko chahiye (aiResetForm / aiOnSetupChange / aiSaveAndContinue sab isse use karte hain) -->
+                    <input type="hidden" id="aiAcademicSessionName" value="">
                     <div class="af-field">
                         <label>Category<span class="req">*</span></label>
                         <select id="aiCategoryId">
@@ -205,16 +207,18 @@
 
 <script>
     var aiCurrentList = [];
-    // 'wizard' = arrived via redirect from a previous step (keep moving forward through the wizard)
-    // 'edit'   = opened from the list's Edit icon (should return to the list after saving)
-    // 'new'    = opened from "Add New" (no application selected yet)
-    // 'view'   = read-only
     var aiCurrentMode = 'new';
+
+    function parseAspDate(v) {
+        if (!v) return null;
+        var m = /\/Date\((\d+)\)\//.exec(v);
+        var d = m ? new Date(parseInt(m[1])) : new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         var qsAppId = getQueryParam('applicationId');
         if (qsAppId && parseInt(qsAppId) > 0) {
-            // Came here from the wizard (e.g. after Personal Information save) — jump straight to the form.
             aiShowForm(parseInt(qsAppId), false, 'wizard');
         } else {
             aiLoadList();
@@ -345,29 +349,31 @@
             'aiDateOfAdmission', 'aiAdmissionCategory', 'aiFeesCategory', 'aiShift',
             'aiEntranceExamRegNo', 'aiEntranceExamMeritNo', 'aiReferenceName'];
         fieldIds.forEach(id => document.getElementById(id).value = '');
+        document.getElementById('aiAdmissionSetupId').value = '';
+        document.getElementById('aiCategoryId').value = '';
     }
 
     function aiShowList() {
         document.getElementById('aiFormWrap').style.display = 'none';
         document.getElementById('aiListWrap').style.display = 'block';
-        // Clean the URL so a stray applicationId query param doesn't re-open the form.
         if (window.history && window.history.replaceState) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
         aiLoadList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     function aiOnSetupChange() {
         var sel = document.getElementById('aiAdmissionSetupId');
         var opt = sel.options[sel.selectedIndex];
         document.getElementById('aiDegree').value = opt.getAttribute('data-course') || '';
         document.getElementById('aiAcademicSessionName').value = opt.getAttribute('data-session') || '';
     }
+
     // ----- SAVE -----
     function aiSaveAndContinue() {
         var appId = parseInt(document.getElementById('aiApplicationId').value) || 0;
         if (!appId) { aiShowToast('Application not found — start from Personal Information', 'error'); return; }
-        if (!payload.AdmissionSetupId) { aiShowToast('Please select Admission Setup (Course + Session)', 'error'); return; }
 
         var payload = {
             ApplicationId: appId,
@@ -392,6 +398,8 @@
             ReferenceName: document.getElementById('aiReferenceName').value
         };
 
+        if (!payload.AdmissionSetupId) { aiShowToast('Please select Admission Setup (Course + Session)', 'error'); return; }
+
         fetch('/Admission/SaveAdmissionInformation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -403,10 +411,8 @@
                 aiShowToast(data.message, 'success');
 
                 if (aiCurrentMode === 'edit') {
-                    // Edited from the list — go back to the list, don't push the user further into the wizard.
                     setTimeout(() => aiShowList(), 700);
                 } else {
-                    // Came from the wizard (or a fresh Add New) — keep moving forward.
                     setTimeout(() => window.location.href = '/Admission/AddressInformation?applicationId=' + appId, 700);
                 }
             })

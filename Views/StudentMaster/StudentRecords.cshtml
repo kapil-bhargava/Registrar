@@ -1,9 +1,7 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "StudentRecords";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
-
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -115,73 +113,9 @@
 
 <div class="as-toast" id="srToast"><i class="fas fa-check-circle"></i><span id="srToastMessage">Success!</span></div>
 
-<script>function getStudents() { return JSON.parse(localStorage.getItem('erp_students') || '[]'); }
-    function saveStudents(arr) { localStorage.setItem('erp_students', JSON.stringify(arr)); }
-
-    // Seed sample students (as if 4 admissions were already confirmed via Admission Final)
-    if (localStorage.getItem('erp_studentSeedVersion') !== 'v1') {
-        localStorage.setItem('erp_studentSeedVersion', 'v1');
-        saveStudents([
-            { studentId: 'STU-20260001', name: 'Rohit Sharma', courseName: 'B.Tech - Computer Science', category: 'General', seatNumber: 'GEN-BTECH-CS-001', session: '2025-26', admittedOn: '15 Jul 2026', status: 'Active' },
-            { studentId: 'STU-20260002', name: 'Priya Verma', courseName: 'B.Tech - Computer Science', category: 'OBC', seatNumber: 'OBC-BTECH-CS-002', session: '2025-26', admittedOn: '15 Jul 2026', status: 'Active' },
-            { studentId: 'STU-20260003', name: 'Aman Kumar', courseName: 'B.Tech - Computer Science', category: 'SC', seatNumber: 'SC-BTECH-CS-003', session: '2025-26', admittedOn: '16 Jul 2026', status: 'Active' },
-            { studentId: 'STU-20260004', name: 'Neha Singh', courseName: 'BCA', category: 'General', seatNumber: 'GEN-BCA-004', session: '2025-26', admittedOn: '16 Jul 2026', status: 'Active' },
-            { studentId: 'STU-20250099', name: 'Kavita Rao', courseName: 'B.Tech - Computer Science', category: 'General', seatNumber: 'GEN-BTECH-CS-099', session: '2021-22', admittedOn: '10 Jul 2021', status: 'Graduated' }
-        ]);
-    }
-
+<script>
+    let srCurrentList = [];
     let srSelectedId = null;
-
-    function srRender() {
-        const students = getStudents();
-        document.getElementById('srTotal').textContent = students.length;
-        document.getElementById('srActive').textContent = students.filter(s => s.status === 'Active').length;
-        document.getElementById('srGraduated').textContent = students.filter(s => s.status === 'Graduated').length;
-
-        document.getElementById('srTableBody').innerHTML = students.map(s => `
-            <tr>
-                <td><strong>${s.studentId}</strong></td>
-                <td>${s.name}</td>
-                <td>${s.courseName}</td>
-                <td><span class="as-type-badge">${s.category}</span></td>
-                <td>${s.session}</td>
-                <td>${s.admittedOn}</td>
-                <td>${s.status === 'Active'
-                    ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>'
-                    : s.status === 'Graduated'
-                    ? '<span class="as-pill as-pill-closed"><i class="fas fa-graduation-cap"></i> Graduated</span>'
-                    : '<span class="as-pill as-pill-locked"><i class="fas fa-ban"></i> Suspended</span>'}</td>
-                <td><button class="as-mini-btn" title="View / Edit" onclick="srOpenDetail('${s.studentId}')"><i class="fas fa-eye"></i></button></td>
-            </tr>`).join('') || '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No students yet — confirm an admission first</td></tr>';
-    }
-
-    function srOpenDetail(studentId) {
-        const s = getStudents().find(x => x.studentId === studentId);
-        if (!s) return;
-        srSelectedId = studentId;
-
-        document.getElementById('srListWrap').style.display = 'none';
-        document.getElementById('srDetailWrap').style.display = 'block';
-        document.getElementById('srDetailSub').textContent = s.studentId;
-
-        document.getElementById('srdStudentId').value = s.studentId;
-        document.getElementById('srdName').value = s.name;
-        document.getElementById('srdCourse').value = s.courseName;
-        document.getElementById('srdCategory').value = s.category;
-        document.getElementById('srdSession').value = s.session;
-        document.getElementById('srdSeat').value = s.seatNumber || '—';
-        document.getElementById('srdAdmitted').value = s.admittedOn;
-        document.getElementById('srdStatus').value = s.status;
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function srShowList() {
-        document.getElementById('srDetailWrap').style.display = 'none';
-        document.getElementById('srListWrap').style.display = 'block';
-        srRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
     function srShowToast(msg, type) {
         const toast = document.getElementById('srToast');
@@ -190,22 +124,85 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function srSaveStatus() {
-        const students = getStudents();
-        const idx = students.findIndex(s => s.studentId === srSelectedId);
-        if (idx === -1) return;
-
-        students[idx].status = document.getElementById('srdStatus').value;
-        saveStudents(students);
-
-        if (students[idx].status === 'Graduated') {
-            srShowToast(students[idx].name + ' marked as Graduated — now visible in Alumni.', 'success');
-        } else {
-            srShowToast('Status updated successfully!', 'success');
-        }
-        srShowList();
+    function srLoadList() {
+        fetch('/StudentMaster/GetAllStudentRecords')
+            .then(res => res.json())
+            .then(data => {
+                srCurrentList = data;
+                srRender();
+            })
+            .catch(() => srShowToast('Unable to load student records', 'error'));
     }
 
-    srRender();</script>
+    function srRender() {
+        document.getElementById('srTotal').textContent = srCurrentList.length;
+        document.getElementById('srActive').textContent = srCurrentList.filter(s => s.Status === 'Active').length;
+        document.getElementById('srGraduated').textContent = srCurrentList.filter(s => s.Status === 'Graduated').length;
 
+        document.getElementById('srTableBody').innerHTML = srCurrentList.map(s => `
+            <tr>
+                <td><strong>${s.StudentId}</strong></td>
+                <td>${s.Name || ''}</td>
+                <td>${s.CourseName || ''}</td>
+                <td><span class="as-type-badge">${s.Category || ''}</span></td>
+                <td>${s.Session || ''}</td>
+                <td>${new Date(s.AdmittedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                <td>${s.Status === 'Active'
+                ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>'
+                : s.Status === 'Graduated'
+                    ? '<span class="as-pill as-pill-closed"><i class="fas fa-graduation-cap"></i> Graduated</span>'
+                    : '<span class="as-pill as-pill-locked"><i class="fas fa-ban"></i> Suspended</span>'}</td>
+                <td><button class="as-mini-btn" title="View / Edit" onclick="srOpenDetail('${s.StudentId}')"><i class="fas fa-eye"></i></button></td>
+            </tr>`).join('') || '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No students yet — confirm an admission first</td></tr>';
+    }
 
+    function srOpenDetail(studentId) {
+        fetch('/StudentMaster/GetStudentRecordById?studentId=' + encodeURIComponent(studentId))
+            .then(res => res.json())
+            .then(s => {
+                if (!s) { srShowToast('Student not found', 'error'); return; }
+                srSelectedId = studentId;
+
+                document.getElementById('srListWrap').style.display = 'none';
+                document.getElementById('srDetailWrap').style.display = 'block';
+                document.getElementById('srDetailSub').textContent = s.StudentId;
+
+                document.getElementById('srdStudentId').value = s.StudentId;
+                document.getElementById('srdName').value = s.Name || '';
+                document.getElementById('srdCourse').value = s.CourseName || '';
+                document.getElementById('srdCategory').value = s.Category || '';
+                document.getElementById('srdSession').value = s.Session || '';
+                document.getElementById('srdSeat').value = s.SeatNumber || '—';
+                document.getElementById('srdAdmitted').value = new Date(s.AdmittedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                document.getElementById('srdStatus').value = s.Status;
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            })
+            .catch(() => srShowToast('Unable to load student', 'error'));
+    }
+
+    function srShowList() {
+        document.getElementById('srDetailWrap').style.display = 'none';
+        document.getElementById('srListWrap').style.display = 'block';
+        srLoadList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function srSaveStatus() {
+        const status = document.getElementById('srdStatus').value;
+
+        fetch('/StudentMaster/UpdateStudentStatus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'studentId=' + encodeURIComponent(srSelectedId) + '&status=' + encodeURIComponent(status)
+        })
+            .then(res => res.json())
+            .then(data => {
+                srShowToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) srShowList();
+            })
+            .catch(() => srShowToast('Server error while saving status', 'error'));
+    }
+
+    srLoadList();
+</script>

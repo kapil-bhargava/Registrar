@@ -1808,5 +1808,82 @@ namespace Regis.Services
                 return rows != 0;
             }
         }
+        // =========================================================
+        // FEE HEAD MASTER
+        // MasterService.cs class ke andar paste karo
+        // =========================================================
+
+        public List<FeeHeadModel> GetAllFeeHeadMaster()
+        {
+            var list = new List<FeeHeadModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new FeeHeadModel
+                        {
+                            FeeHeadId = Convert.ToInt32(dr["FeeHeadId"]),
+                            FeeHeadCode = dr["FeeHeadCode"] as string,
+                            FeeHeadName = dr["FeeHeadName"] as string,
+                            Description = dr["Description"] as string,
+                            IsActive = Convert.ToBoolean(dr["IsActive"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool InsertFeeHeadMaster(FeeHeadModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@FeeHeadCode", (object)model.FeeHeadCode ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FeeHeadName", (object)model.FeeHeadName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool UpdateFeeHeadMaster(FeeHeadModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@FeeHeadId", model.FeeHeadId);
+                cmd.Parameters.AddWithValue("@FeeHeadCode", (object)model.FeeHeadCode ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FeeHeadName", (object)model.FeeHeadName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool DeleteFeeHeadMaster(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@FeeHeadId", id);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
     }
 }

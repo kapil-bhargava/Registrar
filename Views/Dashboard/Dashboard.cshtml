@@ -29,9 +29,8 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-user-graduate"></i></div>
                 <div>
-                    <div class="stat-value">8,240</div>
+                    <div class="stat-value" id="statTotalStudents">-</div>
                     <div class="stat-label">Total Students</div>
-                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 4.2%</div>
                 </div>
             </div>
         </div>
@@ -39,9 +38,8 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-user-plus"></i></div>
                 <div>
-                    <div class="stat-value">312</div>
+                    <div class="stat-value" id="statNewAdmissions">-</div>
                     <div class="stat-label">New Admissions</div>
-                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 12%</div>
                 </div>
             </div>
         </div>
@@ -51,7 +49,7 @@
                 <div>
                     <div class="stat-value">486</div>
                     <div class="stat-label">Faculty Members</div>
-                    <div class="stat-trend text-muted"><i class="fa-solid fa-minus"></i> 0%</div>
+                    <div class="stat-trend text-muted">Faculty Master not wired yet</div>
                 </div>
             </div>
         </div>
@@ -61,7 +59,7 @@
                 <div>
                     <div class="stat-value">18</div>
                     <div class="stat-label">Departments</div>
-                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 2</div>
+                    <div class="stat-trend text-muted">Department master not wired yet</div>
                 </div>
             </div>
         </div>
@@ -69,9 +67,8 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-book-open"></i></div>
                 <div>
-                    <div class="stat-value">142</div>
+                    <div class="stat-value" id="statCourses">-</div>
                     <div class="stat-label">Courses</div>
-                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 6</div>
                 </div>
             </div>
         </div>
@@ -81,7 +78,7 @@
                 <div>
                     <div class="stat-value">₹4.82Cr</div>
                     <div class="stat-label">Total Fee Collected</div>
-                    <div class="stat-trend text-success"><i class="fa-solid fa-arrow-up"></i> 8.1%</div>
+                    <div class="stat-trend text-muted">Fee module not wired yet</div>
                 </div>
             </div>
         </div>
@@ -91,7 +88,7 @@
                 <div>
                     <div class="stat-value">₹62.4L</div>
                     <div class="stat-label">Pending Fees</div>
-                    <div class="stat-trend text-danger"><i class="fa-solid fa-arrow-up"></i> 3.4%</div>
+                    <div class="stat-trend text-muted">Fee module not wired yet</div>
                 </div>
             </div>
         </div>
@@ -99,9 +96,8 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--info-soft); color:var(--info);"><i class="fa-solid fa-signal"></i></div>
                 <div>
-                    <div class="stat-value">1</div>
+                    <div class="stat-value" id="statActiveSessions">-</div>
                     <div class="stat-label">Active Sessions</div>
-                    <div class="stat-trend text-muted">2025-26</div>
                 </div>
             </div>
         </div>
@@ -112,14 +108,14 @@
         <div class="col-12 col-xl-8">
             <div class="panel">
                 <div class="panel-title">Admission Trend</div>
-                <div class="panel-sub">Monthly new admissions — current academic year</div>
+                <div class="panel-sub">Monthly new admissions — pulled from Application records</div>
                 <div class="chart-wrap"><canvas id="admissionTrendChart"></canvas></div>
             </div>
         </div>
         <div class="col-12 col-xl-4">
             <div class="panel">
                 <div class="panel-title">Student Category Distribution</div>
-                <div class="panel-sub">By category</div>
+                <div class="panel-sub">By category — pulled from Student Records</div>
                 <div class="chart-wrap"><canvas id="categoryPieChart"></canvas></div>
             </div>
         </div>
@@ -130,14 +126,14 @@
         <div class="col-12 col-xl-6">
             <div class="panel">
                 <div class="panel-title">Fee Collection</div>
-                <div class="panel-sub">Monthly collected vs pending (₹ Lakhs)</div>
+                <div class="panel-sub">Monthly collected vs pending (₹ Lakhs) — sample data, Fee module not wired yet</div>
                 <div class="chart-wrap sm"><canvas id="feeBarChart"></canvas></div>
             </div>
         </div>
         <div class="col-12 col-xl-6">
             <div class="panel">
                 <div class="panel-title">Department-wise Students</div>
-                <div class="panel-sub">Distribution across top departments</div>
+                <div class="panel-sub">Sample data — Department master not wired yet</div>
                 <div class="chart-wrap sm"><canvas id="deptDoughnutChart"></canvas></div>
             </div>
         </div>
@@ -149,7 +145,7 @@
             <div class="panel">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="panel-title mb-0">Recent Admissions</div>
-                    <a href="#" class="small fw-semibold text-decoration-none">View All →</a>
+                    <a href="/Admission/Application" class="small fw-semibold text-decoration-none">View All →</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-recent mb-0">
@@ -162,42 +158,8 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">AK</div> Ayesha Khan</td>
-                                <td>B.Tech CSE</td>
-                                <td>12 Jul 2026</td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">RS</div> Rohit Sharma</td>
-                                <td>B.Com Hons</td>
-                                <td>11 Jul 2026</td>
-                                <td><span class="status-pill" style="background:var(--warning-soft); color:var(--warning);">Partial</span></td>
-                                <td><span class="status-pill" style="background:var(--warning-soft); color:var(--warning);">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">MP</div> Meera Pillai</td>
-                                <td>M.Sc Physics</td>
-                                <td>10 Jul 2026</td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">SV</div> Sahil Verma</td>
-                                <td>BBA</td>
-                                <td>09 Jul 2026</td>
-                                <td><span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Unpaid</span></td>
-                                <td><span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Rejected</span></td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">NG</div> Nisha Gupta</td>
-                                <td>B.Tech ECE</td>
-                                <td>08 Jul 2026</td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span></td>
-                                <td><span class="status-pill" style="background:var(--success-soft); color:var(--success);">Approved</span></td>
-                            </tr>
+                        <tbody id="recentAdmissionsBody">
+                            <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -265,16 +227,16 @@
                 <div class="panel-title mb-3">Quick Actions</div>
                 <div class="row g-2">
                     <div class="col-6 col-md-3">
-                        <a href="#" class="quick-btn"><i class="fa-solid fa-user-plus"></i><span>New Admission</span></a>
+                        <a href="/Admission/PersonalInformation" class="quick-btn"><i class="fa-solid fa-user-plus"></i><span>New Admission</span></a>
                     </div>
                     <div class="col-6 col-md-3">
-                        <a href="#" class="quick-btn"><i class="fa-solid fa-money-bill-wave"></i><span>Fee Collection</span></a>
+                        <a href="/Admission/FeePayment" class="quick-btn"><i class="fa-solid fa-money-bill-wave"></i><span>Fee Collection</span></a>
                     </div>
                     <div class="col-6 col-md-3">
-                        <a href="#" class="quick-btn"><i class="fa-solid fa-magnifying-glass"></i><span>Student Search</span></a>
+                        <a href="/StudentMaster/StudentRecords" class="quick-btn"><i class="fa-solid fa-magnifying-glass"></i><span>Student Search</span></a>
                     </div>
                     <div class="col-6 col-md-3">
-                        <a href="#" class="quick-btn"><i class="fa-solid fa-chart-column"></i><span>Reports</span></a>
+                        <a href="/Reports/AdmissionReports" class="quick-btn"><i class="fa-solid fa-chart-column"></i><span>Reports</span></a>
                     </div>
                 </div>
             </div>
@@ -300,37 +262,82 @@
     Chart.defaults.font.size = 11.5;
     Chart.defaults.color = '#6b7280';
 
-    /* 1. ADMISSION TREND (LINE) */
-    new Chart(document.getElementById('admissionTrendChart'), {
-        type: 'line',
-        data: {
-            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
-            datasets: [{
-                label: 'New Admissions',
-                data: [120, 145, 180, 312, 260, 190, 150, 130, 110, 95, 105, 140],
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37,99,235,0.08)',
-                fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2563eb'
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
-        }
+    Promise.all([
+        fetch('/Admission/GetAllApplicationsJson').then(r => r.json()).catch(() => []),
+        fetch('/StudentMaster/GetAllStudentRecords').then(r => r.json()).catch(() => []),
+        fetch('/Admission/GetAllAdmissionSetupsJson').then(r => r.json()).catch(() => [])
+    ]).then(([applications, students, setups]) => {
+        applications = applications || [];
+        students = students || [];
+        setups = setups || [];
+
+        // ----- Summary cards -----
+        document.getElementById('statTotalStudents').textContent = students.length;
+        document.getElementById('statNewAdmissions').textContent = applications.length;
+        document.getElementById('statCourses').textContent = new Set(setups.map(s => s.CourseName)).size;
+        document.getElementById('statActiveSessions').textContent = new Set(setups.filter(s => s.Status === 'Open').map(s => s.SessionName)).size || '1';
+
+        // ----- Admission Trend (line) — month-wise application count -----
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const byMonth = new Array(12).fill(0);
+        applications.forEach(a => {
+            if (a.RegisteredOn) {
+                const d = new Date(a.RegisteredOn);
+                if (!isNaN(d)) byMonth[d.getMonth()]++;
+            }
+        });
+
+        new Chart(document.getElementById('admissionTrendChart'), {
+            type: 'line',
+            data: {
+                labels: monthNames,
+                datasets: [{
+                    label: 'New Admissions',
+                    data: byMonth,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37,99,235,0.08)',
+                    fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // ----- Student Category Distribution (pie) -----
+        const byCategory = {};
+        students.forEach(s => { const c = s.Category || 'Unspecified'; byCategory[c] = (byCategory[c] || 0) + 1; });
+
+        new Chart(document.getElementById('categoryPieChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(byCategory),
+                datasets: [{ data: Object.values(byCategory), backgroundColor: ['#2563eb', '#16a34a', '#d97706', '#0891b2', '#dc2626'], borderWidth: 2, borderColor: '#fff' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
+        });
+
+        // ----- Recent Admissions table (latest 5) -----
+        const recent = applications.slice().sort((a, b) => new Date(b.RegisteredOn) - new Date(a.RegisteredOn)).slice(0, 5);
+        document.getElementById('recentAdmissionsBody').innerHTML = recent.map(a => {
+            const initials = (a.FullName || '?').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            const feeStatus = a.FeePaid
+                ? '<span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span>'
+                : '<span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Unpaid</span>';
+            const stagePill = '<span class="status-pill" style="background:var(--info-soft); color:var(--info);">' + (a.Stage || '') + '</span>';
+            return `<tr>
+                <td class="d-flex align-items-center gap-2"><div class="avatar-sm">${initials}</div> ${a.FullName || ''}</td>
+                <td>${a.CourseName || '-'}</td>
+                <td>${a.RegisteredOn ? new Date(a.RegisteredOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
+                <td>${feeStatus}</td>
+                <td>${stagePill}</td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="5" class="text-center text-muted">No admissions yet</td></tr>';
     });
 
-    /* 2. STUDENT CATEGORY DISTRIBUTION (PIE) */
-    new Chart(document.getElementById('categoryPieChart'), {
-        type: 'pie',
-        data: {
-            labels: ['General', 'OBC', 'SC/ST', 'EWS', 'International'],
-            datasets: [{ data: [38, 27, 18, 12, 5], backgroundColor: ['#2563eb', '#16a34a', '#d97706', '#0891b2', '#dc2626'], borderWidth: 2, borderColor: '#fff' }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
-    });
-
-    /* 3. FEE COLLECTION (BAR) */
+    /* Fee Collection (BAR) — sample data, Fee module not wired yet */
     new Chart(document.getElementById('feeBarChart'), {
         type: 'bar',
         data: {
@@ -347,7 +354,7 @@
         }
     });
 
-    /* 4. DEPARTMENT-WISE STUDENTS (DOUGHNUT) */
+    /* Department-wise Students (DOUGHNUT) — sample data, Department master not wired yet */
     new Chart(document.getElementById('deptDoughnutChart'), {
         type: 'doughnut',
         data: {
