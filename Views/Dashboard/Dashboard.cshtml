@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
@@ -76,9 +75,8 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-sack-dollar"></i></div>
                 <div>
-                    <div class="stat-value">₹4.82Cr</div>
+                    <div class="stat-value" id="statFeeCollected">-</div>
                     <div class="stat-label">Total Fee Collected</div>
-                    <div class="stat-trend text-muted">Fee module not wired yet</div>
                 </div>
             </div>
         </div>
@@ -86,9 +84,9 @@
             <div class="stat-card">
                 <div class="stat-icon" style="background:var(--danger-soft); color:var(--danger);"><i class="fa-solid fa-hourglass-half"></i></div>
                 <div>
-                    <div class="stat-value">₹62.4L</div>
+                    <div class="stat-value" id="statFeePending">-</div>
                     <div class="stat-label">Pending Fees</div>
-                    <div class="stat-trend text-muted">Fee module not wired yet</div>
+                    <div class="stat-trend text-muted" id="statFeePendingCount"></div>
                 </div>
             </div>
         </div>
@@ -126,7 +124,7 @@
         <div class="col-12 col-xl-6">
             <div class="panel">
                 <div class="panel-title">Fee Collection</div>
-                <div class="panel-sub">Monthly collected vs pending (₹ Lakhs) — sample data, Fee module not wired yet</div>
+                <div class="panel-sub">Monthly collected — pulled from Application fee records (last 6 months)</div>
                 <div class="chart-wrap sm"><canvas id="feeBarChart"></canvas></div>
             </div>
         </div>
@@ -258,6 +256,15 @@
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 
+    // ₹ ko compact form mein dikhane ke liye (Cr / L / K)
+    function formatRupee(amount) {
+        amount = amount || 0;
+        if (amount >= 1e7) return '₹' + (amount / 1e7).toFixed(2) + 'Cr';
+        if (amount >= 1e5) return '₹' + (amount / 1e5).toFixed(2) + 'L';
+        if (amount >= 1e3) return '₹' + (amount / 1e3).toFixed(1) + 'K';
+        return '₹' + amount.toFixed(0);
+    }
+
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size = 11.5;
     Chart.defaults.color = '#6b7280';
@@ -265,8 +272,9 @@
     Promise.all([
         fetch('/Admission/GetAllApplicationsJson').then(r => r.json()).catch(() => []),
         fetch('/StudentMaster/GetAllStudentRecords').then(r => r.json()).catch(() => []),
-        fetch('/Admission/GetAllAdmissionSetupsJson').then(r => r.json()).catch(() => [])
-    ]).then(([applications, students, setups]) => {
+        fetch('/Admission/GetAllAdmissionSetupsJson').then(r => r.json()).catch(() => []),
+        fetch('/Admission/GetFeeSummaryJson').then(r => r.json()).catch(() => null)
+    ]).then(([applications, students, setups, feeSummary]) => {
         applications = applications || [];
         students = students || [];
         setups = setups || [];
@@ -276,6 +284,33 @@
         document.getElementById('statNewAdmissions').textContent = applications.length;
         document.getElementById('statCourses').textContent = new Set(setups.map(s => s.CourseName)).size;
         document.getElementById('statActiveSessions').textContent = new Set(setups.filter(s => s.Status === 'Open').map(s => s.SessionName)).size || '1';
+
+        // ----- Fee cards (real data) -----
+        if (feeSummary) {
+            document.getElementById('statFeeCollected').textContent = formatRupee(feeSummary.TotalCollected);
+            document.getElementById('statFeePending').textContent = formatRupee(feeSummary.EstimatedPendingAmount);
+            document.getElementById('statFeePendingCount').textContent = feeSummary.PendingCount + ' application(s) pending';
+        } else {
+            document.getElementById('statFeeCollected').textContent = '₹0';
+            document.getElementById('statFeePending').textContent = '₹0';
+        }
+
+        // ----- Fee Collection (BAR) — real month-wise data -----
+        const feeMonths = (feeSummary && feeSummary.MonthlyCollection) ? feeSummary.MonthlyCollection : [];
+        new Chart(document.getElementById('feeBarChart'), {
+            type: 'bar',
+            data: {
+                labels: feeMonths.length ? feeMonths.map(m => m.MonthName) : ['No data'],
+                datasets: [
+                    { label: 'Collected', data: feeMonths.length ? feeMonths.map(m => m.Collected) : [0], backgroundColor: '#2563eb', borderRadius: 5, barPercentage: 0.6 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } },
+                scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
+            }
+        });
 
         // ----- Admission Trend (line) — month-wise application count -----
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -335,23 +370,6 @@
                 <td>${stagePill}</td>
             </tr>`;
         }).join('') || '<tr><td colspan="5" class="text-center text-muted">No admissions yet</td></tr>';
-    });
-
-    /* Fee Collection (BAR) — sample data, Fee module not wired yet */
-    new Chart(document.getElementById('feeBarChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-            datasets: [
-                { label: 'Collected', data: [42, 55, 48, 62, 58, 65], backgroundColor: '#2563eb', borderRadius: 5, barPercentage: 0.6 },
-                { label: 'Pending', data: [10, 8, 12, 6, 9, 5], backgroundColor: '#fca5a5', borderRadius: 5, barPercentage: 0.6 }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } },
-            scales: { y: { beginAtZero: true, grid: { color: '#f0f1f5' } }, x: { grid: { display: false } } }
-        }
     });
 
     /* Department-wise Students (DOUGHNUT) — sample data, Department master not wired yet */

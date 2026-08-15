@@ -16,7 +16,7 @@
         <div class="as-list-head">
             <div>
                 <h2><i class="fas fa-file-invoice-dollar"></i> Fee Head Master</h2>
-                <p>Manage fee heads (Tuition Fee, Exam Fee, Hostel Fee, etc.).</p>
+                <p>Manage fee heads (Tuition Fee, Exam Fee, Hostel Fee, etc.) and their amounts.</p>
             </div>
             <button class="as-btn as-btn-primary" onclick="fhShowForm()">
                 <i class="fas fa-plus-circle"></i> Add New Fee Head
@@ -38,6 +38,13 @@
                     <span class="as-stat-label">Active Fee Heads</span>
                 </div>
             </div>
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">₹@Model.Where(f => f.IsActive).Sum(f => f.Amount).ToString("N0")</span>
+                    <span class="as-stat-label">Total Active Amount</span>
+                </div>
+            </div>
         </div>
 
         <div class="as-table-wrapper">
@@ -46,6 +53,7 @@
                     <tr>
                         <th>Fee Head Code</th>
                         <th>Fee Head Name</th>
+                        <th>Amount (₹)</th>
                         <th>Description</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -57,6 +65,7 @@
                         <tr>
                             <td><strong>@f.FeeHeadCode</strong></td>
                             <td>@f.FeeHeadName</td>
+                            <td>₹@f.Amount.ToString("N0")</td>
                             <td>@f.Description</td>
                             <td>
                                 @if (f.IsActive)
@@ -71,7 +80,7 @@
                             <td>
                                 <button type="button" class="as-mini-btn" title="Edit" onclick="fhShowForm(this)"
                                         data-id="@f.FeeHeadId" data-code="@f.FeeHeadCode" data-name="@f.FeeHeadName"
-                                        data-desc="@f.Description" data-active="@f.IsActive.ToString().ToLower()">
+                                        data-amount="@f.Amount" data-desc="@f.Description" data-active="@f.IsActive.ToString().ToLower()">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <a class="as-mini-btn" title="Delete"
@@ -109,7 +118,7 @@
                         <div class="as-icon"><i class="fas fa-file-invoice-dollar"></i></div>
                         <div>
                             <h2 id="fhFormTitle">Add Fee Head</h2>
-                            <p>Define a new fee head.</p>
+                            <p>Define a new fee head and its amount.</p>
                         </div>
                     </div>
 
@@ -126,9 +135,9 @@
                             <label>Fee Head Name <span class="req">*</span></label>
                             <input type="text" id="feeHeadName" name="FeeHeadName" placeholder="e.g. Tuition Fee">
                         </div>
-                        <div class="as-field as-full">
-                            <label>Description</label>
-                            <textarea id="feeHeadDescription" name="Description" placeholder="Brief description..."></textarea>
+                        <div class="as-field">
+                            <label>Amount (₹) <span class="req">*</span></label>
+                            <input type="number" id="feeHeadAmount" name="Amount" step="0.01" min="0" placeholder="e.g. 5000">
                         </div>
                         <div class="as-field">
                             <label>Status</label>
@@ -136,6 +145,10 @@
                                 <option value="true">Active</option>
                                 <option value="false">Inactive</option>
                             </select>
+                        </div>
+                        <div class="as-field as-full">
+                            <label>Description</label>
+                            <textarea id="feeHeadDescription" name="Description" placeholder="Brief description..."></textarea>
                         </div>
                     </div>
 
@@ -170,6 +183,7 @@
             document.getElementById('feeHeadId').value = btn.dataset.id;
             document.getElementById('feeHeadCode').value = btn.dataset.code;
             document.getElementById('feeHeadName').value = btn.dataset.name;
+            document.getElementById('feeHeadAmount').value = btn.dataset.amount;
             document.getElementById('feeHeadDescription').value = btn.dataset.desc || '';
             document.getElementById('feeHeadStatus').value = btn.dataset.active;
         } else {
@@ -178,6 +192,7 @@
             document.getElementById('feeHeadId').value = 0;
             document.getElementById('feeHeadCode').value = '';
             document.getElementById('feeHeadName').value = '';
+            document.getElementById('feeHeadAmount').value = '';
             document.getElementById('feeHeadDescription').value = '';
             document.getElementById('feeHeadStatus').value = 'true';
         }

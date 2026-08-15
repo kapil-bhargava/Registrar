@@ -1,7 +1,11 @@
-IF EXISTS (SELECT 1 FROM sys.procedures WHERE name = 'sp_Application')
-    DROP PROCEDURE sp_Application
+USE [UniversityERP]
 GO
-CREATE PROCEDURE sp_Application
+/****** Object:  StoredProcedure [dbo].[sp_Application] ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[sp_Application]
     @Flag                  NVARCHAR(30),
     @ApplicationId         INT = NULL,
     @FullName              NVARCHAR(150) = NULL,
@@ -261,7 +265,8 @@ BEGIN
         DECLARE @ReceiptNo NVARCHAR(30) = 'RCPT-' + RIGHT(CAST(DATEDIFF(SECOND, '2020-01-01', GETDATE()) AS NVARCHAR(20)), 6);
 
         UPDATE Application
-        SET FeePaid = 1, FeeReceiptNo = @ReceiptNo, FeeAmount = @FeeAmount, FeeMode = @FeeMode, Stage = 'FeePaid'
+        SET FeePaid = 1, FeeReceiptNo = @ReceiptNo, FeeAmount = @FeeAmount, FeeMode = @FeeMode,
+            FeePaymentDate = GETDATE(), Stage = 'FeePaid'
         WHERE ApplicationId = @ApplicationId;
 
         SELECT @ReceiptNo AS ReceiptNo;
@@ -313,5 +318,34 @@ BEGIN
 
         SELECT @NewStudentId AS StudentId, @RegNo AS RegistrationNumber, @UnivEnrollNo AS UniversityEnrollmentNumber, @InstEmail AS InstituteEmail;
     END
+
+    -- =========================================================
+    -- DASHBOARD : FEE COLLECTION SUMMARY
+    -- Result set 1: totals (TotalCollected, PendingCount, EstimatedPendingAmount)
+    -- Result set 2: month-wise collected amount (last 6 months)
+    -- =========================================================
+    ELSE IF @Flag = 'GETFEESUMMARY'
+    BEGIN
+        SELECT
+            ISNULL(SUM(FeeAmount), 0) AS TotalCollected,
+            (SELECT COUNT(*) FROM Application WHERE CounsellingDone = 1 AND FeePaid = 0) AS PendingCount,
+            (SELECT ISNULL(SUM(fh.Amount), 0) FROM FeeHeadMaster fh WHERE fh.IsActive = 1)
+                * (SELECT COUNT(*) FROM Application WHERE CounsellingDone = 1 AND FeePaid = 0) AS EstimatedPendingAmount
+        FROM Application
+        WHERE FeePaid = 1;
+
+        SELECT
+            MONTH(FeePaymentDate) AS MonthNum,
+            DATENAME(MONTH, FeePaymentDate) AS MonthName,
+            SUM(FeeAmount) AS Collected
+        FROM Application
+        WHERE FeePaid = 1 AND FeePaymentDate >= DATEADD(MONTH, -6, GETDATE())
+        GROUP BY MONTH(FeePaymentDate), DATENAME(MONTH, FeePaymentDate)
+        ORDER BY MonthNum;
+    END
 END
-GO
+
+
+UPDATE Application
+SET FeePaymentDate = GETDATE()
+WHERE FeePaid = 1 AND FeePaymentDate IS NULL;

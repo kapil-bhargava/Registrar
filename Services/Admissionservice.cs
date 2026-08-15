@@ -1183,5 +1183,47 @@ namespace Regis.Services
                 return result != null ? Convert.ToInt32(result) : 0;
             }
         }
+
+        // =========================================================
+        // DASHBOARD : FEE COLLECTION SUMMARY
+        // =========================================================
+
+        public FeeSummaryModel GetFeeCollectionSummary()
+        {
+            var summary = new FeeSummaryModel();
+
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_Application", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETFEESUMMARY");
+                con.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    // Result set 1 : totals
+                    if (dr.Read())
+                    {
+                        summary.TotalCollected = Convert.ToDecimal(dr["TotalCollected"]);
+                        summary.PendingCount = Convert.ToInt32(dr["PendingCount"]);
+                        summary.EstimatedPendingAmount = Convert.ToDecimal(dr["EstimatedPendingAmount"]);
+                    }
+
+                    // Result set 2 : month-wise collected
+                    if (dr.NextResult())
+                    {
+                        while (dr.Read())
+                        {
+                            summary.MonthlyCollection.Add(new FeeMonthlyModel
+                            {
+                                MonthName = dr["MonthName"].ToString(),
+                                Collected = Convert.ToDecimal(dr["Collected"])
+                            });
+                        }
+                    }
+                }
+            }
+            return summary;
+        }
     }
 }

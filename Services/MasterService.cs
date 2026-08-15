@@ -1832,12 +1832,25 @@ namespace Regis.Services
                             FeeHeadCode = dr["FeeHeadCode"] as string,
                             FeeHeadName = dr["FeeHeadName"] as string,
                             Description = dr["Description"] as string,
+                            Amount = dr["Amount"] != DBNull.Value ? Convert.ToDecimal(dr["Amount"]) : 0,
                             IsActive = Convert.ToBoolean(dr["IsActive"])
                         });
                     }
                 }
             }
             return list;
+        }
+        public bool DeleteFeeHeadMaster(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@FeeHeadId", id);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
         }
 
         public bool InsertFeeHeadMaster(FeeHeadModel model)
@@ -1850,6 +1863,7 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@FeeHeadCode", (object)model.FeeHeadCode ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@FeeHeadName", (object)model.FeeHeadName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Amount", model.Amount);
                 cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
                 con.Open();
                 return cmd.ExecuteNonQuery() != 0;
@@ -1867,20 +1881,8 @@ namespace Regis.Services
                 cmd.Parameters.AddWithValue("@FeeHeadCode", (object)model.FeeHeadCode ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@FeeHeadName", (object)model.FeeHeadName ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Amount", model.Amount);
                 cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
-                con.Open();
-                return cmd.ExecuteNonQuery() != 0;
-            }
-        }
-
-        public bool DeleteFeeHeadMaster(int id)
-        {
-            using (SqlConnection con = db.GetConnection())
-            using (SqlCommand cmd = new SqlCommand("sp_FeeHeadMaster", con))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Flag", "DELETE");
-                cmd.Parameters.AddWithValue("@FeeHeadId", id);
                 con.Open();
                 return cmd.ExecuteNonQuery() != 0;
             }

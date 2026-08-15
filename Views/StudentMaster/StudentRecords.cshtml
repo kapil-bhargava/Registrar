@@ -117,6 +117,14 @@
     let srCurrentList = [];
     let srSelectedId = null;
 
+    // ASP.NET JSON date format ("/Date(1234567890)/") ko safely JS Date mein convert karta hai
+    function parseAspDate(v) {
+        if (!v) return null;
+        var m = /\/Date\((\d+)\)\//.exec(v);
+        var d = m ? new Date(parseInt(m[1])) : new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
     function srShowToast(msg, type) {
         const toast = document.getElementById('srToast');
         toast.querySelector('span').textContent = msg;
@@ -139,21 +147,25 @@
         document.getElementById('srActive').textContent = srCurrentList.filter(s => s.Status === 'Active').length;
         document.getElementById('srGraduated').textContent = srCurrentList.filter(s => s.Status === 'Graduated').length;
 
-        document.getElementById('srTableBody').innerHTML = srCurrentList.map(s => `
+        document.getElementById('srTableBody').innerHTML = srCurrentList.map(s => {
+            const admittedDate = parseAspDate(s.AdmittedOn);
+            const admittedText = admittedDate ? admittedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+            return `
             <tr>
                 <td><strong>${s.StudentId}</strong></td>
                 <td>${s.Name || ''}</td>
                 <td>${s.CourseName || ''}</td>
                 <td><span class="as-type-badge">${s.Category || ''}</span></td>
                 <td>${s.Session || ''}</td>
-                <td>${new Date(s.AdmittedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                <td>${admittedText}</td>
                 <td>${s.Status === 'Active'
-                ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>'
-                : s.Status === 'Graduated'
-                    ? '<span class="as-pill as-pill-closed"><i class="fas fa-graduation-cap"></i> Graduated</span>'
-                    : '<span class="as-pill as-pill-locked"><i class="fas fa-ban"></i> Suspended</span>'}</td>
+                    ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>'
+                    : s.Status === 'Graduated'
+                        ? '<span class="as-pill as-pill-closed"><i class="fas fa-graduation-cap"></i> Graduated</span>'
+                        : '<span class="as-pill as-pill-locked"><i class="fas fa-ban"></i> Suspended</span>'}</td>
                 <td><button class="as-mini-btn" title="View / Edit" onclick="srOpenDetail('${s.StudentId}')"><i class="fas fa-eye"></i></button></td>
-            </tr>`).join('') || '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No students yet — confirm an admission first</td></tr>';
+            </tr>`;
+        }).join('') || '<tr><td colspan="8" style="text-align:center; color:#6B7A99;">No students yet — confirm an admission first</td></tr>';
     }
 
     function srOpenDetail(studentId) {
@@ -173,7 +185,10 @@
                 document.getElementById('srdCategory').value = s.Category || '';
                 document.getElementById('srdSession').value = s.Session || '';
                 document.getElementById('srdSeat').value = s.SeatNumber || '—';
-                document.getElementById('srdAdmitted').value = new Date(s.AdmittedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                const admittedDate = parseAspDate(s.AdmittedOn);
+                document.getElementById('srdAdmitted').value = admittedDate ? admittedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+
                 document.getElementById('srdStatus').value = s.Status;
 
                 window.scrollTo({ top: 0, behavior: 'smooth' });

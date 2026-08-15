@@ -13,5 +13,6 @@ namespace Regis.Models
         public string FeeHeadName { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
+        public decimal Amount { get; set; }
     }
 }

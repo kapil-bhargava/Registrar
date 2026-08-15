@@ -73,5 +73,17 @@ GO
 
 --    -- Auto-generated at Admission (Final) step — added now, filled later
 --    RegistrationNumber          NVARCHAR(30) NULL,
---    UniversityEnrollmentNumber  NVARCHAR(30) NULL;
+--    UniversityEnrollmentNumber  NVARCHAR(30) NULL;new add kro run kro
 --GO
+
+
+IF COL_LENGTH('dbo.Application', 'FeeAmount') IS NULL
+    ALTER TABLE dbo.Application ADD FeeAmount DECIMAL(10,2) NULL;
+
+IF COL_LENGTH('dbo.Application', 'FeePaymentDate') IS NULL
+    ALTER TABLE dbo.Application ADD FeePaymentDate DATETIME NULL;
+
+
+    IF COL_LENGTH('dbo.Application', 'FeePaymentDate') IS NULL
+    ALTER TABLE dbo.Application ADD FeePaymentDate DATETIME NULL;
+GO

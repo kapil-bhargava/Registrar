@@ -551,6 +551,10 @@
             if (appId.HasValue)
             {
                 ViewBag.App = admissionService.GetApplicationById(appId.Value);
+
+                ViewBag.FeeHeads = masterService.GetAllFeeHeadMaster()
+                                        .Where(f => f.IsActive)
+                                        .ToList();
             }
             else
             {
@@ -646,6 +650,11 @@
             var list = admissionService.GetAllAdmissionSetups();
             return Json(list, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet]
+        public JsonResult GetFeeSummaryJson()
+        {
+            var summary = admissionService.GetFeeCollectionSummary();
+            return Json(summary, JsonRequestBehavior.AllowGet);
+        }
     } 
 }

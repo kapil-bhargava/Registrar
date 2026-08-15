@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Regis.Models;
+using Regis.Services;
+using Regis.Views.Master;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using System.Xml.Linq;
-using Regis.Models;
-using Regis.Services;
-using Regis.Views.Master;
 
 namespace Regis.Controllers
 {
@@ -234,7 +236,6 @@ namespace Regis.Controllers
                 result ? "Fee Head Deleted Successfully." : "Unable to Delete Fee Head.";
             return RedirectToAction("FeeheadMaster");
         }
-
 
         // ============================================================
         // Discount / Scholarship Master

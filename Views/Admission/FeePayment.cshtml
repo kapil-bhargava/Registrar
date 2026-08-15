@@ -5,6 +5,8 @@
     var pending = ViewBag.PendingFee as List<ApplicationModel> ?? new List<ApplicationModel>();
     var app = ViewBag.App as ApplicationModel;
     int? appId = ViewBag.AppId;
+    var feeHeads = ViewBag.FeeHeads as List<FeeHeadModel> ?? new List<FeeHeadModel>();
+    decimal totalPayable = feeHeads.Sum(f => f.Amount);
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,18 +76,26 @@
                         <span class="as-pill as-pill-closed">@(app != null ? app.CourseName + " · Seat: " + app.SeatNumber : "—")</span>
                     </div>
 
-                    <!-- TODO: replace hardcoded rows below with a real query against Fee Heads Master
-                         once that master is wired up; feeAmount posted to the server currently
-                         comes from the hidden #fpAmount field, which mirrors this total. -->
                     <div class="as-section-title"><i class="fas fa-money-check-alt"></i> Fee Breakdown <span class="as-hint" style="margin-left:6px;">(from Fee Heads Master)</span></div>
                     <div class="as-table-wrapper">
                         <table class="as-table">
                             <thead><tr><th>Fee Head</th><th>Amount (₹)</th></tr></thead>
                             <tbody>
-                                <tr><td>Admission Fee</td><td>₹5,000</td></tr>
-                                <tr><td>Tuition Fee (1st Installment)</td><td>₹20,000</td></tr>
-                                <tr><td>Library Fee</td><td>₹1,000</td></tr>
-                                <tr style="font-weight:700;"><td>Total Payable</td><td>₹26,000</td></tr>
+                                @if (feeHeads.Count == 0)
+                                {
+                                    <tr><td colspan="2" style="text-align:center; color:#6B7A99;">No active fee heads configured</td></tr>
+                                }
+                                else
+                                {
+                                    foreach (var f in feeHeads)
+                                    {
+                                        <tr>
+                                            <td>@f.FeeHeadName</td>
+                                            <td>₹@f.Amount.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                }
+                                <tr style="font-weight:700;"><td>Total Payable</td><td>₹@totalPayable.ToString("N0")</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -105,7 +115,7 @@
                             <input type="text" id="fpReceiptNo" placeholder="Auto-generated on save" readonly disabled>
                         </div>
                     </div>
-                    <input type="hidden" id="fpAmount" value="26000">
+                    <input type="hidden" id="fpAmount" value="@totalPayable.ToString("F2")">
 
                     <div class="as-bar">
                         <a class="as-btn as-btn-ghost" href="@Url.Action("Application", "Admission")">Cancel</a>
@@ -128,7 +138,6 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // ----- Confirm Payment (AJAX -> Controller -> sp_Application COLLECTFEE) -----
     function fpSave() {
         const applicationId = @(appId ?? 0);
         const feeMode = document.getElementById('fpMode').value;
