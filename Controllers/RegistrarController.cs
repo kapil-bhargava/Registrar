@@ -15,6 +15,9 @@ namespace Regis.Controllers
         private readonly RegistrarService service = new RegistrarService();
         private readonly MasterService masterService = new MasterService();
         private readonly CategoryService categoryService = new CategoryService();   // add this field//
+        private readonly AdmissionService admissionService = new AdmissionService();
+        private readonly AcademicSetupService academicSetupService = new AcademicSetupService();
+
 
         // GET: Registrar
         public ActionResult Index()
@@ -156,6 +159,44 @@ namespace Regis.Controllers
             }
 
             return View(model);
+        }
+        // ============================================================
+        // ALL STUDENTS OVERVIEW (naya page) — Admission data se, dynamic
+        // URL : /Registrar/AllStudents
+        // Purana RegistrarStudentList / RegistrarList bilkul waisa hi hai.
+        // ============================================================
+
+        public ActionResult AllStudents()
+        {
+            ViewBag.Courses = masterService.GetActiveCourseMaster();
+            ViewBag.Sessions = academicSetupService.GetAllSessions();
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetAllStudentsOverviewJson(int? courseId, string branch, int? sessionId, string semester, string search)
+        {
+            var list = admissionService.GetStudentOverview(courseId, branch, sessionId, semester, search);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        public JsonResult GetSubmittedDocumentsJson(int applicationId)
+        {
+            var list = admissionService.GetSubmittedDocuments(applicationId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // Student Name click -> 4-card profile, partial view (AJAX-loaded modal)
+        public ActionResult StudentProfile(int id)
+        {
+            var model = admissionService.GetStudentProfile(id);
+            if (model == null)
+            {
+                return Content("<p class='as-hint'>Student not found.</p>");
+            }
+            return View("_StudentProfile", model);
         }
 
     }

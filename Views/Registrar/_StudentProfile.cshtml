@@ -1,0 +1,207 @@
+﻿@model Regis.Models.StudentProfileModel
+@{
+    ViewBag.Title = "Student Profile - " + Model.FullName;
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <div class="asu-back-row">
+        <a href="@Url.Action("AllStudents", "Registrar")"><i class="fas fa-arrow-left"></i> Back to Student List</a>
+    </div>
+
+    <!-- ================= PROFILE HEADER ================= -->
+    <div class="asu-profile-header">
+        <div class="asu-profile-avatar">@((Model.FullName ?? "?").Substring(0, 1).ToUpper())</div>
+        <div class="asu-profile-header-info">
+            <h2>@Model.FullName <span class="as-hint">(ID @Model.ApplicationId)</span></h2>
+            <div class="asu-profile-tags">
+                <span><i class="fas fa-graduation-cap"></i> @Model.CourseName</span>
+                @if (!string.IsNullOrEmpty(Model.Branch))
+                {
+                    <span><i class="fas fa-code-branch"></i> @Model.Branch</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Semester))
+                {
+                    <span><i class="fas fa-layer-group"></i> Sem @Model.Semester</span>
+                }
+            </div>
+        </div>
+        <div class="asu-profile-header-status">
+            @if (Model.RequiredDocCount > 0 && Model.SubmittedDocCount >= Model.RequiredDocCount)
+            {
+                <span class="as-pill as-pill-active">All Documents Received</span>
+            }
+            else
+            {
+                <span class="as-pill as-pill-draft">@Model.SubmittedDocCount / @Model.RequiredDocCount Received</span>
+            }
+        </div>
+    </div>
+
+    <div class="asu-profile-grid">
+        <div class="asu-profile-card">
+            <h4><i class="fas fa-user"></i> Student Info</h4>
+            <table class="asu-kv">
+                <tr><td>Name:</td><td><strong>@Model.FullName</strong></td></tr>
+                <tr><td>Email:</td><td>@Model.Email</td></tr>
+                <tr><td>Mobile:</td><td>@Model.Phone</td></tr>
+                <tr><td>Course:</td><td>@Model.CourseName</td></tr>
+                <tr><td>Branch:</td><td>@(string.IsNullOrEmpty(Model.Branch) ? "-" : Model.Branch)</td></tr>
+                <tr><td>Semester:</td><td>@(string.IsNullOrEmpty(Model.Semester) ? "-" : Model.Semester)</td></tr>
+                <tr><td>Category:</td><td>@Model.CategoryName</td></tr>
+                <tr><td>Registered On:</td><td>@(Model.RegisteredOn?.ToString("dd MMM yyyy"))</td></tr>
+            </table>
+        </div>
+
+        <div class="asu-profile-card">
+            <h4><i class="fas fa-file-invoice"></i> Fee Info</h4>
+            <table class="asu-kv">
+                <tr>
+                    <td>Fee Due:</td>
+                    <td>@(Model.FeePaid ? "Paid" + (Model.FeeReceiptNo != null ? " (" + Model.FeeReceiptNo + ")" : "") : (Model.FeeAmount.HasValue ? "₹" + Model.FeeAmount.Value.ToString("N2") : "Not available"))</td>
+                </tr>
+            </table>
+            <h4 style="margin-top:14px;"><i class="fas fa-calendar-check"></i> Attendance</h4>
+            <p class="as-hint">Present Ratio: Not available</p>
+            <h4 style="margin-top:14px;"><i class="fas fa-flag"></i> Mode Of Admission</h4>
+            <p>@(string.IsNullOrEmpty(Model.AdmissionModeName) ? "Not set" : Model.AdmissionModeName)</p>
+            <h4 style="margin-top:14px;"><i class="fas fa-flag"></i> Admission Status</h4>
+            <p>@(string.IsNullOrEmpty(Model.AdmissionStatus) ? "Not set" : Model.AdmissionStatus)</p>
+        </div>
+
+        <div class="asu-profile-card">
+            <h4><i class="fas fa-th"></i> Fee Structure</h4>
+            <p class="as-hint">
+                @(Model.FeeReceiptNo != null
+                    ? "Receipt: " + Model.FeeReceiptNo + " • Mode: " + Model.FeeMode + " • Paid on: " + Model.FeePaymentDate?.ToString("dd MMM yyyy")
+                    : "Fee structure data is not available yet.")
+            </p>
+        </div>
+
+        <div class="asu-profile-card">
+            <h4><i class="fas fa-file-alt"></i> List of Documents <span class="as-hint">(@Model.SubmittedDocCount / @Model.RequiredDocCount received)</span></h4>
+            <table class="as-table">
+                <thead><tr><th>#</th><th>Document</th><th>Status</th></tr></thead>
+                <tbody>
+                    @{ int i = 1; }
+                    @if (Model.Documents.Count == 0)
+                    {
+                        <tr><td colspan="3" class="as-hint" style="text-align:center;">No documents mapped for this course.</td></tr>
+                    }
+                    @foreach (var d in Model.Documents)
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td>@d.DocumentName @(d.IsMandatory ? Html.Raw("<span style='color:#F04452;'>*</span>") : null)</td>
+                            <td>@(d.IsSubmitted ? Html.Raw("<span class='as-pill as-pill-active'>Received</span>") : Html.Raw("<span class='as-pill as-pill-draft'>Pending</span>"))</td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .asu-back-row {
+        margin-bottom: 14px;
+    }
+
+        .asu-back-row a {
+            color: #4B5768;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+            .asu-back-row a:hover {
+                color: #3B5BFE;
+            }
+
+    .asu-profile-header {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .asu-profile-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #3B5BFE;
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .asu-profile-header-info {
+        flex: 1;
+    }
+
+        .asu-profile-header-info h2 {
+            margin: 0 0 6px;
+            font-size: 19px;
+            color: #0B1B33;
+        }
+
+    .asu-profile-tags {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 12.5px;
+        color: #6B7A99;
+    }
+
+        .asu-profile-tags i {
+            color: #8A93A6;
+            margin-right: 4px;
+        }
+
+    .asu-profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .asu-profile-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .asu-kv td {
+        padding: 4px 6px;
+        font-size: 13px;
+        color: #4B5768;
+    }
+
+        .asu-kv td:first-child {
+            color: #8A93A6;
+            width: 130px;
+        }
+
+    @@media (max-width: 900px) {
+        .asu-profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .asu-profile-header {
+            flex-wrap: wrap;
+        }
+    }
+</style>

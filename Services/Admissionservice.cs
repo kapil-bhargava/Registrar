@@ -1225,5 +1225,154 @@ namespace Regis.Services
             }
             return summary;
         }
+        // =========================================================
+        // REGISTRAR "ALL STUDENTS" OVERVIEW — Admission data se, dynamic
+        // Registrar ke purane RegistrarStudentList/sp_RegistrarStudent se
+        // bilkul alag hai, unhe touch nahi kiya.
+        // =========================================================
+
+        public List<RegistrarStudentOverviewModel> GetStudentOverview(
+            int? courseId, string branch, int? sessionId, string semester, string searchText)
+        {
+            var list = new List<RegistrarStudentOverviewModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_Application", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETSTUDENTOVERVIEW");
+                cmd.Parameters.AddWithValue("@FilterCourseId", (object)courseId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FilterBranch", (object)branch ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FilterSessionId", (object)sessionId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@FilterSemester", (object)semester ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@SearchText", (object)searchText ?? DBNull.Value);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var m = new RegistrarStudentOverviewModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"].ToString(),
+                            FullName = dr["FullName"].ToString(),
+                            RegistrationNumber = dr["RegistrationNumber"] as string,
+                            UniversityEnrollmentNumber = dr["UniversityEnrollmentNumber"] as string,
+                            CourseId = Convert.ToInt32(dr["CourseId"]),
+                            CourseName = dr["CourseName"].ToString(),
+                            Branch = dr["Branch"] as string,
+                            AcademicSessionId = Convert.ToInt32(dr["AcademicSessionId"]),
+                            SessionName = dr["SessionName"].ToString(),
+                            Semester = dr["Semester"] as string,
+                            Stage = dr["Stage"].ToString(),
+                            DocVerified = Convert.ToBoolean(dr["DocVerified"]),
+                            RequiredDocCount = Convert.ToInt32(dr["RequiredDocCount"]),
+                            SubmittedDocCount = Convert.ToInt32(dr["SubmittedDocCount"])
+                        };
+
+                        m.DocumentStatus = m.RequiredDocCount == 0
+                            ? "No Requirement"
+                            : m.SubmittedDocCount >= m.RequiredDocCount
+                                ? "Complete"
+                                : m.SubmittedDocCount == 0
+                                    ? "Pending"
+                                    : "Deficient";
+
+                        m.VerificationStatus = m.DocVerified ? "Verified" : "Verification Pending";
+                        m.RegistrationStatus = m.Stage == "Admitted" || m.DocVerified ? "Active" : "Incomplete";
+
+                        list.Add(m);
+                    }
+                }
+            }
+            return list;
+        }
+        public List<DocumentChecklistItemModel> GetSubmittedDocuments(int applicationId)
+        {
+            var list = new List<DocumentChecklistItemModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_Application", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETSUBMITTEDDOCS");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new DocumentChecklistItemModel
+                        {
+                            DocumentEnclosureId = Convert.ToInt32(dr["DocumentEnclosureId"]),
+                            DocumentName = dr["DocumentName"].ToString(),
+                            IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
+                            IsSubmitted = true
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public StudentProfileModel GetStudentProfile(int applicationId)
+        {
+            StudentProfileModel model = null;
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_Application", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETSTUDENTPROFILE");
+                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        model = new StudentProfileModel
+                        {
+                            ApplicationId = Convert.ToInt32(dr["ApplicationId"]),
+                            ApplicationNo = dr["ApplicationNo"].ToString(),
+                            FullName = dr["FullName"].ToString(),
+                            Email = dr["Email"] as string,
+                            Phone = dr["Phone"] as string,
+                            CourseName = dr["CourseName"].ToString(),
+                            Branch = dr["Branch"] as string,
+                            Semester = dr["Semester"] as string,
+                            CategoryName = dr["CategoryName"] as string,
+                            RegisteredOn = dr["RegisteredOn"] != DBNull.Value ? Convert.ToDateTime(dr["RegisteredOn"]) : (DateTime?)null,
+                            Stage = dr["Stage"].ToString(),
+                            DocVerified = Convert.ToBoolean(dr["DocVerified"]),
+                            RequiredDocCount = Convert.ToInt32(dr["RequiredDocCount"]),
+                            SubmittedDocCount = Convert.ToInt32(dr["SubmittedDocCount"])
+                        };
+                    }
+
+                    if (model != null && dr.NextResult() && dr.Read())
+                    {
+                        model.FeeAmount = dr["FeeAmount"] as decimal?;
+                        model.FeePaid = Convert.ToBoolean(dr["FeePaid"]);
+                        model.FeeReceiptNo = dr["FeeReceiptNo"] as string;
+                        model.FeeMode = dr["FeeMode"] as string;
+                        model.FeePaymentDate = dr["FeePaymentDate"] as DateTime?;
+                        model.AdmissionModeName = dr["AdmissionModeName"] as string;
+                        model.AdmissionStatus = dr["AdmissionStatus"] as string;
+                    }
+
+                    if (model != null && dr.NextResult())
+                    {
+                        while (dr.Read())
+                        {
+                            model.Documents.Add(new DocumentChecklistItemModel
+                            {
+                                DocumentEnclosureId = Convert.ToInt32(dr["DocumentEnclosureId"]),
+                                DocumentName = dr["DocumentName"].ToString(),
+                                IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
+                                IsSubmitted = Convert.ToBoolean(dr["IsSubmitted"])
+                            });
+                        }
+                    }
+                }
+            }
+            return model;
+        }
     }
 }
