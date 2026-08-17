@@ -263,5 +263,11 @@ namespace Regis.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+        [HttpGet]
+        public JsonResult GetDepartmentWiseCountsJson()
+        {
+            var list = studentMasterService.GetDepartmentWiseStudentCounts();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
     }
 }

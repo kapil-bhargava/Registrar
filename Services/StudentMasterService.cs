@@ -432,5 +432,28 @@ namespace Regis.Services
             }
             return list;
         }
+        public List<DepartmentStudentCountModel> GetDepartmentWiseStudentCounts()//deparment dashboard graph
+        {
+            var list = new List<DepartmentStudentCountModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_StudentRecords", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETDEPTWISE");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new DepartmentStudentCountModel
+                        {
+                            DepartmentName = dr["DepartmentName"].ToString(),
+                            StudentCount = Convert.ToInt32(dr["StudentCount"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
     }
 }

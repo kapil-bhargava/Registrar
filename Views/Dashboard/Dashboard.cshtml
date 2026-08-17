@@ -8,6 +8,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="~/Content/CSS/dasboard.css" rel="stylesheet" />
 
+<style>
+    /* stat-card ab <a> tag hai, isliye link ke default styles neutralize kar rahe hain */
+    a.stat-card {
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+        a.stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+</style>
+
 <div class="dash-wrap">
 
     <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
@@ -22,82 +37,80 @@
         </div>
     </div>
 
-    <!-- ============ SUMMARY CARDS ============ -->
+    <!-- ============ SUMMARY CARDS (clickable) ============ -->
     <div class="row g-3 mb-3">
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/StudentMaster/StudentRecords" class="stat-card">
                 <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-user-graduate"></i></div>
                 <div>
                     <div class="stat-value" id="statTotalStudents">-</div>
                     <div class="stat-label">Total Students</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Admission/Application" class="stat-card">
                 <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-user-plus"></i></div>
                 <div>
                     <div class="stat-value" id="statNewAdmissions">-</div>
                     <div class="stat-label">New Admissions</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Master/FacultyMaster" class="stat-card">
                 <div class="stat-icon" style="background:var(--info-soft); color:var(--info);"><i class="fa-solid fa-chalkboard-user"></i></div>
                 <div>
-                    <div class="stat-value">486</div>
+                    <div class="stat-value" id="statFaculty">-</div>
                     <div class="stat-label">Faculty Members</div>
-                    <div class="stat-trend text-muted">Faculty Master not wired yet</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Master/DepartmentMaster" class="stat-card">
                 <div class="stat-icon" style="background:var(--warning-soft); color:var(--warning);"><i class="fa-solid fa-building-columns"></i></div>
                 <div>
-                    <div class="stat-value">18</div>
+                    <div class="stat-value" id="statDepartments">-</div>
                     <div class="stat-label">Departments</div>
-                    <div class="stat-trend text-muted">Department master not wired yet</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Master/CourseMaster" class="stat-card">
                 <div class="stat-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="fa-solid fa-book-open"></i></div>
                 <div>
                     <div class="stat-value" id="statCourses">-</div>
                     <div class="stat-label">Courses</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Admission/FeePayment" class="stat-card">
                 <div class="stat-icon" style="background:var(--success-soft); color:var(--success);"><i class="fa-solid fa-sack-dollar"></i></div>
                 <div>
                     <div class="stat-value" id="statFeeCollected">-</div>
                     <div class="stat-label">Total Fee Collected</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Admission/FeePayment" class="stat-card">
                 <div class="stat-icon" style="background:var(--danger-soft); color:var(--danger);"><i class="fa-solid fa-hourglass-half"></i></div>
                 <div>
                     <div class="stat-value" id="statFeePending">-</div>
                     <div class="stat-label">Pending Fees</div>
                     <div class="stat-trend text-muted" id="statFeePendingCount"></div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
+            <a href="/Admission/AdmissionSetup" class="stat-card">
                 <div class="stat-icon" style="background:var(--info-soft); color:var(--info);"><i class="fa-solid fa-signal"></i></div>
                 <div>
                     <div class="stat-value" id="statActiveSessions">-</div>
                     <div class="stat-label">Active Sessions</div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -131,7 +144,7 @@
         <div class="col-12 col-xl-6">
             <div class="panel">
                 <div class="panel-title">Department-wise Students</div>
-                <div class="panel-sub">Sample data — Department master not wired yet</div>
+                <div class="panel-sub">Pulled from Student + Course + Department records</div>
                 <div class="chart-wrap sm"><canvas id="deptDoughnutChart"></canvas></div>
             </div>
         </div>
@@ -166,34 +179,12 @@
 
         <div class="col-12 col-xl-4">
             <div class="panel">
-                <div class="panel-title mb-2">Upcoming Events / Notices</div>
-                <div class="notice-item">
-                    <div class="notice-date"><span class="d">18</span><span class="m">Jul</span></div>
-                    <div>
-                        <div class="notice-title">Semester Fee Due Date</div>
-                        <div class="notice-meta">All departments · Finance office</div>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="panel-title mb-0">Upcoming Events / Notices</div>
+                    <a href="/Master/NoticeMaster" class="small fw-semibold text-decoration-none">Manage →</a>
                 </div>
-                <div class="notice-item">
-                    <div class="notice-date"><span class="d">22</span><span class="m">Jul</span></div>
-                    <div>
-                        <div class="notice-title">Faculty Development Workshop</div>
-                        <div class="notice-meta">Seminar Hall A · 10:00 AM</div>
-                    </div>
-                </div>
-                <div class="notice-item">
-                    <div class="notice-date"><span class="d">28</span><span class="m">Jul</span></div>
-                    <div>
-                        <div class="notice-title">Mid-Semester Exams Begin</div>
-                        <div class="notice-meta">All UG & PG courses</div>
-                    </div>
-                </div>
-                <div class="notice-item">
-                    <div class="notice-date"><span class="d">02</span><span class="m">Aug</span></div>
-                    <div>
-                        <div class="notice-title">Annual Sports Meet</div>
-                        <div class="notice-meta">University Ground</div>
-                    </div>
+                <div id="noticesContainer">
+                    <div class="text-muted small">Loading...</div>
                 </div>
             </div>
         </div>
@@ -256,6 +247,14 @@
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 
+    // ASP.NET JSON date format ("/Date(1234567890)/") ko safely JS Date mein convert karta hai
+    function parseAspDate(v) {
+        if (!v) return null;
+        var m = /\/Date\((\d+)\)\//.exec(v);
+        var d = m ? new Date(parseInt(m[1])) : new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
     // ₹ ko compact form mein dikhane ke liye (Cr / L / K)
     function formatRupee(amount) {
         amount = amount || 0;
@@ -265,6 +264,8 @@
         return '₹' + amount.toFixed(0);
     }
 
+    const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size = 11.5;
     Chart.defaults.color = '#6b7280';
@@ -273,17 +274,31 @@
         fetch('/Admission/GetAllApplicationsJson').then(r => r.json()).catch(() => []),
         fetch('/StudentMaster/GetAllStudentRecords').then(r => r.json()).catch(() => []),
         fetch('/Admission/GetAllAdmissionSetupsJson').then(r => r.json()).catch(() => []),
-        fetch('/Admission/GetFeeSummaryJson').then(r => r.json()).catch(() => null)
-    ]).then(([applications, students, setups, feeSummary]) => {
+        fetch('/Admission/GetFeeSummaryJson').then(r => r.json()).catch(() => null),
+        fetch('/Master/GetAllFacultyMasterJson').then(r => r.json()).catch(() => []),
+        fetch('/Master/GetAllDepartmentMasterJson').then(r => r.json()).catch(() => []),
+        fetch('/StudentMaster/GetDepartmentWiseCountsJson').then(r => r.json()).catch(() => []),
+        fetch('/Master/GetAllCourseMasterJson').then(r => r.json()).catch(() => []),
+        fetch('/Master/GetUpcomingNoticesJson').then(r => r.json()).catch(() => [])
+    ]).then(([applications, students, setups, feeSummary, faculties, departments, deptCounts, courses, notices]) => {
         applications = applications || [];
         students = students || [];
         setups = setups || [];
+        faculties = faculties || [];
+        departments = departments || [];
+        deptCounts = deptCounts || [];
+        courses = courses || [];
+        notices = notices || [];
 
         // ----- Summary cards -----
         document.getElementById('statTotalStudents').textContent = students.length;
         document.getElementById('statNewAdmissions').textContent = applications.length;
-        document.getElementById('statCourses').textContent = new Set(setups.map(s => s.CourseName)).size;
         document.getElementById('statActiveSessions').textContent = new Set(setups.filter(s => s.Status === 'Open').map(s => s.SessionName)).size || '1';
+
+        // ----- Faculty / Department / Course cards (real data) -----
+        document.getElementById('statFaculty').textContent = faculties.filter(f => f.IsActive).length;
+        document.getElementById('statDepartments').textContent = departments.filter(d => d.IsActive).length;
+        document.getElementById('statCourses').textContent = courses.filter(c => c.Status === 'Active').length;
 
         // ----- Fee cards (real data) -----
         if (feeSummary) {
@@ -313,19 +328,16 @@
         });
 
         // ----- Admission Trend (line) — month-wise application count -----
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const byMonth = new Array(12).fill(0);
         applications.forEach(a => {
-            if (a.RegisteredOn) {
-                const d = new Date(a.RegisteredOn);
-                if (!isNaN(d)) byMonth[d.getMonth()]++;
-            }
+            const d = parseAspDate(a.RegisteredOn);
+            if (d) byMonth[d.getMonth()]++;
         });
 
         new Chart(document.getElementById('admissionTrendChart'), {
             type: 'line',
             data: {
-                labels: monthNames,
+                labels: monthShortNames,
                 datasets: [{
                     label: 'New Admissions',
                     data: byMonth,
@@ -354,31 +366,56 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
         });
 
+        // ----- Department-wise Students (DOUGHNUT) — real data -----
+        const deptColors = ['#2563eb', '#0891b2', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#ca8a04', '#059669'];
+        new Chart(document.getElementById('deptDoughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: deptCounts.length ? deptCounts.map(d => d.DepartmentName) : ['No data'],
+                datasets: [{
+                    data: deptCounts.length ? deptCounts.map(d => d.StudentCount) : [1],
+                    backgroundColor: deptCounts.length ? deptColors.slice(0, deptCounts.length) : ['#e2e8f0'],
+                    borderWidth: 2, borderColor: '#fff'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
+        });
+
         // ----- Recent Admissions table (latest 5) -----
-        const recent = applications.slice().sort((a, b) => new Date(b.RegisteredOn) - new Date(a.RegisteredOn)).slice(0, 5);
+        const recent = applications.slice().sort((a, b) => {
+            const da = parseAspDate(a.RegisteredOn), db = parseAspDate(b.RegisteredOn);
+            return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
+        }).slice(0, 5);
+
         document.getElementById('recentAdmissionsBody').innerHTML = recent.map(a => {
             const initials = (a.FullName || '?').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
             const feeStatus = a.FeePaid
                 ? '<span class="status-pill" style="background:var(--success-soft); color:var(--success);">Paid</span>'
                 : '<span class="status-pill" style="background:var(--danger-soft); color:var(--danger);">Unpaid</span>';
             const stagePill = '<span class="status-pill" style="background:var(--info-soft); color:var(--info);">' + (a.Stage || '') + '</span>';
+            const regDate = parseAspDate(a.RegisteredOn);
+            const regDateText = regDate ? regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
             return `<tr>
                 <td class="d-flex align-items-center gap-2"><div class="avatar-sm">${initials}</div> ${a.FullName || ''}</td>
                 <td>${a.CourseName || '-'}</td>
-                <td>${a.RegisteredOn ? new Date(a.RegisteredOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
+                <td>${regDateText}</td>
                 <td>${feeStatus}</td>
                 <td>${stagePill}</td>
             </tr>`;
         }).join('') || '<tr><td colspan="5" class="text-center text-muted">No admissions yet</td></tr>';
-    });
 
-    /* Department-wise Students (DOUGHNUT) — sample data, Department master not wired yet */
-    new Chart(document.getElementById('deptDoughnutChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Engineering', 'Science', 'Commerce', 'Arts', 'Management'],
-            datasets: [{ data: [3200, 1800, 1450, 1100, 690], backgroundColor: ['#2563eb', '#0891b2', '#16a34a', '#d97706', '#7c3aed'], borderWidth: 2, borderColor: '#fff' }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
+        // ----- Upcoming Events / Notices (real data) -----
+        document.getElementById('noticesContainer').innerHTML = notices.length ? notices.map(n => {
+            const d = parseAspDate(n.EventDate);
+            const day = d ? String(d.getDate()).padStart(2, '0') : '-';
+            const mon = d ? monthShortNames[d.getMonth()] : '';
+            return `<div class="notice-item">
+                <div class="notice-date"><span class="d">${day}</span><span class="m">${mon}</span></div>
+                <div>
+                    <div class="notice-title">${n.Title || ''}</div>
+                    <div class="notice-meta">${n.Location || ''}</div>
+                </div>
+            </div>`;
+        }).join('') : '<div class="text-muted small">No upcoming notices</div>';
     });
 </script>

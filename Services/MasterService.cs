@@ -1887,5 +1887,111 @@ namespace Regis.Services
                 return cmd.ExecuteNonQuery() != 0;
             }
         }
+
+        // =============================noticemaster=======================================
+        //=================================================================================   Notice Master
+        public List<NoticeModel> GetAllNotices()
+        {
+            var list = new List<NoticeModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NoticeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new NoticeModel
+                        {
+                            NoticeId = Convert.ToInt32(dr["NoticeId"]),
+                            Title = dr["Title"] as string,
+                            EventDate = Convert.ToDateTime(dr["EventDate"]),
+                            Location = dr["Location"] as string,
+                            Description = dr["Description"] as string,
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public List<NoticeModel> GetUpcomingNotices()
+        {
+            var list = new List<NoticeModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NoticeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETUPCOMING");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new NoticeModel
+                        {
+                            NoticeId = Convert.ToInt32(dr["NoticeId"]),
+                            Title = dr["Title"] as string,
+                            EventDate = Convert.ToDateTime(dr["EventDate"]),
+                            Location = dr["Location"] as string,
+                            Description = dr["Description"] as string
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool InsertNotice(NoticeModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NoticeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "INSERT");
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@EventDate", model.EventDate);
+                cmd.Parameters.AddWithValue("@Location", (object)model.Location ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool UpdateNotice(NoticeModel model)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NoticeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "UPDATE");
+                cmd.Parameters.AddWithValue("@NoticeId", model.NoticeId);
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@EventDate", model.EventDate);
+                cmd.Parameters.AddWithValue("@Location", (object)model.Location ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Description", (object)model.Description ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
+
+        public bool DeleteNotice(int id)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_NoticeMaster", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@NoticeId", id);
+                con.Open();
+                return cmd.ExecuteNonQuery() != 0;
+            }
+        }
     }
 }

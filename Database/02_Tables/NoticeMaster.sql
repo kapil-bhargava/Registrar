@@ -1,0 +1,10 @@
+CREATE TABLE dbo.NoticeMaster (
+    NoticeId INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(200) NOT NULL,
+    EventDate DATE NOT NULL,
+    Location NVARCHAR(200) NULL,
+    Description NVARCHAR(500) NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO

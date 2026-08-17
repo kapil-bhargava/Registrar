@@ -1050,6 +1050,71 @@ namespace Regis.Controllers
             var list = MasterService.GetBranchesByCourse(courseId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public JsonResult GetAllFacultyMasterJson()  //Faculty endpoint for dashboard card
+        {
+            var list = MasterService.GetAllFacultyMaster();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
+        [HttpGet]
+        public JsonResult GetAllDepartmentMasterJson()  //depremnt end point for dashboard card
+        {
+            var list = MasterService.GetAllDepartmentMaster();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        // NoticeMaster =============================================
+
+        //============================================================
+        public ActionResult NoticeMaster()
+        {
+            List<NoticeModel> list = MasterService.GetAllNotices();
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult NoticeMaster(NoticeModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool result;
+                if (model.NoticeId > 0)
+                {
+                    result = MasterService.UpdateNotice(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Notice Updated Successfully." : "Unable to Update Notice.";
+                }
+                else
+                {
+                    result = MasterService.InsertNotice(model);
+                    TempData[result ? "Success" : "Error"] =
+                        result ? "Notice Saved Successfully." : "Unable to Save Notice.";
+                }
+            }
+            return RedirectToAction("NoticeMaster");
+        }
+
+        public ActionResult DeleteNotice(int id)
+        {
+            bool result = MasterService.DeleteNotice(id);
+            TempData[result ? "Success" : "Error"] =
+                result ? "Notice Deleted Successfully." : "Unable to Delete Notice.";
+            return RedirectToAction("NoticeMaster");
+        }
+
+        [HttpGet]
+        public JsonResult GetUpcomingNoticesJson()
+        {
+            var list = MasterService.GetUpcomingNotices();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult GetAllCourseMasterJson()//course master json endpoint for dash board
+        {
+            var list = MasterService.GetAllCourseMaster();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
     }
 }

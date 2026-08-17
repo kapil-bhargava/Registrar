@@ -1,0 +1,198 @@
+﻿@model List<Regis.Models.NoticeModel>
+
+@{
+    ViewBag.Title = "NoticeMaster";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+    <div class="as-card" id="ntListWrap">
+        <div class="as-list-head">
+            <div>
+                <h2><i class="fas fa-bullhorn"></i> Notice / Events Master</h2>
+                <p>Manage upcoming events and notices — active upcoming ones show on the Dashboard.</p>
+            </div>
+            <button class="as-btn as-btn-primary" onclick="ntShowForm()">
+                <i class="fas fa-plus-circle"></i> Add New Notice
+            </button>
+        </div>
+
+        <div class="as-quick-stats">
+            <div class="as-stat-card">
+                <div class="as-stat-icon"><i class="fas fa-bullhorn"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count</span>
+                    <span class="as-stat-label">Total Notices</span>
+                </div>
+            </div>
+            <div class="as-stat-card active">
+                <div class="as-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="as-stat-info">
+                    <span class="as-stat-number">@Model.Count(n => n.IsActive)</span>
+                    <span class="as-stat-label">Active Notices</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Event Date</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ntTableBody">
+                    @foreach (var n in Model)
+                    {
+                        <tr>
+                            <td><strong>@n.Title</strong></td>
+                            <td>@n.EventDate.ToString("dd MMM yyyy")</td>
+                            <td>@n.Location</td>
+                            <td>
+                                @if (n.IsActive)
+                                {
+                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="as-pill as-pill-archived"><i class="fas fa-circle"></i> Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="as-mini-btn" title="Edit" onclick="ntShowForm(this)"
+                                        data-id="@n.NoticeId" data-title="@n.Title" data-date="@n.EventDate.ToString("yyyy-MM-dd")"
+                                        data-location="@n.Location" data-desc="@n.Description" data-active="@n.IsActive.ToString().ToLower()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a class="as-mini-btn" title="Delete"
+                                   href="@Url.Action("DeleteNotice", "Master", new { id = n.NoticeId })"
+                                   onclick="return confirm('Delete this notice?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="as-legend">
+            <span><span class="as-legend-dot active"></span> Active</span>
+            <span><span class="as-legend-dot archived"></span> Inactive</span>
+        </div>
+    </div>
+
+    <!-- ================= ADD / EDIT NOTICE FORM ================= -->
+    @using (Html.BeginForm("NoticeMaster", "Master", FormMethod.Post))
+    {
+        <div class="as-card as-wizard-card" id="ntFormWrap" style="display:none;">
+
+            <div class="as-back-row">
+                <button type="button" class="as-back-link" onclick="ntShowList()">
+                    <i class="fas fa-arrow-left"></i> Back to Notice List
+                </button>
+            </div>
+
+            <div class="as-body">
+                <div class="as-page active">
+                    <div class="as-head">
+                        <div class="as-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div>
+                            <h2 id="ntFormTitle">Add Notice</h2>
+                            <p>Define a new event or notice.</p>
+                        </div>
+                    </div>
+
+                    <div class="as-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+
+                    <input type="hidden" id="noticeId" name="NoticeId" value="0" />
+
+                    <div class="as-grid">
+                        <div class="as-field as-full">
+                            <label>Title <span class="req">*</span></label>
+                            <input type="text" id="noticeTitle" name="Title" placeholder="e.g. Semester Fee Due Date">
+                        </div>
+                        <div class="as-field">
+                            <label>Event Date <span class="req">*</span></label>
+                            <input type="date" id="noticeDate" name="EventDate">
+                        </div>
+                        <div class="as-field">
+                            <label>Location</label>
+                            <input type="text" id="noticeLocation" name="Location" placeholder="e.g. Seminar Hall A">
+                        </div>
+                        <div class="as-field as-full">
+                            <label>Description</label>
+                            <textarea id="noticeDescription" name="Description" placeholder="Brief description..."></textarea>
+                        </div>
+                        <div class="as-field">
+                            <label>Status</label>
+                            <select id="noticeStatus" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="as-bar">
+                        <button type="button" class="as-btn as-btn-ghost" onclick="ntShowList()">Cancel</button>
+                        <span></span>
+                        <button type="submit" class="as-btn as-btn-primary">
+                            <i class="fas fa-save"></i> <span id="ntSubmitText">Save Notice</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="as-toast" id="ntToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="ntToastMessage">Success!</span>
+</div>
+
+<script>
+    function ntShowForm(btn) {
+        document.getElementById('ntListWrap').style.display = 'none';
+        document.getElementById('ntFormWrap').style.display = 'block';
+
+        if (btn) {
+            document.getElementById('ntFormTitle').textContent = 'Edit Notice';
+            document.getElementById('ntSubmitText').textContent = 'Update Notice';
+
+            document.getElementById('noticeId').value = btn.dataset.id;
+            document.getElementById('noticeTitle').value = btn.dataset.title;
+            document.getElementById('noticeDate').value = btn.dataset.date;
+            document.getElementById('noticeLocation').value = btn.dataset.location || '';
+            document.getElementById('noticeDescription').value = btn.dataset.desc || '';
+            document.getElementById('noticeStatus').value = btn.dataset.active;
+        } else {
+            document.getElementById('ntFormTitle').textContent = 'Add Notice';
+            document.getElementById('ntSubmitText').textContent = 'Save Notice';
+            document.getElementById('noticeId').value = 0;
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeDate').value = '';
+            document.getElementById('noticeLocation').value = '';
+            document.getElementById('noticeDescription').value = '';
+            document.getElementById('noticeStatus').value = 'true';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function ntShowList() {
+        document.getElementById('ntFormWrap').style.display = 'none';
+        document.getElementById('ntListWrap').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>

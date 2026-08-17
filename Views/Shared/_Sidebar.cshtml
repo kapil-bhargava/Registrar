@@ -198,7 +198,7 @@
                     </a>
                 </li>
 
-              
+
                 <li>
                     <a href="/Admission/PersonalInformation?studentId"
                        class="parent new-admission-link @(activeMenu == "Admission" ? "active" : "")">
@@ -312,7 +312,7 @@
                 <li>
                     <a href="@Url.Action("SeatAllotmentReport", "Reports")">
                         <i class="fas fa-print"></i> Seat Allotment Report
-                        </a>
+                    </a>
                 </li>
 
                 <li>
@@ -358,6 +358,9 @@
         <!-- ============================================================ -->
         <!-- MASTERS -->
         <!-- ============================================================ -->
+        <!-- ============================================================ -->
+        <!-- MASTERS -->
+        <!-- ============================================================ -->
         <li>
             <div class="parent @(activeMenu == "Masters" ? "active" : "")" data-target="subMasters">
                 <i class="fas fa-database"></i>
@@ -367,21 +370,28 @@
             <ul class="submenu @(activeMenu == "Masters" ? "open" : "")" id="subMasters">
 
                 <li>
-                    <a href="@Url.Action("UniversityType", "Master")"
-                       asp-controller="Master" asp-action="UniversityType">
-                        <i class="fas fa-layer-group"></i> University Type
+                    <a href="@Url.Action("FacultyMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Academic Faculty Master
                     </a>
                 </li>
 
                 <li>
-                    <a href="@Url.Action("CategoryMaster", "Master")"
-                       asp-controller="Master" asp-action="Category">
-                        <i class="fas fa-tag"></i> Category Master
+                    <a asp-controller="Master" asp-action="AcademicSession">
+                        <i class="fas fa-calendar-alt"></i> Academic Session
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("EmployeeMaster", "Master")">
-                        <i class="fas fa-pray"></i> Employee Master
+                    <a asp-controller="Master" asp-action="AdmissionMode">
+                        <i class="fas fa-user-plus"></i> Admission Mode
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("AdmissionModeMaster", "Master")"
+                       asp-controller="Master" asp-action=" AdmissionModeMaster">
+                        <i class="fas fa-flag"></i>  AdmissionMode Master
                     </a>
                 </li>
 
@@ -392,8 +402,57 @@
                 </li>
 
                 <li>
-                    <a href="@Url.Action("SubjectCategoryMaster", "Master")">
-                        <i class="fas fa-ring"></i>SubjectCategory Master
+                    <a href="@Url.Action("CampusCategoryMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Campus Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("CategoryMaster", "Master")"
+                       asp-controller="Master" asp-action="Category">
+                        <i class="fas fa-tag"></i> Category Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("CounsellingTypeMaster", "Master")"
+                       asp-controller="Master" asp-action="CounsellingTypeMaster">
+                        <i class="fas fa-school"></i> CounsellingType Master
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Master" asp-action="CourseCodeDegree">
+                        <i class="fas fa-graduation-cap"></i> Course Code / Degree
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("CourseMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Course Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("DepartmentMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Department Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("DesignationMaster", "Master")"
+                       asp-controller="Master" asp-action="Designation">
+                        <i class="fas fa-user-tie"></i> Designation Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("DocumentEnclosureMaster", "Master")"
+                       asp-controller="Master" asp-action="DocumentEnclosureMaster">
+                        <i class="fas fa-coins"></i>DocumentEnclosure Master
                     </a>
                 </li>
 
@@ -402,24 +461,80 @@
                         <i class="fas fa-file-alt"></i> Duration Master
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("AdmissionModeMaster", "Master")"
-                       asp-controller="Master" asp-action=" AdmissionModeMaster">
-                        <i class="fas fa-flag"></i>  AdmissionMode Master
+                    <a href="@Url.Action("EmployeeMaster", "Master")">
+                        <i class="fas fa-pray"></i> Employee Master
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("CounsellingTypeMaster", "Master")"
-                       asp-controller="Master" asp-action="CounsellingTypeMaster">
-                        <i class="fas fa-school"></i> CounsellingType Master
+                    <a href="@Url.Action("FeeheadMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Feehead Master
                     </a>
                 </li>
+
                 <li>
-                    <a href="@Url.Action("DocumentEnclosureMaster", "Master")"
-                       asp-controller="Master" asp-action="DocumentEnclosureMaster">
-                        <i class="fas fa-coins"></i>DocumentEnclosure Master
+                    <a href="@Url.Action("NoticeMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> NoticeMaster
                     </a>
                 </li>
+
+                <li>
+                    <a asp-controller="Master" asp-action="ParentSession">
+                        <i class="fas fa-calendar-week"></i> Parent Session
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("ProgramMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Program Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("SemesterMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i>  Semester Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("SessionTypeMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Session Type
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("SubjectMaster", "Master")"
+                       asp-controller="Master" asp-action="Campus">
+                        <i class="fas fa-university"></i> Subject Master
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("SubjectCategoryMaster", "Master")">
+                        <i class="fas fa-ring"></i>SubjectCategory Master
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Master" asp-action="SystemSettings">
+                        <i class="fas fa-cog"></i> System Settings
+                    </a>
+                </li>
+
+                <li>
+                    <a href="@Url.Action("UniversityType", "Master")"
+                       asp-controller="Master" asp-action="UniversityType">
+                        <i class="fas fa-layer-group"></i> University Type
+                    </a>
+                </li>
+
                 @*<li>
                     <a href="@Url.Action("CountryStateCityMaster", "Master")"
                        asp-controller="Master" asp-action="Location">
@@ -444,102 +559,6 @@
                         <i class="fas fa-percent"></i> Discount / Scholarship
                     </a>
                 </li>*@
-
-                <li>
-                    <a href="@Url.Action("DesignationMaster", "Master")"
-                       asp-controller="Master" asp-action="Designation">
-                        <i class="fas fa-user-tie"></i> Designation Master
-                    </a>
-                </li>
-
-
-
-                <li>
-                    <a href="@Url.Action("CampusCategoryMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Campus Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("FacultyMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Academic Faculty Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("DepartmentMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Department Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("ProgramMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Program Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("CourseMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Course Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("SemesterMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i>  Semester Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("SubjectMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Subject Master
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("FeeheadMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Feehead Master
-                    </a>
-                </li>
-
-
-
-                <li>
-                    <a asp-controller="Master" asp-action="AdmissionMode">
-                        <i class="fas fa-user-plus"></i> Admission Mode
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="CourseCodeDegree">
-                        <i class="fas fa-graduation-cap"></i> Course Code / Degree
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Master" asp-action="ParentSession">
-                        <i class="fas fa-calendar-week"></i> Parent Session
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SessionTypeMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Session Type
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="AcademicSession">
-                        <i class="fas fa-calendar-alt"></i> Academic Session
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="SystemSettings">
-                        <i class="fas fa-cog"></i> System Settings
-                    </a>
-                </li>
             </ul>
         </li>
 
