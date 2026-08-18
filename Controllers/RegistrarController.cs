@@ -182,9 +182,10 @@ namespace Regis.Controllers
 
 
         [HttpGet]
+      
         public JsonResult GetSubmittedDocumentsJson(int applicationId)
         {
-            var list = admissionService.GetSubmittedDocuments(applicationId);
+            var list = admissionService.GetDocumentChecklist(applicationId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 

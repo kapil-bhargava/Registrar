@@ -90,7 +90,9 @@
 
     <!-- ================= FILTERS ================= -->
     <div class="as-card">
-        <div class="as-grid">
+        <p class="as-hint" style="margin-top:-4px;margin-bottom:14px;">Search and manage registered students. Data is shared with the Registrar Student List (Add/Edit) page.</p>
+
+        <div class="asu-filter-row">
             <div class="as-field">
                 <label>Course</label>
                 <select id="fCourse" onchange="asuOnCourseChange()">
@@ -104,36 +106,32 @@
             <div class="as-field">
                 <label>Branch</label>
                 <select id="fBranch" onchange="asuOnBranchChange()" disabled>
-                    <option value="">All Branches</option>
-                </select>
-            </div>
-            <div class="as-field">
-                <label>Session / Batch</label>
-                <select id="fSession" onchange="asuOnSessionChange()" disabled>
-                    <option value="">All Sessions</option>
-                    @foreach (var s in ViewBag.Sessions as List<Regis.Models.AcademicSessionModel>)
-                    {
-                        <option value="@s.AcademicSessionId">@s.SessionName</option>
-                    }
+                    <option value="">-- Select Course First --</option>
                 </select>
             </div>
             <div class="as-field">
                 <label>Semester</label>
                 <select id="fSemester" disabled>
-                    <option value="">All Semesters</option>
+                    <option value="">-- Select Branch First --</option>
                 </select>
             </div>
-        </div>
-
-        <div class="as-grid" style="margin-top:0.5rem;">
-            <div class="as-field" style="grid-column: span 2;">
-                <label>Search</label>
-                <input type="text" id="fSearch" placeholder="Search by Name, Enrollment, Roll No., Mobile" />
+            <div class="as-field">
+                <label>Document Status</label>
+                <select id="fDocStatus" onchange="asuApplyQuickFilterAndRender()">
+                    <option value="">All</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Deficient">Deficient</option>
+                </select>
             </div>
-            <div class="as-field" style="align-self:flex-end; display:flex; gap:8px;">
-                <button class="as-btn as-btn-primary" onclick="asuLoadData()"><i class="fas fa-search"></i> Search</button>
-                <button class="as-btn as-btn-ghost" onclick="asuResetFilters()">Reset</button>
+            <div class="as-field asu-search-field">
+                <label>Student Name</label>
+                <div class="asu-search-box">
+                    <input type="text" id="fSearch" placeholder="Search by Student Name, Email or Mobile" onkeypress="if(event.key==='Enter'){asuLoadData();}" />
+                    <button class="asu-search-btn" onclick="asuLoadData()" title="Search"><i class="fas fa-search"></i></button>
+                </div>
             </div>
+            <button class="as-btn as-btn-ghost asu-reset-btn" onclick="asuResetFilters()">Reset</button>
         </div>
 
         <div class="asu-quick-filters">
@@ -176,7 +174,7 @@
     <div class="asu-modal-overlay" id="asuDocsModal" style="display:none;">
         <div class="asu-modal-box">
             <div class="asu-modal-head">
-                <h3>Submitted Documents</h3>
+                <h3 id="asuDocsModalTitle">Required Documents</h3>
                 <button onclick="asuCloseDocsModal()">&times;</button>
             </div>
             <div class="asu-modal-body" id="asuDocsModalBody"></div>
@@ -196,28 +194,28 @@
     .asu-stat-row {
         display: grid;
         grid-template-columns: repeat(5,1fr);
-        gap: 14px;
+        gap: 12px;
         margin-bottom: 16px;
     }
 
     .asu-stat-card {
         background: #fff;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 16px;
+        border-radius: 12px;
+        padding: 11px 13px;
         display: flex;
-        gap: 12px;
-        align-items: flex-start;
+        gap: 10px;
+        align-items: center;
     }
 
     .asu-stat-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 13px;
         color: #fff;
         flex-shrink: 0;
     }
@@ -243,21 +241,21 @@
     }
 
     .asu-stat-label {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         color: #8A93A6;
-        letter-spacing: .4px;
+        letter-spacing: .3px;
     }
 
     .asu-stat-number {
-        font-size: 26px;
+        font-size: 20px;
         font-weight: 700;
         color: #0B1B33;
-        line-height: 1.3;
+        line-height: 1.25;
     }
 
     .asu-stat-sub {
-        font-size: 12px;
+        font-size: 11px;
         color: #8A93A6;
     }
 
@@ -311,11 +309,92 @@
         text-decoration: none;
     }
 
+    /* ---------------- Compact Filter Row ---------------- */
+
+    .asu-filter-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+        .asu-filter-row .as-field {
+            flex: 1;
+            min-width: 130px;
+            margin-bottom: 0;
+        }
+
+            .asu-filter-row .as-field label {
+                display: block;
+                font-size: 10.5px;
+                font-weight: 700;
+                color: #8A93A6;
+                letter-spacing: .3px;
+                text-transform: uppercase;
+                margin-bottom: 5px;
+            }
+
+        .asu-filter-row select,
+        .asu-filter-row input[type="text"] {
+            width: 100%;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4B5768;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+            .asu-filter-row select:disabled {
+                color: #B7C0CE;
+                background: #FAFBFD;
+            }
+
+    .asu-search-field {
+        flex: 1.7;
+        min-width: 210px;
+    }
+
+    .asu-search-box {
+        display: flex;
+        gap: 8px;
+    }
+
+        .asu-search-box input {
+            flex: 1;
+        }
+
+    .asu-search-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: none;
+        background: #0B1B33;
+        color: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-size: 13px;
+    }
+
+        .asu-search-btn:hover {
+            background: #16294A;
+        }
+
+    .asu-reset-btn {
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
     .asu-quick-filters {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
-        margin-top: 12px;
+        margin-top: 14px;
     }
 
     .asu-chip {
@@ -417,6 +496,22 @@
     .asu-modal-body {
         padding: 20px;
     }
+
+    @@media (max-width: 900px) {
+        .asu-stat-row {
+            grid-template-columns: repeat(2,1fr);
+        }
+
+        .asu-filter-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .asu-filter-row .as-field,
+            .asu-search-field {
+                min-width: 0;
+            }
+    }
 </style>
 
 <script>
@@ -426,66 +521,68 @@
     document.addEventListener('DOMContentLoaded', asuLoadData);
 
     // ---------------- Cascading Filters ----------------
+function asuOnCourseChange() {
+    const courseId = document.getElementById('fCourse').value;
+    const branchSel = document.getElementById('fBranch');
+    const semSel = document.getElementById('fSemester');
 
-    function asuOnCourseChange() {
-        const courseId = document.getElementById('fCourse').value;
-        const branchSel = document.getElementById('fBranch');
-        const semSel = document.getElementById('fSemester');
-        const sessSel = document.getElementById('fSession');
+    branchSel.innerHTML = '<option value="">-- Select Course First --</option>';
+    semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
+    branchSel.disabled = true;
+    semSel.disabled = true;
 
-        branchSel.innerHTML = '<option value="">All Branches</option>';
-        semSel.innerHTML = '<option value="">All Semesters</option>';
-        branchSel.disabled = true;
-        semSel.disabled = true;
-        sessSel.disabled = true;
+    if (!courseId) { asuLoadData(); return; }
 
-        if (!courseId) return;
+    branchSel.innerHTML = '<option value="">All Branches</option>';
 
-        fetch('@Url.Action("GetBranchesByCourse", "AcademicSetup")?courseId=' + courseId)
-            .then(res => res.json())
-            .then(data => {
-                data.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b.BranchName;
-                    opt.textContent = b.BranchName;
-                    branchSel.appendChild(opt);
-                });
-                branchSel.disabled = false;
+    fetch('@Url.Action("GetBranchesByCourse", "AcademicSetup")?courseId=' + courseId)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.BranchName;
+                opt.textContent = b.BranchName;
+                branchSel.appendChild(opt);
             });
-    }
+            branchSel.disabled = false;
+        });
 
-    function asuOnBranchChange() {
-        document.getElementById('fSession').disabled = false;
-    }
+    asuLoadData();
+}
 
-    function asuOnSessionChange() {
-        const courseId = document.getElementById('fCourse').value;
-        const semSel = document.getElementById('fSemester');
-        semSel.innerHTML = '<option value="">All Semesters</option>';
+   function asuOnBranchChange() {
+    const courseId = document.getElementById('fCourse').value;
+    const semSel = document.getElementById('fSemester');
 
-        if (!courseId) { semSel.disabled = true; return; }
+    semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
+    semSel.disabled = true;
 
-        fetch('@Url.Action("GetSemesterNumbersByCourse", "AcademicSetup")?courseId=' + courseId)
-            .then(res => res.json())
-            .then(data => {
-                data.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.SemesterNumber;
-                    opt.textContent = s.SemesterLabel;
-                    semSel.appendChild(opt);
-                });
-                semSel.disabled = false;
+    if (!courseId) { asuLoadData(); return; }
+
+    semSel.innerHTML = '<option value="">All Semesters</option>';
+
+    fetch('@Url.Action("GetSemesterNumbersByCourse", "AcademicSetup")?courseId=' + courseId)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.SemesterNumber;
+                opt.textContent = s.SemesterLabel;
+                semSel.appendChild(opt);
             });
-    }
+            semSel.disabled = false;
+        });
+
+    asuLoadData();
+}
 
     function asuResetFilters() {
         document.getElementById('fCourse').value = '';
-        document.getElementById('fBranch').innerHTML = '<option value="">All Branches</option>';
+        document.getElementById('fBranch').innerHTML = '<option value="">-- Select Course First --</option>';
         document.getElementById('fBranch').disabled = true;
-        document.getElementById('fSession').value = '';
-        document.getElementById('fSession').disabled = true;
-        document.getElementById('fSemester').innerHTML = '<option value="">All Semesters</option>';
+        document.getElementById('fSemester').innerHTML = '<option value="">-- Select Branch First --</option>';
         document.getElementById('fSemester').disabled = true;
+        document.getElementById('fDocStatus').value = '';
         document.getElementById('fSearch').value = '';
         asuCurrentQuickFilter = 'all';
         asuSetActiveChip('all');
@@ -497,7 +594,6 @@
     function asuLoadData() {
         const courseId = document.getElementById('fCourse').value;
         const branch = document.getElementById('fBranch').value;
-        const sessionId = document.getElementById('fSession').value;
         const semester = document.getElementById('fSemester').value;
         const search = document.getElementById('fSearch').value;
 
@@ -505,7 +601,6 @@
         const params = [];
         if (courseId) params.push('courseId=' + courseId);
         if (branch) params.push('branch=' + encodeURIComponent(branch));
-        if (sessionId) params.push('sessionId=' + sessionId);
         if (semester) params.push('semester=' + encodeURIComponent(semester));
         if (search) params.push('search=' + encodeURIComponent(search));
         url += params.join('&');
@@ -558,12 +653,18 @@
     function asuApplyQuickFilterAndRender() {
         let filtered = asuAllData;
         switch (asuCurrentQuickFilter) {
-            case 'docsPending': filtered = asuAllData.filter(d => d.DocumentStatus === 'Pending'); break;
-            case 'verifyPending': filtered = asuAllData.filter(d => d.VerificationStatus === 'Verification Pending'); break;
-            case 'deficient': filtered = asuAllData.filter(d => d.DocumentStatus === 'Deficient'); break;
-            case 'incomplete': filtered = asuAllData.filter(d => d.RegistrationStatus === 'Incomplete'); break;
-            case 'completed': filtered = asuAllData.filter(d => d.RegistrationStatus === 'Active'); break;
+            case 'docsPending': filtered = filtered.filter(d => d.DocumentStatus === 'Pending'); break;
+            case 'verifyPending': filtered = filtered.filter(d => d.VerificationStatus === 'Verification Pending'); break;
+            case 'deficient': filtered = filtered.filter(d => d.DocumentStatus === 'Deficient'); break;
+            case 'incomplete': filtered = filtered.filter(d => d.RegistrationStatus === 'Incomplete'); break;
+            case 'completed': filtered = filtered.filter(d => d.RegistrationStatus === 'Active'); break;
         }
+
+        const docStatus = document.getElementById('fDocStatus').value;
+        if (docStatus) {
+            filtered = filtered.filter(d => d.DocumentStatus === docStatus);
+        }
+
         asuRenderTable(filtered);
     }
 
@@ -583,6 +684,7 @@
             const pct = s.RequiredDocCount > 0 ? Math.round((s.SubmittedDocCount / s.RequiredDocCount) * 100) : 0;
             const barColor = pct >= 100 ? '#22C55E' : (pct >= 50 ? '#F2B705' : '#F04452');
             const initial = (s.FullName || '?').charAt(0).toUpperCase();
+            const safeName = (s.FullName || '').replace(/'/g, "\\'");
 
             const docBadge = s.DocumentStatus === 'Complete'
                 ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Complete</span>'
@@ -607,7 +709,7 @@
                 '<td>' + (enrollNo || '-') + '</td>' +
                 '<td>' + s.CourseName + (s.Branch ? '<br><span class="as-hint">' + s.Branch + '</span>' : '') + '</td>' +
                 '<td>' + (s.Semester || '-') + '</td>' +
-                '<td style="cursor:pointer;" onclick="asuShowDocs(' + s.ApplicationId + ')"><div class="asu-progress-wrap"><span class="asu-progress-text">' + s.SubmittedDocCount + '/' + s.RequiredDocCount + '</span>' +
+                '<td style="cursor:pointer;" onclick="asuShowDocs(' + s.ApplicationId + ', \'' + safeName + '\')"><div class="asu-progress-wrap"><span class="asu-progress-text">' + s.SubmittedDocCount + '/' + s.RequiredDocCount + '</span>' +
                     '<div class="asu-progress-bar"><div class="asu-progress-fill" style="width:' + Math.min(pct, 100) + '%;background:' + barColor + ';"></div></div>' +
                     '<span class="asu-progress-text">' + pct + '%</span></div></td>' +
                 '<td>' + docBadge + '</td>' +
@@ -621,29 +723,34 @@
         });
     }
 
-    // ---------------- Submitted Docs Modal ----------------
+    // ---------------- Required Docs Modal ----------------
 
-    function asuShowDocs(applicationId) {
+    function asuShowDocs(applicationId, studentName) {
+        document.getElementById('asuDocsModalTitle').textContent = studentName ? studentName + ' - Required Documents' : 'Required Documents';
+
         fetch('@Url.Action("GetSubmittedDocumentsJson", "Registrar")?applicationId=' + applicationId)
             .then(res => res.json())
             .then(data => {
                 let html = data.length
-                    ? '<ul style="margin:0;padding-left:18px;">' + data.map(d =>
-                        '<li>' + d.DocumentName + (d.IsMandatory ? ' <span style="color:#F04452;">*Mandatory</span>' : '') + '</li>'
-                      ).join('') + '</ul>'
-                    : '<p class="as-hint">No documents submitted yet.</p>';
+                    ? '<table class="as-table"><thead><tr><th>#</th><th>Document</th><th>Status</th></tr></thead><tbody>' +
+                        data.map((d, idx) =>
+                            '<tr><td>' + (idx + 1) + '</td><td>' + d.DocumentName +
+                            (d.IsMandatory ? ' <span style="color:#F04452;">*</span>' : '') + '</td><td>' +
+                            (d.IsSubmitted
+                                ? '<span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Received</span>'
+                                : '<span class="as-pill" style="background:#FEECEC;color:#F04452;"><i class="fas fa-circle"></i> Pending</span>') +
+                            '</td></tr>'
+                        ).join('') + '</tbody></table>'
+                    : '<p class="as-hint">No documents mapped for this course.</p>';
                 document.getElementById('asuDocsModalBody').innerHTML = html;
                 document.getElementById('asuDocsModal').style.display = 'flex';
             });
     }
     function asuCloseDocsModal() { document.getElementById('asuDocsModal').style.display = 'none'; }
 
-    // ---------------- Student Profile Modal ----------------
-
     // ---------------- Student Profile (Full Page) ----------------
-// ---------------- Student Profile (Full Page) ----------------
 
-function asuOpenProfile(applicationId) {
-    window.location.href = '@Url.Action("StudentProfile", "Registrar")/' + applicationId;
-}
+    function asuOpenProfile(applicationId) {
+        window.location.href = '@Url.Action("StudentProfile", "Registrar")/' + applicationId;
+    }
 </script>
