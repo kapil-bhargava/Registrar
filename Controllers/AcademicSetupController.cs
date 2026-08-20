@@ -586,7 +586,7 @@ namespace Regis.Controllers
         // Cascading dropdown 2: Course selected -> uske TotalSemesters se 1..N list
         public JsonResult GetSemesterNumbersByCourse(int courseId)
         {
-            var course = MasterService.GetAllCourseMaster().FirstOrDefault(c => c.CourseId == courseId);
+            var course = MasterService.GetActiveCourseMaster().FirstOrDefault(c => c.CourseId == courseId);
             int totalSemesters = course?.TotalSemesters ?? 0;
 
             var semesterList = Enumerable.Range(1, totalSemesters)
@@ -595,6 +595,5 @@ namespace Regis.Controllers
 
             return Json(semesterList, JsonRequestBehavior.AllowGet);
         }
-
     }
 }

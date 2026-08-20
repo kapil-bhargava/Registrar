@@ -794,13 +794,20 @@
     ];
 
     document.addEventListener('DOMContentLoaded', function () {
+        var qsAppId = getQueryParam('applicationId');
         var qsName = getQueryParam('name');
-        if (qsName) {
+
+        if (qsAppId) {
+            // AllStudents page se Edit click hoke aaya — seedha edit form kholo
+            piShowForm(parseInt(qsAppId), false);
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        } else if (qsName) {
             // Eligibility Check se aaya — seedha form kholo, naam pre-fill karo
             piShowForm(null, false);
             document.getElementById('piFirstName').value = qsName;
             piBuildDisplayName();
-            // URL clean kar do taaki refresh pe dubara pre-fill na ho
             if (window.history && window.history.replaceState) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

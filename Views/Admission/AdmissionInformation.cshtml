@@ -96,7 +96,7 @@
                             <option value="">-- Select --</option>
                             @foreach (var s in (List<Regis.Models.AdmissionSetupModel>)ViewBag.OpenSetups)
                             {
-                                <option value="@s.AdmissionSetupId" data-course="@s.CourseName" data-session="@s.SessionName">
+                                <option value="@s.AdmissionSetupId" data-course="@s.CourseName" data-session="@s.SessionName" data-courseid="@s.CourseId">
                                     @s.CourseName — @s.SessionName
                                 </option>
                             }
@@ -121,7 +121,9 @@
                     </div>
                     <div class="af-field">
                         <label>Branch<span class="req">*</span></label>
-                        <input type="text" id="aiBranch">
+                        <select id="aiBranch">
+                            <option value="">-- Select Branch --</option>
+                        </select>
                     </div>
                     <div class="af-field">
                         <label>Academic batch<span class="req">*</span></label>
@@ -137,7 +139,9 @@
                     </div>
                     <div class="af-field">
                         <label>Semester<span class="req">*</span></label>
-                        <input type="text" id="aiSemester">
+                        <select id="aiSemester">
+                            <option value="">-- Select Semester --</option>
+                        </select>
                     </div>
                     <div class="af-field">
                         <label>Scheme<span class="req">*</span></label>
@@ -284,8 +288,47 @@
             (r.ApplicationNo || '').toLowerCase().includes(term) ||
             (r.Degree || '').toLowerCase().includes(term) ||
             (r.Branch || '').toLowerCase().includes(term)
-        );
+        )
         aiRenderTable(filtered);
+    }
+
+    // ----- BRANCH / SEMESTER (Master-driven cascading dropdowns) -----
+    function aiLoadBranches(courseId, selectedValue) { 
+        var sel = document.getElementById('aiBranch');
+        sel.innerHTML = '<option value="">-- Select Branch --</option>';
+        if (!courseId) return;
+        fetch('/Master/GetBranchesByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(list => {
+                (list || []).forEach(b => {
+                    var name = b.BranchName || b.Name || '';
+                    var opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    sel.appendChild(opt);
+                });
+                if (selectedValue) sel.value = selectedValue;
+            })
+            .catch(() => { });
+    }
+
+    function aiLoadSemesters(courseId, selectedValue) {
+        var sel = document.getElementById('aiSemester');
+        sel.innerHTML = '<option value="">-- Select Semester --</option>';
+        if (!courseId) return;
+        fetch('/Master/GetSemesterMasterByCourse?courseId=' + courseId)
+            .then(res => res.json())
+            .then(list => {
+                (list || []).forEach(s => {
+                    var name = s.SemesterName || s.Name || '';
+                    var opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    sel.appendChild(opt);
+                });
+                if (selectedValue) sel.value = selectedValue;
+            })
+            .catch(() => { });
     }
 
     // ----- SHOW FORM (Add / Edit / View) -----
@@ -294,11 +337,15 @@
         aiCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
         document.getElementById('aiApplicationId').value = applicationId || 0;
 
-        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiBranch', 'aiAcademicBatch',
-            'aiEnrollment', 'aiAcademicYear', 'aiSemester', 'aiScheme', 'aiClassSection',
+        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiAcademicBatch',
+            'aiEnrollment', 'aiAcademicYear', 'aiScheme', 'aiClassSection',
             'aiDateOfAdmission', 'aiAdmissionCategory', 'aiFeesCategory', 'aiShift',
             'aiEntranceExamRegNo', 'aiEntranceExamMeritNo', 'aiReferenceName'];
         fieldIds.forEach(id => document.getElementById(id).disabled = !!readOnly);
+        document.getElementById('aiBranch').disabled = !!readOnly;
+        document.getElementById('aiSemester').disabled = !!readOnly;
+        document.getElementById('aiAdmissionSetupId').disabled = !!readOnly;
+        document.getElementById('aiCategoryId').disabled = !!readOnly;
 
         document.getElementById('aiSubmitBtn').style.display = readOnly ? 'none' : 'inline-flex';
         document.getElementById('aiFormTitle').textContent = readOnly ? 'View admission information' : 'Admission information';
@@ -312,11 +359,9 @@
                     document.getElementById('aiAcademicStream').value = m.AcademicStream || '';
                     document.getElementById('aiAcademicSessionName').value = m.AcademicSessionName || '';
                     document.getElementById('aiDegree').value = m.Degree || '';
-                    document.getElementById('aiBranch').value = m.Branch || '';
                     document.getElementById('aiAcademicBatch').value = m.AcademicBatch || '';
                     document.getElementById('aiEnrollment').value = m.Enrollment || '';
                     document.getElementById('aiAcademicYear').value = m.AcademicYear || '';
-                    document.getElementById('aiSemester').value = m.Semester || '';
                     document.getElementById('aiScheme').value = m.Scheme || '';
                     document.getElementById('aiClassSection').value = m.ClassSection || '';
                     document.getElementById('aiRollNumber').value = m.RollNumber || '';
@@ -329,6 +374,14 @@
                     document.getElementById('aiEntranceExamRegNo').value = m.EntranceExamRegNo || '';
                     document.getElementById('aiEntranceExamMeritNo').value = m.EntranceExamMeritNo || '';
                     document.getElementById('aiReferenceName').value = m.ReferenceName || '';
+
+                    // Course ke basis par Branch & Semester dropdown load karo, fir stored value select karo
+                    var setupSel = document.getElementById('aiAdmissionSetupId');
+                    var setupOpt = setupSel.options[setupSel.selectedIndex];
+                    var courseId = setupOpt ? (parseInt(setupOpt.getAttribute('data-courseid')) || 0) : 0;
+                    aiLoadBranches(courseId, m.Branch);
+                    aiLoadSemesters(courseId, m.Semester);
+
                     aiGoToFormView();
                 })
                 .catch(() => { aiShowToast('Unable to load application', 'error'); aiGoToFormView(); });
@@ -344,13 +397,15 @@
     }
 
     function aiResetForm() {
-        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiBranch', 'aiAcademicBatch',
-            'aiEnrollment', 'aiAcademicYear', 'aiSemester', 'aiScheme', 'aiClassSection', 'aiRollNumber',
+        const fieldIds = ['aiAcademicStream', 'aiAcademicSessionName', 'aiDegree', 'aiAcademicBatch',
+            'aiEnrollment', 'aiAcademicYear', 'aiScheme', 'aiClassSection', 'aiRollNumber',
             'aiDateOfAdmission', 'aiAdmissionCategory', 'aiFeesCategory', 'aiShift',
             'aiEntranceExamRegNo', 'aiEntranceExamMeritNo', 'aiReferenceName'];
         fieldIds.forEach(id => document.getElementById(id).value = '');
         document.getElementById('aiAdmissionSetupId').value = '';
         document.getElementById('aiCategoryId').value = '';
+        document.getElementById('aiBranch').innerHTML = '<option value="">-- Select Branch --</option>';
+        document.getElementById('aiSemester').innerHTML = '<option value="">-- Select Semester --</option>';
     }
 
     function aiShowList() {
@@ -368,6 +423,10 @@
         var opt = sel.options[sel.selectedIndex];
         document.getElementById('aiDegree').value = opt.getAttribute('data-course') || '';
         document.getElementById('aiAcademicSessionName').value = opt.getAttribute('data-session') || '';
+
+        var courseId = parseInt(opt.getAttribute('data-courseid')) || 0;
+        aiLoadBranches(courseId);
+        aiLoadSemesters(courseId);
     }
 
     // ----- SAVE -----

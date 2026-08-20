@@ -168,6 +168,7 @@ namespace Regis.Controllers
 
         public ActionResult AllStudents()
         {
+         
             ViewBag.Courses = masterService.GetActiveCourseMaster();
             ViewBag.Sessions = academicSetupService.GetAllSessions();
             return View();

@@ -111,7 +111,7 @@
             </div>
             <div class="as-field">
                 <label>Semester</label>
-                <select id="fSemester" disabled>
+                <select id="fSemester" disabled onchange="asuLoadData()">
                     <option value="">-- Select Branch First --</option>
                 </select>
             </div>
@@ -521,60 +521,65 @@
     document.addEventListener('DOMContentLoaded', asuLoadData);
 
     // ---------------- Cascading Filters ----------------
-function asuOnCourseChange() {
-    const courseId = document.getElementById('fCourse').value;
-    const branchSel = document.getElementById('fBranch');
-    const semSel = document.getElementById('fSemester');
+    // Course -> Branch (enabled after Course) -> Semester (enabled after Branch)
+    // Branch & Semester now come from the Master controller (same source
+    // as AdmissionInformation.cshtml), so they are course-specific and
+    // active-only — matching AdmissionInformation exactly.
 
-    branchSel.innerHTML = '<option value="">-- Select Course First --</option>';
-    semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
-    branchSel.disabled = true;
-    semSel.disabled = true;
+    function asuOnCourseChange() {
+        const courseId = document.getElementById('fCourse').value;
+        const branchSel = document.getElementById('fBranch');
+        const semSel = document.getElementById('fSemester');
 
-    if (!courseId) { asuLoadData(); return; }
+        branchSel.innerHTML = '<option value="">-- Select Course First --</option>';
+        semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
+        branchSel.disabled = true;
+        semSel.disabled = true;
 
-    branchSel.innerHTML = '<option value="">All Branches</option>';
+        if (!courseId) { asuLoadData(); return; }
 
-    fetch('@Url.Action("GetBranchesByCourse", "AcademicSetup")?courseId=' + courseId)
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b.BranchName;
-                opt.textContent = b.BranchName;
-                branchSel.appendChild(opt);
+        branchSel.innerHTML = '<option value="">All Branches</option>';
+
+        fetch('@Url.Action("GetBranchesByCourse", "Master")?courseId=' + courseId)
+            .then(res => res.json())
+            .then(data => {
+                (data || []).forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b.BranchName;
+                    opt.textContent = b.BranchName;
+                    branchSel.appendChild(opt);
+                });
+                branchSel.disabled = false;
             });
-            branchSel.disabled = false;
-        });
 
-    asuLoadData();
-}
+        asuLoadData();
+    }
 
-   function asuOnBranchChange() {
-    const courseId = document.getElementById('fCourse').value;
-    const semSel = document.getElementById('fSemester');
+    function asuOnBranchChange() {
+        const courseId = document.getElementById('fCourse').value;
+        const semSel = document.getElementById('fSemester');
 
-    semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
-    semSel.disabled = true;
+        semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
+        semSel.disabled = true;
 
-    if (!courseId) { asuLoadData(); return; }
+        if (!courseId) { asuLoadData(); return; }
 
-    semSel.innerHTML = '<option value="">All Semesters</option>';
+        semSel.innerHTML = '<option value="">All Semesters</option>';
 
-    fetch('@Url.Action("GetSemesterNumbersByCourse", "AcademicSetup")?courseId=' + courseId)
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.SemesterNumber;
-                opt.textContent = s.SemesterLabel;
-                semSel.appendChild(opt);
+        fetch('@Url.Action("GetSemesterMasterByCourse", "Master")?courseId=' + courseId)
+            .then(res => res.json())
+            .then(data => {
+                (data || []).forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.SemesterNumber;
+                    opt.textContent = s.SemesterName || ('Semester ' + s.SemesterNumber);
+                    semSel.appendChild(opt);
+                });
+                semSel.disabled = false;
             });
-            semSel.disabled = false;
-        });
 
-    asuLoadData();
-}
+        asuLoadData();
+    }
 
     function asuResetFilters() {
         document.getElementById('fCourse').value = '';
