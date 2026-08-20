@@ -245,11 +245,13 @@
     }
 
     // 🔑 FIXED: added '?' before params.toString()
+    // 🔑 FIXED: now also forwards setupId so the Course auto-fills on the next steps
     function ecProceedToRegistration() {
         if (!ecLastResult) return;
         const params = new URLSearchParams({
             name: ecLastResult.applicantName,
-            pct: ecLastResult.pctObtained
+            pct: ecLastResult.pctObtained,
+            setupId: document.getElementById('ecCourse').value
         });
         window.location.href = '/Admission/PersonalInformation?' + params.toString();
     }

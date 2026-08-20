@@ -19,6 +19,100 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
 
+<style>
+    /* ---- Local polish for Branch Master list (does not touch academicSession.css) ---- */
+    .br-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .br-filter-pills {
+        display: flex;
+        gap: 8px;
+    }
+
+        .br-filter-pills button {
+            border: 1px solid #d9dee3;
+            background: #fff;
+            color: #64748b;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+            .br-filter-pills button:hover {
+                border-color: #0b5ed7;
+                color: #0b5ed7;
+            }
+
+            .br-filter-pills button.active {
+                background: #0b5ed7;
+                border-color: #0b5ed7;
+                color: #fff;
+            }
+
+    .br-result-count {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: #8a8f98;
+        margin-bottom: 10px;
+    }
+
+    .as-table-wrapper {
+        max-height: 640px;
+        overflow-y: auto;
+    }
+
+        .as-table-wrapper table thead th {
+            position: sticky;
+            top: 0;
+            background: #f6f7fa;
+            z-index: 2;
+            box-shadow: 0 1px 0 #e5e8ec;
+        }
+
+    .as-table.as-list-table tbody tr:hover {
+        background: #f9fbff;
+    }
+
+    .br-badge-ug {
+        background: #eaf3ff;
+        color: #0b5ed7;
+        border-radius: 12px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .br-badge-pg {
+        background: #fff3e0;
+        color: #b8720b;
+        border-radius: 12px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .br-course-text {
+        max-width: 220px;
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+</style>
+
 <div class="as-wrap">
 
     <!-- ================= LIST PAGE ================= -->
@@ -94,14 +188,47 @@
 
             </div>
 
+
+            <div class="as-stat-card">
+
+                <div class="as-stat-icon">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+
+                <div class="as-stat-info">
+
+                    <span class="as-stat-number">
+                        @Model.Count(b => !b.IsActive)
+                    </span>
+
+                    <span class="as-stat-label">
+                        Inactive Branches
+                    </span>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- ===== SEARCH BOX (Branch Code / Branch Name) ===== -->
-        <div class="as-search-row" style="margin-bottom:16px;">
+        <!-- ===== TOOLBAR: Search + Status Filter ===== -->
+        <div class="br-toolbar">
+
             <input type="text" id="brSearchBox" class="as-search-input"
                    placeholder="Search by Branch Code or Branch Name..."
                    onkeyup="brSearchTable()"
-                   style="width:100%; max-width:340px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+                   style="flex:1; min-width:260px; max-width:340px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+
+            <div class="br-filter-pills" id="brFilterPills">
+                <button type="button" class="active" data-filter="all" onclick="brFilterStatus('all', this)">All</button>
+                <button type="button" data-filter="active" onclick="brFilterStatus('active', this)">Active</button>
+                <button type="button" data-filter="inactive" onclick="brFilterStatus('inactive', this)">Inactive</button>
+            </div>
+
+        </div>
+
+        <div class="br-result-count" id="brResultCount">
+            Showing @Model.Count of @Model.Count branches
         </div>
 
 
@@ -132,7 +259,8 @@
 
                     @foreach (var b in Model)
                     {
-                        <tr>
+                        var isPg = (b.ProgramName ?? "").ToLower().Contains("post");
+                        <tr data-status="@(b.IsActive ? "active" : "inactive")">
 
                             <td>
                                 <strong>
@@ -149,13 +277,15 @@
                             </td>
 
                             <td>
-                                <span class="as-type-badge">
+                                <span class="@(isPg ? "br-badge-pg" : "br-badge-ug")">
                                     @b.ProgramName
                                 </span>
                             </td>
 
                             <td>
-                                @(string.IsNullOrEmpty(b.CourseName) ? "-" : b.CourseName)
+                                <span class="br-course-text" title="@b.CourseName">
+                                    @(string.IsNullOrEmpty(b.CourseName) ? "-" : b.CourseName)
+                                </span>
                             </td>
 
                             <td>
@@ -542,6 +672,8 @@
 
 <script>
 
+    var brCurrentFilter = 'all';
+
     function brShowForm(btn) {
 
         document.getElementById('brListWrap').style.display = 'none';
@@ -641,17 +773,40 @@
     }
 
 
-    // ===== SEARCH by Branch Code / Branch Name =====
+    // ===== SEARCH by Branch Code / Branch Name (works together with status filter) =====
     function brSearchTable() {
-        var filter = document.getElementById('brSearchBox').value.toLowerCase().trim();
+        brApplyFilters();
+    }
+
+
+    // ===== STATUS FILTER (All / Active / Inactive) =====
+    function brFilterStatus(filter, btn) {
+        brCurrentFilter = filter;
+
+        document.querySelectorAll('#brFilterPills button').forEach(function (b) {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        brApplyFilters();
+    }
+
+
+    // ===== Combined filter: search text + status =====
+    function brApplyFilters() {
+        var searchText = document.getElementById('brSearchBox').value.toLowerCase().trim();
         var rows = document.querySelectorAll('#brTableBody tr');
         var visibleCount = 0;
 
         rows.forEach(function (row) {
             var code = row.cells[0].textContent.toLowerCase();
             var name = row.cells[1].textContent.toLowerCase();
+            var status = row.getAttribute('data-status');
 
-            if (code.indexOf(filter) > -1 || name.indexOf(filter) > -1) {
+            var matchesSearch = code.indexOf(searchText) > -1 || name.indexOf(searchText) > -1;
+            var matchesStatus = brCurrentFilter === 'all' || status === brCurrentFilter;
+
+            if (matchesSearch && matchesStatus) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -660,6 +815,10 @@
         });
 
         document.getElementById('brNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+
+        var totalCount = rows.length;
+        document.getElementById('brResultCount').textContent =
+            'Showing ' + visibleCount + ' of ' + totalCount + ' branches';
     }
 
 

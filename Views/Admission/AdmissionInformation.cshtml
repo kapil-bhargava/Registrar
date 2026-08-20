@@ -101,6 +101,7 @@
                                 </option>
                             }
                         </select>
+                        <span class="as-hint">Auto-filled from Eligibility Check when coming through New Admission</span>
                     </div>
                     <!-- 🔑 FIX: hidden input jo JS ko chahiye (aiResetForm / aiOnSetupChange / aiSaveAndContinue sab isse use karte hain) -->
                     <input type="hidden" id="aiAcademicSessionName" value="">
@@ -222,8 +223,9 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         var qsAppId = getQueryParam('applicationId');
+        var qsSetupId = getQueryParam('setupId');
         if (qsAppId && parseInt(qsAppId) > 0) {
-            aiShowForm(parseInt(qsAppId), false, 'wizard');
+            aiShowForm(parseInt(qsAppId), false, 'wizard', qsSetupId);
         } else {
             aiLoadList();
         }
@@ -332,7 +334,8 @@
     }
 
     // ----- SHOW FORM (Add / Edit / View) -----
-    function aiShowForm(applicationId, readOnly, mode) {
+    // prefillSetupId: jab Personal Information se '?setupId=' ke saath aaya ho (Eligibility Check se chuna hua course)
+    function aiShowForm(applicationId, readOnly, mode, prefillSetupId) {
         aiResetForm();
         aiCurrentMode = mode || (readOnly ? 'view' : (applicationId ? 'edit' : 'new'));
         document.getElementById('aiApplicationId').value = applicationId || 0;
@@ -355,7 +358,28 @@
             fetch('/Admission/GetAdmissionInformationById?applicationId=' + applicationId)
                 .then(res => res.json())
                 .then(m => {
-                    if (!m) { aiGoToFormView(); return; }
+                    // Application abhi tak Admission Information mein save nahi hua (ya khud AdmissionSetupId set nahi) —
+                    // isliye Eligibility Check se aaya prefillSetupId yahan use karo, course auto-select ho jayega.
+                    if (!m || !m.AdmissionSetupId) {
+                        if (m) {
+                            document.getElementById('aiAcademicStream').value = m.AcademicStream || '';
+                            document.getElementById('aiCategoryId').value = m.CategoryId || '';
+                            document.getElementById('aiDateOfAdmission').value = m.DateOfAdmission ? m.DateOfAdmission.substring(0, 10) : '';
+                            document.getElementById('aiAdmissionCategory').value = m.AdmissionCategory || '';
+                            document.getElementById('aiFeesCategory').value = m.FeesCategory || '';
+                            document.getElementById('aiShift').value = m.Shift || '';
+                            document.getElementById('aiEntranceExamRegNo').value = m.EntranceExamRegNo || '';
+                            document.getElementById('aiEntranceExamMeritNo').value = m.EntranceExamMeritNo || '';
+                            document.getElementById('aiReferenceName').value = m.ReferenceName || '';
+                        }
+                        if (prefillSetupId) {
+                            document.getElementById('aiAdmissionSetupId').value = prefillSetupId;
+                            aiOnSetupChange();
+                        }
+                        aiGoToFormView();
+                        return;
+                    }
+
                     document.getElementById('aiAcademicStream').value = m.AcademicStream || '';
                     document.getElementById('aiAcademicSessionName').value = m.AcademicSessionName || '';
                     document.getElementById('aiDegree').value = m.Degree || '';
@@ -386,6 +410,10 @@
                 })
                 .catch(() => { aiShowToast('Unable to load application', 'error'); aiGoToFormView(); });
         } else {
+            if (prefillSetupId) {
+                document.getElementById('aiAdmissionSetupId').value = prefillSetupId;
+                aiOnSetupChange();
+            }
             aiGoToFormView();
         }
     }

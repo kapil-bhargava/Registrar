@@ -656,5 +656,29 @@
             var summary = admissionService.GetFeeCollectionSummary();
             return Json(summary, JsonRequestBehavior.AllowGet);
         }
+        //for admsison parent detils bank details
+        [HttpGet]
+        public JsonResult GetApplicationCompletionStatus(int applicationId)
+        {
+            if (applicationId <= 0)
+                return Json(new { }, JsonRequestBehavior.AllowGet);
+
+            bool admissionInfoDone = admissionService.GetAdmissionInformationById(applicationId)?.AdmissionSetupId > 0;
+            bool addressDone = admissionService.GetAddressInformationById(applicationId) != null;
+            bool parentDone = admissionService.GetParentDetailsById(applicationId) != null;
+            bool bankDone = admissionService.GetBankDetailsById(applicationId) != null;
+            bool academicDone = admissionService.GetAcademicRecords(applicationId)?.Count > 0;
+            bool additionalDone = admissionService.GetAdditionalDetails(applicationId)?.Count > 0;
+
+            return Json(new
+            {
+                admissionInformation = admissionInfoDone,
+                addressInformation = addressDone,
+                parentDetails = parentDone,
+                bankDetails = bankDone,
+                academicRecords = academicDone,
+                additionalDetails = additionalDone
+            }, JsonRequestBehavior.AllowGet);
+        }
     } 
 }

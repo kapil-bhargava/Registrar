@@ -1993,5 +1993,171 @@ namespace Regis.Services
                 return cmd.ExecuteNonQuery() != 0;
             }
         }
+        // =========================================================
+        // COURSE - BRANCH - SEMESTER MAPPING
+        // CourseId -> FK CourseMaster, BranchId -> FK BranchMaster, SemesterId -> FK SemesterMaster
+        // =========================================================
+
+        public List<CourseBranchSemesterMappingModel> GetAllCourseBranchSemesterMapping()
+        {
+            var list = new List<CourseBranchSemesterMappingModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETALL");
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CourseBranchSemesterMappingModel
+                        {
+                            MappingId = Convert.ToInt32(dr["MappingId"]),
+                            CourseId = Convert.ToInt32(dr["CourseId"]),
+                            CourseName = dr["CourseName"].ToString(),
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchName = dr["BranchName"].ToString(),
+                            SemesterId = Convert.ToInt32(dr["SemesterId"]),
+                            SemesterNumber = Convert.ToInt32(dr["SemesterNumber"]),
+                            SemesterName = dr["SemesterName"] as string,
+                            IsActive = Convert.ToBoolean(dr["IsActive"]),
+                            CreatedDate = dr["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(dr["CreatedDate"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Edit ke time checkbox pre-check karne ke liye — kaunse SemesterId already mapped hain
+        public List<int> GetMappedSemesterIdsByCourseBranch(int courseId, int branchId)
+        {
+            var list = new List<int>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYCOURSEBRANCH");
+                cmd.Parameters.AddWithValue("@CourseId", courseId);
+                cmd.Parameters.AddWithValue("@BranchId", branchId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(Convert.ToInt32(dr["SemesterId"]));
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Ek Course+Branch ki poori semester selection ek saath save karo
+        // (purani mapping delete karke checked wali dobara insert)
+        public bool SaveCourseBranchSemesterMapping(int courseId, int branchId, List<int> semesterIds)
+        {
+            using (SqlConnection con = db.GetConnection())
+            {
+                con.Open();
+
+                using (SqlCommand delCmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+                {
+                    delCmd.CommandType = CommandType.StoredProcedure;
+                    delCmd.Parameters.AddWithValue("@Flag", "DELETEBYCOURSEBRANCH");
+                    delCmd.Parameters.AddWithValue("@CourseId", courseId);
+                    delCmd.Parameters.AddWithValue("@BranchId", branchId);
+                    delCmd.ExecuteNonQuery();
+                }
+
+                if (semesterIds != null)
+                {
+                    foreach (int semId in semesterIds)
+                    {
+                        using (SqlCommand insCmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+                        {
+                            insCmd.CommandType = CommandType.StoredProcedure;
+                            insCmd.Parameters.AddWithValue("@Flag", "INSERT");
+                            insCmd.Parameters.AddWithValue("@CourseId", courseId);
+                            insCmd.Parameters.AddWithValue("@BranchId", branchId);
+                            insCmd.Parameters.AddWithValue("@SemesterId", semId);
+                            insCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        public bool DeleteCourseBranchSemesterMapping(int mappingId)
+        {
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "DELETE");
+                cmd.Parameters.AddWithValue("@MappingId", mappingId);
+                con.Open();
+                int rows = cmd.ExecuteNonQuery();
+                return rows != 0;
+            }
+        }
+
+        // Course select hone par sirf wahi Branches jo mapping table mein
+        // actually mapped hain (AllStudents jaise filter dropdowns ke liye)
+        public List<BranchMasterModel> GetMappedBranchesByCourse(int courseId)
+        {
+            var list = new List<BranchMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBRANCHESBYCOURSE");
+                cmd.Parameters.AddWithValue("@CourseId", courseId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new BranchMasterModel
+                        {
+                            BranchId = Convert.ToInt32(dr["BranchId"]),
+                            BranchCode = dr["BranchCode"].ToString(),
+                            BranchName = dr["BranchName"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        // Course + Branch select hone par sirf wahi Semesters jo mapping
+        // table mein actually mapped hain (AllStudents jaise filter dropdowns ke liye)
+        public List<SemesterMasterModel> GetMappedSemestersByCourseBranch(int courseId, int branchId)
+        {
+            var list = new List<SemesterMasterModel>();
+            using (SqlConnection con = db.GetConnection())
+            using (SqlCommand cmd = new SqlCommand("sp_CourseBranchSemesterMapping", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Flag", "GETBYCOURSEBRANCH");
+                cmd.Parameters.AddWithValue("@CourseId", courseId);
+                cmd.Parameters.AddWithValue("@BranchId", branchId);
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new SemesterMasterModel
+                        {
+                            SemesterId = Convert.ToInt32(dr["SemesterId"]),
+                            SemesterNumber = Convert.ToInt32(dr["SemesterNumber"]),
+                            SemesterName = dr["SemesterName"] as string
+                        });
+                    }
+                }
+            }
+            return list;
+        }
     }
 }

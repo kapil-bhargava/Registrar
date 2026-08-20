@@ -1,0 +1,620 @@
+﻿@model List<Regis.Models.CourseBranchSemesterMappingModel>
+@using Regis.Models
+
+@{
+    ViewBag.Title = "Course - Branch - Semester Mapping";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+
+    var courses = ViewBag.Courses as List<CourseMasterModel>
+        ?? new List<CourseMasterModel>();
+
+    // Group flat semester rows into one row per Course + Branch
+    var grouped = Model
+        .GroupBy(m => new { m.CourseId, m.CourseName, m.BranchId, m.BranchName })
+        .Select(g => new
+        {
+            g.Key.CourseId,
+            g.Key.CourseName,
+            g.Key.BranchId,
+            g.Key.BranchName,
+            Semesters = g.OrderBy(x => x.SemesterNumber).ToList(),
+            AnyActive = g.Any(x => x.IsActive)
+        })
+        .OrderBy(g => g.CourseName).ThenBy(g => g.BranchName)
+        .ToList();
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    <!-- ================= LIST PAGE ================= -->
+
+    <div class="as-card" id="cbsListWrap">
+
+        <div class="as-list-head">
+
+            <div>
+                <h2>
+                    <i class="fas fa-sitemap"></i>
+                    Course - Branch - Semester Mapping
+                </h2>
+
+                <p>
+                    Map semesters to a course and branch combination — used across the system for cascading dropdowns.
+                </p>
+            </div>
+
+            <button class="as-btn as-btn-primary"
+                    onclick="cbsShowForm()">
+
+                <i class="fas fa-plus-circle"></i>
+                Add New Mapping
+
+            </button>
+
+        </div>
+
+
+        <!-- QUICK STATS -->
+
+        <div class="as-quick-stats">
+
+            <div class="as-stat-card">
+
+                <div class="as-stat-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+
+                <div class="as-stat-info">
+
+                    <span class="as-stat-number">
+                        @Model.Count
+                    </span>
+
+                    <span class="as-stat-label">
+                        Total Semester Mappings
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="as-stat-card active">
+
+                <div class="as-stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <div class="as-stat-info">
+
+                    <span class="as-stat-number">
+                        @grouped.Count
+                    </span>
+
+                    <span class="as-stat-label">
+                        Course-Branch Combinations
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===== SEARCH BOX (Course / Branch Name) ===== -->
+        <div class="as-search-row" style="margin-bottom:16px;">
+            <input type="text" id="cbsSearchBox" class="as-search-input"
+                   placeholder="Search by Course or Branch Name..."
+                   onkeyup="cbsSearchTable()"
+                   style="width:100%; max-width:340px; padding:10px 14px; border:1px solid #d9dee3; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;">
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="as-table-wrapper">
+
+            <table class="as-table as-list-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Course</th>
+                        <th>Branch</th>
+                        <th>Semesters</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="cbsTableBody">
+
+                    @if (grouped.Count > 0)
+                    {
+                        foreach (var g in grouped)
+                        {
+                            <tr data-courseid="@g.CourseId" data-branchid="@g.BranchId">
+
+                                <td>
+                                    <strong>
+                                        @g.CourseName
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    @g.BranchName
+                                </td>
+
+                                <td>
+                                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                        @foreach (var s in g.Semesters)
+                                        {
+                                            <span class="as-type-badge" title="Delete this semester"
+                                                  style="display:inline-flex; align-items:center; gap:6px;">
+                                                Sem @s.SemesterNumber
+                                                <a href="@Url.Action("DeleteCourseBranchSemesterMapping", "MasterMapping", new { id = s.MappingId })"
+                                                   onclick="return confirm('Remove Semester @s.SemesterNumber from @g.CourseName - @g.BranchName?');"
+                                                   style="color:#c0392b; text-decoration:none; font-weight:700; line-height:1;">
+                                                    &times;
+                                                </a>
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td>
+
+                                    @if (g.AnyActive)
+                                    {
+                                        <span class="as-pill as-pill-active">
+                                            <i class="fas fa-circle"></i>
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="as-pill as-pill-archived">
+                                            <i class="fas fa-circle"></i>
+                                            Inactive
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <button type="button"
+                                            class="as-mini-btn"
+                                            title="Edit Semesters"
+                                            onclick="cbsEditGroup(@g.CourseId, @g.BranchId)">
+
+                                        <i class="fas fa-edit"></i>
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+            <p id="cbsNoResults" style="display:none; text-align:center; padding:16px; color:#8a8f98;">No matching mappings found.</p>
+
+        </div>
+
+
+        <div class="as-legend">
+
+            <span>
+                <span class="as-legend-dot active"></span>
+                Active
+            </span>
+
+            <span>
+                <span class="as-legend-dot archived"></span>
+                Inactive
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= ADD / EDIT FORM ================= -->
+
+    @using (Html.BeginForm("CourseBranchMappingSemeter", "MasterMapping", FormMethod.Post, new { id = "cbsForm", onsubmit = "return cbsValidateForm()" }))
+    {
+
+        <div class="as-card as-wizard-card"
+             id="cbsFormWrap"
+             style="display:none;">
+
+            <div class="as-back-row">
+
+                <button type="button"
+                        class="as-back-link"
+                        onclick="cbsShowList()">
+
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Mapping List
+
+                </button>
+
+            </div>
+
+
+            <div class="as-body">
+
+                <div class="as-page active">
+
+                    <div class="as-head">
+
+                        <div class="as-icon">
+
+                            <i class="fas fa-sitemap"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 id="cbsFormTitle">
+                                Add Course - Branch - Semester Mapping
+                            </h2>
+
+                            <p>
+                                Select a Course and Branch, then check the Semesters that should be mapped to it.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="as-section-title">
+
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+
+                    </div>
+
+
+                    <div class="as-grid">
+
+
+                        <!-- COURSE -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Course
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="ddlCourse" name="CourseId">
+
+                                <option value="">
+                                    -- Select Course --
+                                </option>
+
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.CourseId">
+                                        @c.CourseName
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span class="as-hint">
+                                Managed from Course Master
+                            </span>
+
+                        </div>
+
+
+                        <!-- BRANCH -->
+
+                        <div class="as-field">
+
+                            <label>
+                                Branch
+                                <span class="req">*</span>
+                            </label>
+
+                            <select id="ddlBranch" name="BranchId">
+
+                                <option value="">
+                                    -- Select Branch --
+                                </option>
+
+                            </select>
+
+                            <span class="as-hint">
+                                Depends on selected Course
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="as-section-title">
+
+                        <i class="fas fa-calendar-check"></i>
+                        Semesters
+
+                    </div>
+
+
+                    <div class="as-field" style="width:100%;">
+
+                        <div id="semesterCheckList"
+                             style="display:flex; flex-wrap:wrap; gap:10px 20px; padding:16px; border:1px solid #e2e6ea; border-radius:10px; background:#f8f9fb; font-family:'Inter',sans-serif; font-size:14px;">
+
+                            <em>Pehle Course aur Branch select karo</em>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="as-bar">
+
+                        <button type="button"
+                                class="as-btn as-btn-ghost"
+                                onclick="cbsShowList()">
+
+                            Cancel
+
+                        </button>
+
+                        <span></span>
+
+                        <button type="submit"
+                                class="as-btn as-btn-primary">
+
+                            <i class="fas fa-save"></i>
+
+                            <span>
+                                Save Mapping
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    function cbsShowForm() {
+
+        document.getElementById('cbsFormTitle').textContent =
+            'Add Course - Branch - Semester Mapping';
+
+        document.getElementById('cbsListWrap').style.display = 'none';
+
+        document.getElementById('cbsFormWrap').style.display = 'block';
+
+        document.getElementById('ddlCourse').value = '';
+        document.getElementById('ddlCourse').disabled = false;
+
+        document.getElementById('ddlBranch').innerHTML =
+            '<option value="">-- Select Branch --</option>';
+        document.getElementById('ddlBranch').disabled = false;
+
+        document.getElementById('semesterCheckList').innerHTML =
+            '<em>Pehle Course aur Branch select karo</em>';
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+    // Edit an existing Course+Branch group: pre-select course/branch
+    // and pre-check its already-mapped semesters
+    function cbsEditGroup(courseId, branchId) {
+
+        document.getElementById('cbsFormTitle').textContent =
+            'Edit Course - Branch - Semester Mapping';
+
+        document.getElementById('cbsListWrap').style.display = 'none';
+        document.getElementById('cbsFormWrap').style.display = 'block';
+
+        var ddlCourse = document.getElementById('ddlCourse');
+        ddlCourse.value = courseId;
+
+        // Load branches for this course, then select the right one,
+        // then load semesters with pre-checks
+        fetch('@Url.Action("GetBranchesByCourse", "MasterMapping")?courseId=' + courseId)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var ddlBranch = document.getElementById('ddlBranch');
+                ddlBranch.innerHTML = '<option value="">-- Select Branch --</option>';
+
+                data.forEach(function (b) {
+                    var opt = document.createElement('option');
+                    opt.value = b.BranchId;
+                    opt.textContent = b.BranchName;
+                    ddlBranch.appendChild(opt);
+                });
+
+                ddlBranch.value = branchId;
+
+                cbsLoadSemesters();
+            });
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+
+    function cbsShowList() {
+
+        document.getElementById('cbsFormWrap').style.display =
+            'none';
+
+        document.getElementById('cbsListWrap').style.display =
+            'block';
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+
+
+    // ===== SEARCH by Course / Branch Name =====
+    function cbsSearchTable() {
+        var filter = document.getElementById('cbsSearchBox').value.toLowerCase().trim();
+        var rows = document.querySelectorAll('#cbsTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function (row) {
+            var course = row.cells[0].textContent.toLowerCase();
+            var branch = row.cells[1].textContent.toLowerCase();
+
+            if (course.indexOf(filter) > -1 || branch.indexOf(filter) > -1) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('cbsNoResults').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+
+    // ===== CASCADING: Course -> Branch =====
+    document.getElementById('ddlCourse').addEventListener('change', function () {
+        var courseId = this.value;
+
+        document.getElementById('ddlBranch').innerHTML =
+            '<option value="">-- Select Branch --</option>';
+
+        document.getElementById('semesterCheckList').innerHTML =
+            '<em>Pehle Branch select karo</em>';
+
+        if (!courseId) return;
+
+        fetch('@Url.Action("GetBranchesByCourse", "MasterMapping")?courseId=' + courseId)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var ddl = document.getElementById('ddlBranch');
+                data.forEach(function (b) {
+                    var opt = document.createElement('option');
+                    opt.value = b.BranchId;
+                    opt.textContent = b.BranchName;
+                    ddl.appendChild(opt);
+                });
+            });
+    });
+
+
+    // ===== CASCADING: Branch -> Semesters (with pre-check) =====
+    document.getElementById('ddlBranch').addEventListener('change', function () {
+        cbsLoadSemesters();
+    });
+
+    function cbsLoadSemesters() {
+        var courseId = document.getElementById('ddlCourse').value;
+        var branchId = document.getElementById('ddlBranch').value;
+        var container = document.getElementById('semesterCheckList');
+
+        container.innerHTML = '';
+
+        if (!courseId || !branchId) {
+            container.innerHTML = '<em>Pehle Course aur Branch select karo</em>';
+            return;
+        }
+
+        fetch('@Url.Action("GetSemestersByCourse", "MasterMapping")?courseId=' + courseId)
+            .then(function (res) { return res.json(); })
+            .then(function (semesters) {
+
+                if (!semesters || semesters.length === 0) {
+                    container.innerHTML = '<em>Is Course ke liye koi Semester nahi mila. Pehle Semester Master mein add karo.</em>';
+                    return;
+                }
+
+                fetch('@Url.Action("GetMappedSemesters", "MasterMapping")?courseId=' + courseId + '&branchId=' + branchId)
+                    .then(function (res) { return res.json(); })
+                    .then(function (mapped) {
+
+                        semesters.forEach(function (s) {
+                            var isChecked = mapped.indexOf(s.SemesterId) !== -1;
+
+                            var label = document.createElement('label');
+                            label.style.display = 'inline-flex';
+                            label.style.alignItems = 'center';
+                            label.style.gap = '6px';
+                            label.style.cursor = 'pointer';
+
+                            var checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'SemesterIds';
+                            checkbox.value = s.SemesterId;
+                            checkbox.checked = isChecked;
+
+                            label.appendChild(checkbox);
+                            label.appendChild(document.createTextNode('Sem ' + s.SemesterNumber));
+
+                            container.appendChild(label);
+                        });
+                    });
+            });
+    }
+
+
+    // ===== FORM VALIDATION =====
+    function cbsValidateForm() {
+        var courseId = document.getElementById('ddlCourse').value;
+        var branchId = document.getElementById('ddlBranch').value;
+        var checked = document.querySelectorAll('input[name="SemesterIds"]:checked');
+
+        if (!courseId) {
+            alert('Course select karo.');
+            return false;
+        }
+        if (!branchId) {
+            alert('Branch select karo.');
+            return false;
+        }
+        if (checked.length === 0) {
+            alert('Kam se kam ek Semester check karo.');
+            return false;
+        }
+
+        return true;
+    }
+
+</script>

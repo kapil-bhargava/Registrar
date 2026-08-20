@@ -203,7 +203,7 @@
                     <a href="/Admission/PersonalInformation?studentId"
                        class="parent new-admission-link @(activeMenu == "Admission" ? "active" : "")">
                         <i class="fas fa-file-signature"></i>
-                        <span>New Admission</span>
+                        <span>Student Registration</span>
                     </a>
                 </li>
 
@@ -361,12 +361,39 @@
 
             </ul>
         </li>
+
+        <!-- ============================================================ -->
+        <!-- MASTER MAPPING -->
+        <!-- ============================================================ -->
+
+        <li>
+            <div class="parent @(activeMenu == "MasterMapping" ? "active" : "")"
+                 data-target="subMasterMapping">
+
+                <i class="fas fa-project-diagram"></i>
+                Master Mapping
+
+                <span class="arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
+            </div>
+
+            <ul class="submenu @(activeMenu == "MasterMapping" ? "open" : "")"
+                id="subMasterMapping">
+
+                <li>
+                    <a href="@Url.Action("CourseBranchMappingSemeter", "MasterMapping")">
+                        <i class="fas fa-link"></i>
+                        CourseBrenchSemester Mapping
+                    </a>
+                </li>
+
+            </ul>
+        </li>
         <!-- ============================================================ -->
         <!-- MASTERS -->
         <!-- ============================================================ -->
-        <!-- ============================================================ -->
-        <!-- MASTERS -->
-        <!-- ============================================================ -->
+
         <li>
             <div class="parent @(activeMenu == "Masters" ? "active" : "")" data-target="subMasters">
                 <i class="fas fa-database"></i>

@@ -22,6 +22,12 @@
 
     <!-- Right Side -->
     <div class="navbar-actions">
+        <!-- Active Academic Session -->
+        <div class="navbar-session" id="navbarSession" title="Active Academic Session">
+            <i class="fas fa-calendar-check"></i>
+            <span id="navbarSessionName">Loading...</span>
+        </div>
+
         <!-- Search (optional) -->
         <button class="action-btn search-btn" title="Search">
             <i class="fas fa-search"></i>
@@ -45,6 +51,11 @@
 
         <!-- Dropdown Menu -->
         <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-session">
+                <i class="fas fa-calendar-check"></i>
+                <span>Active Session: <strong id="dropdownSessionName">Loading...</strong></span>
+            </div>
+            <hr />
             <a href="#"><i class="fas fa-user"></i> My Profile</a>
             <a href="#"><i class="fas fa-cog"></i> Settings</a>
             <a href="#"><i class="fas fa-question-circle"></i> Help</a>
@@ -54,9 +65,56 @@
     </div>
 </nav>
 
+<style>
+    .navbar-session {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: #F5F3FF;
+        border: 1px solid #DDD6FE;
+        color: #6D28D9;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+    }
+
+        .navbar-session i {
+            font-size: 12px;
+        }
+
+    .dropdown-session {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        font-size: 13px;
+        color: #374151;
+    }
+
+        .dropdown-session i {
+            color: #6D28D9;
+            font-size: 12px;
+        }
+</style>
+
 <script>
     (function () {
         'use strict';
+
+        // ----- Load Active Academic Session -----
+        fetch('/AcademicSetup/GetActiveSessionForNavbar')
+            .then(res => res.json())
+            .then(data => {
+                const name = (data && data.sessionName) ? data.sessionName : 'No Active Session';
+                document.getElementById('navbarSessionName').textContent = name;
+                document.getElementById('dropdownSessionName').textContent = name;
+            })
+            .catch(() => {
+                document.getElementById('navbarSessionName').textContent = 'No Active Session';
+                document.getElementById('dropdownSessionName').textContent = 'No Active Session';
+            });
 
         // ----- Toggle User Dropdown -----
         window.toggleUserMenu = function () {

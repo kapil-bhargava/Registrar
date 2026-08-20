@@ -460,6 +460,13 @@ namespace Regis.Controllers
             var list = service.GetSemestersByCourse(courseId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public JsonResult GetActiveSessionForNavbar()
+        {
+            var activeSession = service.GetAllSessions().FirstOrDefault(s => s.Status == "Active");
+            return Json(new { sessionName = activeSession?.SessionName }, JsonRequestBehavior.AllowGet);
+        }
         // ============================================================
         // SUBJECT MANAGEMENT
         // URL : /AcademicSetup/Required document

@@ -519,12 +519,10 @@
     let asuCurrentQuickFilter = 'all';
 
     document.addEventListener('DOMContentLoaded', asuLoadData);
-
-    // ---------------- Cascading Filters ----------------
-    // Course -> Branch (enabled after Course) -> Semester (enabled after Branch)
-    // Branch & Semester now come from the Master controller (same source
-    // as AdmissionInformation.cshtml), so they are course-specific and
-    // active-only — matching AdmissionInformation exactly.
+        // ---------------- Cascading Filters ----------------
+    // Course -> Branch -> Semester ab CourseBranchSemesterMapping table se
+    // aate hain (MasterMapping controller) — sirf wahi Branch/Semester
+    // dikhenge jo actually mapped hain, purani generic list nahi.
 
     function asuOnCourseChange() {
         const courseId = document.getElementById('fCourse').value;
@@ -540,13 +538,14 @@
 
         branchSel.innerHTML = '<option value="">All Branches</option>';
 
-        fetch('@Url.Action("GetBranchesByCourse", "Master")?courseId=' + courseId)
+        fetch('@Url.Action("GetBranchesByCourseMapping", "MasterMapping")?courseId=' + courseId)
             .then(res => res.json())
             .then(data => {
                 (data || []).forEach(b => {
                     const opt = document.createElement('option');
                     opt.value = b.BranchName;
                     opt.textContent = b.BranchName;
+                    opt.dataset.branchId = b.BranchId;   // semester lookup ke liye zaroori
                     branchSel.appendChild(opt);
                 });
                 branchSel.disabled = false;
@@ -557,16 +556,20 @@
 
     function asuOnBranchChange() {
         const courseId = document.getElementById('fCourse').value;
+        const branchSel = document.getElementById('fBranch');
         const semSel = document.getElementById('fSemester');
 
         semSel.innerHTML = '<option value="">-- Select Branch First --</option>';
         semSel.disabled = true;
 
-        if (!courseId) { asuLoadData(); return; }
+        const selectedOption = branchSel.options[branchSel.selectedIndex];
+        const branchId = selectedOption ? selectedOption.dataset.branchId : null;
+
+        if (!courseId || !branchId) { asuLoadData(); return; }
 
         semSel.innerHTML = '<option value="">All Semesters</option>';
 
-        fetch('@Url.Action("GetSemesterMasterByCourse", "Master")?courseId=' + courseId)
+        fetch('@Url.Action("GetSemestersByCourseBranch", "MasterMapping")?courseId=' + courseId + '&branchId=' + branchId)
             .then(res => res.json())
             .then(data => {
                 (data || []).forEach(s => {

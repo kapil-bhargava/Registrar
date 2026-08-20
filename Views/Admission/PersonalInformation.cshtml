@@ -528,7 +528,7 @@
                 <h2><i class="fas fa-user-plus"></i> New Admission <span style="font-size:12px; color:#7C5CFC; font-weight:700;">STEP 1 · PERSONAL INFORMATION</span></h2>
                 <p>Submitting here creates an Application (Application Number auto-generated) that flows to the next steps.</p>
             </div>
-            <button class="as-btn as-btn-primary" onclick="piShowForm(null, false)">
+            <button class="as-btn as-btn-primary" onclick="window.location.href='/Admission/EligibilityCheck'">
                 <i class="fas fa-plus-circle"></i> Add New
             </button>
         </div>
@@ -586,6 +586,7 @@
         <div class="sa-body">
 
             <input type="hidden" id="piApplicationId" value="0" />
+            <input type="hidden" id="piSetupId" value="0" />
 
             <div class="sa-grid2">
                 <!-- Basic information -->
@@ -796,6 +797,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         var qsAppId = getQueryParam('applicationId');
         var qsName = getQueryParam('name');
+        var qsSetupId = getQueryParam('setupId');
 
         if (qsAppId) {
             // AllStudents page se Edit click hoke aaya — seedha edit form kholo
@@ -804,9 +806,10 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         } else if (qsName) {
-            // Eligibility Check se aaya — seedha form kholo, naam pre-fill karo
+            // Eligibility Check se aaya — seedha form kholo, naam pre-fill karo, course setup bhi carry karo
             piShowForm(null, false);
             document.getElementById('piFirstName').value = qsName;
+            if (qsSetupId) document.getElementById('piSetupId').value = qsSetupId;
             piBuildDisplayName();
             if (window.history && window.history.replaceState) {
                 window.history.replaceState({}, document.title, window.location.pathname);
@@ -1031,6 +1034,7 @@
 
     function piResetForm() {
         document.getElementById('piApplicationId').value = 0;
+        document.getElementById('piSetupId').value = 0;
         document.getElementById('piApplicationNo').value = '';
         document.getElementById('piPhotoCircle').innerHTML = '<i class="fas fa-user"></i>';
         ['piTitle', 'piFirstName', 'piMiddleName', 'piLastName', 'piMaritalStatus', 'piDob', 'piEmail', 'piPhone',
@@ -1106,9 +1110,12 @@
                 piShowToast(data.message, 'success');
                 var isNew = !payload.ApplicationId;
                 var appId = data.applicationId;
+                var setupId = document.getElementById('piSetupId').value;
                 setTimeout(() => {
                     if (isNew && appId) {
-                        window.location.href = '/Admission/AdmissionInformation?applicationId=' + appId;
+                        var url = '/Admission/AdmissionInformation?applicationId=' + appId;
+                        if (setupId && setupId !== '0') url += '&setupId=' + setupId;
+                        window.location.href = url;
                     } else {
                         piShowList();
                     }

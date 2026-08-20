@@ -1,0 +1,163 @@
+﻿@model List<Regis.Models.CourseBranchMappingModel>
+@{
+    ViewBag.Title = "Course - Branch Mapping";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+    var courses = (List<Regis.Models.CourseMasterModel>)ViewBag.Courses;
+    var branches = (List<Regis.Models.BranchMasterModel>)ViewBag.Branches;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
+
+<div class="as-wrap">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="as-pill as-pill-active" style="margin-bottom:14px; padding:8px 14px; display:inline-flex;">
+            <i class="fas fa-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="as-pill" style="background:#FEECEC;color:#F04452; margin-bottom:14px; padding:8px 14px; display:inline-flex;">
+            <i class="fas fa-circle"></i> @TempData["Error"]
+        </div>
+    }
+
+    <!-- ================= ASSIGN MAPPING ================= -->
+    <div class="as-card">
+        <div class="as-list-head">
+            <div><h2><i class="fas fa-link"></i> Course - Branch Mapping</h2></div>
+        </div>
+        <p class="as-hint" style="margin-top:-4px;margin-bottom:14px;">
+            Select a course, then choose which branches belong to it. Saving replaces the previous mapping for that course.
+        </p>
+
+        <div class="asu-filter-row">
+            <div class="as-field">
+                <label>Select Course</label>
+                <select id="ddlCourse">
+                    <option value="">-- Select Course --</option>
+                    @foreach (var c in courses)
+                    {
+                        <option value="@c.CourseId">@c.CourseName</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;">
+            <label style="display:block; font-size:10.5px; font-weight:700; color:#8A93A6; letter-spacing:.3px; text-transform:uppercase; margin-bottom:8px;">
+                Assign Branches
+            </label>
+            <div id="branchCheckList" style="border:1px solid #e2e8f0; border-radius:10px; padding:14px; max-height:220px; overflow-y:auto; background:#FAFBFD;">
+                @foreach (var b in branches)
+                {
+                    <div class="form-check form-check-inline" style="margin:4px 14px 4px 0;">
+                        <input type="checkbox" class="branch-chk" value="@b.BranchId" id="chk_@b.BranchId" />
+                        <label for="chk_@b.BranchId" style="margin-left:4px;">@b.BranchName (@b.BranchCode)</label>
+                    </div>
+                }
+            </div>
+            <button id="btnSave" class="as-btn as-btn-primary" style="margin-top:14px;">
+                <i class="fas fa-save"></i> Save Mapping
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= CURRENT MAPPING TABLE ================= -->
+    <div class="as-card">
+        <div class="as-list-head">
+            <div><h2><i class="fas fa-list"></i> Current Mapping (<span>@Model.Count</span>)</h2></div>
+        </div>
+        <div class="as-table-wrapper">
+            <table class="as-table as-list-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Mapped Branches</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="4" style="text-align:center; color:#6B7A99;">No mapping found</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.CourseName</strong></td>
+                                <td>@(string.IsNullOrEmpty(item.MappedBranches) || item.MappedBranches == "-" ? "-" : item.MappedBranches)</td>
+                                <td>
+                                    @if (item.TotalBranches > 0)
+                                    {
+                                        <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> @item.TotalBranches</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="as-pill as-pill-draft"><i class="fas fa-circle"></i> 0</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TotalBranches > 0)
+                                    {
+                                        <a class="as-mini-btn" title="Clear Mapping"
+                                           href="@Url.Action("DeleteMapping", "MasterMapping", new { courseId = item.CourseId })"
+                                           onclick="return confirm('Is course ki poori mapping delete karni hai?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $('#ddlCourse').change(function () {
+        var courseId = $(this).val();
+        $('.branch-chk').prop('checked', false);
+
+        if (courseId) {
+            $.get('@Url.Action("GetBranchesByCourseMapping", "MasterMapping")', { courseId: courseId }, function (data) {
+                data.forEach(function (b) {
+                    $('.branch-chk[value="' + b.BranchId + '"]').prop('checked', true);
+                });
+            });
+        }
+    });
+
+    $('#btnSave').click(function () {
+        var courseId = $('#ddlCourse').val();
+        if (!courseId) {
+            alert('Pehle course select karo.');
+            return;
+        }
+
+        var selectedBranches = [];
+        $('.branch-chk:checked').each(function () {
+            selectedBranches.push($(this).val());
+        });
+
+        if (selectedBranches.length === 0) {
+            alert('Kam se kam ek branch select karo.');
+            return;
+        }
+
+        var form = $('<form method="post" action="@Url.Action("SaveMapping", "MasterMapping")"></form>');
+        form.append('<input type="hidden" name="courseId" value="' + courseId + '">');
+        form.append('<input type="hidden" name="branchIds" value="' + selectedBranches.join(',') + '">');
+        $('body').append(form);
+        form.submit();
+    });
+</script>
