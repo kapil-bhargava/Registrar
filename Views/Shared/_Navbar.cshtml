@@ -22,10 +22,20 @@
 
     <!-- Right Side -->
     <div class="navbar-actions">
-        <!-- Active Academic Session -->
-        <div class="navbar-session" id="navbarSession" title="Active Academic Session">
-            <i class="fas fa-calendar-check"></i>
-            <span id="navbarSessionName">Loading...</span>
+        <!-- Active Academic Session Dropdown -->
+        <div class="navbar-session-wrapper">
+            <div class="navbar-session" id="navbarSession" title="Academic Sessions" onclick="toggleSessionDropdown(event)">
+                <i class="fas fa-calendar-check"></i>
+                <span id="navbarSessionName">Loading...</span>
+                <i class="fas fa-chevron-down session-dropdown-arrow"></i>
+            </div>
+
+            <div class="session-dropdown" id="sessionDropdown">
+                <div class="session-dropdown-header">Academic Sessions</div>
+                <div id="sessionListContainer">
+                    <div class="session-item-loading">Loading sessions...</div>
+                </div>
+            </div>
         </div>
 
         <!-- Search (optional) -->
@@ -97,40 +107,197 @@
             color: #6D28D9;
             font-size: 12px;
         }
+
+    .navbar-session-wrapper {
+        position: relative;
+    }
+
+    .navbar-session {
+        cursor: pointer;
+    }
+
+    .session-dropdown-arrow {
+        font-size: 10px !important;
+        margin-left: 2px;
+        transition: transform 0.2s ease;
+    }
+
+    .navbar-session.open .session-dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .session-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        min-width: 220px;
+        background: #fff;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 1000;
+        overflow: hidden;
+    }
+
+        .session-dropdown.open {
+            display: block;
+        }
+
+    .session-dropdown-header {
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+
+    .session-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 14px;
+        font-size: 13px;
+        color: #374151;
+        cursor: default;
+    }
+
+        .session-item:hover {
+            background: #F9FAFB;
+        }
+
+        .session-item.active-session {
+            background: #F5F3FF;
+            color: #6D28D9;
+            font-weight: 600;
+        }
+
+        .session-item .status-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .session-item.active-session .status-tag {
+            background: #6D28D9;
+            color: #fff;
+        }
+
+        .session-item:not(.active-session) .status-tag {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+    .session-item-loading {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #9CA3AF;
+    }
 </style>
 
 <script>
     (function () {
         'use strict';
 
-        // ----- Load Active Academic Session -----
-        fetch('/AcademicSetup/GetActiveSessionForNavbar')
-            .then(res => res.json())
-            .then(data => {
-                const name = (data && data.sessionName) ? data.sessionName : 'No Active Session';
-                document.getElementById('navbarSessionName').textContent = name;
-                document.getElementById('dropdownSessionName').textContent = name;
-            })
-            .catch(() => {
-                document.getElementById('navbarSessionName').textContent = 'No Active Session';
-                document.getElementById('dropdownSessionName').textContent = 'No Active Session';
+        // ----- Load All Sessions for Navbar Dropdown -----
+        function loadNavbarSessions() {
+            fetch('/AcademicSetup/GetAllSessionsForNavbar')
+                .then(res => res.json())
+                .then(sessions => {
+                    renderSessionList(sessions || []);
+                    setActiveSessionLabel(sessions || []);
+                })
+                .catch(() => {
+                    document.getElementById('navbarSessionName').textContent = 'No Active Session';
+                    document.getElementById('dropdownSessionName').textContent = 'No Active Session';
+                    document.getElementById('sessionListContainer').innerHTML =
+                        '<div class="session-item-loading">Unable to load sessions</div>';
+                });
+        }
+
+        function setActiveSessionLabel(sessions) {
+            const active = sessions.find(s => s.Status === 'Active');
+            const name = active ? active.SessionName : 'No Active Session';
+            document.getElementById('navbarSessionName').textContent = name;
+            document.getElementById('dropdownSessionName').textContent = name;
+        }
+
+        function statusBadge(status) {
+            // Normalizes whatever status string comes from DB
+            // (Active / Achieved / Closed / Locked / Upcoming etc.)
+            return status || 'Inactive';
+        }
+
+        function renderSessionList(sessions) {
+            const container = document.getElementById('sessionListContainer');
+
+            if (!sessions.length) {
+                container.innerHTML = '<div class="session-item-loading">No sessions found</div>';
+                return;
+            }
+
+            let html = '';
+            sessions.forEach(function (s) {
+                const isActive = s.Status === 'Active';
+                html += '<div class="session-item' + (isActive ? ' active-session' : '') + '">' +
+                    '<span>' + s.SessionName + '</span>' +
+                    '<span class="status-tag">' + statusBadge(s.Status) + '</span>' +
+                    '</div>';
             });
+            container.innerHTML = html;
+        }
+
+        loadNavbarSessions();
+
+        // ----- Toggle Session Dropdown -----
+        window.toggleSessionDropdown = function (e) {
+            e.stopPropagation();
+            const navSession = document.getElementById('navbarSession');
+            const dropdown = document.getElementById('sessionDropdown');
+            const userDropdown = document.getElementById('userDropdown');
+
+            // Close user dropdown if open
+            if (userDropdown) userDropdown.classList.remove('open');
+
+            navSession.classList.toggle('open');
+            dropdown.classList.toggle('open');
+        };
 
         // ----- Toggle User Dropdown -----
         window.toggleUserMenu = function () {
             const dropdown = document.getElementById('userDropdown');
+            const sessionDropdown = document.getElementById('sessionDropdown');
+            const navSession = document.getElementById('navbarSession');
+
+            // Close session dropdown if open
+            if (sessionDropdown) sessionDropdown.classList.remove('open');
+            if (navSession) navSession.classList.remove('open');
+
             if (dropdown) {
                 dropdown.classList.toggle('open');
             }
         };
 
-        // ----- Close dropdown on outside click -----
+        // ----- Close dropdowns on outside click -----
         document.addEventListener('click', function (e) {
-            const dropdown = document.getElementById('userDropdown');
+            const userDropdown = document.getElementById('userDropdown');
             const profile = document.querySelector('.user-profile');
-            if (dropdown && profile) {
-                if (!profile.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.remove('open');
+            if (userDropdown && profile) {
+                if (!profile.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('open');
+                }
+            }
+
+            const sessionDropdown = document.getElementById('sessionDropdown');
+            const sessionWrapper = document.querySelector('.navbar-session-wrapper');
+            const navSession = document.getElementById('navbarSession');
+            if (sessionDropdown && sessionWrapper) {
+                if (!sessionWrapper.contains(e.target)) {
+                    sessionDropdown.classList.remove('open');
+                    if (navSession) navSession.classList.remove('open');
                 }
             }
         });
@@ -139,9 +306,12 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 const dropdown = document.getElementById('userDropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('open');
-                }
+                if (dropdown) dropdown.classList.remove('open');
+
+                const sessionDropdown = document.getElementById('sessionDropdown');
+                const navSession = document.getElementById('navbarSession');
+                if (sessionDropdown) sessionDropdown.classList.remove('open');
+                if (navSession) navSession.classList.remove('open');
             }
         });
 

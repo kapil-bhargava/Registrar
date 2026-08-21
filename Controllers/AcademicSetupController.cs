@@ -602,5 +602,23 @@ namespace Regis.Controllers
 
             return Json(semesterList, JsonRequestBehavior.AllowGet);
         }
+
+        //===============================================================================
+        //Navbar Session drop down
+        //===============================================================================
+        [HttpGet]
+        public JsonResult GetAllSessionsForNavbar()
+        {
+            var sessions = service.GetAllSessions()
+                .Select(s => new {
+                    SessionId = s.AcademicSessionId,   // 👈 यहां actual property नाम डालो
+                    s.SessionName,
+                    s.Status
+                })
+                .OrderByDescending(s => s.SessionId)
+                .ToList();
+
+            return Json(sessions, JsonRequestBehavior.AllowGet);
+        }
     }
 }
