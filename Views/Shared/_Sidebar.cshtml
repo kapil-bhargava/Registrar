@@ -32,6 +32,15 @@
                     <span>My Profile</span>
                 </a>
             </li>
+            <!-- ============================================================ -->
+            <!-- LOGOUT -->
+            <!-- ============================================================ -->
+            <li>
+                <a href="@Url.Action("Logout", "Account")" class="parent logout-menu-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
         }
         else
         {
@@ -207,8 +216,8 @@
                 </div>
                 <ul class="submenu @(activeMenu == "Masters" ? "open" : "")" id="subMasters">
                     <li><a href="@Url.Action("FacultyMaster", "Master")"><i class="fas fa-university"></i> Academic Faculty Master</a></li>
-                    <li><a href="@Url.Action("AcademicSession", "Master")"><i class="fas fa-calendar-alt"></i> Academic Session</a></li>
-                    <li><a href="@Url.Action("AdmissionMode", "Master")"><i class="fas fa-user-plus"></i> Admission Mode</a></li>
+                    @*<li><a href="@Url.Action("AcademicSession", "Master")"><i class="fas fa-calendar-alt"></i> Academic Session</a></li>
+                    <li><a href="@Url.Action("AdmissionMode", "Master")"><i class="fas fa-user-plus"></i> Admission Mode</a></li>*@
                     <li><a href="@Url.Action("AdmissionModeMaster", "Master")"><i class="fas fa-flag"></i> AdmissionMode Master</a></li>
                     <li><a href="@Url.Action("BranchMaster", "Master")"><i class="fas fa-tint"></i> Branch Master</a></li>
                     <li><a href="@Url.Action("CampusCategoryMaster", "Master")"><i class="fas fa-university"></i> Campus Master</a></li>
@@ -232,6 +241,15 @@
                     <li><a href="@Url.Action("SystemSettings", "Master")"><i class="fas fa-cog"></i> System Settings</a></li>
                     <li><a href="@Url.Action("UniversityType", "Master")"><i class="fas fa-layer-group"></i> University Type</a></li>
                 </ul>
+            </li>
+            <!-- ============================================================ -->
+            <!-- LOGOUT -->
+            <!-- ============================================================ -->
+            <li>
+                <a href="@Url.Action("Logout", "Account")" class="parent logout-menu-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
             </li>
         }
 

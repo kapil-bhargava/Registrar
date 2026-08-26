@@ -93,7 +93,7 @@
     </div>
 
     <!-- ================= ADD / EDIT NOTICE FORM ================= -->
-    @using (Html.BeginForm("NoticeMaster", "Master", FormMethod.Post))
+    @using (Html.BeginForm("NoticeMaster", "Master", FormMethod.Post, new { id = "noticeForm" }))
     {
         <div class="as-card as-wizard-card" id="ntFormWrap" style="display:none;">
 
@@ -120,11 +120,13 @@
                     <div class="as-grid">
                         <div class="as-field as-full">
                             <label>Title <span class="req">*</span></label>
-                            <input type="text" id="noticeTitle" name="Title" placeholder="e.g. Semester Fee Due Date">
+                            <input type="text" id="noticeTitle" name="Title" placeholder="e.g. Semester Fee Due Date" required>
+                            <span class="as-field-error" id="err-noticeTitle"></span>
                         </div>
                         <div class="as-field">
                             <label>Event Date <span class="req">*</span></label>
-                            <input type="date" id="noticeDate" name="EventDate">
+                            <input type="date" id="noticeDate" name="EventDate" required>
+                            <span class="as-field-error" id="err-noticeDate"></span>
                         </div>
                         <div class="as-field">
                             <label>Location</label>
@@ -162,6 +164,23 @@
     <span id="ntToastMessage">Success!</span>
 </div>
 
+<style>
+    .as-field-error {
+        display: block;
+        color: #b3382c;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        min-height: 14px;
+    }
+
+    .as-field input.as-invalid,
+    .as-field select.as-invalid,
+    .as-field textarea.as-invalid {
+        border-color: #b3382c !important;
+        background: #fdeeee !important;
+    }
+</style>
+
 <script>
     function ntShowForm(btn) {
         document.getElementById('ntListWrap').style.display = 'none';
@@ -187,6 +206,7 @@
             document.getElementById('noticeDescription').value = '';
             document.getElementById('noticeStatus').value = 'true';
         }
+        ntClearErrors();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -195,4 +215,34 @@
         document.getElementById('ntListWrap').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function ntClearErrors() {
+        ['noticeTitle', 'noticeDate'].forEach(function (id) {
+            document.getElementById(id).classList.remove('as-invalid');
+            document.getElementById('err-' + id).textContent = '';
+        });
+    }
+
+    // ---- Client-side validation: blank Title/Date save nahi hone dena ----
+    document.getElementById('noticeForm').addEventListener('submit', function (e) {
+        ntClearErrors();
+        var title = document.getElementById('noticeTitle').value.trim();
+        var date = document.getElementById('noticeDate').value;
+        var hasError = false;
+
+        if (!title) {
+            document.getElementById('noticeTitle').classList.add('as-invalid');
+            document.getElementById('err-noticeTitle').textContent = 'Title is required.';
+            hasError = true;
+        }
+        if (!date) {
+            document.getElementById('noticeDate').classList.add('as-invalid');
+            document.getElementById('err-noticeDate').textContent = 'Event Date is required.';
+            hasError = true;
+        }
+
+        if (hasError) {
+            e.preventDefault();
+        }
+    });
 </script>

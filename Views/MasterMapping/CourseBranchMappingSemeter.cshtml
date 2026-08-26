@@ -602,15 +602,15 @@
         var checked = document.querySelectorAll('input[name="SemesterIds"]:checked');
 
         if (!courseId) {
-            alert('Course select karo.');
+            alert('Please select the Course .');
             return false;
         }
         if (!branchId) {
-            alert('Branch select karo.');
+            alert('Pease selcet the branch.');
             return false;
         }
         if (checked.length === 0) {
-            alert('Kam se kam ek Semester check karo.');
+            alert('checked atleast one semester.');
             return false;
         }
 

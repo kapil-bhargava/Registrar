@@ -50,28 +50,34 @@ namespace Regis.Services
         }
 
         // Registrar ne jitne students already admit kiye hain, unke liye
-        // default login bana do — Username = StudentId, Password = StudentId
+        // default login bana do — Username = Email, Password = Phone Number
         public int GenerateMissingLoginsForConfirmedStudents()
         {
             int created = 0;
-            var pending = new List<(int applicationId, string studentId)>();
+            var pending = new List<(int applicationId, string email, string phone)>();
 
             using (SqlConnection con = db.GetConnection())
             using (SqlCommand cmd = new SqlCommand(
-                @"SELECT a.ApplicationId, a.StudentId
+                @"SELECT a.ApplicationId, a.Email, a.Phone
                   FROM Application a
                   WHERE a.StudentId IS NOT NULL
+                    AND a.Email IS NOT NULL
+                    AND a.Phone IS NOT NULL
                     AND a.ApplicationId NOT IN (SELECT ApplicationId FROM StudentLogin)", con))
             {
                 con.Open();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                     while (dr.Read())
-                        pending.Add((Convert.ToInt32(dr["ApplicationId"]), dr["StudentId"].ToString()));
+                        pending.Add((
+                            Convert.ToInt32(dr["ApplicationId"]),
+                            dr["Email"].ToString().Trim().ToLower(),
+                            dr["Phone"].ToString().Trim()
+                        ));
             }
 
             foreach (var p in pending)
             {
-                CreateLogin(p.applicationId, p.studentId, p.studentId);
+                CreateLogin(p.applicationId, p.email, p.phone);   // Username = Email, Password = Phone
                 created++;
             }
             return created;

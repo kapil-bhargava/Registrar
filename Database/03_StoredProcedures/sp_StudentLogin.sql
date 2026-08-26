@@ -37,3 +37,23 @@ BEGIN
     END
 END
 GO
+
+
+
+
+
+
+-- (jab tak password plain ASCII/UTF8 ho, jaise phone numbers hote hain)
+-- FIX: Phone agar nvarchar hai to HASHBYTES use nahi Unicode bytes leta hai,
+-- jabki C# ka Encoding.UTF8.GetBytes() single-byte UTF8 leta hai — mismatch isi wajah se ho raha tha.
+-- CONVERT(VARCHAR(50), a.Phone) explicitly single-byte string me convert karta hai — ab hash match karega.
+UPDATE sl
+SET
+    sl.Username = a.Email,
+    sl.PasswordHash = LOWER(CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', CONVERT(VARCHAR(50), a.Phone)), 2))
+FROM StudentLogin sl
+INNER JOIN Application a ON a.ApplicationId = sl.ApplicationId
+WHERE a.Email IS NOT NULL AND a.Phone IS NOT NULL;
+
+-- Check karne ke liye:
+SELECT * FROM StudentLogin;

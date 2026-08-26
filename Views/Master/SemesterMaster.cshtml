@@ -5,6 +5,11 @@
     ViewBag.Title = "SemesterMaster";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
     var courses = ViewBag.Courses as List<CourseMasterModel> ?? new List<CourseMasterModel>();
+
+    var groupedByCourse = Model
+        .GroupBy(s => new { s.CourseId, s.CourseName })
+        .OrderBy(g => g.Key.CourseName)
+        .ToList();
 }
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,60 +57,84 @@
             </div>
         </div>
 
-        <div class="as-table-wrapper">
-            <table class="as-table as-list-table">
-                <thead>
-                    <tr>
-                        <th>Semester</th>
-                        <th>Course</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Credit Limit</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="semTableBody">
-                    @foreach (var s in Model)
-                    {
-                        <tr>
-                            <td><strong>@(s.SemesterName ?? ("Semester " + s.SemesterNumber))</strong></td>
-                            <td>@s.CourseName</td>
-                            <td>@(s.StartDate?.ToString("dd/MM/yyyy"))</td>
-                            <td>@(s.EndDate?.ToString("dd/MM/yyyy"))</td>
-                            <td>@s.CreditLimit</td>
-                            <td>
-                                @if (s.Status == "Active")
+        <!-- ================= COURSE-GROUPED LIST ================= -->
+        <div class="sem-group-wrap" id="semGroupWrap">
+            @foreach (var grp in groupedByCourse)
+            {
+                var groupId = "semgrp-" + grp.Key.CourseId;
+                var activeCount = grp.Count(x => x.Status == "Active");
+                <div class="sem-group">
+                    <button type="button" class="sem-group-head" onclick="semToggleGroup('@groupId')">
+                        <span class="sem-group-left">
+                            <i class="fas fa-chevron-right sem-chevron" id="@(groupId)-chev"></i>
+                            <i class="fas fa-graduation-cap sem-course-ic"></i>
+                            <span class="sem-course-name">@grp.Key.CourseName</span>
+                        </span>
+                        <span class="sem-group-right">
+                            <span class="as-pill as-pill-active" style="margin-right:8px;">@activeCount Active</span>
+                            <span class="sem-count-badge">@grp.Count() Semester@(grp.Count() != 1 ? "s" : "")</span>
+                        </span>
+                    </button>
+
+                    <div class="sem-group-body" id="@groupId" style="display:none;">
+                        <table class="as-table as-list-table sem-inner-table">
+                            <thead>
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Credit Limit</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in grp.OrderBy(x => x.SemesterNumber))
                                 {
-                                    <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                    <tr>
+                                        <td>
+                                            <span class="as-type-badge as-sem-badge">
+                                                Semester @s.SemesterNumber
+                                            </span>
+                                        </td>
+                                        <td>@(s.StartDate?.ToString("dd/MM/yyyy"))</td>
+                                        <td>@(s.EndDate?.ToString("dd/MM/yyyy"))</td>
+                                        <td>@s.CreditLimit</td>
+                                        <td>
+                                            @if (s.Status == "Active")
+                                            {
+                                                <span class="as-pill as-pill-active"><i class="fas fa-circle"></i> Active</span>
+                                            }
+                                            else if (s.Status == "Completed")
+                                            {
+                                                <span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Completed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Upcoming</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <button type="button" class="as-mini-btn" title="Edit" onclick="semShowForm(this)"
+                                                    data-id="@s.SemesterId" data-number="@s.SemesterNumber" data-name="@s.SemesterName"
+                                                    data-courseid="@s.CourseId"
+                                                    data-start="@(s.StartDate?.ToString("yyyy-MM-dd"))" data-end="@(s.EndDate?.ToString("yyyy-MM-dd"))"
+                                                    data-credit="@s.CreditLimit" data-status="@s.Status">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <a class="as-mini-btn" title="Delete"
+                                               href="@Url.Action("DeleteSemesterMaster", "Master", new { id = s.SemesterId })"
+                                               onclick="return confirm('Delete this semester?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 }
-                                else if (s.Status == "Completed")
-                                {
-                                    <span class="as-pill as-pill-closed"><i class="fas fa-check-circle"></i> Completed</span>
-                                }
-                                else
-                                {
-                                    <span class="as-pill as-pill-draft"><i class="fas fa-clock"></i> Upcoming</span>
-                                }
-                            </td>
-                            <td>
-                                <button type="button" class="as-mini-btn" title="Edit" onclick="semShowForm(this)"
-                                        data-id="@s.SemesterId" data-number="@s.SemesterNumber" data-name="@s.SemesterName"
-                                        data-courseid="@s.CourseId"
-                                        data-start="@(s.StartDate?.ToString("yyyy-MM-dd"))" data-end="@(s.EndDate?.ToString("yyyy-MM-dd"))"
-                                        data-credit="@s.CreditLimit" data-status="@s.Status">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <a class="as-mini-btn" title="Delete"
-                                   href="@Url.Action("DeleteSemesterMaster", "Master", new { id = s.SemesterId })"
-                                   onclick="return confirm('Delete this semester?');">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </div>
 
         <div class="as-legend">
@@ -207,7 +236,115 @@
     <span id="semToastMessage">Success!</span>
 </div>
 
+<style>
+    /* ---------- Course-grouped collapsible list ---------- */
+    .sem-group-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .sem-group {
+        border: 1px solid var(--line, #e4e8f1);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .sem-group-head {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #f8f9fc;
+        border: none;
+        padding: 14px 18px;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        text-align: left;
+        transition: background .12s ease;
+    }
+
+        .sem-group-head:hover {
+            background: #f0f2f8;
+        }
+
+    .sem-group-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sem-chevron {
+        font-size: 0.75rem;
+        color: #8791a3;
+        transition: transform .15s ease;
+        width: 12px;
+    }
+
+        .sem-chevron.open {
+            transform: rotate(90deg);
+        }
+
+    .sem-course-ic {
+        color: #16305c;
+        font-size: 0.95rem;
+    }
+
+    .sem-course-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #1b2434;
+    }
+
+    .sem-group-right {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .sem-count-badge {
+        background: #eaf1ff;
+        color: #2058c9;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .sem-group-body {
+        border-top: 1px solid var(--line, #e4e8f1);
+    }
+
+    .sem-inner-table {
+        margin: 0;
+    }
+
+        .sem-inner-table thead th {
+            background: #fcfcfd;
+        }
+
+    /* Table mein har row ka "Semester" column same uniform pill jaisa dikhe */
+    .as-sem-badge {
+        display: inline-block;
+        min-width: 96px;
+        text-align: center;
+        font-weight: 600;
+    }
+</style>
+
 <script>
+    function semToggleGroup(id) {
+        var body = document.getElementById(id);
+        var chev = document.getElementById(id + '-chev');
+        var isOpen = body.style.display !== 'none';
+        body.style.display = isOpen ? 'none' : 'block';
+        if (chev) chev.classList.toggle('open', !isOpen);
+    }
+
     function semShowForm(btn) {
         document.getElementById('semListWrap').style.display = 'none';
         document.getElementById('semFormWrap').style.display = 'block';

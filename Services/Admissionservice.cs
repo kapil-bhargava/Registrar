@@ -546,6 +546,9 @@ namespace Regis.Services
             return list;
         }
 
+        // AdmissionService.cs — sirf "ConfirmAdmission" method REPLACE karo isse
+        // (baaki poori file same rehne do)
+
         public string ConfirmAdmission(int applicationId)
         {
             string studentId = null;
@@ -562,10 +565,35 @@ namespace Regis.Services
                     if (dr.Read()) studentId = dr["StudentId"].ToString();
             }
 
-            // ✅ Yahan add karo — StudentId mil gaya, ab uska login bhi bana do
+            //  StudentId mil gaya — ab Email + Phone nikaal ke login ban jayega (regisrar se add hua login create hui bs
             if (!string.IsNullOrEmpty(studentId))
             {
-                new StudentLoginService().CreateLogin(applicationId, studentId, studentId);
+                string email = null;
+                string phone = null;
+
+                using (SqlConnection con = db.GetConnection())
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT Email, Phone FROM Application WHERE ApplicationId = @ApplicationId", con))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+                    con.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            email = dr["Email"] as string;
+                            phone = dr["Phone"] as string;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(phone))
+                {
+                    new StudentLoginService().CreateLogin(
+                        applicationId,
+                        email.Trim().ToLower(),   // Username = Email
+                        phone.Trim());            // Password = Phone
+                }
             }
 
             return studentId;

@@ -39,7 +39,8 @@
             </div>
             <div class="as-stat-card">
                 <div class="as-stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                <div class="as-stat-info">j
+                <div class="as-stat-info">
+                    j
                     <span class="as-stat-number">@Model.Count(d => d.Level == "Teaching")</span>
                     <span class="as-stat-label">Teaching</span>
                 </div>
@@ -105,7 +106,7 @@
         </div>
     </div>
 
-    @using (Html.BeginForm("DesignationMaster", "Master", FormMethod.Post))
+    @using (Html.BeginForm("DesignationMaster", "Master", FormMethod.Post, new { id = "designationForm" }))
     {
         <div class="as-card as-wizard-card" id="desFormWrap" style="display:none;">
             <div class="as-back-row">
@@ -133,21 +134,24 @@
                     <div class="as-grid">
                         <div class="as-field as-full">
                             <label>Designation Name <span class="req">*</span></label>
-                            <input type="text" id="designationName" name="DesignationName" placeholder="e.g. Professor, Assistant Professor, HOD, Registrar, Clerk">
+                            <input type="text" id="designationName" name="DesignationName" placeholder="e.g. Professor, Assistant Professor, HOD, Registrar, Clerk" required>
+                            <span class="as-field-error" id="err-designationName"></span>
                         </div>
 
                         <div class="as-field">
                             <label>Designation Code <span class="req">*</span></label>
-                            <input type="text" id="designationCode" name="DesignationCode" placeholder="e.g. PROF, AP, HOD">
+                            <input type="text" id="designationCode" name="DesignationCode" placeholder="e.g. PROF, AP, HOD" required>
+                            <span class="as-field-error" id="err-designationCode"></span>
                         </div>
 
                         <div class="as-field">
                             <label>Level <span class="req">*</span></label>
-                            <select id="designationLevel" name="Level">
+                            <select id="designationLevel" name="Level" required>
                                 <option value="">-- Select Level --</option>
                                 <option value="Teaching">Teaching</option>
                                 <option value="Non-Teaching">Non-Teaching</option>
                             </select>
+                            <span class="as-field-error" id="err-designationLevel"></span>
                         </div>
 
                         <div class="as-field">
@@ -178,6 +182,23 @@
     <span id="desToastMessage">Success!</span>
 </div>
 
+<style>
+    .as-field-error {
+        display: block;
+        color: #b3382c;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        min-height: 14px;
+    }
+
+    .as-field input.as-invalid,
+    .as-field select.as-invalid,
+    .as-field textarea.as-invalid {
+        border-color: #b3382c !important;
+        background: #fdeeee !important;
+    }
+</style>
+
 <script>
     function desShowForm(btn) {
         document.getElementById('desListWrap').style.display = 'none';
@@ -201,6 +222,7 @@
             document.getElementById('designationLevel').value = '';
             document.getElementById('designationStatus').value = 'true';
         }
+        desClearErrors();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -209,4 +231,40 @@
         document.getElementById('desListWrap').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function desClearErrors() {
+        ['designationName', 'designationCode', 'designationLevel'].forEach(function (id) {
+            document.getElementById(id).classList.remove('as-invalid');
+            document.getElementById('err-' + id).textContent = '';
+        });
+    }
+
+    // ---- Client-side validation: blank form save nahi hone dena ----
+    document.getElementById('designationForm').addEventListener('submit', function (e) {
+        desClearErrors();
+        var name = document.getElementById('designationName').value.trim();
+        var code = document.getElementById('designationCode').value.trim();
+        var level = document.getElementById('designationLevel').value;
+        var hasError = false;
+
+        if (!name) {
+            document.getElementById('designationName').classList.add('as-invalid');
+            document.getElementById('err-designationName').textContent = 'Designation Name is required.';
+            hasError = true;
+        }
+        if (!code) {
+            document.getElementById('designationCode').classList.add('as-invalid');
+            document.getElementById('err-designationCode').textContent = 'Designation Code is required.';
+            hasError = true;
+        }
+        if (!level) {
+            document.getElementById('designationLevel').classList.add('as-invalid');
+            document.getElementById('err-designationLevel').textContent = 'Please select a Level.';
+            hasError = true;
+        }
+
+        if (hasError) {
+            e.preventDefault();
+        }
+    });
 </script>
