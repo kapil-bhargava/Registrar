@@ -1,7 +1,7 @@
 ﻿@* Views/Account/Login.cshtml *@
 @model Regis.Models.LoginModel
 @{
-    ViewBag.Title = "Registrar Login";
+    ViewBag.Title = "Sign In";
     Layout = null;
 }
 <!DOCTYPE html>
@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Office of the Registrar — Sign In</title>
+    <title>Institution Portal — Sign In</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="~/Content/CSS/academicSession.css" rel="stylesheet" />
@@ -73,7 +73,6 @@
                 opacity: 1;
             }
 
-        /* dark navy + gold wash over the footage so text stays legible and on-brand */
         .rl-video-overlay {
             position: absolute;
             inset: 0;
@@ -82,7 +81,6 @@
             pointer-events: none;
         }
 
-            /* faint ruled-ledger lines — nods to student records / registrar's own paper trail */
             .rl-video-overlay::before {
                 content: "";
                 position: absolute;
@@ -195,7 +193,7 @@
             margin-top: 2px;
         }
 
-        /* ============== RIGHT — sign-in panel (unchanged) ============== */
+        /* ============== RIGHT — sign-in panel ============== */
         .rl-panel {
             display: flex;
             align-items: center;
@@ -250,6 +248,11 @@
             border-left: 3px solid var(--error-text);
         }
 
+            .rl-error ul {
+                margin: 0;
+                padding-left: 18px;
+            }
+
         .rl-field {
             margin-bottom: 18px;
         }
@@ -298,6 +301,12 @@
                 box-shadow: 0 0 0 3px rgba(22,48,92,0.10);
             }
 
+        .rl-field-msg {
+            color: var(--error-text);
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+
         .rl-submit {
             width: 100%;
             padding: 0.78rem;
@@ -334,7 +343,6 @@
             margin-top: 26px;
         }
 
-        /* focus visibility for keyboard users */
         a:focus-visible, button:focus-visible, input:focus-visible {
             outline: 2px solid var(--gold);
             outline-offset: 2px;
@@ -380,6 +388,36 @@
                 display: none;
             }
         }
+        .rl-pw-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .rl-pw-toggle:hover {
+                color: var(--navy-800);
+            }
+
+            .rl-pw-toggle svg {
+                width: 18px;
+                height: 18px;
+            }
+
+        /* username icon ke left padding jaisa, password input ke right mein bhi space chahiye toggle ke liye */
+        #Password {
+            padding-right: 2.4rem !important;
+        }
     </style>
 </head>
 <body>
@@ -404,15 +442,15 @@
                           stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <div>
-                    <div class="rl-inst-name">University Registrar</div>
+                    <div class="rl-inst-name">University Portal</div>
                     <div class="rl-inst-sub">Office of Student Records</div>
                 </div>
             </div>
 
             <div class="rl-quote-block">
-                <div class="rl-eyebrow">Registrar Portal</div>
-                <h1 class="rl-headline">Every student record,<br /><em>one office of record.</em></h1>
-                <p class="rl-sub">Sign in to review admissions, verify documents, and manage the official student file — access is limited to authorized Registrar staff.</p>
+                <div class="rl-eyebrow">Institution Portal</div>
+                <h1 class="rl-headline">One portal,<br /><em>every role.</em></h1>
+                <p class="rl-sub">Sign in with your issued Username and Password — Registrar, Student, or Faculty. You'll be taken straight to your own dashboard.</p>
             </div>
         </div>
 
@@ -428,13 +466,13 @@
         </div>
     </div>
 
-    <!-- ============== RIGHT PANEL — FORM (unchanged) ============== -->
+    <!-- ============== RIGHT PANEL — SINGLE FORM for all roles ============== -->
     <div class="rl-panel">
         <div class="rl-form-wrap">
             <div class="rl-form-head">
-                <div class="rl-form-eyebrow">Staff Sign In</div>
+                <div class="rl-form-eyebrow">Sign In</div>
                 <h2 class="rl-form-title">Welcome back</h2>
-                <p class="rl-form-desc">Enter your Registrar credentials to continue to the dashboard.</p>
+                <p class="rl-form-desc">Enter your credentials to continue to your dashboard.</p>
             </div>
 
             @if (TempData["Error"] != null)
@@ -449,22 +487,36 @@
                 </div>
             }
 
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="rl-error">
+                    @Html.ValidationSummary(false, "", new { })
+                </div>
+            }
+
             @using (Html.BeginForm("Login", "Account", FormMethod.Post))
             {
+                @Html.AntiForgeryToken()
+
                 <div class="rl-field">
                     <label for="Username">Username</label>
                     <div class="rl-input-wrap">
                         <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c1.6-4 5-6 8-6s6.4 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                        @Html.TextBoxFor(m => m.Username, new { placeholder = "e.g. registrar.admin", autocomplete = "username", autofocus = "autofocus" })
+                        @Html.TextBoxFor(m => m.Username, new { placeholder = "Your Username", autocomplete = "username", autofocus = "autofocus" })
                     </div>
+                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "rl-field-msg" })
                 </div>
 
                 <div class="rl-field">
                     <label for="Password">Password</label>
                     <div class="rl-input-wrap">
                         <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-                        @Html.PasswordFor(m => m.Password, new { placeholder = "Enter password", autocomplete = "current-password" })
+                        @Html.PasswordFor(m => m.Password, new { placeholder = "Enter password", autocomplete = "current-password", id = "Password" })
+                        <button type="button" class="rl-pw-toggle" id="rlPwToggle" aria-label="Show password">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" /></svg>
+                        </button>
                     </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "rl-field-msg" })
                 </div>
 
                 <button type="submit" class="rl-submit">
@@ -473,11 +525,12 @@
                 </button>
             }
 
-            <p class="rl-footnote">Access restricted to authorized Registrar office personnel.</p>
+            <p class="rl-footnote">Access restricted to authorized users only.</p>
         </div>
     </div>
 
-    <script>(function () {
+    <script>
+    (function () {
             var clips = [
                 "https://assets.mixkit.co/videos/4519/4519-720.mp4",
                 "https://assets.mixkit.co/videos/4520/4520-720.mp4",
@@ -497,7 +550,7 @@
 
                 incoming.src = clips[current];
                 incoming.load();
-                incoming.play().catch(function () {});/////
+                incoming.play().catch(function () { });
 
                 incoming.classList.add("is-active");
                 outgoing.classList.remove("is-active");
@@ -507,8 +560,21 @@
 
             if (videoA && videoB) {
                 setInterval(playNext, ROTATE_MS);
+        }
+       
+        })();
+        (function () {
+            var toggle = document.getElementById("rlPwToggle");
+            var pwField = document.getElementById("Password");
+            if (toggle && pwField) {
+                toggle.addEventListener("click", function () {
+                    var isPassword = pwField.type === "password";
+                    pwField.type = isPassword ? "text" : "password";
+                    toggle.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+                });
             }
-        })();</script>
+        })();
+    </script>
 
 </body>
 </html>

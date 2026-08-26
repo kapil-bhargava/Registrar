@@ -1116,5 +1116,9 @@ namespace Regis.Controllers
             var list = MasterService.GetAllCourseMaster();
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult test()
+        {
+            return View();
+        }
     }
 }

@@ -1,71 +1,76 @@
 ﻿@*
-    _Navbar.cshtml - Navbar Partial View
-    Registrar ERP · Minimal Light Theme
+    _Navbar.cshtml - Shared Navbar (Registrar + Student dono)
 *@
 
 @{
+    bool isStudent = Session["StudentUser"] != null;
+
     string pageTitle = ViewData["PageTitle"]?.ToString() ?? "Dashboard";
-    string currentUser = Session["RegistrarUser"]?.ToString() ?? "Registrar";
+    string currentUser = isStudent
+        ? Session["StudentUser"]?.ToString() ?? "Student"
+        : Session["RegistrarUser"]?.ToString() ?? "Registrar";
+    string currentRole = isStudent ? "Student" : "Admin";
 }
 <link href="~/Content/css/navbar.css" rel="stylesheet" />
 <nav class="navbar-top">
     <!-- Left Side -->
     <div class="navbar-left">
-        <!-- Hamburger (mobile) -->
         <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
-
-        <!-- Page Title -->
         <span class="page-title">@pageTitle</span>
     </div>
 
     <!-- Right Side -->
     <div class="navbar-actions">
-        <!-- Active Academic Session Dropdown -->
-        <div class="navbar-session-wrapper">
-            <div class="navbar-session" id="navbarSession" title="Academic Sessions" onclick="toggleSessionDropdown(event)">
-                <i class="fas fa-calendar-check"></i>
-                <span id="navbarSessionName">Loading...</span>
-                <i class="fas fa-chevron-down session-dropdown-arrow"></i>
-            </div>
 
-            <div class="session-dropdown" id="sessionDropdown">
-                <div class="session-dropdown-header">Academic Sessions</div>
-                <div id="sessionListContainer">
-                    <div class="session-item-loading">Loading sessions...</div>
+        @if (!isStudent)
+        {
+            <!-- Active Academic Session Dropdown — Registrar ke liye hi -->
+            <div class="navbar-session-wrapper">
+                <div class="navbar-session" id="navbarSession" title="Academic Sessions" onclick="toggleSessionDropdown(event)">
+                    <i class="fas fa-calendar-check"></i>
+                    <span id="navbarSessionName">Loading...</span>
+                    <i class="fas fa-chevron-down session-dropdown-arrow"></i>
+                </div>
+                <div class="session-dropdown" id="sessionDropdown">
+                    <div class="session-dropdown-header">Academic Sessions</div>
+                    <div id="sessionListContainer">
+                        <div class="session-item-loading">Loading sessions...</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Search (optional) -->
-        <button class="action-btn search-btn" title="Search">
-            <i class="fas fa-search"></i>
-        </button>
+            <button class="action-btn search-btn" title="Search">
+                <i class="fas fa-search"></i>
+            </button>
 
-        <!-- Notifications -->
-        <button class="action-btn notification-btn" title="Notifications">
-            <i class="fas fa-bell"></i>
-            <span class="badge-count">3</span>
-        </button>
+            <button class="action-btn notification-btn" title="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge-count">3</span>
+            </button>
+        }
 
         <!-- User Profile -->
         <div class="user-profile" onclick="toggleUserMenu()">
             <span class="user-avatar">@currentUser.Substring(0, 1).ToUpper()</span>
             <div class="user-info">
                 <span class="user-name">@currentUser</span>
-                <span class="user-role">Admin</span>
+                <span class="user-role">@currentRole</span>
             </div>
             <i class="fas fa-chevron-down user-dropdown-arrow"></i>
         </div>
 
         <!-- Dropdown Menu -->
         <div class="user-dropdown" id="userDropdown">
-            <div class="dropdown-session">
-                <i class="fas fa-calendar-check"></i>
-                <span>Active Session: <strong id="dropdownSessionName">Loading...</strong></span>
-            </div>
-            <hr />
+            @if (!isStudent)
+            {
+                <div class="dropdown-session">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Active Session: <strong id="dropdownSessionName">Loading...</strong></span>
+                </div>
+                <hr />
+            }
             <a href="#"><i class="fas fa-user"></i> My Profile</a>
             <a href="#"><i class="fas fa-cog"></i> Settings</a>
             <a href="#"><i class="fas fa-question-circle"></i> Help</a>
@@ -88,6 +93,7 @@
         padding: 7px 12px;
         border-radius: 8px;
         white-space: nowrap;
+        cursor: pointer;
     }
 
         .navbar-session i {
@@ -110,10 +116,6 @@
 
     .navbar-session-wrapper {
         position: relative;
-    }
-
-    .navbar-session {
-        cursor: pointer;
     }
 
     .session-dropdown-arrow {
@@ -201,9 +203,10 @@
 <script>
     (function () {
         'use strict';
+        var isStudent = @Html.Raw(isStudent ? "true" : "false");
 
-        // ----- Load All Sessions for Navbar Dropdown -----
         function loadNavbarSessions() {
+            if (isStudent) return; // Student ke liye academic-session dropdown hai hi nahi
             fetch('/AcademicSetup/GetAllSessionsForNavbar')
                 .then(res => res.json())
                 .then(sessions => {
@@ -211,34 +214,33 @@
                     setActiveSessionLabel(sessions || []);
                 })
                 .catch(() => {
-                    document.getElementById('navbarSessionName').textContent = 'No Active Session';
-                    document.getElementById('dropdownSessionName').textContent = 'No Active Session';
-                    document.getElementById('sessionListContainer').innerHTML =
-                        '<div class="session-item-loading">Unable to load sessions</div>';
+                    var n = document.getElementById('navbarSessionName');
+                    var d = document.getElementById('dropdownSessionName');
+                    if (n) n.textContent = 'No Active Session';
+                    if (d) d.textContent = 'No Active Session';
+                    var c = document.getElementById('sessionListContainer');
+                    if (c) c.innerHTML = '<div class="session-item-loading">Unable to load sessions</div>';
                 });
         }
 
         function setActiveSessionLabel(sessions) {
             const active = sessions.find(s => s.Status === 'Active');
             const name = active ? active.SessionName : 'No Active Session';
-            document.getElementById('navbarSessionName').textContent = name;
-            document.getElementById('dropdownSessionName').textContent = name;
+            var n = document.getElementById('navbarSessionName');
+            var d = document.getElementById('dropdownSessionName');
+            if (n) n.textContent = name;
+            if (d) d.textContent = name;
         }
 
-        function statusBadge(status) {
-            // Normalizes whatever status string comes from DB
-            // (Active / Achieved / Closed / Locked / Upcoming etc.)
-            return status || 'Inactive';
-        }
+        function statusBadge(status) { return status || 'Inactive'; }
 
         function renderSessionList(sessions) {
             const container = document.getElementById('sessionListContainer');
-
+            if (!container) return;
             if (!sessions.length) {
                 container.innerHTML = '<div class="session-item-loading">No sessions found</div>';
                 return;
             }
-
             let html = '';
             sessions.forEach(function (s) {
                 const isActive = s.Status === 'Active';
@@ -252,36 +254,25 @@
 
         loadNavbarSessions();
 
-        // ----- Toggle Session Dropdown -----
         window.toggleSessionDropdown = function (e) {
             e.stopPropagation();
             const navSession = document.getElementById('navbarSession');
             const dropdown = document.getElementById('sessionDropdown');
             const userDropdown = document.getElementById('userDropdown');
-
-            // Close user dropdown if open
             if (userDropdown) userDropdown.classList.remove('open');
-
-            navSession.classList.toggle('open');
-            dropdown.classList.toggle('open');
+            if (navSession) navSession.classList.toggle('open');
+            if (dropdown) dropdown.classList.toggle('open');
         };
 
-        // ----- Toggle User Dropdown -----
         window.toggleUserMenu = function () {
             const dropdown = document.getElementById('userDropdown');
             const sessionDropdown = document.getElementById('sessionDropdown');
             const navSession = document.getElementById('navbarSession');
-
-            // Close session dropdown if open
             if (sessionDropdown) sessionDropdown.classList.remove('open');
             if (navSession) navSession.classList.remove('open');
-
-            if (dropdown) {
-                dropdown.classList.toggle('open');
-            }
+            if (dropdown) dropdown.classList.toggle('open');
         };
 
-        // ----- Close dropdowns on outside click -----
         document.addEventListener('click', function (e) {
             const userDropdown = document.getElementById('userDropdown');
             const profile = document.querySelector('.user-profile');
@@ -290,7 +281,6 @@
                     userDropdown.classList.remove('open');
                 }
             }
-
             const sessionDropdown = document.getElementById('sessionDropdown');
             const sessionWrapper = document.querySelector('.navbar-session-wrapper');
             const navSession = document.getElementById('navbarSession');
@@ -302,12 +292,10 @@
             }
         });
 
-        // ----- Close dropdown on Escape key ------
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 const dropdown = document.getElementById('userDropdown');
                 if (dropdown) dropdown.classList.remove('open');
-
                 const sessionDropdown = document.getElementById('sessionDropdown');
                 const navSession = document.getElementById('navbarSession');
                 if (sessionDropdown) sessionDropdown.classList.remove('open');
@@ -315,15 +303,11 @@
             }
         });
 
-        // ----- Search button (demo) -----
         document.querySelector('.search-btn')?.addEventListener('click', function () {
             alert('🔍 Search functionality (coming soon)');
         });
-
-        // ----- Notification button (demo) -----
         document.querySelector('.notification-btn')?.addEventListener('click', function () {
             alert('🔔 You have 3 notifications');
         });
-
     })();
 </script>

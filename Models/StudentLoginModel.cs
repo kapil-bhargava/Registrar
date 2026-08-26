@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Regis.Models
 {
-    public class LoginModel
+    public class StudentLoginModel
     {
         [Required(ErrorMessage = "Username is required.")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be 3–50 characters.")]

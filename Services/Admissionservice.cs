@@ -548,19 +548,28 @@ namespace Regis.Services
 
         public string ConfirmAdmission(int applicationId)
         {
+            string studentId = null;
+
             using (SqlConnection con = db.GetConnection())
             using (SqlCommand cmd = new SqlCommand("sp_Application", con))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Flag", "CONFIRMADMISSION");
                 cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+
                 con.Open();
                 using (SqlDataReader dr = cmd.ExecuteReader())
-                    if (dr.Read()) return dr["StudentId"].ToString();
+                    if (dr.Read()) studentId = dr["StudentId"].ToString();
             }
-            return null;
-        }
 
+            // ✅ Yahan add karo — StudentId mil gaya, ab uska login bhi bana do
+            if (!string.IsNullOrEmpty(studentId))
+            {
+                new StudentLoginService().CreateLogin(applicationId, studentId, studentId);
+            }
+
+            return studentId;
+        }
         // ==========================================================================
         // APNI AdmissionService.cs class me ye poora region add/REPLACE karo
         // (agar pehle wala already paste kar chuke ho to use isse overwrite karo)

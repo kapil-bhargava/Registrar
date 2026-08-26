@@ -222,7 +222,12 @@
                 <div class="cm-grid">
                     <div class="cm-field">
                         <label>Contact Number <span class="req">*</span></label>
-                        <input type="tel" id="campusContact" name="ContactNumber" placeholder="e.g. 0522-1234567" required pattern="[0-9+\-\s]{7,15}">
+                        <input type="text"
+                               id="campusContact"
+                               name="ContactNumber"
+                               placeholder="Enter 10 digit mobile number"
+                               required
+                               maxlength="10">
                         <i class="fas fa-phone cm-field-icon"></i>
                         <span class="cm-error" id="err-campusContact"></span>
                     </div>
@@ -319,6 +324,12 @@
         document.querySelectorAll('.cm-error').forEach(el => el.textContent = '');
         document.querySelectorAll('.cm-field input, .cm-field textarea').forEach(el => el.classList.remove('cm-input-error'));
     }
+    const contact = document.getElementById("campusContact");
+
+    contact.addEventListener("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, "");
+    });
+
 
     // ===== Client-side validation on submit (blank save rokne ke liye) =====
     document.getElementById('campusForm').addEventListener('submit', function (e) {
@@ -332,7 +343,7 @@
             { id: 'campusContact', msg: 'Contact Number is required' },
             { id: 'campusEmail', msg: 'Email is required' }
         ];
-
+       
         rules.forEach(r => {
             const el = document.getElementById(r.id);
             if (!el.value || !el.value.trim()) {

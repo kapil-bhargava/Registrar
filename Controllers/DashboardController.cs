@@ -18,5 +18,12 @@ namespace Regis.Controllers
         {
             return View();
         }
+    
+        public ActionResult GenerateStudentLogins()
+        {
+            var service = new Regis.Services.StudentLoginService();
+            int count = service.GenerateMissingLoginsForConfirmedStudents();
+            return Content($"{count} student logins generated successfully! Username & Password = StudentId for each.");
+        }
     }
 }

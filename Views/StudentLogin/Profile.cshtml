@@ -1,0 +1,201 @@
+﻿@* Views/Student/Profile.cshtml *@
+@model Regis.Models.StudentProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+    ViewData["PageTitle"] = "My Profile";
+    ViewData["ActiveMenu"] = "Profile";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<style>
+    :root {
+    --navy-900: #12335e;
+    --navy-800: #17417a;
+    --navy-600: #2f6fc9;
+    --gold: #c9a545;
+    --gold-soft: #f3e6bf;
+    --paper: #f6f7fb;
+    --ink: #1b2434;
+    --muted: #8791a3;
+    --line: #e4e8f1;
+    --green-bg: #e6f4ec;
+    --blue-bg: #eaf1ff;
+}
+
+/* ---------- Profile hero ---------- */
+.p-hero {
+    position: relative;
+    border-radius: 12px;
+    padding: 16px 22px;
+    margin-bottom: 18px;
+    background: linear-gradient(120deg, var(--navy-900) 0%, var(--navy-600) 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+    .p-hero::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%);
+    }
+
+.p-avatar {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    background: linear-gradient(145deg, var(--gold), #b48f3a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--navy-900);
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.p-hero-text {
+    position: relative;
+    z-index: 1;
+}
+
+    .p-hero-text h2 {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+.p-hero-chip {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #fff;
+    margin-right: 6px;
+}
+
+/* ---------- Info cards ---------- */
+.card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 26px 24px;
+    margin-bottom: 20px;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+}
+
+    .card-head .ic {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--navy-800);
+        color: var(--gold-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+
+    .card-head h3 {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--navy-800);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 800;
+    }
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 30px;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    background: var(--paper);
+    border-radius: 10px;
+    border-left: 3px solid var(--gold);
+}
+
+    .row label {
+        font-size: 0.68rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .row span {
+        font-size: 0.94rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+@@media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .p-hero { padding: 24px 20px; flex-wrap: wrap; }
+}
+</style>
+
+@if (Model == null)
+{
+    <div class="card">
+        <p style="color:var(--muted);font-size:0.88rem;">Unable to load your profile. Please contact the Registrar's office.</p>
+    </div>
+}
+else
+{
+    <div class="p-hero">
+        <div class="p-avatar">@(string.IsNullOrEmpty(Model.FullName) ? "S" : Model.FullName.Trim()[0].ToString().ToUpper())</div>
+        <div class="p-hero-text">
+            <h2>@Model.FullName</h2>
+            <span class="p-hero-chip">@Model.CourseName</span>
+            @if (!string.IsNullOrEmpty(Model.Branch))
+            {
+                <span class="p-hero-chip">@Model.Branch</span>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <div class="ic">🪪</div>
+            <h3>Personal &amp; Admission Details</h3>
+        </div>
+        <div class="grid">
+            <div class="row"><label>Application No</label><span>@Model.ApplicationNo</span></div>
+            <div class="row"><label>Course</label><span>@Model.CourseName</span></div>
+            <div class="row"><label>Branch</label><span>@(Model.Branch ?? "-")</span></div>
+            <div class="row"><label>Category</label><span>@(Model.CategoryName ?? "-")</span></div>
+            <div class="row"><label>Registered On</label><span>@(Model.RegisteredOn?.ToString("dd MMM yyyy") ?? "-")</span></div>
+            <div class="row"><label>Semester</label><span>@(Model.Semester ?? "-")</span></div>
+            <div class="row"><label>Email</label><span>@(Model.Email ?? "-")</span></div>
+            <div class="row"><label>Phone</label><span>@(Model.Phone ?? "-")</span></div>
+        </div>
+    </div>
+}

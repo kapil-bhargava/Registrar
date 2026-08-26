@@ -1,7 +1,7 @@
 ﻿@{
-    // You can pass active menu from ViewData or Controller
     string activeMenu = ViewData["ActiveMenu"]?.ToString() ?? "Dashboard";
     string activeSubMenu = ViewData["ActiveSubMenu"]?.ToString() ?? "";
+    bool isStudent = Session["StudentUser"] != null;
 }
 
 <link href="~/Content/css/sidebar.css" rel="stylesheet" />
@@ -10,595 +10,234 @@
     <!-- Logo -->
     <div class="logo">
         <i class="fas fa-graduation-cap"></i>
-        <span>Registrar ERP</span>
+        <span>@(isStudent ? "Student Portal" : "Registrar ERP")</span>
     </div>
 
-    <!-- Menu -->
     <ul class="menu-tree" id="menuTree">
 
-        <!-- ============================================================ -->
-        <!-- DASHBOARD -->
-        <!-- ============================================================ -->
-        <li>
-            <a href="@Url.Action("Dashboard", "Dashboard")" class="parent @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
+        @if (isStudent)
+        {
+            <!-- ============================================================ -->
+            <!-- STUDENT MENU (sirf apna hi data — koi ID URL se accept nahi) -->
+            <!-- ============================================================ -->
+            <li>
+                <a href="@Url.Action("StudentDashboard", "StudentLogin")" class="parent @(activeMenu == "Dashboard" ? "active" : "")">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Profile", "StudentLogin")" class="parent @(activeMenu == "Profile" ? "active" : "")">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+        }
+        else
+        {
+            <!-- ============================================================ -->
+            <!-- DASHBOARD -->
+            <!-- ============================================================ -->
+            <li>
+                <a href="@Url.Action("Dashboard", "Dashboard")" class="parent @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-        <!-- ============================================================ -->
-        <!-- UNIVERSITY SETUP (Main Menu) -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "University" ? "active" : "")" data-target="subUniversity">
-                <i class="fas fa-university"></i>
-                University
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "University" ? "open" : "")" id="subUniversity">
-                <!-- University Profile -->
-                <li>
-                    <a href="@Url.Action("UniversityProfile", "University")"
-                       class="@(activeSubMenu == "Profile" ? "active-link" : "")">
-                        <i class="fas fa-university"></i>  University Profile
-                    </a>
-                </li>
-                <!-- Campus Management -->
-                <li>
-                    <a href="@Url.Action("CampusManagement", "University")"
-                       class="@(activeSubMenu == "Campus" ? "active-link" : "")"
-                       asp-controller="University" asp-action="Campus">
-                        <i class="fas fa-flag"></i> Campus Management
-                    </a>
-                </li>
+            <!-- ============================================================ -->
+            <!-- UNIVERSITY SETUP -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "University" ? "active" : "")" data-target="subUniversity">
+                    <i class="fas fa-university"></i>
+                    University
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "University" ? "open" : "")" id="subUniversity">
+                    <li>
+                        <a href="@Url.Action("UniversityProfile", "University")"
+                           class="@(activeSubMenu == "Profile" ? "active-link" : "")">
+                            <i class="fas fa-university"></i>  University Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("CampusManagement", "University")"
+                           class="@(activeSubMenu == "Campus" ? "active-link" : "")">
+                            <i class="fas fa-flag"></i> Campus Management
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-            </ul>
-        </li>
+            <!-- ============================================================ -->
+            <!-- ACADEMIC SETUP -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Academic" ? "active" : "")" data-target="subAcademic">
+                    <i class="fas fa-book-open"></i>
+                    Academic Setup
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Academic" ? "open" : "")" id="subAcademic">
+                    <li><a href="@Url.Action("AcademicSession", "AcademicSetup")" class="@(activeSubMenu == "Session" ? "active-link" : "")"><i class="fas fa-calendar-alt"></i> Academic Session</a></li>
+                    <li><a href="@Url.Action("FacultyManagement", "AcademicSetup")" class="@(activeSubMenu == "Faculty" ? "active-link" : "")"><i class="fas fa-layer-group"></i> Faculty</a></li>
+                    <li><a href="@Url.Action("DepartmentManagement", "AcademicSetup")" class="@(activeSubMenu == "Department" ? "active-link" : "")"><i class="fas fa-sitemap"></i> Department</a></li>
+                    <li><a href="@Url.Action("HODManagement", "AcademicSetup")" class="@(activeSubMenu == "Program" ? "active-link" : "")"><i class="fas fa-graduation-cap"></i> HOD Management</a></li>
+                    <li><a href="@Url.Action("ProgramManagement", "AcademicSetup")" class="@(activeSubMenu == "Program" ? "active-link" : "")"><i class="fas fa-graduation-cap"></i> Program</a></li>
+                    <li><a href="@Url.Action("CourseManagement", "AcademicSetup")" class="@(activeSubMenu == "Course" ? "active-link" : "")"><i class="fas fa-book"></i> Course</a></li>
+                    <li><a href="@Url.Action("SemesterManagement", "AcademicSetup")" class="@(activeSubMenu == "Semester" ? "active-link" : "")"><i class="fas fa-clock"></i> Semester</a></li>
+                    <li><a href="@Url.Action("SubjectManagement", "AcademicSetup")" class="@(activeSubMenu == "Subject" ? "active-link" : "")"><i class="fas fa-puzzle-piece"></i> Subject</a></li>
+                    <li><a href="@Url.Action("RequiredDocumentMaster", "AcademicSetup")"><i class="fas fa-puzzle-piece"></i> Required Document</a></li>
+                    <li><a href="@Url.Action("CourseStructureMapping", "AcademicSetup")"><i class="fas fa-puzzle-piece"></i> CourseStructureMapping</a></li>
+                </ul>
+            </li>
 
-        <!-- ============================================================ -->
-        <!-- ACADEMIC SETUP (Main Menu) -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "Academic" ? "active" : "")" data-target="subAcademic">
-                <i class="fas fa-book-open"></i>
-                Academic Setup
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "Academic" ? "open" : "")" id="subAcademic">
-                <!-- Academic Session -->
-                <li>
-                    <a href="@Url.Action("AcademicSession", "AcademicSetup")"
-                       class="@(activeSubMenu == "Session" ? "active-link" : "")">
-                        <i class="fas fa-calendar-alt"></i> Academic Session
-                    </a>
-                </li>
-                <!-- Faculty -->
-                <li>
-                    <a href="@Url.Action("FacultyManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Faculty" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Faculty">
-                        <i class="fas fa-layer-group"></i> Faculty
-                    </a>
-                </li>
-                <!-- Department -->
-                <li>
-                    <a href="@Url.Action("DepartmentManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Department" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Department">
-                        <i class="fas fa-sitemap"></i> Department
-                    </a>
-                </li>
-                <!-- Program -->
-                <li>
-                    <a href="@Url.Action("HODManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Program" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Program">
-                        <i class="fas fa-graduation-cap"></i> HOD Management
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("" +
-                            "ProgramManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Program" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Program">
-                        <i class="fas fa-graduation-cap"></i> Program
-                    </a>
-                </li>
-                <!-- Course -->
-                <li>
-                    <a href="@Url.Action("CourseManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Course" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Course">
-                        <i class="fas fa-book"></i> Course
-                    </a>
-                </li>
-                <!-- Semester -->
-                <li>
-                    <a href="@Url.Action("SemesterManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Semester" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Semester">
-                        <i class="fas fa-clock"></i> Semester
-                    </a>
-                </li>
-                <!-- Subject -->
-                <li>
-                    <a href="@Url.Action("SubjectManagement", "AcademicSetup")"
-                       class="@(activeSubMenu == "Subject" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Subject">
-                        <i class="fas fa-puzzle-piece"></i> Subject
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("RequiredDocumentMaster", "AcademicSetup")"
-                       class="@(activeSubMenu == "RequiredDocument" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Subject">
-                        <i class="fas fa-puzzle-piece"></i> Required Document
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("CourseStructureMapping", "AcademicSetup")"
-                       class="@(activeSubMenu == "RequiredDocument" ? "active-link" : "")"
-                       asp-controller="Academic" asp-action="Subject">
-                        <i class="fas fa-puzzle-piece"></i> CourseStructureMapping
-                    </a>
-                </li>
-            </ul>
-        </li>
+            <!-- ============================================================ -->
+            <!-- SEAT MANAGEMENT -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Seat" ? "active" : "")" data-target="subSeat">
+                    <i class="fas fa-chair"></i>
+                    Seat Management
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Seat" ? "open" : "")" id="subSeat">
+                    <li><a href="@Url.Action("SeatMatrix", "SeatManagement")"><i class="fas fa-table"></i> Seat Matrix</a></li>
+                    <li><a href="@Url.Action("CategorywiseSeats", "SeatManagement")"><i class="fas fa-people-arrows"></i> Category-wise Seats</a></li>
+                    <li><a href="@Url.Action("SeatAllotment", "SeatManagement")"><i class="fas fa-arrows-spin"></i> Seat Allotment</a></li>
+                </ul>
+            </li>
 
-        <!-- ============================================================ -->
-        <!-- SEAT MANAGEMENT -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "Seat" ? "active" : "")" data-target="subSeat">
-                <i class="fas fa-chair"></i>
-                Seat Management
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "Seat" ? "open" : "")" id="subSeat">
-                <li>
-                    <a href=@Url.Action("SeatMatrix", "SeatManagement")
-                       asp-controller="Seat" asp-action="Matrix">
-                        <i class="fas fa-table"></i> Seat Matrix
-                    </a>
-                </li>
-                <li>
-                    <a href=@Url.Action("CategorywiseSeats", "SeatManagement")
-                       asp-controller="Seat" asp-action="Category">
-                        <i class="fas fa-people-arrows"></i> Category-wise Seats
-                    </a>
-                </li>
-                <li>
-                    <a href=@Url.Action("SeatAllotment", "SeatManagement")
-                       asp-controller="Seat" asp-action="Allotment">
-                        <i class="fas fa-arrows-spin"></i> Seat Allotment
-                    </a>
-                </li>
-            </ul>
-        </li>
+            <!-- ============================================================ -->
+            <!-- ADMISSION -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Admission" ? "active" : "")" data-target="subAdmission">
+                    <i class="fas fa-user-graduate"></i>
+                    Admission
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Admission" ? "open" : "")" id="subAdmission">
+                    <li><a href="@Url.Action("AdmissionSetup", "Admission")"><i class="fas fa-gear"></i> Admission Setup</a></li>
+                    <li><a href="@Url.Action("EligibilityCheck", "Admission")"><i class="fas fa-user-check"></i> Eligibility Check</a></li>
+                    <li><a href="/Admission/PersonalInformation?studentId" class="parent new-admission-link @(activeMenu == "Admission" ? "active" : "")"><i class="fas fa-file-signature"></i><span>Student Registration</span></a></li>
+                    <li><a href="@Url.Action("Application", "Admission")"><i class="fas fa-file-lines"></i> Application Management</a></li>
+                    <li><a href="@Url.Action("DocumentVerification", "Admission")"><i class="fas fa-check-double"></i> Document Verification</a></li>
+                    <li><a href="@Url.Action("Counselling", "Admission")"><i class="fas fa-handshake"></i> Counselling</a></li>
+                    <li><a href="@Url.Action("FeePayment", "Admission")"><i class="fas fa-money-bill-wave"></i> Fee Payment</a></li>
+                    <li><a href="@Url.Action("Final", "Admission")"><i class="fas fa-check-circle"></i> Admission (Final)</a></li>
+                </ul>
+            </li>
 
-        <!-- ============================================================ -->
-        <!-- ADMISSION -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "Admission" ? "active" : "")" data-target="subAdmission">
-                <i class="fas fa-user-graduate"></i>
-                Admission
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "Admission" ? "open" : "")" id="subAdmission">
-                <li>
-                    <a href="@Url.Action("AdmissionSetup", "Admission")">
-                        <i class="fas fa-gear"></i> Admission Setup
-                    </a>
-                </li>
+            <!-- ============================================================ -->
+            <!-- STUDENT MASTER -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "StudentMaster" ? "active" : "")" data-target="subStudentMaster">
+                    <i class="fas fa-user-graduate"></i>
+                    Student Master
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "StudentMaster" ? "open" : "")" id="subStudentMaster">
+                    <li><a href="@Url.Action("StudentRecords", "StudentMaster")"><i class="fas fa-id-card"></i> Student Records</a></li>
+                    <li><a href="@Url.Action("StudentMapping", "StudentMaster")"><i class="fas fa-link"></i> Student Mapping</a></li>
+                    <li><a href="@Url.Action("IdentityGeneration", "StudentMaster")"><i class="fas fa-fingerprint"></i> Identity Generation</a></li>
+                    <li><a href="@Url.Action("AcademicProgress", "StudentMaster")"><i class="fas fa-chart-line"></i> Academic Progress</a></li>
+                    <li><a href="@Url.Action("CertificateManagement", "StudentMaster")"><i class="fas fa-scroll"></i> Certificate Management</a></li>
+                    <li><a href="@Url.Action("Alumni", "StudentMaster")"><i class="fas fa-users"></i> Alumni</a></li>
+                </ul>
+            </li>
 
-                <li>
-                    <a href="@Url.Action("EligibilityCheck", "Admission")">
-                        <i class="fas fa-user-check"></i> Eligibility Check
-                    </a>
-                </li>
+            <!-- ============================================================ -->
+            <!-- REPORTS -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Reports" ? "active" : "")" data-target="subReports">
+                    <i class="fas fa-chart-pie"></i>
+                    Reports
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Reports" ? "open" : "")" id="subReports">
+                    <li><a href="@Url.Action("AdmissionReports", "Reports")"><i class="fas fa-print"></i> Admission Reports</a></li>
+                    <li><a href="@Url.Action("SeatAllotmentReport", "Reports")"><i class="fas fa-print"></i> Seat Allotment Report</a></li>
+                    <li><a href="@Url.Action("StudentMasterReport", "Reports")"><i class="fas fa-print"></i> Student Master Report</a></li>
+                    <li><a href="@Url.Action("AcademicReports", "Reports")"><i class="fas fa-print"></i> Academic Reports</a></li>
+                </ul>
+            </li>
 
+            <!-- ============================================================ -->
+            <!-- REGISTRAR -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Registrar" ? "active" : "")" data-target="subRegistrar">
+                    <i class="fas fa-user-graduate"></i>
+                    Registrar
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Registrar" ? "open" : "")" id="subRegistrar">
+                    <li><a href="@Url.Action("RegistrarStudentList", "Registrar")"><i class="fas fa-list"></i> Student List</a></li>
+                    <li><a href="@Url.Action("RegistrarList", "Registrar")"><i class="fas fa-list"></i> Registrar List</a></li>
+                    <li><a href="@Url.Action("AllStudents", "Registrar")"><i class="fas fa-list"></i> AllStudents</a></li>
+                </ul>
+            </li>
 
-                <li>
-                    <a href="/Admission/PersonalInformation?studentId"
-                       class="parent new-admission-link @(activeMenu == "Admission" ? "active" : "")">
-                        <i class="fas fa-file-signature"></i>
-                        <span>Student Registration</span>
-                    </a>
-                </li>
+            <!-- ============================================================ -->
+            <!-- MASTER MAPPING -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "MasterMapping" ? "active" : "")" data-target="subMasterMapping">
+                    <i class="fas fa-project-diagram"></i>
+                    Master Mapping
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "MasterMapping" ? "open" : "")" id="subMasterMapping">
+                    <li><a href="@Url.Action("CourseBranchMappingSemeter", "MasterMapping")"><i class="fas fa-link"></i> CourseBrenchSemester Mapping</a></li>
+                </ul>
+            </li>
 
-                <li>
-                    <a href="@Url.Action("Application", "Admission")">
-                        <i class="fas fa-file-lines"></i> Application Management
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("DocumentVerification", "Admission")">
-                        <i class="fas fa-check-double"></i> Document Verification
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("Counselling", "Admission")">
-                        <i class="fas fa-handshake"></i> Counselling
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("FeePayment", "Admission")">
-                        <i class="fas fa-money-bill-wave"></i> Fee Payment
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("Final", "Admission")">
-                        <i class="fas fa-check-circle"></i> Admission (Final)
-                    </a>
-                </li>
-            </ul>
-        </li>
-        @*<li>
-            <a href="/NewAdmission/PersonalInformation?studentId"
-               class="parent new-admission-link @(activeMenu == "NewAdmission" ? "active" : "")">
-                <i class="fas fa-file-signature"></i>
-                <span>New Admission</span>
-            </a>
-        </li>*@
-        <!-- ============================================================ -->
-        <!-- STUDENT MASTER -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "StudentMaster" ? "active" : "")" data-target="subStudentMaster">
-                <i class="fas fa-user-graduate"></i>
-                Student Master
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "StudentMaster" ? "open" : "")" id="subStudentMaster">
-                <li>
-                    <a href="@Url.Action("StudentRecords", "StudentMaster")">
-                        <i class="fas fa-id-card"></i> Student Records
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("StudentMapping", "StudentMaster")">
-                        <i class="fas fa-link"></i> Student Mapping
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("IdentityGeneration", "StudentMaster")">
-                        <i class="fas fa-fingerprint"></i> Identity Generation
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("AcademicProgress", "StudentMaster")">
-                        <i class="fas fa-chart-line"></i> Academic Progress
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("CertificateManagement", "StudentMaster")">
-                        <i class="fas fa-scroll"></i> Certificate Management
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("Alumni", "StudentMaster")">
-                        <i class="fas fa-users"></i> Alumni
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        <!-- ============================================================ -->
-        <!-- REPORTS -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "Reports" ? "active" : "")" data-target="subReports">
-                <i class="fas fa-chart-pie"></i>
-                Reports
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "Reports" ? "open" : "")" id="subReports">
-                <li>
-                    <a href="@Url.Action("AdmissionReports", "Reports")">
-                        <i class="fas fa-print"></i> Admission Reports
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SeatAllotmentReport", "Reports")">
-                        <i class="fas fa-print"></i> Seat Allotment Report
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("StudentMasterReport", "Reports")">
-                        <i class="fas fa-print"></i> Student Master Report
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("AcademicReports", "Reports")">
-                        <i class="fas fa-print"></i> Academic Reports
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <!-- ============================================================ -->
-        <!-- REGISTRAR (Main Menu) -->
-        <!-- ============================================================ -->
-        <li>
-            <div class="parent @(activeMenu == "Registrar" ? "active" : "")" data-target="subRegistrar">
-                <i class="fas fa-user-graduate"></i>
-                Registrar
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-
-            <ul class="submenu @(activeMenu == "Registrar" ? "open" : "")" id="subRegistrar">
-
-                <li>
-                    <a href="@Url.Action("RegistrarStudentList", "Registrar")"
-                       class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
-                        <i class="fas fa-list"></i> Student List
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("RegistrarList", "Registrar")"
-                       class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
-                        <i class="fas fa-list"></i> Registrar List
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("AllStudents", "Registrar")"
-                       class="@(activeSubMenu == "RegistrarStudentList" ? "active-link" : "")">
-                        <i class="fas fa-list"></i> AllStudents
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-
-        <!-- ============================================================ -->
-        <!-- MASTER MAPPING -->
-        <!-- ============================================================ -->
-
-        <li>
-            <div class="parent @(activeMenu == "MasterMapping" ? "active" : "")"
-                 data-target="subMasterMapping">
-
-                <i class="fas fa-project-diagram"></i>
-                Master Mapping
-
-                <span class="arrow">
-                    <i class="fas fa-chevron-down"></i>
-                </span>
-            </div>
-
-            <ul class="submenu @(activeMenu == "MasterMapping" ? "open" : "")"
-                id="subMasterMapping">
-
-                <li>
-                    <a href="@Url.Action("CourseBranchMappingSemeter", "MasterMapping")">
-                        <i class="fas fa-link"></i>
-                        CourseBrenchSemester Mapping
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-        <!-- ============================================================ -->
-        <!-- MASTERS -->
-        <!-- ============================================================ -->
-
-        <li>
-            <div class="parent @(activeMenu == "Masters" ? "active" : "")" data-target="subMasters">
-                <i class="fas fa-database"></i>
-                Masters
-                <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <ul class="submenu @(activeMenu == "Masters" ? "open" : "")" id="subMasters">
-
-                <li>
-                    <a href="@Url.Action("FacultyMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Academic Faculty Master
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="AcademicSession">
-                        <i class="fas fa-calendar-alt"></i> Academic Session
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="AdmissionMode">
-                        <i class="fas fa-user-plus"></i> Admission Mode
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("AdmissionModeMaster", "Master")"
-                       asp-controller="Master" asp-action=" AdmissionModeMaster">
-                        <i class="fas fa-flag"></i>  AdmissionMode Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("BranchMaster", "Master")">
-                        <i class="fas fa-tint"></i> Branch Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("CampusCategoryMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Campus Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("CategoryMaster", "Master")"
-                       asp-controller="Master" asp-action="Category">
-                        <i class="fas fa-tag"></i> Category Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("CounsellingTypeMaster", "Master")"
-                       asp-controller="Master" asp-action="CounsellingTypeMaster">
-                        <i class="fas fa-school"></i> CounsellingType Master
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="CourseCodeDegree">
-                        <i class="fas fa-graduation-cap"></i> Course Code / Degree
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("CourseMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Course Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("DepartmentMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Department Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("DesignationMaster", "Master")"
-                       asp-controller="Master" asp-action="Designation">
-                        <i class="fas fa-user-tie"></i> Designation Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("DocumentEnclosureMaster", "Master")"
-                       asp-controller="Master" asp-action="DocumentEnclosureMaster">
-                        <i class="fas fa-coins"></i>DocumentEnclosure Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("DurationMaster", "Master")">
-                        <i class="fas fa-file-alt"></i> Duration Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("EmployeeMaster", "Master")">
-                        <i class="fas fa-pray"></i> Employee Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("FeeheadMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Feehead Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("NoticeMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> NoticeMaster
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="ParentSession">
-                        <i class="fas fa-calendar-week"></i> Parent Session
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("ProgramMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Program Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SemesterMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i>  Semester Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SessionTypeMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Session Type
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SubjectMaster", "Master")"
-                       asp-controller="Master" asp-action="Campus">
-                        <i class="fas fa-university"></i> Subject Master
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("SubjectCategoryMaster", "Master")">
-                        <i class="fas fa-ring"></i>SubjectCategory Master
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Master" asp-action="SystemSettings">
-                        <i class="fas fa-cog"></i> System Settings
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("UniversityType", "Master")"
-                       asp-controller="Master" asp-action="UniversityType">
-                        <i class="fas fa-layer-group"></i> University Type
-                    </a>
-                </li>
-
-                @*<li>
-                    <a href="@Url.Action("CountryStateCityMaster", "Master")"
-                       asp-controller="Master" asp-action="Location">
-                        <i class="fas fa-building"></i> Country / State / City
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("FeeheadMaster", "Master")"
-                       asp-controller="Master" asp-action="FeeHeads">
-                        <i class="fas fa-coins"></i> Fee Heads
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("DiscountScholarshipMaster", "Master")"
-                       asp-controller="Master" asp-action="Discount">
-                        <i class="fas fa-percent"></i> Discount / Scholarship
-                    </a>
-                </li>*@
-                @*<li>
-                    <a href="@Url.Action("BranchMaster", "Master")"
-                       asp-controller="Master" asp-action="Discount">
-                        <i class="fas fa-percent"></i> Discount / Scholarship
-                    </a>
-                </li>*@
-            </ul>
-        </li>
+            <!-- ============================================================ -->
+            <!-- MASTERS -->
+            <!-- ============================================================ -->
+            <li>
+                <div class="parent @(activeMenu == "Masters" ? "active" : "")" data-target="subMasters">
+                    <i class="fas fa-database"></i>
+                    Masters
+                    <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <ul class="submenu @(activeMenu == "Masters" ? "open" : "")" id="subMasters">
+                    <li><a href="@Url.Action("FacultyMaster", "Master")"><i class="fas fa-university"></i> Academic Faculty Master</a></li>
+                    <li><a href="@Url.Action("AcademicSession", "Master")"><i class="fas fa-calendar-alt"></i> Academic Session</a></li>
+                    <li><a href="@Url.Action("AdmissionMode", "Master")"><i class="fas fa-user-plus"></i> Admission Mode</a></li>
+                    <li><a href="@Url.Action("AdmissionModeMaster", "Master")"><i class="fas fa-flag"></i> AdmissionMode Master</a></li>
+                    <li><a href="@Url.Action("BranchMaster", "Master")"><i class="fas fa-tint"></i> Branch Master</a></li>
+                    <li><a href="@Url.Action("CampusCategoryMaster", "Master")"><i class="fas fa-university"></i> Campus Master</a></li>
+                    <li><a href="@Url.Action("CategoryMaster", "Master")"><i class="fas fa-tag"></i> Category Master</a></li>
+                    <li><a href="@Url.Action("CounsellingTypeMaster", "Master")"><i class="fas fa-school"></i> CounsellingType Master</a></li>
+                    <li><a href="@Url.Action("CourseCodeDegree", "Master")"><i class="fas fa-graduation-cap"></i> Course Code / Degree</a></li>
+                    <li><a href="@Url.Action("CourseMaster", "Master")"><i class="fas fa-university"></i> Course Master</a></li>
+                    <li><a href="@Url.Action("DepartmentMaster", "Master")"><i class="fas fa-university"></i> Department Master</a></li>
+                    <li><a href="@Url.Action("DesignationMaster", "Master")"><i class="fas fa-user-tie"></i> Designation Master</a></li>
+                    <li><a href="@Url.Action("DocumentEnclosureMaster", "Master")"><i class="fas fa-coins"></i> DocumentEnclosure Master</a></li>
+                    <li><a href="@Url.Action("DurationMaster", "Master")"><i class="fas fa-file-alt"></i> Duration Master</a></li>
+                    <li><a href="@Url.Action("EmployeeMaster", "Master")"><i class="fas fa-pray"></i> Employee Master</a></li>
+                    <li><a href="@Url.Action("FeeheadMaster", "Master")"><i class="fas fa-university"></i> Feehead Master</a></li>
+                    <li><a href="@Url.Action("NoticeMaster", "Master")"><i class="fas fa-university"></i> NoticeMaster</a></li>
+                    <li><a href="@Url.Action("ParentSession", "Master")"><i class="fas fa-calendar-week"></i> Parent Session</a></li>
+                    <li><a href="@Url.Action("ProgramMaster", "Master")"><i class="fas fa-university"></i> Program Master</a></li>
+                    <li><a href="@Url.Action("SemesterMaster", "Master")"><i class="fas fa-university"></i> Semester Master</a></li>
+                    <li><a href="@Url.Action("SessionTypeMaster", "Master")"><i class="fas fa-university"></i> Session Type</a></li>
+                    <li><a href="@Url.Action("SubjectMaster", "Master")"><i class="fas fa-university"></i> Subject Master</a></li>
+                    <li><a href="@Url.Action("SubjectCategoryMaster", "Master")"><i class="fas fa-ring"></i> SubjectCategory Master</a></li>
+                    <li><a href="@Url.Action("SystemSettings", "Master")"><i class="fas fa-cog"></i> System Settings</a></li>
+                    <li><a href="@Url.Action("UniversityType", "Master")"><i class="fas fa-layer-group"></i> University Type</a></li>
+                </ul>
+            </li>
+        }
 
     </ul>
     <hr class="menu-divider" />
 
-    <!-- Sidebar Footer -->
     <div class="sidebar-footer">
         <span class="status-dot online"></span>
         <span>System Online</span>
@@ -606,63 +245,36 @@
     </div>
 </aside>
 
-<!-- Sidebar Overlay (for mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <script>
     (function () {
         'use strict';
-
-        // ----- DOM References -----
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
 
-        // ----- Toggle Submenu -----
         document.querySelectorAll('.parent[data-target]').forEach(function (parent) {
             parent.addEventListener('click', function (e) {
                 e.stopPropagation();
-
                 const targetId = this.getAttribute('data-target');
                 const submenu = document.getElementById(targetId);
                 if (!submenu) return;
-
-                // Toggle open class
                 submenu.classList.toggle('open');
-
-                // Rotate arrow
                 const arrow = this.querySelector('.arrow i');
-                if (arrow) {
-                    arrow.style.transform = submenu.classList.contains('open')
-                        ? 'rotate(180deg)'
-                        : 'rotate(0deg)';
-                }
-
-                // Update active state
-                document.querySelectorAll('.parent').forEach(function (p) {
-                    p.classList.remove('active');
-                });
+                if (arrow) arrow.style.transform = submenu.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                document.querySelectorAll('.parent').forEach(function (p) { p.classList.remove('active'); });
                 this.classList.add('active');
             });
         });
 
-        // ----- Submenu Link Click -----
         document.querySelectorAll('.submenu li a').forEach(function (link) {
             link.addEventListener('click', function (e) {
-                // Remove active from all submenu links
-                document.querySelectorAll('.submenu li a').forEach(function (l) {
-                    l.classList.remove('active-link');
-                });
+                document.querySelectorAll('.submenu li a').forEach(function (l) { l.classList.remove('active-link'); });
                 this.classList.add('active-link');
-
-                // Highlight parent
                 const parentLi = this.closest('li')?.parentElement?.previousElementSibling;
                 if (parentLi && parentLi.classList.contains('parent')) {
-                    document.querySelectorAll('.parent').forEach(function (p) {
-                        p.classList.remove('active');
-                    });
+                    document.querySelectorAll('.parent').forEach(function (p) { p.classList.remove('active'); });
                     parentLi.classList.add('active');
-
-                    // Ensure submenu is open
                     const targetId = parentLi.getAttribute('data-target');
                     if (targetId) {
                         const sub = document.getElementById(targetId);
@@ -673,75 +285,38 @@
                         }
                     }
                 }
-
-                // Close mobile sidebar after navigation
-                if (window.innerWidth <= 992) {
-                    closeSidebar();
-                }
+                if (window.innerWidth <= 992) closeSidebar();
             });
         });
 
-        // ----- Parent click (non-dropdown) -----
         document.querySelectorAll('.parent:not([data-target])').forEach(function (parent) {
             parent.addEventListener('click', function () {
-                document.querySelectorAll('.parent').forEach(function (p) {
-                    p.classList.remove('active');
-                });
+                document.querySelectorAll('.parent').forEach(function (p) { p.classList.remove('active'); });
                 this.classList.add('active');
-
-                // Close mobile sidebar
-                if (window.innerWidth <= 992) {
-                    closeSidebar();
-                }
+                if (window.innerWidth <= 992) closeSidebar();
             });
         });
 
-        // ----- Open/Close Sidebar (Mobile) -----
-        function openSidebar() {
-            sidebar.classList.add('open');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+        function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
 
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // Expose for navbar hamburger
         window.toggleSidebar = function () {
-            if (sidebar.classList.contains('open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
+            if (sidebar.classList.contains('open')) closeSidebar(); else openSidebar();
         };
 
-        // Close on overlay click
-        if (overlay) {
-            overlay.addEventListener('click', closeSidebar);
-        }
-
-        // Close on Escape key
+        if (overlay) overlay.addEventListener('click', closeSidebar);
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-                closeSidebar();
-            }
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
         });
 
-        // Handle window resize
         let resizeTimer;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function () {
-                if (window.innerWidth > 992 && sidebar.classList.contains('open')) {
-                    closeSidebar();
-                }
+                if (window.innerWidth > 992 && sidebar.classList.contains('open')) closeSidebar();
             }, 250);
         });
 
-        // ----- Initialize: Open submenu if active -----
         document.querySelectorAll('.submenu.open').forEach(function (sub) {
             const parent = sub.parentElement?.querySelector('.parent');
             if (parent) {
@@ -750,7 +325,6 @@
             }
         });
 
-        // ----- Set active parent for active submenu links -----
         document.querySelectorAll('.submenu li a.active-link').forEach(function (link) {
             const parentLi = link.closest('li')?.parentElement?.previousElementSibling;
             if (parentLi && parentLi.classList.contains('parent')) {
@@ -766,6 +340,5 @@
                 }
             }
         });
-
     })();
 </script>

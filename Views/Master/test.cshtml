@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewBag.Title = "test";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<html>
+<head>
+    <style>
+        #emailerror, #nameerror {
+            color: red;
+        }
+
+        #pwderror {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <form id="stddetails">
+        Name  <input type="text" id="name" />
+        <span id="nameerror"></span><br />
+        Email   <input type="text" id="email" />
+        <span id="emailerror"></span><br />
+        mobile  <input type="mobile" id="pwd" /><br />
+        <span id="pwderror"></span><br />
+        <button type="submit" id="submit">save</button>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</body>
+</html>
+<script>
+    $("#stddetails").submit(function (e) {
+        e.preventDefault();
+
+        // name
+        let name = $("#name").val().trim();
+        if (name === "") {
+            $("#nameerror").text("name is required")
+        }
+
+
+        //email
+        let email = $("#email").val().trim();
+        let pattern = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+
+        if (email === "") {
+            $("#emailerror").text("email is reqiured");
+        }
+        else if (!pattern.test(email)) {
+            $("#emailerror").text("enter a vaid email address");
+        }
+        else {
+            $("#emailerror").text("");
+        }
+
+
+        //pwd
+        let pwd = $("#pwd").val().trim();
+        let pwdpattern = /^[6-9][0-9]{9}$/    //  for character(/[^0-9]/g,"")
+
+        if (pwd === "") {
+            $("#pwderror").text(" number is required");
+        }
+        else if (!pwderror.test(pwd)) {
+            $("#pwderror").text("enter a 10 digit mobile number");
+        }
+
+
+    });
+</script>
